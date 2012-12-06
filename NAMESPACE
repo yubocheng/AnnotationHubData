@@ -1,0 +1,7 @@
+exportClasses(AnnotationHubMetadata, AnnotationHubRecipe)
+export(AnnotationHubMetadata, AnnotationHubRecipe)
+exportMethods(
+    show,
+    dcfFile,
+    metadataTitle
+    )

@@ -1,0 +1,14 @@
+Package: AnnotationHubData
+Type: Package
+Title: Transform public data resources into Bioconductor Data Structures
+Version: 0.99.0
+Date: 2012-11-30
+Author: Paul Shannon<pshannon@fhcrc.org>
+Maintainer: Paul Shannon<pshannon@fhcrc.org>
+Depends: R (>= 2.15.0), methods, IRanges
+Suggests: RUnit
+Imports: BiocGenerics
+Description: These recipes convert a wide variety and a growing number of public bioinformatic data sets into easily-used standard Bioconductor data structures.
+License: Artistic-2.0
+LazyLoad: yes
+biocViews: DataImport
