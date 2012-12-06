@@ -1,3 +1,0 @@
-(fset 'rel
-   "q('no')\C-m\C-[xR\C-m\C-msource('test_AnnotationHubRecipe.R');\C-mrunTests();\C-m")
-
