@@ -121,11 +121,6 @@ as.json <- function(annotationHubMetadata)
         {
             if (name != "AnnotationHubRoot")
             {
-                print(name)
-                print("h")
-                # FIXME
-                # this throws warning
-                # number of items to replace is not a multiple of replacement length
                 l[[name]] <- item
             }
         }
@@ -140,7 +135,6 @@ setValidity("AnnotationHubMetadata", function(object)
     on.exit(setwd(oldwd))
     setwd(object@AnnotationHubRoot)
 
-    print(paste("Url is", object@Url))
     if (!exists("speciesMap")) data(speciesMap)
     rc <- new("MsgClass", name=character(0))
 
