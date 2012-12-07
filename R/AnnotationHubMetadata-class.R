@@ -8,6 +8,7 @@ setRefClass("MsgClass",
 
 setClass("AnnotationHubMetadata",
     representation(
+       AnnotationHubRoot="character",
        Title="character",
        Species="character",
        TaxonomyId="character",
@@ -24,8 +25,8 @@ setClass("AnnotationHubMetadata",
        SourceVersion="character",
        SourceSize="integer",
        DerivedSize="integer",
-       SourceLastModifiedDate="POSIXct",
-       DerivedLastModifiedDate="POSIXct",
+       SourceLastModifiedDate="character",
+       DerivedLastModifiedDate="character",
        Coordinate_1_based="logical",
        Maintainer="character",
        DataProvider="character",
@@ -35,60 +36,97 @@ setClass("AnnotationHubMetadata",
 )
 
 
-AnnotationHubMetadata <- function(localFile, Url, Title,
-    Description,
-    Species, Genome, Recipe, Tags, ResourceClass,
-    Version, SourceVersion, Coordinate_1_based, Maintainer,
-    DataProvider,
-    Notes="no notes!")
+.getModificationTime <- function(files)
 {
-    if(missing(localFile)) stop("localFile is required.")
-
-    # UNCOMMENT ME if (!exists("speciesMap")) data(speciesMap)
-    x <- new("AnnotationHubMetadata")
-    f <- formals()
-    print(f)
-    m <- match.call()
-    print(m)
-    for (i in names(f))
+    ret <- character()
+    for (file in files)
     {
-        if (i != "localFile")
-        {
-            print(sprintf("i == %s, m[[i]] == %s", i, m[[i]]))
-            if (length(m[[i]]))
-                slot(x, i) <- m[[i]]
-            else if (length(f[[i]]))
-                slot(x, i) <- f[[i]]
-
-        }
+        ret <- c(ret, 
+            strsplit(as.character(file.info(file)$mtime), " "))[[1]][1]
     }
-    print(x)
-    # is there a DRYer way to do all this:
-    x@BiocVersion <- as.character(biocVersion())
-    x@SourceLastModifiedDate <- as.POSIXct("1/1/1970")
-    #     strsplit(as.character(file.info(rdata)$mtime), " ")[[1]][1]
-    x@DerivedLastModifiedDate <- as.POSIXct("1/1/1970")
-
-
-#    if(is.na(dcfFile)) {
-#        x@dcfFile = NA_character_
-#        return(x)
-#    }
-#    x@dcfFile <- dcfFile
-#    dv <- read.dcf(dcfFile)[1,]
-#    x@title <- dv[['Title']]
-#    x@dataFile <- dv[['File']]
-#
-    validObject(x)
-    x
+    ret
 }
 
 
 
+
+AnnotationHubMetadata <- function(AnnotationHubRoot, ResourcePath, Url, Title,
+    Description,
+    Species, Genome, Recipe, Tags, ResourceClass,
+    Version, SourceVersion, Coordinate_1_based, Maintainer,
+    DataProvider,
+    Notes=NULL)
+{
+    ## fixme do better than this
+    oldwd <- getwd()
+    on.exit(setwd(oldwd))
+    setwd(AnnotationHubRoot)
+
+    if (!exists("speciesMap")) data(speciesMap)
+    x <- new("AnnotationHubMetadata")
+    f <- formals()
+    m <- match.call()
+    for (i in names(f))
+    {
+        if (length(m[[i]]))
+            slot(x, i) <- m[[i]]
+        else if (length(f[[i]]))
+            slot(x, i) <- f[[i]]
+
+    }
+    x@BiocVersion <- as.character(biocVersion())
+    x@SourceLastModifiedDate <- "1970-1-1"
+    x@DerivedLastModifiedDate <- "1970-1-1"
+    x@TaxonomyId <-
+        as.character(with(speciesMap, taxon[species == Species]))
+    x@Md5 <- unname(tools::md5sum(ResourcePath))
+    x@SourceLastModifiedDate <-
+        unlist(lapply(ResourcePath, .getModificationTime))
+    x@SourceSize <- as.integer(file.info(ResourcePath)$size)
+    validObject(x)
+    jsonDir <- dirname(ResourcePath[1])
+    jsonFile <- basename(ResourcePath[1])
+    jsonFile <- sub(".gz", "", jsonFile, fixed=TRUE)
+    jsonFile <- "metadata.json" # bad idea?
+
+    json <- as.json(x)
+    fullJsonFile <- file.path(AnnotationHubRoot, jsonDir, jsonFile)
+    cat(json, file=file.path(AnnotationHubRoot, jsonDir, jsonFile))
+
+    x
+}
+
+as.json <- function(annotationHubMetadata)
+{
+    l <- list()
+    for (name in slotNames(annotationHubMetadata))
+    {
+        item <- slot(annotationHubMetadata, name)
+        if (length(item))
+        {
+            if (name != "AnnotationHubRoot")
+            {
+                print(name)
+                print("h")
+                # FIXME
+                # this throws warning
+                # number of items to replace is not a multiple of replacement length
+                l[[name]] <- item
+            }
+        }
+    }
+    toJSON(l)
+}
+
 setValidity("AnnotationHubMetadata", function(object)
 {
+    ## fixme do better than this
+    oldwd <- getwd()
+    on.exit(setwd(oldwd))
+    setwd(object@AnnotationHubRoot)
+
     print(paste("Url is", object@Url))
-    # UNCOMMENT ME AT SOME POINT if (!exists("speciesMap")) data(speciesMap)
+    if (!exists("speciesMap")) data(speciesMap)
     rc <- new("MsgClass", name=character(0))
 
     e <- function(m) {
@@ -96,7 +134,7 @@ setValidity("AnnotationHubMetadata", function(object)
     }
 
 
-    requiredFields <- c("Url", "Title",
+    requiredFields <- c("AnnotationHubRoot", "ResourcePath", "Url", "Title",
         "Species", "Genome", "Recipe", "Tags", "ResourceClass",
         "Version", "SourceVersion",
         "Coordinate_1_based", "Maintainer", "DataProvider")
@@ -124,6 +162,9 @@ setValidity("AnnotationHubMetadata", function(object)
         e("Maintainer must contain an email address")
 
     
+    # Make sure dates are valid
+
+
     if (length(rc$name) == 0) TRUE else rc$name
 })
 

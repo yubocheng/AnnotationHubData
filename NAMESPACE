@@ -8,4 +8,4 @@ exportMethods(
 
 import(RJSONIO)
 importFrom(BiocInstaller, biocVersion)
-importFrom(httr, HEAD)
+#importFrom(httr, HEAD)

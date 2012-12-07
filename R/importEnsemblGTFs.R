@@ -1,11 +1,14 @@
+#library(AnnotationHubData)
 
-
-importEnsemblGTFs <- function(gtfdir)
+importEnsemblGTFs <- function(ahroot)
 {
-    gtf <- dir(gtfdir, pattern=".*gtf.gz", recursive=TRUE, full=TRUE)
-    oldwd <- getwd()
-    on.exit(setwd(oldwd))
-    setwd(gtfdir)
+    ahroot <- normalizePath(ahroot)
+    gtf <- dir(ahroot, pattern=".*gtf.gz", recursive=TRUE, full=TRUE)
+    #oldwd <- getwd()
+    #on.exit(setwd(oldwd))
+    #setwd(ahroot)
+    gtf <- sub(ahroot, "", gtf)
+    gtf <- sub(sprintf("^%s", .Platform$file.sep), "", gtf)
     rda <- sub(".gz$", ".RData", gtf)
     map <- setNames(rda, gtf)
 
@@ -14,17 +17,18 @@ importEnsemblGTFs <- function(gtfdir)
 
     for (i in 1:length(gtfs))
     {
-        importOneGTF(gtfs[i], rdatas[i])
+        importOneGTF(ahroot, gtfs[i], rdatas[i])
     }
 
 }
 
 
-importOneGTF <- function(gtf, rdata)
+importOneGTF <- function(ahroot, gtf, rdata)
 {
     print(gtf)
     params <- list()
-    params$localFile <- gtf
+    params$AnnotationHubRoot <- ahroot
+    params$ResourcePath <- gtf
     params$Species <- strsplit(basename(gtf), ".", fixed=TRUE)[[1]][1]
     params$Species <- gsub("_", " ", params$Species, fixed=TRUE)
     params$Genome <- strsplit(basename(gtf), ".", fixed=TRUE)[[1]][2]
