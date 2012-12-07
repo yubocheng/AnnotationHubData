@@ -1,7 +1,11 @@
 exportClasses(AnnotationHubMetadata, AnnotationHubRecipe)
 export(AnnotationHubMetadata, AnnotationHubRecipe)
 exportMethods(
-    show,
-    dcfFile,
-    metadataTitle
+#    show,
+#    dcfFile,
+#    metadataTitle
     )
+
+import(RJSONIO)
+importFrom(BiocInstaller, biocVersion)
+importFrom(httr, HEAD)
