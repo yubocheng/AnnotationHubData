@@ -14,6 +14,7 @@ setClass("AnnotationHubMetadata",
        TaxonomyId="character",
        Genome="character",
        Recipe="character",
+       RecipeArgs="list",
        Url="character",
        ResourcePath="character",
        Md5="character",
@@ -67,7 +68,7 @@ constructAnnotationHubMetadataFromJSON <- function(ahroot, resourceDir)
 
 AnnotationHubMetadata <- function(AnnotationHubRoot, ResourcePath, Url, Title,
     Description,
-    Species, Genome, Recipe, Tags, ResourceClass,
+    Species, Genome, Recipe, RecipeArgs=list(), Tags, ResourceClass,
     Version, SourceVersion, Coordinate_1_based, Maintainer,
     DataProvider,
     Notes=NULL)
