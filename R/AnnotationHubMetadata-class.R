@@ -48,6 +48,21 @@ setClass("AnnotationHubMetadata",
 }
 
 
+constructAnnotationHubMetadataFromJSON <- function(ahroot, resourceDir)
+{
+    x <- new("AnnotationHubMetadata")
+    dir <- file.path(ahroot, resourceDir)
+    x@AnnotationHubRoot <- ahroot
+    l <- fromJSON(file.path(dir, "metadata.json"))
+    for (name in names(l))
+    {
+        type <- getSlots("AnnotationHubMetadata")[[name]]
+        if (type == "integer")
+            l[[name]] <- as.integer(l[[name]])
+        slot(x, name) <- l[[name]]
+    }
+    x
+}
 
 
 AnnotationHubMetadata <- function(AnnotationHubRoot, ResourcePath, Url, Title,

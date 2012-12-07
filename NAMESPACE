@@ -5,7 +5,7 @@ exportMethods(
 #    dcfFile,
 #    metadataTitle
     )
-
+export(constructAnnotationHubMetadataFromJSON)
 import(RJSONIO)
 importFrom(BiocInstaller, biocVersion)
 #importFrom(httr, HEAD)
