@@ -8,7 +8,7 @@ import_wgEncodeRegDnaseClustered <- function(ahroot)
     rp <- "goldenpath/hg19/encodeDCC/wgEncodeRegDnaseClustered"
     files <- file.path(rp, c("wgEncodeRegDnaseClustered.bed.gz",
         "wgEncodeRegDnaseClusteredInputs.tab"))
-    params$ResourcePath <- files
+    params$OriginalFile <- files
 
     #c("goldenpath/hg19/encodeDCC/wgEncodeRegDnaseClustered/wgEncodeRegDnaseClusteredInputs.tab",
     #    "goldenpath/hg19/encodeDCC/wgEncodeRegDnaseClustered/wgEncodeRegDnaseClusteredInputs.tab")

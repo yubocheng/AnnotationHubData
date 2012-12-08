@@ -16,6 +16,7 @@ setClass("AnnotationHubMetadata",
        Recipe="character",
        RecipeArgs="list",
        Url="character",
+       OriginalFile="character",
        ResourcePath="character",
        Md5="character",
        Derived.md5="character",
@@ -74,7 +75,7 @@ postProcessMetadata <- function(ahroot, resourceDir)
 }
 
 
-AnnotationHubMetadata <- function(AnnotationHubRoot, ResourcePath, Url, Title,
+AnnotationHubMetadata <- function(AnnotationHubRoot, OriginalFile, Url, Title,
     Description,
     Species, Genome, Recipe, RecipeArgs=list(), Tags, ResourceClass,
     Version, SourceVersion, Coordinate_1_based, Maintainer,
@@ -106,13 +107,21 @@ AnnotationHubMetadata <- function(AnnotationHubRoot, ResourcePath, Url, Title,
     x@DerivedLastModifiedDate <- "1970-1-1"
     x@TaxonomyId <-
         as.character(with(speciesMap, taxon[species == Species]))
-    x@Md5 <- unname(tools::md5sum(ResourcePath))
+    x@Md5 <- unname(tools::md5sum(OriginalFile))
     x@SourceLastModifiedDate <-
-        unlist(lapply(ResourcePath, .getModificationTime))
-    x@SourceSize <- as.integer(file.info(ResourcePath)$size)
+        unlist(lapply(OriginalFile, .getModificationTime))
+    x@SourceSize <- as.integer(file.info(OriginalFile)$size)
     validObject(x)
-    jsonDir <- dirname(ResourcePath[1])
-    jsonFile <- basename(ResourcePath[1])
+    jsonDir <- dirname(OriginalFile[1])
+
+    resourceFile <- sub(".gz", "", basename(OriginalFile))
+    resourceFile <- paste(resourceFile, collapse="-")
+    resourceFile <- sprintf("%s.RData", resourceFile)
+
+    resourcePath <- file.path(jsonDir, resourceFile)
+    x@ResourcePath <- resourcePath
+
+    jsonFile <- basename(OriginalFile[1])
     jsonFile <- sub(".gz", "", jsonFile, fixed=TRUE)
     jsonFile <- "metadata.json" # bad idea?
 
@@ -155,7 +164,7 @@ setValidity("AnnotationHubMetadata", function(object)
     }
 
 
-    requiredFields <- c("AnnotationHubRoot", "ResourcePath", "Url", "Title",
+    requiredFields <- c("AnnotationHubRoot", "OriginalFile", "Url", "Title",
         "Species", "Genome", "Recipe", "Tags", "ResourceClass",
         "Version", "SourceVersion",
         "Coordinate_1_based", "Maintainer", "DataProvider")

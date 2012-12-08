@@ -28,7 +28,7 @@ importOneGTF <- function(ahroot, gtf, rdata)
     print(gtf)
     params <- list()
     params$AnnotationHubRoot <- ahroot
-    params$ResourcePath <- gtf
+    params$OriginalFile <- gtf
     params$Species <- strsplit(basename(gtf), ".", fixed=TRUE)[[1]][1]
     params$Species <- gsub("_", " ", params$Species, fixed=TRUE)
     params$Genome <- strsplit(basename(gtf), ".", fixed=TRUE)[[1]][2]
@@ -37,7 +37,7 @@ importOneGTF <- function(ahroot, gtf, rdata)
     params$Description <- sprintf("Gene Annotation for %s",
         params$Species)
     params$Url <- sprintf("ftp://%s", gtf)
-    #ResourcePath <- rdata
+    #OriginalFile <- rdata
     params$ResourceClass <- "GRanges"
     #objName <- load(rdata)
     #gr <- get(objName)
