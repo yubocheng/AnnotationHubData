@@ -65,6 +65,14 @@ constructAnnotationHubMetadataFromJSON <- function(ahroot, resourceDir)
     x
 }
 
+postProcessMetadata <- function(ahroot, resourceDir)
+{
+    x <- constructAnnotationHubMetadataFromJSON(ahroot, resourceDir)
+    dir <- file.path(ahroot, resourceDir)
+    x@AnnotationHubRoot <- ahroot
+    ###
+}
+
 
 AnnotationHubMetadata <- function(AnnotationHubRoot, ResourcePath, Url, Title,
     Description,
@@ -80,14 +88,17 @@ AnnotationHubMetadata <- function(AnnotationHubRoot, ResourcePath, Url, Title,
 
     if (!exists("speciesMap")) data(speciesMap)
     x <- new("AnnotationHubMetadata")
+
     f <- formals()
     m <- match.call()
     for (i in names(f))
     {
         if (length(m[[i]]))
-            slot(x, i) <- m[[i]]
+            item <- m[[i]]
         else if (length(f[[i]]))
-            slot(x, i) <- f[[i]]
+             item <- f[[i]]
+        if (class(item) %in% "call") item <- as.list(item) # rapply?
+        slot(x, i) <- item
 
     }
     x@BiocVersion <- as.character(biocVersion())
