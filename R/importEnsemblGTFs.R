@@ -51,5 +51,7 @@ importOneGTF <- function(ahroot, gtf, rdata)
     params$Coordinate_1_based <- TRUE ## FIXME I really have no idea...
     params$Tags <-
         c("GTF", "ensembl", "Gene", "Transcript", "Annotation")
-    do.call("AnnotationHubMetadata", params)
+    x <- do.call("AnnotationHubMetadata", params)
+    x <- postProcessMetadata(ahroot, x@OriginalFile)
+    x
 }

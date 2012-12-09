@@ -5,7 +5,6 @@ setRefClass("MsgClass",
 )
 
 
-
 setClass("AnnotationHubMetadata",
     representation(
        AnnotationHubRoot="character",
@@ -50,12 +49,17 @@ setClass("AnnotationHubMetadata",
 }
 
 
-constructAnnotationHubMetadataFromJSON <- function(ahroot, resourceDir)
+constructAnnotationHubMetadataFromJSON <- function(ahroot, originalFile)
 {
     x <- new("AnnotationHubMetadata")
-    dir <- file.path(ahroot, resourceDir)
+
+    dir <- dirname(file.path(ahroot, originalFile))
     x@AnnotationHubRoot <- ahroot
-    l <- fromJSON(file.path(dir, "metadata.json"))
+    jsonFile <- .getDerivedFileName(originalFile, "json")
+    jsonFile <- file.path(dir[1], jsonFile)
+    l <- fromJSON(jsonFile)
+
+    #l <- fromJSON(.getJsonFileName(ahroot, originalFile))
     for (name in names(l))
     {
         type <- getSlots("AnnotationHubMetadata")[[name]]
@@ -66,21 +70,48 @@ constructAnnotationHubMetadataFromJSON <- function(ahroot, resourceDir)
     x
 }
 
-postProcessMetadata <- function(ahroot, resourceDir)
+
+.getJsonFileName <- function(ahroot, originalFile)
 {
-    x <- constructAnnotationHubMetadataFromJSON(ahroot, resourceDir)
-    dir <- file.path(ahroot, resourceDir)
-    x@AnnotationHubRoot <- ahroot
-    ###
+    dir <- dirname(file.path(ahroot, originalFile))
+#    b <- basename(originalFile)
+    b <- .getDerivedFileName(originalFile, "json")
+    b <- sub(".gz", "", b)
+    b <- sprintf("%s.json", b)
+    dir(dir, pattern=b, recursive=FALSE, full=TRUE)
 }
 
+
+postProcessMetadata <- function(ahroot, originalFile)
+{
+    x <- constructAnnotationHubMetadataFromJSON(ahroot, originalFile)
+    x@AnnotationHubRoot <- ahroot
+
+    derived <- file.path(ahroot, x@ResourcePath)
+    x@DerivedSize <- as.integer(file.info(derived)$size)
+    x@DerivedLastModifiedDate <- .getModificationTime(derived)
+    json <- as.json(x)
+    resourceDir <- dirname(originalFile[1])
+    outfile <- file.path(ahroot, resourceDir, .getDerivedFileName(originalFile, "json"))
+    cat(json, file=outfile)
+    x
+}
+
+
+.getDerivedFileName <- function(originalFile, suffix)
+{
+    ret <- sub(".gz", "", basename(originalFile))
+    ret <- paste(ret, collapse="-")
+    ret <- sprintf("%s.%s", ret, suffix)
+    ret
+}
 
 AnnotationHubMetadata <- function(AnnotationHubRoot, OriginalFile, Url, Title,
     Description,
     Species, Genome, Recipe, RecipeArgs=list(), Tags, ResourceClass,
     Version, SourceVersion, Coordinate_1_based, Maintainer,
     DataProvider,
-    Notes=NULL)
+    Notes="")
 {
     ## fixme do better than this
     oldwd <- getwd()
@@ -114,19 +145,14 @@ AnnotationHubMetadata <- function(AnnotationHubRoot, OriginalFile, Url, Title,
     validObject(x)
     jsonDir <- dirname(OriginalFile[1])
 
-    resourceFile <- sub(".gz", "", basename(OriginalFile))
-    resourceFile <- paste(resourceFile, collapse="-")
-    resourceFile <- sprintf("%s.RData", resourceFile)
-
+    resourceFile <- .getDerivedFileName(OriginalFile, "RData")
+    jsonFile <- .getDerivedFileName(OriginalFile, "json")
     resourcePath <- file.path(jsonDir, resourceFile)
     x@ResourcePath <- resourcePath
 
-    jsonFile <- basename(OriginalFile[1])
-    jsonFile <- sub(".gz", "", jsonFile, fixed=TRUE)
-    jsonFile <- "metadata.json" # bad idea?
 
     json <- as.json(x)
-    fullJsonFile <- file.path(AnnotationHubRoot, jsonDir, jsonFile)
+
     cat(json, file=file.path(AnnotationHubRoot, jsonDir, jsonFile))
 
     x
@@ -146,6 +172,7 @@ as.json <- function(annotationHubMetadata)
             }
         }
     }
+    l2<- rapply(l, as.list, "call", how="replace")
     toJSON(l)
 }
 
