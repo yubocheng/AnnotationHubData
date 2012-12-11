@@ -1,0 +1,28 @@
+{
+ "Title": "CD20 CAGE defined Transcriptional Start Sites",
+"Species": "Homo sapiens",
+"TaxonomyId": "9606",
+"Genome": "hg19",
+"Recipe": "unknown",
+"RecipeArgs": [
+ null 
+],
+"Url": "http://hgdownload.cse.ucsc.edu/goldenpath/hg19/encodeDCC/wgEncodeRikenCage/wgEncodeRikenCageCd20CellPapTssHmm.bedRnaElements",
+"OriginalFile": "goldenpath/hg19/encodeDCC/wgEncodeRikenCage/wgEncodeRikenCageCd20CellPapTssHmm.bedRnaElements",
+"ResourcePath": "goldenpath/hg19/encodeDCC/wgEncodeRikenCage/wgEncodeRikenCageCd20CellPapTssHmm.bedRnaElements.RData",
+"Md5": "d4f197f8987b1965ec0976d93041b979",
+"Description": "120785  TSS sites predicted by CAGE (Capped Analysis of GeneExpression) in CD20 cells, from Timo Lassmann",
+"Tags": "gene regulation",
+"ResourceClass": "GRanges",
+"Version": "0.0.1",
+"SourceVersion": "unknown",
+"SourceSize": 9759899,
+"DerivedSize": 2494720,
+"SourceLastModifiedDate": "2012-11-26",
+"DerivedLastModifiedDate": "2012-12-08",
+"Coordinate_1_based": true,
+"Maintainer": "Paul Shannon <pshannon@fhcrc.org>",
+"DataProvider": "hgdownload.cse.ucsc.edu",
+"BiocVersion": "2.12",
+"Notes": "9 total columns in the bed file, 8 of which are presented here ('empty' is omitted)  (a) Chromosome   (b) Start  (c) End  (d) (coordinates):(paraclu cluster strength):(TSS prediction strength)  (e) empty   (f) Strand  (g) level - expression level in tpm  (h) signif - currently empty - will be IDR  (i) score2 - raw number of reads   wgEncodeRikenCageCd20CellPapTssHmm.bedRnaElements.gz project=wgEncode; grant=Gingeras; lab=RIKEN; composite=wgEncodeRikenCage; dataType=Cage; view=TssHmm; cell=CD20+; localization=cell; rnaExtract=longPolyA; readType=1x50; donorId=RO01794,RO01778; dataVersion=ENCODE Mar 2012 Freeze; dccAccession=wgEncodeEH002738; dateSubmitted=2012-03-30; dateUnrestricted=2012-12-30; subId=6744; geoSampleAccession=GSM979634; labExpId=CThi10023,CThi10024; bioRep=041WC,042WC; seqPlatform=Illumina_HiSeq_2000; tableName=wgEncodeRikenCageCd20CellPapTssHmm; type=bedRnaElements; md5sum=c69036e9a1bf0eb39d0b73687fc31ec1; size=2.5M" 
+}
