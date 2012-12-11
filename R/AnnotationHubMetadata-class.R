@@ -49,17 +49,12 @@ setClass("AnnotationHubMetadata",
 }
 
 
-constructAnnotationHubMetadataFromJSON <- function(ahroot, originalFile)
+
+.constructFromJson <- function(ahroot, pathToJson)
 {
     x <- new("AnnotationHubMetadata")
-
-    dir <- dirname(file.path(ahroot, originalFile))
     x@AnnotationHubRoot <- ahroot
-    jsonFile <- .getDerivedFileName(originalFile, "json")
-    jsonFile <- file.path(dir[1], jsonFile)
-    l <- fromJSON(jsonFile)
-
-    #l <- fromJSON(.getJsonFileName(ahroot, originalFile))
+    l <- fromJSON(pathToJson)
     for (name in names(l))
     {
         type <- getSlots("AnnotationHubMetadata")[[name]]
@@ -70,6 +65,21 @@ constructAnnotationHubMetadataFromJSON <- function(ahroot, originalFile)
     x
 }
 
+constructAnnotationHubMetadataFromOriginalFilePath <- function(ahroot, originalFile)
+{
+    dir <- dirname(file.path(ahroot, originalFile))
+    jsonFile <- .getDerivedFileName(originalFile, "json")
+    jsonFile <- file.path(dir[1], jsonFile)
+    .constructFromJson(ahroot, jsonFile)
+}
+
+constructAnnotationHubMetadataFromJsonPath <-
+    function(ahroot, jsonpath)
+{
+    dir <- dirname(file.path(ahroot, jsonpath))
+    jsonFile <- file.path(dir[1], basename(jsonpath))
+    .constructFromJson(ahroot, jsonFile)
+}
 
 .getJsonFileName <- function(ahroot, originalFile)
 {
@@ -84,7 +94,7 @@ constructAnnotationHubMetadataFromJSON <- function(ahroot, originalFile)
 
 postProcessMetadata <- function(ahroot, originalFile)
 {
-    x <- constructAnnotationHubMetadataFromJSON(ahroot, originalFile)
+    x <- constructAnnotationHubMetadataFromOriginalFilePath(ahroot, originalFile)
     x@AnnotationHubRoot <- ahroot
 
     derived <- file.path(ahroot, x@ResourcePath)

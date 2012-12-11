@@ -5,7 +5,9 @@ exportMethods(
 #    dcfFile,
 #    metadataTitle
     )
-export(constructAnnotationHubMetadataFromJSON, postProcessMetadata)
+export(constructAnnotationHubMetadataFromOriginalFilePath,
+ postProcessMetadata,
+ constructAnnotationHubMetadataFromJsonPath)
 import(RJSONIO)
 importFrom(BiocInstaller, biocVersion)
 #importFrom(httr, HEAD)
