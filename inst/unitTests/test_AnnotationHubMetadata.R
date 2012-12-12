@@ -6,6 +6,7 @@ runTests <- function()
     test_constructor()
     test_from_json()
     test_validity()
+    test_multi_input()
 }
 
 
@@ -71,10 +72,50 @@ test_validity <- function()
         silent=TRUE)
 }
 
+test_multi_input <- function()
+{
+
+    subdir <- 'goldenpath'
+    sourceDirectory <- system.file('extdata', subdir,
+          package='AnnotationHubData')
+    ahroot <- AnnotationHubData:::createWorkingDirectory(sourceDirectory)
+
+    rp <- "goldenpath/hg19/encodeDCC/wgEncodeRegDnaseClustered"
+    files <- file.path(rp, c("wgEncodeRegDnaseClustered.bed.gz",
+        "wgEncodeRegDnaseClusteredInputs.tab"))
+
+
+    l <- list()
+    l$AnnotationHubRoot <- ahroot
+    l$OriginalFile <- files
+    l$Species <- "Homo sapiens"
+    l$Genome <- "hg19"
+    l$Recipe <- "unknown" # FIXME
+    l$RecipeArgs <- list() # FIXME
+    l$ResourceClass <- "GRanges"
+    l$Version <- "0.0.1"
+    l$Maintainer <- "Paul Shannon <pshannon@fhcrc.org>"
+    l$DataProvider <- "hgdownload.cse.ucsc.edu"
+    l$Coordinate_1_based <- TRUE
+    l$Title <- " ENCODE Composite DNaseI Hypersensitivity Regions"
+    l$Description <- "999,988 DNaseI hypersensitivity regions, combined from 75 cell types"
+    l$Url <- c("http://hgdownload.cse.ucsc.edu/goldenpath/hg19/encodeDCC/wgEncodeRegDnaseClustered/wgEncodeRegDnaseClusteredInputs.tab.gz",
+        "http://hgdownload.cse.ucsc.edu/goldenpath/hg19/encodeDCC/wgEncodeRegDnaseClustered/wgEncodeRegDnaseClustered.bed.gz")
+    l$SourceVersion <- "dateSubmitted=2011-04-28"
+    l$Maintainer <- "Paul Shannon <pshannon@fhcrc.org>"
+    l$Tags <- "gene regulation"
+    x <- do.call(AnnotationHubMetadata, l)
+## don't postprocess because there is no derived file yet.    
+##    x <- postProcessMetadata(ahroot, x@OriginalFile)
+    checkEquals(2L, length(x@Url))
+    checkEquals(2L, length(x@Md5))
+    checkEquals(2L, length(x@SourceSize))
+    checkEquals(2L, length(x@OriginalFile))
+}
+
 
 test_from_json <- function()
 {
-
     jsonFile <- "wgEncodeRikenCageCd20CellPapTssHmm.bedRnaElements.json"
     resourcePath <- 'goldenpath/hg19/encodeDCC/wgEncodeRikenCage'
     jsonPath <- file.path(resourcePath, jsonFile)
