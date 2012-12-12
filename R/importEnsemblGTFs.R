@@ -3,7 +3,7 @@
 importEnsemblGTFs <- function(ahroot)
 {
     ahroot <- normalizePath(ahroot)
-    gtf <- dir(ahroot, pattern=".*gtf.gz", recursive=TRUE, full=TRUE)
+    gtf <- dir(ahroot, pattern=".*gtf.gz", recursive=TRUE, full.names=TRUE)
     #oldwd <- getwd()
     #on.exit(setwd(oldwd))
     #setwd(ahroot)
