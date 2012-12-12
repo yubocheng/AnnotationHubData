@@ -1,0 +1,28 @@
+{
+ "Title": " ENCODE Composite DNaseI Hypersensitivity Regions",
+"Species": "Homo sapiens",
+"TaxonomyId": "9606",
+"Genome": "hg19",
+"Recipe": "unknown",
+"RecipeArgs": [
+ null 
+],
+"Url": [ "http://hgdownload.cse.ucsc.edu/goldenpath/hg19/encodeDCC/wgEncodeRegDnaseClustered/wgEncodeRegDnaseClusteredInputs.tab.gz", "http://hgdownload.cse.ucsc.edu/goldenpath/hg19/encodeDCC/wgEncodeRegDnaseClustered/wgEncodeRegDnaseClustered.bed.gz" ],
+"OriginalFile": [ "goldenpath/hg19/encodeDCC/wgEncodeRegDnaseClustered/wgEncodeRegDnaseClustered.bed.gz", "goldenpath/hg19/encodeDCC/wgEncodeRegDnaseClustered/wgEncodeRegDnaseClusteredInputs.tab" ],
+"ResourcePath": "goldenpath/hg19/encodeDCC/wgEncodeRegDnaseClustered/wgEncodeRegDnaseClustered.bed-wgEncodeRegDnaseClusteredInputs.tab.RData",
+"Md5": [ "48b02b32a6f721b86c780126e14cf413", "4ae4471edd064db80918ed1413fbf470" ],
+"Description": "subset of 999,988 DNaseI hypersensitivity regions, combined from 75 cell types",
+"Tags": "gene regulation",
+"ResourceClass": "GRanges",
+"Version": "0.0.1",
+"SourceVersion": "dateSubmitted=2011-04-28",
+"SourceSize": [ 9650820, 8211 ],
+"DerivedSize": 10337901,
+"SourceLastModifiedDate": [ "2012-11-26", "2012-11-26" ],
+"DerivedLastModifiedDate": "2012-12-09",
+"Coordinate_1_based": true,
+"Maintainer": "Paul Shannon <pshannon@fhcrc.org>",
+"DataProvider": "hgdownload.cse.ucsc.edu",
+"BiocVersion": "2.12",
+"Notes": "" 
+}
