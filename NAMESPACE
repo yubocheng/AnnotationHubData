@@ -1,13 +1,18 @@
 exportClasses(AnnotationHubMetadata, AnnotationHubRecipe)
 export(AnnotationHubMetadata, AnnotationHubRecipe)
-exportMethods(
-#    show,
-#    dcfFile,
-#    metadataTitle
-    )
 export(constructAnnotationHubMetadataFromOriginalFilePath,
  postProcessMetadata,
  constructAnnotationHubMetadataFromJsonPath)
 import(RJSONIO)
 importFrom(BiocInstaller, biocVersion)
-#importFrom(httr, HEAD)
+
+export(recipe1)
+
+exportMethods(
+    show,
+    run,
+    recipeName,
+    inputFiles,
+    outputFile,
+    annotationHubRoot
+    )
