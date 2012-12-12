@@ -133,10 +133,14 @@ AnnotationHubMetadata <- function(AnnotationHubRoot, OriginalFile, Url, Title,
 
     f <- formals()
     for (i in names(f))
-    {   item <- get(i, inherits=FALSE)
-        if (class(item) %in% "call") item <- as.list(item) # rapply?
-        slot(x, i) <- item
-
+    {   
+        item <- NULL
+        tryCatch(item <- get(i, inherits=FALSE), error=function(e) {})
+        if (!is.null(item))
+        {
+            if (class(item) %in% "call") item <- as.list(item) # rapply?
+            slot(x, i) <- item
+        }
     }
     x@BiocVersion <- as.character(biocVersion())
     x@SourceLastModifiedDate <- "1970-1-1"
@@ -181,20 +185,12 @@ as.json <- function(annotationHubMetadata)
     toJSON(l)
 }
 
-setValidity("AnnotationHubMetadata", function(object)
+.AnnotationHubMetadata.validity <- function(object)
 {
-    ## fixme do better than this
-    oldwd <- getwd()
-    on.exit(setwd(oldwd))
-    setwd(object@AnnotationHubRoot)
-
-    if (!exists("speciesMap")) data(speciesMap)
     rc <- new("MsgClass", name=character(0))
-
     e <- function(m) {
        rc$name <- c(rc$name, m)
     }
-
 
     requiredFields <- c("AnnotationHubRoot", "OriginalFile", "Url", "Title",
         "Species", "Genome", "Recipe", "Tags", "ResourceClass",
@@ -210,6 +206,17 @@ setValidity("AnnotationHubMetadata", function(object)
         if (empty(x))
             e(sprintf("%s is required.", x))
     })
+
+    ## fixme do better than this
+    oldwd <- getwd()
+    on.exit(setwd(oldwd))
+    setwd(object@AnnotationHubRoot)
+
+    if (!exists("speciesMap")) data(speciesMap)
+    taxonomyId <- with(speciesMap, taxon[species == object@Species])
+    if (!length(taxonomyId))
+        e("Unknown species")
+
 
     ## dropping this for now, this fails with ftp:// urls.
     ## emailed Hadley, hope he can fix it.
@@ -228,7 +235,11 @@ setValidity("AnnotationHubMetadata", function(object)
 
 
     if (length(rc$name) == 0) TRUE else rc$name
-})
+
+}
+
+setValidity("AnnotationHubMetadata",
+        function(object) .AnnotationHubMetadata.validity(object))
 
 
 #setGeneric('metadataTitle', signature='object', function(object) standardGeneric('metadataTitle'))

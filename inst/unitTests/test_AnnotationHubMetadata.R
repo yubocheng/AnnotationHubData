@@ -5,6 +5,7 @@ runTests <- function()
 {
     test_constructor()
     test_from_json()
+    test_validity()
 }
 
 
@@ -29,6 +30,8 @@ test_constructor <- function()
     checkTrue(validObject(ahm))
 }
 
+
+
 test_validity <- function()
 {
     subdir <- 'goldenpath'
@@ -40,6 +43,8 @@ test_validity <- function()
     l$OriginalFile <- "goldenpath/hg19/encodeDCC/wgEncodeRikenCage/wgEncodeRikenCageCd20CellPapTssHmm.bedRnaElements"
     l$Url <- "http://hgdownload.cse.ucsc.edu/goldenpath/hg19/encodeDCC/wgEncodeRikenCage/wgEncodeRikenCageCd20CellPapTssHmm.bedRnaElements"
     l$Title <- "CD20 CAGE defined Transcriptional Start Sites"
+    l$Description="120785  TSS sites predicted by CAGE (Capped Analysis of GeneExpression) in CD20 cells, from Timo Lassmann"
+
     l$Species <- "Homo sapiens"
     l$Genome <- "hg19"
     l$Recipe <- "extendedBedToGranges"
@@ -51,17 +56,19 @@ test_validity <- function()
     l$Maintainer = "Paul Shannon <pshannon at fhcrc.org>"
     l$DataProvider="hgdownload.cse.ucsc.edu"
     l$Notes <- "9 total columns in the bed file, 8 of which are presented here ('empty' is omitted)  (a) Chromosome   (b) Start  (c) End  (d) (coordinates):(paraclu cluster strength):(TSS prediction strength)  (e) empty   (f) Strand  (g) level - expression level in tpm  (h) signif - currently empty - will be IDR  (i) score2 - raw number of reads   wgEncodeRikenCageCd20CellPapTssHmm.bedRnaElements.gz project=wgEncode; grant=Gingeras; lab=RIKEN; composite=wgEncodeRikenCage; dataType=Cage; view=TssHmm; cell=CD20+; localization=cell; rnaExtract=longPolyA; readType=1x50; donorId=RO01794,RO01778; dataVersion=ENCODE Mar 2012 Freeze; dccAccession=wgEncodeEH002738; dateSubmitted=2012-03-30; dateUnrestricted=2012-12-30; subId=6744; geoSampleAccession=GSM979634; labExpId=CThi10023,CThi10024; bioRep=041WC,042WC; seqPlatform=Illumina_HiSeq_2000; tableName=wgEncodeRikenCageCd20CellPapTssHmm; type=bedRnaElements; md5sum=c69036e9a1bf0eb39d0b73687fc31ec1; size=2.5M"
-    ahm <- do.call(AnnotationHubMetadata, l)
-    checkException(validObject(ahm), "validObject says invalid object is valid")
-    l$Maintainer = "Paul Shannon <pshannon at fhcrc.org>"
+    checkException(do.call(AnnotationHubMetadata, l),
+        "(1)validObject says invalid object is valid",
+        silent=TRUE)
+    l$Maintainer = "Paul Shannon <pshannon@hcrc.org>"
     l$Title <- NULL
-    ahm <- do.call(AnnotationHubMetadata, l)
-    checkException(validObject(ahm), "validObject says invalid object is valid")
+    checkException(do.call(AnnotationHubMetadata, l),
+        "(2)validObject says invalid object is valid",
+        silent=TRUE)
     l$Title <- "placeholder"
     l$Species <- "My funny valentine"
-    ahm <- do.call(AnnotationHubMetadata, l)
-    checkException(validObject(ahm), "validObject says invalid object is valid")
-    
+    checkException(do.call(AnnotationHubMetadata, l),
+        "(3)validObject says invalid object is valid",
+        silent=TRUE)
 }
 
 
