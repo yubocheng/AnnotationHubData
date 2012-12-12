@@ -132,13 +132,8 @@ AnnotationHubMetadata <- function(AnnotationHubRoot, OriginalFile, Url, Title,
     x <- new("AnnotationHubMetadata")
 
     f <- formals()
-    m <- match.call()
     for (i in names(f))
-    {
-        if (length(m[[i]]))
-            item <- m[[i]]
-        else if (length(f[[i]]))
-             item <- f[[i]]
+    {   item <- get(i, inherits=FALSE)
         if (class(item) %in% "call") item <- as.list(item) # rapply?
         slot(x, i) <- item
 

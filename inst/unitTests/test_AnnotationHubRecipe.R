@@ -11,25 +11,6 @@ runTests <- function()
     #test_bedFileRecipe ()
 }
 #-------------------------------------------------------------------------------
-# in these unit tests we want to actually create data resources, just as they
-# are in the full running version of the hub.  this requires a writable directory:
-# we don't want to try to write into the extdata directory of an installed package!
-# so we need a directory which can be reliably created, written to, and checked, on any computer
-# these tests will run on.  
-# a recursive copy of the (possibly deeply-nested) source directory (below pkg/extdata)
-# into a temporary and necessarily writable directory provides the solution
-createWorkingDirectory <- function(sourceDirectory)
-{
-    newDirectory <- tempdir()
-
-    suppressWarnings(  # .svn directories do not copy
-        file.copy(sourceDirectory, newDirectory, recursive=TRUE)
-        )
-
-    newDirectory
-
-}
-#-------------------------------------------------------------------------------
 test_createWorkingDirectory <- function()
 {
   print ("--- test_createWorkingDirectory")
@@ -44,7 +25,7 @@ test_createWorkingDirectory <- function()
      # PKG-ROOT/extdata/goldenpath/hg19/encodeDCC/wgEncodeRikenCage/
   checkTrue(length(originalFiles) >= 3)
   
-  newDirectory <- createWorkingDirectory(sourceDirectory)
+  newDirectory <- AnnotationHubData:::createWorkingDirectory(sourceDirectory)
   newDirectoryComplete <- file.path(newDirectory, 'goldenpath')
   movedFiles <- sort(list.files(newDirectoryComplete, recursive=TRUE))
   checkEquals(originalFiles, movedFiles)
@@ -60,7 +41,7 @@ test_simpleConstructor <- function()
     jsonPath <- file.path(resourcePath, jsonFile)
     
     sourceDirectory <- system.file('extdata', package='AnnotationHubData')
-    workingDirectory <- createWorkingDirectory(sourceDirectory)
+    workingDirectory <- AnnotationHubData:::createWorkingDirectory(sourceDirectory)
     annotationHubRoot <- workingDirectory
 
     md <- constructAnnotationHubMetadataFromJsonPath(annotationHubRoot, jsonPath)
