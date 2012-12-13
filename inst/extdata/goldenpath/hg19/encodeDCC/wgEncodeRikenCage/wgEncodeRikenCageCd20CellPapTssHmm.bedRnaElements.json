@@ -4,9 +4,18 @@
 "TaxonomyId": "9606",
 "Genome": "hg19",
 "Recipe": "extendedBedToGRanges",
-"RecipeArgs": [
- null 
-],
+"RecipeArgs": {"colClasses": {    "seqnames": "character",
+                                     "start": "integer",
+                                       "end": "integer",
+                                          "": "NULL",
+                                          "": "NULL",
+                                    "strand": "character",
+                                     "level": "numeric",
+                              "significance": "numeric",
+                              "": "NULL" 
+                              },
+                "extra": 8,
+                "dumbList":[1,3,5]},
 "Url": "http://hgdownload.cse.ucsc.edu/goldenpath/hg19/encodeDCC/wgEncodeRikenCage/wgEncodeRikenCageCd20CellPapTssHmm.bedRnaElements",
 "OriginalFile": "goldenpath/hg19/encodeDCC/wgEncodeRikenCage/wgEncodeRikenCageCd20CellPapTssHmm.bedRnaElements",
 "ResourcePath": "goldenpath/hg19/encodeDCC/wgEncodeRikenCage/wgEncodeRikenCageCd20CellPapTssHmm.bedRnaElements.RData",

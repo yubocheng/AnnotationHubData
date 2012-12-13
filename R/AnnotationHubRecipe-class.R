@@ -26,8 +26,12 @@ setGeneric("outputFile", signature="object",
            standardGeneric ("outputFile"))
 
 setGeneric("run", signature="object",
-           function(object, functionName=NA, inputFiles=NA)
+           function(object)
            standardGeneric ("run"))
+
+setGeneric("runWild", signature="object",
+           function(object, recipe.function=NULL)
+           standardGeneric ("runWild"))
 
 #-------------------------------------------------------------------------------
 setValidity("AnnotationHubRecipe",
@@ -51,7 +55,7 @@ AnnotationHubRecipe <- function(metadata)
     x@metadata <- metadata
     x@recipeName <- metadata@Recipe
     x@annotationHubRoot <- metadata@AnnotationHubRoot
-    x@inputFiles <- metadata@OriginalFile
+    x@inputFiles <- file.path(metadata@AnnotationHubRoot, metadata@OriginalFile)
     x@outputFile <- file.path(metadata@AnnotationHubRoot, metadata@ResourcePath)
     x
 }
@@ -67,21 +71,40 @@ setMethod("show", "AnnotationHubRecipe",
 #                   inputFiles=getInputFiles(object),
 #                   args=getRecipeArgs(object))
 # do.call(recipe, c(list(inputFiles), args))
+# r <- get(recipeName(recipe), envir=getNamespace("AnnotationHubData"))
+# do.call(r, list(recipe))
 
 setMethod("run", "AnnotationHubRecipe",
 
-    function(object, functionName=NA, inputFiles=NA) {
-       #browser('run')
-       if(is.na(functionName)) {
-           functionName <- recipeName(object)
-           inputFiles <- inputFiles(object)
-           cmd <- sprintf("%s('%s')", functionName, inputFiles)
-         } else {
-           cmd <- sprintf("%s('%s')", functionName, inputFiles)
-         }
-       printf("recipe as function call: %s", cmd)
-       eval(parse(text=cmd))
+    function(object) {
+       recipe.function <- get(recipeName(object), envir=getNamespace("AnnotationHubData"))
+       do.call(recipe.function, list(object))
        })
+
+
+setMethod("runWild", "AnnotationHubRecipe",
+
+    function(object, recipe.function=NULL) {
+       if(is.null (recipe.function))
+         recipe.function <- get(recipeName(object), envir=getNamespace("AnnotationHubData"))
+       do.call(recipe.function, list(object))
+       })
+
+
+#setMethod("run", "AnnotationHubRecipe",
+#
+#    function(object, functionName=NA, inputFiles=NA) {
+#       #browser('run')
+#       if(is.na(functionName)) {
+#           functionName <- recipeName(object)
+#           inputFiles <- inputFiles(object)
+#           cmd <- sprintf("%s('%s')", functionName, inputFiles)
+#         } else {
+#           cmd <- sprintf("%s('%s')", functionName, inputFiles)
+#         }
+#       printf("recipe as function call: %s", cmd)
+#       eval(parse(text=cmd))
+#       })
 
 #-------------------------------------------------------------------------------
 recipe1 <- function(inputDataFileName)
@@ -128,4 +151,22 @@ setMethod("outputFile", "AnnotationHubRecipe",
     function(object) {
         object@outputFile
         })
+#-------------------------------------------------------------------------------
+# the GRanges that we assemble here need SeqInfo (which is a generalized name for
+# what is typically chromosome info:  chromosome name, chromosome length and
+# circularity (common among prokaryotic organisms)
+constructSeqInfo <- function(species, genome)
+{
+  stopifnot(species=="Homo sapiens" & genome %in% c("hg18", "hg19"))
+  suppressMessages({
+         # chroms 1-22, X, Y, M are assumed to be the first 25 rows of the data.frame
+     tbl.chromInfo = GenomicFeatures:::.makeUCSCChrominfo (genome,
+                                        circ_seqs=character(0)) [1:25,]
+                   })
+
+   Seqinfo (as.character(tbl.chromInfo$chrom), 
+            seqlengths=tbl.chromInfo$length, 
+            isCircular=rep(FALSE, nrow (tbl.chromInfo)), genome=genome)
+
+} # constructSeqInfo
 #-------------------------------------------------------------------------------

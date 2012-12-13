@@ -6,11 +6,13 @@ export(constructAnnotationHubMetadataFromOriginalFilePath,
 import(RJSONIO)
 importFrom(BiocInstaller, biocVersion)
 
-export(recipe1)
+export(recipe1,
+       constructSeqInfo)
 
 exportMethods(
     show,
     run,
+    runWild,
     recipeName,
     inputFiles,
     outputFile,

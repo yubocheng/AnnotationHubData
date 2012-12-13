@@ -1,10 +1,17 @@
 library(AnnotationHubData)
+library(RJSONIO)
 library(RUnit)
 #-------------------------------------------------------------------------------
 runTests <- function()
 {
     test_createWorkingDirectory()
     test_simpleConstructor()
+    test_nullRecipe()
+    test_adhocRecipe()
+
+    test_constructSeqInfo()
+    test_extendedBedFileRecipe()
+    
     #test_temporaryMethods()
     #test_recipeWithSuppliedArguments()
     #test_recipeWithImpliedArguments()
@@ -13,24 +20,24 @@ runTests <- function()
 #-------------------------------------------------------------------------------
 test_createWorkingDirectory <- function()
 {
-  print ("--- test_createWorkingDirectory")
-  subdirectory <- 'goldenpath'
-  sourceDirectory <- system.file('extdata', subdirectory,
-                                  package='AnnotationHubData')
+    print ("--- test_createWorkingDirectory")
+    subdirectory <- 'goldenpath'
+    sourceDirectory <- system.file('extdata', subdirectory,
+                                    package='AnnotationHubData')
+    
+    originalFiles <- sort(list.files(sourceDirectory, recursive=TRUE))
   
-  originalFiles <- sort(list.files(sourceDirectory, recursive=TRUE))
+       # recursive list.files ends up at the bottom of the extdata/goldenpath/hg19/...
+       # path, returning only the 3 (or more) files found there
+       # PKG-ROOT/extdata/goldenpath/hg19/encodeDCC/wgEncodeRikenCage/
+    checkTrue(length(originalFiles) >= 3)
+    
+    newDirectory <- AnnotationHubData:::createWorkingDirectory(sourceDirectory)
+    newDirectoryComplete <- file.path(newDirectory, 'goldenpath')
+    movedFiles <- sort(list.files(newDirectoryComplete, recursive=TRUE))
+    checkEquals(originalFiles, movedFiles)
 
-     # recursive list.files ends up at the bottom of the extdata/goldenpath/hg19/...
-     # path, returning only the 3 (or more) files found there
-     # PKG-ROOT/extdata/goldenpath/hg19/encodeDCC/wgEncodeRikenCage/
-  checkTrue(length(originalFiles) >= 3)
-  
-  newDirectory <- AnnotationHubData:::createWorkingDirectory(sourceDirectory)
-  newDirectoryComplete <- file.path(newDirectory, 'goldenpath')
-  movedFiles <- sort(list.files(newDirectoryComplete, recursive=TRUE))
-  checkEquals(originalFiles, movedFiles)
-
-}
+} # test_createWorkingDirectory
 #-------------------------------------------------------------------------------
 test_simpleConstructor <- function()
 {
@@ -48,19 +55,155 @@ test_simpleConstructor <- function()
 
     recipe <- AnnotationHubRecipe(md)
     checkTrue(validObject(recipe))
-    checkEquals(md@Recipe, "extendedBedToGranges")
-    checkEquals(recipeName(recipe), "extendedBedToGranges")
+    checkEquals(md@Recipe, "extendedBedToGRanges")
+    checkEquals(recipeName(recipe), "extendedBedToGRanges")
     checkEquals(annotationHubRoot(recipe), md@AnnotationHubRoot)
-    checkEquals(inputFiles(recipe), "goldenpath/hg19/encodeDCC/wgEncodeRikenCage/wgEncodeRikenCageCd20CellPapTssHmm.bedRnaElements")
+    checkTrue(file.exists(inputFiles(recipe)))
 
        # the output file has the same path and name as the 'main' (and often only) input file, with '.RData' added to it
        # remove that suffix, then compare it to the full path to that input file, aka 'ResourcePath'
     checkEquals(file.path(md@AnnotationHubRoot, md@ResourcePath), outputFile(recipe))
-                  
-    bedFile <- file.path(annotationHubRoot(recipe), inputFiles(recipe))
-    checkTrue(file.exists(bedFile))
+    TRUE
 
-}
+} # test_simpleConstructor
+#-------------------------------------------------------------------------------
+# the 'nullRecipe' simply copies the specified input file to the specified output file
+# with no transformations on the contents.
+test_nullRecipe <- function()
+{
+    print ("--- test_nullRecipe")
+
+    jsonFile <- "wgEncodeRikenCageCd20CellPapTssHmm.bedRnaElements.json"
+    resourcePath <- 'goldenpath/hg19/encodeDCC/wgEncodeRikenCage'
+    jsonPath <- file.path(resourcePath, jsonFile)
+    
+    sourceDirectory <- system.file('extdata', package='AnnotationHubData')
+    workingDirectory <- AnnotationHubData:::createWorkingDirectory(sourceDirectory)
+    annotationHubRoot <- workingDirectory
+
+    md <- constructAnnotationHubMetadataFromJsonPath(annotationHubRoot, jsonPath)
+    md@Recipe <- "nullRecipe"
+    recipe <- AnnotationHubRecipe(md)
+    checkTrue(validObject(recipe))
+    checkEquals(md@Recipe, "nullRecipe")
+    checkEquals(recipeName(recipe), "nullRecipe")
+    checkTrue(file.exists(inputFiles(recipe)[1]))
+    checkTrue(!file.exists(outputFile(recipe)))
+    run(recipe)
+    runWild(recipe)
+    checkTrue(file.exists(outputFile(recipe)))
+
+} # test_nullRecipe
+#-------------------------------------------------------------------------------
+# the 'nullRecipe' simply copies the specified input file to the specified output file
+# with no transformations on the contents.
+test_adhocRecipe <- function()
+{
+    print ("--- test_adhocRecipe")
+
+    jsonFile <- "wgEncodeRikenCageCd20CellPapTssHmm.bedRnaElements.json"
+    resourcePath <- 'goldenpath/hg19/encodeDCC/wgEncodeRikenCage'
+    jsonPath <- file.path(resourcePath, jsonFile)
+    
+    sourceDirectory <- system.file('extdata', package='AnnotationHubData')
+    workingDirectory <- AnnotationHubData:::createWorkingDirectory(sourceDirectory)
+    annotationHubRoot <- workingDirectory
+
+    md <- constructAnnotationHubMetadataFromJsonPath(annotationHubRoot, jsonPath)
+    adhoc <- function(recipe) {
+        nchar(inputFiles(recipe)[1])
+        }
+    
+    md@Recipe <- "adhoc"
+    
+    recipe <- AnnotationHubRecipe(md)
+    checkTrue(validObject(recipe))
+    checkEquals(md@Recipe, "adhoc")
+    checkEquals(recipeName(recipe), "adhoc")
+    checkEquals(runWild(recipe, adhoc), 154)
+
+} # test_nullRecipe
+#-------------------------------------------------------------------------------
+test_constructSeqInfo <- function()
+{
+    species <- "Homo sapiens"
+    genome <- "hg19"
+  
+    si.hg19 <- constructSeqInfo(species, genome)
+    expected.names <- paste("chr", c(1:22,"X","Y","M"), sep="")
+    checkEquals(names(si.hg19), expected.names)
+    checkEquals(unique(genome(si.hg19)), genome)
+    min.max <- fivenum(as.integer(seqlengths(si.hg19)))[c(1,5)]
+    checkTrue(min.max[1] < 17000)     # chrM
+    checkTrue(min.max[2] > 24000000)  # chr1
+  
+    genome <- "hg18"
+    si.hg18 <- constructSeqInfo(species, genome)
+
+        # chr17 grew in hg19
+    checkTrue(seqlengths(si.hg18['chr17']) < seqlengths(si.hg19['chr17']))
+
+} # test_constructSeqInfo
+#-------------------------------------------------------------------------------
+dev.extendedBedToGRanges <- function(recipe)
+{
+    colClasses <- recipe@metadata@RecipeArgs$colClasses
+    colnames <- names(colClasses)
+    unused <- which(colnames == "")
+    if(length(unused) > 0)
+        colnames <- colnames[-unused]
+
+    requiredColnames <- c("seqnames", "start", "end", "strand")
+    stopifnot(all(requiredColnames %in% colnames))
+    otherColnames <- setdiff(colnames, requiredColnames)
+
+    tbl <- read.table(inputFiles(recipe)[1], sep="\t", header=FALSE, colClasses=colClasses)
+    colnames(tbl) <- colnames
+
+    gr <- with(tbl, GRanges(seqnames, IRanges(start, end), strand))
+    mcols(gr) <- DataFrame(tbl[, otherColnames])
+
+        # add seqlength & chromosome circularity information
+    newSeqInfo <- constructSeqInfo(recipe@metadata@Species, recipe@metadata@Genome) 
+        # if gr only has a subset of all possible chromosomes, then update those only
+    seqinfo(gr) <- newSeqInfo[names(seqinfo(gr))]
+
+    postProcessMetadata(annotationHubRoot(recipe), recipe@metadata@OriginalFile)
+    save(gr, file=outputFile(recipe))
+
+    outputFile(recipe)
+
+} # dev.extendedBedToGRanges
+#-------------------------------------------------------------------------------
+test_extendedBedFileRecipe <- function ()
+{
+    print ("--- test_extendedBedFileRecipe")
+
+    jsonFile <- "wgEncodeRikenCageCd20CellPapTssHmm.bedRnaElements.json"
+    resourcePath <- "goldenpath/hg19/encodeDCC/wgEncodeRikenCage"
+    jsonPath <- file.path(resourcePath, jsonFile)
+    
+    sourceDirectory <- system.file("extdata", package="AnnotationHubData")
+    workingDirectory <- AnnotationHubData:::createWorkingDirectory(sourceDirectory)
+    annotationHubRoot <- workingDirectory
+
+    md <- constructAnnotationHubMetadataFromJsonPath(annotationHubRoot, jsonPath)
+    md@Recipe <- "dev.extendedBedToGRanges"
+    recipe <- AnnotationHubRecipe(md)
+
+    checkEquals(md@Recipe, "dev.extendedBedToGRanges")
+    checkEquals(recipeName(recipe), "dev.extendedBedToGRanges")
+    checkTrue(file.exists(inputFiles(recipe)[1]))
+
+    loadPath <- runWild(recipe)
+    load(loadPath)
+    checkEquals(length(gr), 50)
+    checkEquals(names(mcols(gr)), c("level", "significance"))
+    checkEquals(start(gr[9]), 54704676)
+    checkEquals(end(gr[9]),   54704735)
+    checkEquals(width(gr[9]), 60)
+
+} # test_extendedBedFileRecipe
 #-------------------------------------------------------------------------------
 #test_recipeWithImpliedArguments <- function()
 #{
@@ -77,7 +220,7 @@ test_simpleConstructor <- function()
 #{
 #    print ("--- test_recipeWithSuppliedArguments")
 #    x <- AnnotationHubRecipe()
-#    func <- function(filename) {system(sprintf("wc -l '%s'", filename))}
+#    func <- function(filename) {system(sprintf("wc -l "%s"", filename))}
 #    run(x, "func", "jabberwocky.txt")
 #    
 #}
@@ -120,12 +263,12 @@ test_simpleConstructor <- function()
 ##-------------------------------------------------------------------------------
 #runRec1 <- function (functionName=NA, inputFileName=NA) {
 #  if(is.na(functionName))
-#    cmd <- sprintf("system ('date')")
+#    cmd <- sprintf("system ("date")")
 #  else {
 #    if(is.na(inputFileName))
 #      cmd <- sprintf ("%s()", functionName)
 #    else
-#      cmd <- sprintf ("%s('%s')", functionName, inputFileName)
+#      cmd <- sprintf ("%s("%s")", functionName, inputFileName)
 #    }
 #  printf("cmd: %s", cmd)
 #  eval(parse(text=cmd))
