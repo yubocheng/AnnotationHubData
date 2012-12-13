@@ -149,17 +149,20 @@ test_extendedBedFileRecipe <- function ()
 {
     print ("--- test_extendedBedFileRecipe")
 
-    jsonFile <- "wgEncodeRikenCageCd20CellPapTssHmm.bedRnaElements.json"
-    resourcePath <- "goldenpath/hg19/encodeDCC/wgEncodeRikenCage"
-    jsonPath <- file.path(resourcePath, jsonFile)
-
         # copy the source data to a writable temporary directory
     sourceDirectory <- system.file("extdata", package="AnnotationHubData")
     workingDirectory <- AnnotationHubData:::createWorkingDirectory(sourceDirectory)
     annotationHubRoot <- workingDirectory
 
-        # call a metadata file reader/object constructor
+        # locate the json metadata file
+    jsonFile <- "wgEncodeRikenCageCd20CellPapTssHmm.bedRnaElements.json"
+    resourcePath <- "goldenpath/hg19/encodeDCC/wgEncodeRikenCage"
+    jsonPath <- file.path(resourcePath, jsonFile)
+
+        # create a metadata object from this file
     md <- constructAnnotationHubMetadataFromJsonPath(annotationHubRoot, jsonPath)
+
+        # now create a Recipe instance
     recipe <- AnnotationHubRecipe(md)
 
     checkEquals(recipeName(recipe), "extendedBedToGRanges")
