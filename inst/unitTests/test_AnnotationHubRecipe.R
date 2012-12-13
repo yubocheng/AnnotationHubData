@@ -145,36 +145,6 @@ test_constructSeqInfo <- function()
 
 } # test_constructSeqInfo
 #-------------------------------------------------------------------------------
-dev.extendedBedToGRanges <- function(recipe)
-{
-    colClasses <- recipe@metadata@RecipeArgs$colClasses
-    colnames <- names(colClasses)
-    unused <- which(colnames == "")
-    if(length(unused) > 0)
-        colnames <- colnames[-unused]
-
-    requiredColnames <- c("seqnames", "start", "end", "strand")
-    stopifnot(all(requiredColnames %in% colnames))
-    otherColnames <- setdiff(colnames, requiredColnames)
-
-    tbl <- read.table(inputFiles(recipe)[1], sep="\t", header=FALSE, colClasses=colClasses)
-    colnames(tbl) <- colnames
-
-    gr <- with(tbl, GRanges(seqnames, IRanges(start, end), strand))
-    mcols(gr) <- DataFrame(tbl[, otherColnames])
-
-        # add seqlength & chromosome circularity information
-    newSeqInfo <- constructSeqInfo(recipe@metadata@Species, recipe@metadata@Genome) 
-        # if gr only has a subset of all possible chromosomes, then update those only
-    seqinfo(gr) <- newSeqInfo[names(seqinfo(gr))]
-
-    postProcessMetadata(annotationHubRoot(recipe), recipe@metadata@OriginalFile)
-    save(gr, file=outputFile(recipe))
-
-    outputFile(recipe)
-
-} # dev.extendedBedToGRanges
-#-------------------------------------------------------------------------------
 test_extendedBedFileRecipe <- function ()
 {
     print ("--- test_extendedBedFileRecipe")
@@ -182,21 +152,25 @@ test_extendedBedFileRecipe <- function ()
     jsonFile <- "wgEncodeRikenCageCd20CellPapTssHmm.bedRnaElements.json"
     resourcePath <- "goldenpath/hg19/encodeDCC/wgEncodeRikenCage"
     jsonPath <- file.path(resourcePath, jsonFile)
-    
+
+        # copy the source data to a writable temporary directory
     sourceDirectory <- system.file("extdata", package="AnnotationHubData")
     workingDirectory <- AnnotationHubData:::createWorkingDirectory(sourceDirectory)
     annotationHubRoot <- workingDirectory
 
+        # call a metadata file reader/object constructor
     md <- constructAnnotationHubMetadataFromJsonPath(annotationHubRoot, jsonPath)
-    md@Recipe <- "dev.extendedBedToGRanges"
     recipe <- AnnotationHubRecipe(md)
 
-    checkEquals(md@Recipe, "dev.extendedBedToGRanges")
-    checkEquals(recipeName(recipe), "dev.extendedBedToGRanges")
-    checkTrue(file.exists(inputFiles(recipe)[1]))
+    checkEquals(recipeName(recipe), "extendedBedToGRanges")
 
-    loadPath <- runWild(recipe)
-    load(loadPath)
+        # create GRanges from the extended bed file, save as RData where
+        # instructed by the recipe
+    pathToRDataFile <- run(recipe)
+
+        # check the result
+    load(pathToRDataFile)
+
     checkEquals(length(gr), 50)
     checkEquals(names(mcols(gr)), c("level", "significance"))
     checkEquals(start(gr[9]), 54704676)
