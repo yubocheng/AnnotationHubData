@@ -10,13 +10,11 @@ runTests <- function()
     test_adhocRecipe()
 
     test_constructSeqInfo()
+
     test_extendedBedFileRecipe()
-    
-    #test_temporaryMethods()
-    #test_recipeWithSuppliedArguments()
-    #test_recipeWithImpliedArguments()
-    #test_bedFileRecipe ()
-}
+    test_extendedBedWithAuxilliaryTableRecipe ()
+
+} # runTests
 #-------------------------------------------------------------------------------
 test_createWorkingDirectory <- function()
 {
@@ -48,7 +46,8 @@ test_simpleConstructor <- function()
     jsonPath <- file.path(resourcePath, jsonFile)
     
     sourceDirectory <- system.file('extdata', package='AnnotationHubData')
-    workingDirectory <- AnnotationHubData:::createWorkingDirectory(sourceDirectory)
+    workingDirectory <-
+        AnnotationHubData:::createWorkingDirectory(sourceDirectory)
     annotationHubRoot <- workingDirectory
 
     md <- constructAnnotationHubMetadataFromJsonPath(annotationHubRoot, jsonPath)
@@ -60,15 +59,17 @@ test_simpleConstructor <- function()
     checkEquals(annotationHubRoot(recipe), md@AnnotationHubRoot)
     checkTrue(file.exists(inputFiles(recipe)))
 
-       # the output file has the same path and name as the 'main' (and often only) input file, with '.RData' added to it
-       # remove that suffix, then compare it to the full path to that input file, aka 'ResourcePath'
-    checkEquals(file.path(md@AnnotationHubRoot, md@ResourcePath), outputFile(recipe))
+       # the output file has the same path and name as the 'main' (and often only)
+       # input file, with '.RData' added to it remove that suffix, then compare it
+       # to the full path to that input file, aka 'ResourcePath'
+    checkEquals(file.path(md@AnnotationHubRoot, md@ResourcePath),
+                outputFile(recipe))
     TRUE
 
 } # test_simpleConstructor
 #-------------------------------------------------------------------------------
-# the 'nullRecipe' simply copies the specified input file to the specified output file
-# with no transformations on the contents.
+# the 'nullRecipe' simply copies the specified input file to the specified
+# output file with no transformations on the contents.
 test_nullRecipe <- function()
 {
     print ("--- test_nullRecipe")
@@ -90,13 +91,15 @@ test_nullRecipe <- function()
     checkTrue(file.exists(inputFiles(recipe)[1]))
     checkTrue(!file.exists(outputFile(recipe)))
     run(recipe)
+    checkTrue(file.exists(outputFile(recipe)))
     runWild(recipe)
     checkTrue(file.exists(outputFile(recipe)))
 
 } # test_nullRecipe
 #-------------------------------------------------------------------------------
-# the 'nullRecipe' simply copies the specified input file to the specified output file
-# with no transformations on the contents.
+# demonstrate and test the use of a locally defined function, one which does
+# no transformation of data, just reports the number of characters in the
+# name of the recipe's input data file
 test_adhocRecipe <- function()
 {
     print ("--- test_adhocRecipe")
@@ -145,13 +148,14 @@ test_constructSeqInfo <- function()
 
 } # test_constructSeqInfo
 #-------------------------------------------------------------------------------
-test_extendedBedFileRecipe <- function ()
+test_extendedBedFileRecipe <- function()
 {
     print ("--- test_extendedBedFileRecipe")
 
         # copy the source data to a writable temporary directory
     sourceDirectory <- system.file("extdata", package="AnnotationHubData")
-    workingDirectory <- AnnotationHubData:::createWorkingDirectory(sourceDirectory)
+    workingDirectory <-
+       AnnotationHubData:::createWorkingDirectory(sourceDirectory)
     annotationHubRoot <- workingDirectory
 
         # locate the json metadata file
@@ -160,7 +164,8 @@ test_extendedBedFileRecipe <- function ()
     jsonPath <- file.path(resourcePath, jsonFile)
 
         # create a metadata object from this file
-    md <- constructAnnotationHubMetadataFromJsonPath(annotationHubRoot, jsonPath)
+    md <- constructAnnotationHubMetadataFromJsonPath(annotationHubRoot,
+                                                     jsonPath)
 
         # now create a Recipe instance
     recipe <- AnnotationHubRecipe(md)
@@ -182,84 +187,26 @@ test_extendedBedFileRecipe <- function ()
 
 } # test_extendedBedFileRecipe
 #-------------------------------------------------------------------------------
-#test_recipeWithImpliedArguments <- function()
-#{
-#    print ("--- test_recipeWithImpliedArguments")
-#    x <- AnnotationHubRecipe()
-#    x <- setRecipeName(x,"bedFileRecipe")
-#    x <- setInputFiles(x,"wgEncodeRikenCageCd20CellPapTssHmm.top50.bedRnaElements")
-#    x <- setOutputDirectory(x,"/tmp")
-#    run(x)
-#    
-#}
-##-------------------------------------------------------------------------------
-#test_recipeWithSuppliedArguments <- function()
-#{
-#    print ("--- test_recipeWithSuppliedArguments")
-#    x <- AnnotationHubRecipe()
-#    func <- function(filename) {system(sprintf("wc -l "%s"", filename))}
-#    run(x, "func", "jabberwocky.txt")
-#    
-#}
-##-------------------------------------------------------------------------------
-#test_bedFileRecipe <- function()
-#{
-#    print ("--- test_bedFileRecipe")
-#    x <- AnnotationHubRecipe()
-#    x <- setRecipeName(x, "bedFileRecipe")
-#    filename <- system.file("extdata",
-#                            "wgEncodeRikenCageCd20CellPapTssHmm.top50.bedRnaElements.gz",
-#                             package="AnnotationHubData")
-#    x <- setInputFiles(x, filename)
-#    x <- setOutputDirectory(x, "/tmp")
-#    run(x)
-#}
-##-------------------------------------------------------------------------------
-#test_temporaryMethods <- function()
-#{
-#  print ("--- test_temporaryMethods")
-#  x <- AnnotationHubRecipe()
-#
-#  x <- setRecipeName(x, "foo")
-#  checkEquals(getRecipeName(x), "foo")
-#
-#  x <- setInputFiles(x, c("foo", "bar"))
-#  checkEquals(getInputFiles(x), c("foo", "bar"))
-#
-#  x <- setOutputDirectory(x,"/tmp")
-#  checkEquals(getOutputDirectory(x),"/tmp")
-#  
-#}
-##-------------------------------------------------------------------------------
-#runRec <- function (functionName=NA, arg=NA) {
-#  cmd <- sprintf("%s()", functionName)
-#  printf("cmd: %s", cmd)
-#  eval(parse(text=cmd))
-#  }
-#
-##-------------------------------------------------------------------------------
-#runRec1 <- function (functionName=NA, inputFileName=NA) {
-#  if(is.na(functionName))
-#    cmd <- sprintf("system ("date")")
-#  else {
-#    if(is.na(inputFileName))
-#      cmd <- sprintf ("%s()", functionName)
-#    else
-#      cmd <- sprintf ("%s("%s")", functionName, inputFileName)
-#    }
-#  printf("cmd: %s", cmd)
-#  eval(parse(text=cmd))
-#  }
-##-------------------------------------------------------------------------------
-#
-#func <- function(inputFileName=NA)
-#{
-#  if(!is.na(inputFileName)) {
-#    if(file.exists(inputFileName))
-#       printf("word count in %s: %d", inputFileName, 
-#          length(scan(inputFileName, what=character(), quiet=TRUE)))
-#    }
-#  else
-#      printf("no inputFileName, calling date from within func: %s", date())
-#}
-##-------------------------------------------------------------------------------
+test_extendedBedWithAuxilliaryTableRecipe <- function()
+{
+    print ("--- test_extendedBedWithAuxilliaryTableRecipe")
+
+        # copy the source data to a writable temporary directory
+    sourceDirectory <- system.file("extdata", package="AnnotationHubData")
+    workingDirectory <-
+        AnnotationHubData:::createWorkingDirectory(sourceDirectory)
+    annotationHubRoot <- workingDirectory
+
+        # locate the json metadata file
+    jsonFile <-
+       "wgEncodeRegDnaseClustered.bed-wgEncodeRegDnaseClusteredInputs.tab.json"
+    resourcePath <- "goldenpath/hg19/encodeDCC/wgEncodeRegDnaseClustered"
+    jsonPath <- file.path(resourcePath, jsonFile)
+
+        # create a metadata object from this file
+    md <-
+      constructAnnotationHubMetadataFromJsonPath(annotationHubRoot, jsonPath)
+
+
+} # test_extendedBedWithAuxilliaryTableRecipe
+#-------------------------------------------------------------------------------
