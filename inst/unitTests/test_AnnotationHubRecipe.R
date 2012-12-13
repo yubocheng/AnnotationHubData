@@ -12,7 +12,7 @@ runTests <- function()
     test_constructSeqInfo()
 
     test_extendedBedFileRecipe()
-    test_extendedBedWithAuxilliaryTableRecipe ()
+    #test_extendedBedWithAuxiliaryTableRecipe ()
 
 } # runTests
 #-------------------------------------------------------------------------------
@@ -163,6 +163,8 @@ test_extendedBedFileRecipe <- function()
     resourcePath <- "goldenpath/hg19/encodeDCC/wgEncodeRikenCage"
     jsonPath <- file.path(resourcePath, jsonFile)
 
+    checkTrue(file.exists(file.path(annotationHubRoot, jsonPath)))
+
         # create a metadata object from this file
     md <- constructAnnotationHubMetadataFromJsonPath(annotationHubRoot,
                                                      jsonPath)
@@ -187,9 +189,28 @@ test_extendedBedFileRecipe <- function()
 
 } # test_extendedBedFileRecipe
 #-------------------------------------------------------------------------------
-test_extendedBedWithAuxilliaryTableRecipe <- function()
+dev.extendedBedWithAuxiliaryTable <- function(recipe)
 {
-    print ("--- test_extendedBedWithAuxilliaryTableRecipe")
+     browser()
+#    colClasses <- recipe@metadata@RecipeArgs$colClasses
+#    colnames <- names(colClasses)
+#    unused <- which(colnames == "")
+#    if(length(unused) > 0)
+#        colnames <- colnames[-unused]
+#
+#    requiredColnames <- c("seqnames", "start", "end", "strand")
+#    stopifnot(all(requiredColnames %in% colnames))
+#    otherColnames <- setdiff(colnames, requiredColnames)
+#
+#    tbl <- read.table(inputFiles(recipe)[1], sep="\t", header=FALSE, colClasses=colClasses)
+#    colnames(tbl) <- colnames
+
+
+} # dev.extendedBedWithAuxiliaryTable 
+#-------------------------------------------------------------------------------
+test_extendedBedWithAuxiliaryTableRecipe <- function()
+{
+    print ("--- test_extendedBedWithAuxiliaryTableRecipe")
 
         # copy the source data to a writable temporary directory
     sourceDirectory <- system.file("extdata", package="AnnotationHubData")
@@ -206,7 +227,9 @@ test_extendedBedWithAuxilliaryTableRecipe <- function()
         # create a metadata object from this file
     md <-
       constructAnnotationHubMetadataFromJsonPath(annotationHubRoot, jsonPath)
+    browser()
+    x <- runWild(recipe)
+    browser()
 
-
-} # test_extendedBedWithAuxilliaryTableRecipe
+} # test_extendedBedWithAuxiliaryTableRecipe
 #-------------------------------------------------------------------------------
