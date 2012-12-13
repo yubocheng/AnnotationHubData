@@ -3,7 +3,7 @@
 "Species": "Homo sapiens",
 "TaxonomyId": "9606",
 "Genome": "hg19",
-"Recipe": "extendedBedToGranges",
+"Recipe": "extendedBedToGRanges",
 "RecipeArgs": [
  null 
 ],
