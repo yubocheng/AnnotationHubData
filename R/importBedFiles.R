@@ -113,6 +113,7 @@ import_stamH3K4me3ProfilePromoters <- function(ahroot)
 import_wgEncodeRikenCageCd20CellPapTssHmm <- function(ahroot)
 {
     params <- bedCommon()
+    params$Recipe <- "extendedBedToGRanges"
     params$AnnotationHubRoot <- ahroot
     params$OriginalFile <- "goldenpath/hg19/encodeDCC/wgEncodeRikenCage/wgEncodeRikenCageCd20CellPapTssHmm.bedRnaElements"
     params$Title <- "CD20 CAGE defined Transcriptional Start Sites"
