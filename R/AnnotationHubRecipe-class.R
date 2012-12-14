@@ -78,7 +78,9 @@ setMethod("run", "AnnotationHubRecipe",
 
     function(object) {
        recipe.function <- get(recipeName(object), envir=getNamespace("AnnotationHubData"))
-       do.call(recipe.function, list(object))
+       result <- do.call(recipe.function, list(object))
+       postProcessMetadata(annotationHubRoot(object), object@metadata@OriginalFile)
+       result
        })
 
 
@@ -87,24 +89,10 @@ setMethod("runWild", "AnnotationHubRecipe",
     function(object, recipe.function=NULL) {
        if(is.null (recipe.function))
          recipe.function <- get(recipeName(object), envir=getNamespace("AnnotationHubData"))
-       do.call(recipe.function, list(object))
+       result <- do.call(recipe.function, list(object))
+       postProcessMetadata(annotationHubRoot(object), object@metadata@OriginalFile)
+       result
        })
-
-
-#setMethod("run", "AnnotationHubRecipe",
-#
-#    function(object, functionName=NA, inputFiles=NA) {
-#       #browser('run')
-#       if(is.na(functionName)) {
-#           functionName <- recipeName(object)
-#           inputFiles <- inputFiles(object)
-#           cmd <- sprintf("%s('%s')", functionName, inputFiles)
-#         } else {
-#           cmd <- sprintf("%s('%s')", functionName, inputFiles)
-#         }
-#       printf("recipe as function call: %s", cmd)
-#       eval(parse(text=cmd))
-#       })
 
 #-------------------------------------------------------------------------------
 recipe1 <- function(inputDataFileName)
