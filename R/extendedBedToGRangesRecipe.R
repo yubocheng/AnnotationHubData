@@ -21,8 +21,8 @@ extendedBedToGRanges <- function(recipe)
         # if gr only has a subset of all possible chromosomes, then update those only
     seqinfo(gr) <- newSeqInfo[names(seqinfo(gr))]
 
-    postProcessMetadata(annotationHubRoot(recipe), recipe@metadata@OriginalFile)
     save(gr, file=outputFile(recipe))
+    postProcessMetadata(annotationHubRoot(recipe), recipe@metadata@OriginalFile)
 
     outputFile(recipe)
 

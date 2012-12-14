@@ -43,7 +43,8 @@ setClass("AnnotationHubMetadata",
     for (file in files)
     {
         ret <- c(ret, 
-            strsplit(as.character(file.info(file)$mtime), " "))[[1]][1]
+            as.character(as.Date(file.info(file)$mtime))
+        )
     }
     ret
 }
@@ -59,7 +60,9 @@ setClass("AnnotationHubMetadata",
     {
         type <- getSlots("AnnotationHubMetadata")[[name]]
         if (type == "integer")
+        {
             l[[name]] <- as.integer(l[[name]])
+        }
         slot(x, name) <- l[[name]]
     }
     x

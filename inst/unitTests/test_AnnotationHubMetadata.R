@@ -39,14 +39,13 @@ test_post_processing <- function()
 
 
         # reload the metadata
-    md <- constructMetadataFromJsonPath(workingDirectory, jsonPath)
+    md2 <- constructMetadataFromJsonPath(workingDirectory, jsonPath)
 
     info <- file.info(pathToRDataFile)
-    checkEquals(as.integer(info$size), md@DerivedSize)
+    checkEquals(as.integer(info$size), md2@DerivedSize)
 
     checkEquals(strftime(info$mtime, "%Y-%m-%d"),
-        strftime(md@DerivedLastModifiedDate, "%Y-%m-%d"))
-    #checkEquals(as.Date(info$mtime), as.Date(md@DerivedLastModifiedDate))
+        strftime(md2@DerivedLastModifiedDate, "%Y-%m-%d"))
 }
 
 
