@@ -4,7 +4,7 @@ library(RUnit)
 #-------------------------------------------------------------------------------
 runTests <- function()
 {
-    test_createWorkingDirectory()
+    test_.createWorkingDirectory()
     test_simpleConstructor()
     test_nullRecipe()
     #test_adhocRecipe()
@@ -16,9 +16,9 @@ runTests <- function()
 
 } # runTests
 #-------------------------------------------------------------------------------
-test_createWorkingDirectory <- function()
+test_.createWorkingDirectory <- function()
 {
-    print ("--- test_createWorkingDirectory")
+    print ("--- test_.createWorkingDirectory")
     sourceDirectory <- system.file('extdata',
                                     package='AnnotationHubData')
     
@@ -29,11 +29,11 @@ test_createWorkingDirectory <- function()
        # PKG-ROOT/extdata/goldenpath/hg19/encodeDCC/wgEncodeRikenCage/
     checkTrue(length(originalFiles) >= 3)
     
-    newDirectory <- AnnotationHubData:::createWorkingDirectory(sourceDirectory)
+    newDirectory <- AnnotationHubData:::.createWorkingDirectory(sourceDirectory)
     movedFiles <- sort(list.files(newDirectory, recursive=TRUE))
     checkEquals(originalFiles, movedFiles)
 
-} # test_createWorkingDirectory
+} # test_.createWorkingDirectory
 #-------------------------------------------------------------------------------
 test_simpleConstructor <- function()
 {
@@ -45,10 +45,10 @@ test_simpleConstructor <- function()
     
     sourceDirectory <- system.file('extdata', package='AnnotationHubData')
     workingDirectory <-
-        AnnotationHubData:::createWorkingDirectory(sourceDirectory)
+        AnnotationHubData:::.createWorkingDirectory(sourceDirectory)
     annotationHubRoot <- workingDirectory
 
-    md <- constructAnnotationHubMetadataFromJsonPath(annotationHubRoot, jsonPath)
+    md <- constructMetadataFromJsonPath(annotationHubRoot, jsonPath)
 
     recipe <- AnnotationHubRecipe(md)
     checkTrue(validObject(recipe))
@@ -77,10 +77,10 @@ test_nullRecipe <- function()
     jsonPath <- file.path(resourcePath, jsonFile)
     
     sourceDirectory <- system.file('extdata', package='AnnotationHubData')
-    workingDirectory <- AnnotationHubData:::createWorkingDirectory(sourceDirectory)
+    workingDirectory <- AnnotationHubData:::.createWorkingDirectory(sourceDirectory)
     annotationHubRoot <- workingDirectory
 
-    md <- constructAnnotationHubMetadataFromJsonPath(annotationHubRoot, jsonPath)
+    md <- constructMetadataFromJsonPath(annotationHubRoot, jsonPath)
     md@Recipe <- "nullRecipe"
     recipe <- AnnotationHubRecipe(md)
     checkTrue(validObject(recipe))
@@ -107,10 +107,10 @@ test_adhocRecipe <- function()
     jsonPath <- file.path(resourcePath, jsonFile)
     
     sourceDirectory <- system.file('extdata', package='AnnotationHubData')
-    workingDirectory <- AnnotationHubData:::createWorkingDirectory(sourceDirectory)
+    workingDirectory <- AnnotationHubData:::.createWorkingDirectory(sourceDirectory)
     annotationHubRoot <- workingDirectory
 
-    md <- constructAnnotationHubMetadataFromJsonPath(annotationHubRoot, jsonPath)
+    md <- constructMetadataFromJsonPath(annotationHubRoot, jsonPath)
     adhoc <- function(recipe) {
         nchar(inputFiles(recipe)[1])
         }
@@ -155,7 +155,7 @@ test_extendedBedFileRecipe <- function()
     sourceDirectory <- system.file("extdata", package="AnnotationHubData")
 
 
-    workingDirectory <- AnnotationHubData:::createWorkingDirectory(sourceDirectory)
+    workingDirectory <- AnnotationHubData:::.createWorkingDirectory(sourceDirectory)
     annotationHubRoot <- workingDirectory
 
         # locate the json metadata file
@@ -166,7 +166,7 @@ test_extendedBedFileRecipe <- function()
     checkTrue(file.exists(file.path(annotationHubRoot, jsonPath)))
 
         # create a metadata object from this file
-    md <- constructAnnotationHubMetadataFromJsonPath(annotationHubRoot,
+    md <- constructMetadataFromJsonPath(annotationHubRoot,
                                                      jsonPath)
 
         # now create a Recipe instance
@@ -215,7 +215,7 @@ test_extendedBedWithAuxiliaryTableRecipe <- function()
         # copy the source data to a writable temporary directory
     sourceDirectory <- system.file("extdata", package="AnnotationHubData")
     workingDirectory <-
-        AnnotationHubData:::createWorkingDirectory(sourceDirectory)
+        AnnotationHubData:::.createWorkingDirectory(sourceDirectory)
     annotationHubRoot <- workingDirectory
 
         # locate the json metadata file
@@ -226,7 +226,7 @@ test_extendedBedWithAuxiliaryTableRecipe <- function()
 
         # create a metadata object from this file
     md <-
-      constructAnnotationHubMetadataFromJsonPath(annotationHubRoot, jsonPath)
+      constructMetadataFromJsonPath(annotationHubRoot, jsonPath)
     browser()
     x <- runWild(recipe)
     browser()

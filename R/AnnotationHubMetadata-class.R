@@ -73,7 +73,7 @@ constructAnnotationHubMetadataFromOriginalFilePath <- function(ahroot, originalF
     .constructFromJson(ahroot, jsonFile)
 }
 
-constructAnnotationHubMetadataFromJsonPath <-
+constructMetadataFromJsonPath <-
     function(ahroot, jsonpath)
 {
     dir <- dirname(file.path(ahroot, jsonpath))

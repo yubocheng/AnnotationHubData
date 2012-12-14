@@ -7,16 +7,55 @@ runTests <- function()
     test_from_json()
     test_validity()
     test_multi_input()
+    test_post_processing()
+}
+
+
+
+
+
+test_post_processing <- function()
+{
+
+        # copy the source data to a writable temporary directory
+    sourceDirectory <- system.file("extdata", package="AnnotationHubData")
+    workingDirectory <- AnnotationHubData:::.createWorkingDirectory(sourceDirectory)
+
+        # locate the json metadata file
+    jsonFile <- "wgEncodeRikenCageCd20CellPapTssHmm.bedRnaElements.json"
+    resourcePath <- "goldenpath/hg19/encodeDCC/wgEncodeRikenCage"
+    jsonPath <- file.path(resourcePath, jsonFile)
+
+        # create a metadata object from this file
+    md <- constructMetadataFromJsonPath(workingDirectory, jsonPath)
+
+        # now create a Recipe instance
+    recipe <- AnnotationHubRecipe(md)
+
+
+        # create GRanges from the extended bed file, save as RData where
+        # instructed by the recipe
+    pathToRDataFile <- run(recipe)
+
+
+        # reload the metadata
+    md <- constructMetadataFromJsonPath(workingDirectory, jsonPath)
+
+    info <- file.info(pathToRDataFile)
+    checkEquals(as.integer(info$size), md@DerivedSize)
+
+    checkEquals(strftime(info$mtime, "%Y-%m-%d"),
+        strftime(md@DerivedLastModifiedDate, "%Y-%m-%d"))
+    #checkEquals(as.Date(info$mtime), as.Date(md@DerivedLastModifiedDate))
 }
 
 
 
 test_constructor <- function()
 {
-    subdir <- 'goldenpath'
-    sourceDirectory <- system.file('extdata', subdir,
+    sourceDirectory <- system.file('extdata', 
           package='AnnotationHubData')
-    ahroot <- AnnotationHubData:::createWorkingDirectory(sourceDirectory)
+    ahroot <- AnnotationHubData:::.createWorkingDirectory(sourceDirectory)
     ahm <- AnnotationHubMetadata(ahroot,
         "goldenpath/hg19/encodeDCC/wgEncodeRikenCage/wgEncodeRikenCageCd20CellPapTssHmm.bedRnaElements",
         Url="http://hgdownload.cse.ucsc.edu/goldenpath/hg19/encodeDCC/wgEncodeRikenCage/wgEncodeRikenCageCd20CellPapTssHmm.bedRnaElements",
@@ -35,10 +74,9 @@ test_constructor <- function()
 
 test_validity <- function()
 {
-    subdir <- 'goldenpath'
-    sourceDirectory <- system.file('extdata', subdir,
+    sourceDirectory <- system.file('extdata',
           package='AnnotationHubData')
-    ahroot <- AnnotationHubData:::createWorkingDirectory(sourceDirectory)
+    ahroot <- AnnotationHubData:::.createWorkingDirectory(sourceDirectory)
     l <- list()
     l$AnnotationHubRoot <- ahroot
     l$OriginalFile <- "goldenpath/hg19/encodeDCC/wgEncodeRikenCage/wgEncodeRikenCageCd20CellPapTssHmm.bedRnaElements"
@@ -75,10 +113,9 @@ test_validity <- function()
 test_multi_input <- function()
 {
 
-    subdir <- 'goldenpath'
-    sourceDirectory <- system.file('extdata', subdir,
+    sourceDirectory <- system.file('extdata', 
           package='AnnotationHubData')
-    ahroot <- AnnotationHubData:::createWorkingDirectory(sourceDirectory)
+    ahroot <- AnnotationHubData:::.createWorkingDirectory(sourceDirectory)
 
     rp <- "goldenpath/hg19/encodeDCC/wgEncodeRegDnaseClustered"
     files <- file.path(rp, c("wgEncodeRegDnaseClustered.bed.gz",
@@ -122,7 +159,7 @@ test_from_json <- function()
     
     ahroot <- system.file('extdata', package='AnnotationHubData')
 
-    ahm <- constructAnnotationHubMetadataFromJsonPath(ahroot, jsonPath)
+    ahm <- constructMetadataFromJsonPath(ahroot, jsonPath)
     checkTrue(validObject(ahm))
 }
 

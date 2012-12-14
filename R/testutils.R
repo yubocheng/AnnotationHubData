@@ -7,11 +7,11 @@
 # a recursive copy of the (possibly deeply-nested) source directory (below
 # pkg/extdata) into a temporary and necessarily writable directory provides
 # the solution
-createWorkingDirectory <- function(sourceDirectory, verbose=FALSE)
+.createWorkingDirectory <- function(sourceDirectory, verbose=FALSE)
 {
     newDirectory <- tempdir()
     suppressWarnings({ # .svn directories do not copy
-        result=file.copy(sourceDirectory, newDirectory, recursive=TRUE, overwrite=TRUE)
+        result=file.copy(sourceDirectory, newDirectory, recursive=TRUE)
         })
 
     if(verbose)

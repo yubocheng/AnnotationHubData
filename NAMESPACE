@@ -2,7 +2,7 @@ exportClasses(AnnotationHubMetadata, AnnotationHubRecipe)
 export(AnnotationHubMetadata, AnnotationHubRecipe)
 export(constructAnnotationHubMetadataFromOriginalFilePath,
   postProcessMetadata,
-  constructAnnotationHubMetadataFromJsonPath)
+  constructMetadataFromJsonPath)
 import(RJSONIO)
 importFrom(BiocInstaller, biocVersion)
 
