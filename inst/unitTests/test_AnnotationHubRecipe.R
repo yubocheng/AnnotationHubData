@@ -7,7 +7,7 @@ runTests <- function()
     test_createWorkingDirectory()
     test_simpleConstructor()
     test_nullRecipe()
-    test_adhocRecipe()
+    #test_adhocRecipe()
 
     test_constructSeqInfo()
 
@@ -19,8 +19,7 @@ runTests <- function()
 test_createWorkingDirectory <- function()
 {
     print ("--- test_createWorkingDirectory")
-    subdirectory <- 'goldenpath'
-    sourceDirectory <- system.file('extdata', subdirectory,
+    sourceDirectory <- system.file('extdata',
                                     package='AnnotationHubData')
     
     originalFiles <- sort(list.files(sourceDirectory, recursive=TRUE))
@@ -31,8 +30,7 @@ test_createWorkingDirectory <- function()
     checkTrue(length(originalFiles) >= 3)
     
     newDirectory <- AnnotationHubData:::createWorkingDirectory(sourceDirectory)
-    newDirectoryComplete <- file.path(newDirectory, 'goldenpath')
-    movedFiles <- sort(list.files(newDirectoryComplete, recursive=TRUE))
+    movedFiles <- sort(list.files(newDirectory, recursive=TRUE))
     checkEquals(originalFiles, movedFiles)
 
 } # test_createWorkingDirectory
@@ -153,9 +151,11 @@ test_extendedBedFileRecipe <- function()
     print ("--- test_extendedBedFileRecipe")
 
         # copy the source data to a writable temporary directory
+
     sourceDirectory <- system.file("extdata", package="AnnotationHubData")
-    workingDirectory <-
-       AnnotationHubData:::createWorkingDirectory(sourceDirectory)
+
+
+    workingDirectory <- AnnotationHubData:::createWorkingDirectory(sourceDirectory)
     annotationHubRoot <- workingDirectory
 
         # locate the json metadata file
