@@ -120,7 +120,10 @@ test_adhocRecipe <- function()
     checkTrue(validObject(recipe))
     checkEquals(md@Recipe, "adhoc")
     checkEquals(recipeName(recipe), "adhoc")
-    checkEquals(runWild(recipe, adhoc), 154)
+       # adhoc just does character count on the input file specified
+       # in the json file.  will change on each run due to the
+       # random tmp directory name.  check for identical counts
+    checkEquals(runWild(recipe, adhoc), nchar(inputFiles(recipe)[1]))
 
 } # test_nullRecipe
 #-------------------------------------------------------------------------------
