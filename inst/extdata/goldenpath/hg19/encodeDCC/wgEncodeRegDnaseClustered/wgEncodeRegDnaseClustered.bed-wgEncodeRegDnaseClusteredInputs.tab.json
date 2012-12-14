@@ -3,10 +3,22 @@
 "Species": "Homo sapiens",
 "TaxonomyId": "9606",
 "Genome": "hg19",
-"Recipe": "unknown",
-"RecipeArgs": [
- null 
-],
+"Recipe": "dev.extendedBedWithAuxiliaryTable",
+"RecipeArgs": {"bedColClasses": { "seqnames": "character",
+                                     "start": "integer",
+                                       "end": "integer",
+                              "experimentID": "integer",
+                                     "score": "numeric"},
+               "auxColClasses": {    "track": "character",
+                                  "cellType": "character",
+                                 "treatment": "character",
+                                 "replicate": "integer",
+                                    "source": "character",
+                                      "date": "character"},
+               "merge": {"byX": "experimentID",
+                         "byY": "rowIndex"}
+
+               },
 "Url": [ "http://hgdownload.cse.ucsc.edu/goldenpath/hg19/encodeDCC/wgEncodeRegDnaseClustered/wgEncodeRegDnaseClusteredInputs.tab.gz", "http://hgdownload.cse.ucsc.edu/goldenpath/hg19/encodeDCC/wgEncodeRegDnaseClustered/wgEncodeRegDnaseClustered.bed.gz" ],
 "OriginalFile": [ "goldenpath/hg19/encodeDCC/wgEncodeRegDnaseClustered/wgEncodeRegDnaseClustered.bed.gz", "goldenpath/hg19/encodeDCC/wgEncodeRegDnaseClustered/wgEncodeRegDnaseClusteredInputs.tab" ],
 "ResourcePath": "goldenpath/hg19/encodeDCC/wgEncodeRegDnaseClustered/wgEncodeRegDnaseClustered.bed-wgEncodeRegDnaseClusteredInputs.tab.RData",
