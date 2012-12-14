@@ -31,7 +31,8 @@ test_.createWorkingDirectory <- function()
     
     newDirectory <- AnnotationHubData:::.createWorkingDirectory(sourceDirectory)
     movedFiles <- sort(list.files(newDirectory, recursive=TRUE))
-    checkEquals(originalFiles, movedFiles)
+    browser()
+    checkTrue(length(match(originalFiles, movedFiles)) == length (originalFiles))
 
 } # test_.createWorkingDirectory
 #-------------------------------------------------------------------------------
