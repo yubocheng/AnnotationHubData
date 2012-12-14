@@ -4,7 +4,7 @@ library(RUnit)
 #-------------------------------------------------------------------------------
 runTests <- function()
 {
-    test_.createWorkingDirectory()
+    test_createWorkingDirectory()
     test_simpleConstructor()
     test_nullRecipe()
     #test_adhocRecipe()
@@ -16,7 +16,7 @@ runTests <- function()
 
 } # runTests
 #-------------------------------------------------------------------------------
-test_.createWorkingDirectory <- function()
+test_createWorkingDirectory <- function()
 {
     print ("--- test_.createWorkingDirectory")
     sourceDirectory <- system.file('extdata',
@@ -87,7 +87,6 @@ test_nullRecipe <- function()
     checkEquals(md@Recipe, "nullRecipe")
     checkEquals(recipeName(recipe), "nullRecipe")
     checkTrue(file.exists(inputFiles(recipe)[1]))
-    checkTrue(!file.exists(outputFile(recipe)))
     run(recipe)
     checkTrue(file.exists(outputFile(recipe)))
     runWild(recipe)
