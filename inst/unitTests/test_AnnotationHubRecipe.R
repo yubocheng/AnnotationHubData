@@ -4,10 +4,10 @@ library(RUnit)
 #-------------------------------------------------------------------------------
 runTests <- function()
 {
-    test_createWorkingDirectory()
+    test_.createWorkingDirectory()
     test_simpleConstructor()
     test_nullRecipe()
-    #test_adhocRecipe()
+    test_adhocRecipe()
 
     test_constructSeqInfo()
 
@@ -16,7 +16,7 @@ runTests <- function()
 
 } # runTests
 #-------------------------------------------------------------------------------
-test_createWorkingDirectory <- function()
+test_.createWorkingDirectory <- function()
 {
     print ("--- test_.createWorkingDirectory")
     sourceDirectory <- system.file('extdata',
@@ -120,12 +120,13 @@ test_adhocRecipe <- function()
     checkTrue(validObject(recipe))
     checkEquals(md@Recipe, "adhoc")
     checkEquals(recipeName(recipe), "adhoc")
-       # adhoc just does character count on the input file specified
+
+       # adhoc  does character count on the input file specified
        # in the json file.  will change on each run due to the
        # random tmp directory name.  check for identical counts
     checkEquals(runWild(recipe, adhoc), nchar(inputFiles(recipe)[1]))
 
-} # test_nullRecipe
+} # test_adhocRecipe
 #-------------------------------------------------------------------------------
 test_constructSeqInfo <- function()
 {
@@ -193,25 +194,83 @@ test_extendedBedFileRecipe <- function()
 #-------------------------------------------------------------------------------
 dev.extendedBedWithAuxiliaryTable <- function(recipe)
 {
-     browser()
-#    colClasses <- recipe@metadata@RecipeArgs$colClasses
-#    colnames <- names(colClasses)
-#    unused <- which(colnames == "")
-#    if(length(unused) > 0)
-#        colnames <- colnames[-unused]
-#
-#    requiredColnames <- c("seqnames", "start", "end", "strand")
-#    stopifnot(all(requiredColnames %in% colnames))
-#    otherColnames <- setdiff(colnames, requiredColnames)
-#
-#    tbl <- read.table(inputFiles(recipe)[1], sep="\t", header=FALSE, colClasses=colClasses)
-#    colnames(tbl) <- colnames
+     bedFile <- grep(".bed.gz$", inputFiles(recipe), value=TRUE)
+     auxFile <- grep(".tab$", inputFiles(recipe), value=TRUE)
+     stopifnot(length(bedFile) == 1)
+     stopifnot(length(auxFile) == 1)
 
+     colClasses <- recipe@metadata@RecipeArgs$bedColClasses
+     tbl.bed <- read.table(gzfile(bedFile), sep="\t", header=FALSE,
+                           colClasses=colClasses)
+     colnames(tbl.bed) <- names(colClasses)
+     
+     colClasses <- recipe@metadata@RecipeArgs$auxColClasses
+     tbl.aux <- read.table(auxFile, sep="\t", colClasses=colClasses)
+     colnames(tbl.aux) <- names(colClasses)
+
+     mergeArgs <- recipe@metadata@RecipeArgs$merge
+     browser()
+
+        # TODO:  special knowledge inserted here, adding a column
+        # TODO:  to tbl.aux (rowIndex) so that tables can be linked
+        # TODO:  future data sources using otherwise identical
+        # TODO:  treatment may suggest more general approach.
+     
+     tbl.aux <- cbind(tbl.aux, rowIndex=1:nrow(tbl.aux))
+
+     tbl <- merge(tbl.bed, tbl.aux, by.x=mergeArgs[["byX"]],
+                                    by.y=mergeArgs[["byY"]],
+                                    all.x=TRUE)
+     colnames <- colnames(tbl)
+     requiredColnames <- c("seqnames", "start", "end")
+     stopifnot(all(requiredColnames %in% colnames))
+     otherColnames <- setdiff(colnames, requiredColnames)
+
+     gr <- with(tbl, GRanges(seqnames, IRanges(start, end)))
+     mcols(gr) <- DataFrame(tbl[, otherColnames])
+
+        # add seqlength & chromosome circularity information
+    newSeqInfo <- constructSeqInfo(recipe@metadata@Species, recipe@metadata@Genome) 
+        # if gr only has a subset of all possible chromosomes, then update those only
+    seqinfo(gr) <- newSeqInfo[names(seqinfo(gr))]
+
+    save(gr, file=outputFile(recipe))
+
+    outputFile(recipe)
 
 } # dev.extendedBedWithAuxiliaryTable 
 #-------------------------------------------------------------------------------
 test_extendedBedWithAuxiliaryTableRecipe <- function()
 {
+    print ("--- test_extendedBedWithAuxiliaryTableRecipe")
+
+        # copy the source data to a writable temporary directory
+    sourceDirectory <- system.file("extdata", package="AnnotationHubData")
+    workingDirectory <-
+        AnnotationHubData:::.createWorkingDirectory(sourceDirectory)
+    annotationHubRoot <- workingDirectory
+
+        # locate the json metadata file
+    jsonFile <-
+       "wgEncodeRegDnaseClustered.bed-wgEncodeRegDnaseClusteredInputs.tab.json"
+    resourcePath <- "goldenpath/hg19/encodeDCC/wgEncodeRegDnaseClustered"
+    jsonPath <- file.path(resourcePath, jsonFile)
+
+        # create a metadata object from this file
+    md <-
+      constructMetadataFromJsonPath(annotationHubRoot, jsonPath)
+    browser()
+    checkEquals(length(gr), 100)
+    checkEquals(dim(mcols(gr)), c(100,8))
+    checkEquals(colnames(mcols(gr)), c("name", "score", "track", "cellType",
+                                       "treatment", "replicate", "source", "date"))
+      # hand-check one range
+    x <- gr[start(gr)==95923360]
+    checkEquals(end(x), 95924150)
+    checkEquals(as.character(seqnames(x)), "chr13")
+    x.md <- as.list(mcols(x))
+    #checkEquals(x.md,
+
     print ("--- test_extendedBedWithAuxiliaryTableRecipe")
 
         # copy the source data to a writable temporary directory
