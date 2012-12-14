@@ -12,7 +12,7 @@ runTests <- function()
     test_constructSeqInfo()
 
     test_extendedBedFileRecipe()
-    #test_extendedBedWithAuxiliaryTableRecipe ()
+    #notest_extendedBedWithAuxiliaryTableRecipe ()
 
 } # runTests
 #-------------------------------------------------------------------------------
@@ -240,7 +240,7 @@ dev.extendedBedWithAuxiliaryTable <- function(recipe)
 
 } # dev.extendedBedWithAuxiliaryTable 
 #-------------------------------------------------------------------------------
-test_extendedBedWithAuxiliaryTableRecipe <- function()
+notest_extendedBedWithAuxiliaryTableRecipe <- function()
 {
     print ("--- test_extendedBedWithAuxiliaryTableRecipe")
 
