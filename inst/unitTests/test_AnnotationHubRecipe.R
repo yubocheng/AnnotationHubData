@@ -292,18 +292,6 @@ test_extendedBedWithAuxiliaryTableToGRanges <- function()
 
 } # test_extendedBedWithAuxiliaryTableToGRanges
 #-------------------------------------------------------------------------------
-dev.ensemblGtfToGRanges <- function(recipe)
-{
-  gz.inputFile <- inputFiles(recipe)[1]
-  con <- gzfile(gz.inputFile)
-  on.exit(close(con))
-  writeLines(readLines(con), tmp <- tempfile())
-  gr <- import(tmp, "gtf", asRangedData=FALSE)
-  save(gr, file=outputFile(recipe))
-  outputFile(recipe)
-
-} # dev.ensemblGtfToGRanges 
-#-------------------------------------------------------------------------------
 test_ensemblGtfToGRanges <- function()
 {
     print('--- test_ensemblGtfToGRanges')
@@ -321,9 +309,8 @@ test_ensemblGtfToGRanges <- function()
 
         # create a metadata object from this file
     md <- constructMetadataFromJsonPath(annotationHubRoot, jsonPath)
-    md@Recipe <- 'dev.ensemblGtfToGRanges'
     recipe <- AnnotationHubRecipe(md)
-    RDataFilename <- runWild(recipe)
+    RDataFilename <- run(recipe)
     checkEquals(RDataFilename, outputFile(recipe))
     checkTrue(file.exists(RDataFilename))
     loadedDataName <- load(RDataFilename)

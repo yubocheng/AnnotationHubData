@@ -8,7 +8,8 @@ importFrom(BiocInstaller, biocVersion)
 
 export(constructSeqInfo,
        extendedBedToGRanges,
-       extendedBedWithAuxiliaryTableToGRanges)
+       extendedBedWithAuxiliaryTableToGRanges,
+       ensemblGtfToGRanges)
 
 exportMethods(
     show,
