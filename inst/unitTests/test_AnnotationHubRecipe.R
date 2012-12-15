@@ -5,14 +5,14 @@ library(RUnit)
 runTests <- function()
 {
     test_.createWorkingDirectory()
+    test_constructSeqInfo()
+
     test_simpleConstructor()
     test_nullRecipe()
     test_adhocRecipe()
 
-    test_constructSeqInfo()
-
-    test_extendedBedFileRecipe()
-    #notest_extendedBedWithAuxiliaryTableRecipe ()
+    test_extendedBedToGranges()
+    test_extendedBedWithAuxiliaryTableToGRanges ()
 
 } # runTests
 #-------------------------------------------------------------------------------
@@ -31,7 +31,6 @@ test_.createWorkingDirectory <- function()
     
     newDirectory <- AnnotationHubData:::.createWorkingDirectory(sourceDirectory)
     movedFiles <- sort(list.files(newDirectory, recursive=TRUE))
-    browser()
     checkTrue(length(match(originalFiles, movedFiles)) == length (originalFiles))
 
 } # test_.createWorkingDirectory
@@ -150,9 +149,9 @@ test_constructSeqInfo <- function()
 
 } # test_constructSeqInfo
 #-------------------------------------------------------------------------------
-test_extendedBedFileRecipe <- function()
+test_extendedBedToGranges <- function()
 {
-    print ("--- test_extendedBedFileRecipe")
+    print ("--- test_extendedBedToGranges")
 
         # copy the source data to a writable temporary directory
 
@@ -191,7 +190,7 @@ test_extendedBedFileRecipe <- function()
     checkEquals(end(gr[9]),   54704735)
     checkEquals(width(gr[9]), 60)
 
-} # test_extendedBedFileRecipe
+} # test_extendedBedToGranges
 #-------------------------------------------------------------------------------
 dev.extendedBedWithAuxiliaryTable <- function(recipe)
 {
@@ -210,24 +209,23 @@ dev.extendedBedWithAuxiliaryTable <- function(recipe)
      colnames(tbl.aux) <- names(colClasses)
 
      mergeArgs <- recipe@metadata@RecipeArgs$merge
-     browser()
 
         # TODO:  special knowledge inserted here, adding a column
-        # TODO:  to tbl.aux (rowIndex) so that tables can be linked
+        # TODO:  to tbl.aux (rowIndex) so that tables can be linked.
         # TODO:  future data sources using otherwise identical
         # TODO:  treatment may suggest more general approach.
      
      tbl.aux <- cbind(tbl.aux, rowIndex=1:nrow(tbl.aux))
-
      tbl <- merge(tbl.bed, tbl.aux, by.x=mergeArgs[["byX"]],
                                     by.y=mergeArgs[["byY"]],
                                     all.x=TRUE)
+     tbl <- AnnotationHubData:::.sortTableByChromosomalLocation(tbl)
      colnames <- colnames(tbl)
-     requiredColnames <- c("seqnames", "start", "end")
+     requiredColnames <- c("seqname", "start", "end")
      stopifnot(all(requiredColnames %in% colnames))
      otherColnames <- setdiff(colnames, requiredColnames)
 
-     gr <- with(tbl, GRanges(seqnames, IRanges(start, end)))
+     gr <- with(tbl, GRanges(seqname, IRanges(start, end)))
      mcols(gr) <- DataFrame(tbl[, otherColnames])
 
         # add seqlength & chromosome circularity information
@@ -241,9 +239,9 @@ dev.extendedBedWithAuxiliaryTable <- function(recipe)
 
 } # dev.extendedBedWithAuxiliaryTable 
 #-------------------------------------------------------------------------------
-notest_extendedBedWithAuxiliaryTableRecipe <- function()
+test_extendedBedWithAuxiliaryTableToGRanges <- function()
 {
-    print ("--- test_extendedBedWithAuxiliaryTableRecipe")
+    print ("--- test_extendedBedWithAuxiliaryTableToGRanges")
 
         # copy the source data to a writable temporary directory
     sourceDirectory <- system.file("extdata", package="AnnotationHubData")
@@ -258,40 +256,36 @@ notest_extendedBedWithAuxiliaryTableRecipe <- function()
     jsonPath <- file.path(resourcePath, jsonFile)
 
         # create a metadata object from this file
-    md <-
-      constructMetadataFromJsonPath(annotationHubRoot, jsonPath)
-    browser()
+    md <- constructMetadataFromJsonPath(annotationHubRoot, jsonPath)
+    recipe <- AnnotationHubRecipe(md)
+    RDataFilename <- runWild(recipe)
+    checkEquals(RDataFilename, outputFile(recipe))
+    loadedDataName <- load(RDataFilename)
+    checkEquals(loadedDataName, 'gr')
     checkEquals(length(gr), 100)
     checkEquals(dim(mcols(gr)), c(100,8))
-    checkEquals(colnames(mcols(gr)), c("name", "score", "track", "cellType",
+    checkEquals(colnames(mcols(gr)), c("experimentID", "score", "track", "cellType",
                                        "treatment", "replicate", "source", "date"))
-      # hand-check one range
+      # hand-check one range, extracted from our sample data
+      # --- from the bed file
+      #    seqname     start       end experimentID score
+      # 71   chr13  95923360  95924150          118  1000
+      # --- from auxiliary data
+      #                             track        cellType treatment replicate source       date rowIndex
+      # 118 wgEncodeUwDnaseMonocd14PkRep1 Monocytes-CD14+      None         1     UW 2011-10-10      118
+
     x <- gr[start(gr)==95923360]
     checkEquals(end(x), 95924150)
     checkEquals(as.character(seqnames(x)), "chr13")
-    x.md <- as.list(mcols(x))
-    #checkEquals(x.md,
+    z <- as.list(mcols(x))
+    checkEquals(z$experimentID, 118L)
+    checkEquals(z$score, 1000)
+    checkEquals(z$track, "wgEncodeUwDnaseMonocd14PkRep1")
+    checkEquals(z$cellType, "Monocytes-CD14+")
+    checkEquals(z$treatment, "None")
+    checkEquals(z$replicate, 1L)
+    checkEquals(z$source, "UW")
+    checkEquals(z$date, "2011-10-10")
 
-    print ("--- test_extendedBedWithAuxiliaryTableRecipe")
-
-        # copy the source data to a writable temporary directory
-    sourceDirectory <- system.file("extdata", package="AnnotationHubData")
-    workingDirectory <-
-        AnnotationHubData:::.createWorkingDirectory(sourceDirectory)
-    annotationHubRoot <- workingDirectory
-
-        # locate the json metadata file
-    jsonFile <-
-       "wgEncodeRegDnaseClustered.bed-wgEncodeRegDnaseClusteredInputs.tab.json"
-    resourcePath <- "goldenpath/hg19/encodeDCC/wgEncodeRegDnaseClustered"
-    jsonPath <- file.path(resourcePath, jsonFile)
-
-        # create a metadata object from this file
-    md <-
-      constructMetadataFromJsonPath(annotationHubRoot, jsonPath)
-    browser()
-    x <- runWild(recipe)
-    browser()
-
-} # test_extendedBedWithAuxiliaryTableRecipe
+} # test_extendedBedWithAuxiliaryTableToGRanges
 #-------------------------------------------------------------------------------
