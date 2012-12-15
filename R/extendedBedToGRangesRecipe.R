@@ -22,7 +22,6 @@ extendedBedToGRanges <- function(recipe)
     seqinfo(gr) <- newSeqInfo[names(seqinfo(gr))]
 
     save(gr, file=outputFile(recipe))
-    postProcessMetadata(annotationHubRoot(recipe), recipe@metadata@OriginalFile)
 
     outputFile(recipe)
 

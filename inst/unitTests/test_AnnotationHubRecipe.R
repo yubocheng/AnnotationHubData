@@ -1,5 +1,6 @@
 library(AnnotationHubData)
 library(RJSONIO)
+library(rtracklayer)
 library(RUnit)
 #-------------------------------------------------------------------------------
 runTests <- function()
@@ -13,6 +14,8 @@ runTests <- function()
 
     test_extendedBedToGranges()
     test_extendedBedWithAuxiliaryTableToGRanges ()
+
+    test_ensemblGtfToGRanges()
 
 } # runTests
 #-------------------------------------------------------------------------------
@@ -258,7 +261,7 @@ test_extendedBedWithAuxiliaryTableToGRanges <- function()
         # create a metadata object from this file
     md <- constructMetadataFromJsonPath(annotationHubRoot, jsonPath)
     recipe <- AnnotationHubRecipe(md)
-    RDataFilename <- runWild(recipe)
+    RDataFilename <- run(recipe)
     checkEquals(RDataFilename, outputFile(recipe))
     loadedDataName <- load(RDataFilename)
     checkEquals(loadedDataName, 'gr')
@@ -288,4 +291,68 @@ test_extendedBedWithAuxiliaryTableToGRanges <- function()
     checkEquals(z$date, "2011-10-10")
 
 } # test_extendedBedWithAuxiliaryTableToGRanges
+#-------------------------------------------------------------------------------
+dev.ensemblGtfToGRanges <- function(recipe)
+{
+  gz.inputFile <- inputFiles(recipe)[1]
+  con <- gzfile(gz.inputFile)
+  on.exit(close(con))
+  writeLines(readLines(con), tmp <- tempfile())
+  gr <- import(tmp, "gtf", asRangedData=FALSE)
+  save(gr, file=outputFile(recipe))
+  outputFile(recipe)
+
+} # dev.ensemblGtfToGRanges 
+#-------------------------------------------------------------------------------
+test_ensemblGtfToGRanges <- function()
+{
+    print('--- test_ensemblGtfToGRanges')
+        # copy the source data to a writable temporary directory
+    sourceDirectory <- system.file("extdata", package="AnnotationHubData")
+    workingDirectory <-
+      AnnotationHubData:::.createWorkingDirectory(sourceDirectory)
+    annotationHubRoot <- workingDirectory
+
+        # locate the json metadata file
+    jsonFile <- "Homo_sapiens.GRCh37.69.gtf.json"
+    resourcePath <- "pub/release-69/gtf/homo_sapiens"
+    jsonPath <- file.path(resourcePath, jsonFile)
+    checkTrue(file.exists(file.path(annotationHubRoot,jsonPath)))
+
+        # create a metadata object from this file
+    md <- constructMetadataFromJsonPath(annotationHubRoot, jsonPath)
+    md@Recipe <- 'dev.ensemblGtfToGRanges'
+    recipe <- AnnotationHubRecipe(md)
+    RDataFilename <- runWild(recipe)
+    checkEquals(RDataFilename, outputFile(recipe))
+    checkTrue(file.exists(RDataFilename))
+    loadedDataName <- load(RDataFilename)
+    checkTrue(is(eval(parse(text=loadedDataName)), "GRanges"))
+    checkEquals(length(gr), 50)
+    checkEquals(dim(mcols(gr)), c(50,12))
+    checkEquals(sort(colnames(mcols(gr))),
+                c("exon_id", "exon_number", "gene_biotype", "gene_id",
+                  "gene_name", "phase", "protein_id","score", "source",
+                  "transcript_id", "transcript_name", "type"))
+       # check one record closely, chosen at randome
+    x <- gr[42]
+    checkEquals(as.character(seqnames(x)), "HSCHR6_MHC_QBL")
+    checkEquals(start(x), 31606931)
+    checkEquals(end(x),   31606984)
+    checkEquals(as.character(strand(gr[42])), '-')
+    y <- as.list(mcols(gr[42]))
+    checkEquals(as.character(y$source), "protein_coding")
+    checkEquals(as.character(y$type), "exon")
+    checkTrue(is.na(y$score))
+    checkTrue(is.na(y$phase))
+    checkEquals(y$gene_id, "ENSG00000096155")
+    checkEquals(y$transcript_id, "ENST00000432539")
+    checkEqualsNumeric(y$exon_number, 5)
+    checkEquals(y$gene_name, "BAG6")
+    checkEquals(y$gene_biotype, "protein_coding")
+    checkEquals(y$transcript_name ,"BAG6-005")
+    checkTrue(is.na(y$protein_id))
+    checkEquals(y$exon_id, "ENSE00002923654")
+
+} # test_ensemblGtfToGRanges
 #-------------------------------------------------------------------------------

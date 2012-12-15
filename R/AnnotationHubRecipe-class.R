@@ -158,3 +158,13 @@ constructSeqInfo <- function(species, genome)
 
 } # constructSeqInfo
 #-------------------------------------------------------------------------------
+.sortTableByChromosomalLocation <- function(tbl)
+{
+  stopifnot (all (c ('seqname', 'start') %in% colnames (tbl)))
+  factor.chromNames <- factor (tbl$seqname, levels=paste("chr", c(1:22, "X", "Y", "M"), sep=''))
+  tbl$seqname <- factor.chromNames
+  tbl <- tbl [order (tbl$seqname, tbl$start), ]
+  invisible (tbl)
+
+} # .sortTableByChromsomalLocation 
+#------------------------------------------------------------------------------------------------------------------------
