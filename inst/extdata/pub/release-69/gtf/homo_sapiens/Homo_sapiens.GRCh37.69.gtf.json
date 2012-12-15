@@ -1,0 +1,28 @@
+{
+ "Title": "Homo_sapiens.GRCh37.69.gtf",
+"Species": "Homo sapiens",
+"TaxonomyId": "9606",
+"Genome": "GRCh37",
+"Recipe": "ensemblGtfToGRanges",
+"RecipeArgs": [
+ null 
+],
+"Url": "ftp://pub/release-69/gtf/homo_sapiens/Homo_sapiens.GRCh37.69.gtf.gz",
+"OriginalFile": "pub/release-69/gtf/homo_sapiens/Homo_sapiens.GRCh37.69.gtf.gz",
+"ResourcePath": "pub/release-69/gtf/homo_sapiens/Homo_sapiens.GRCh37.69.gtf.RData",
+"Md5": "98f5bda6e621806ad4d99ec45bd14aac",
+"Description": "Gene Annotation for Homo sapiens",
+"Tags": [ "GTF", "ensembl", "Gene", "Transcript", "Annotation" ],
+"ResourceClass": "GRanges",
+"Version": "0.0.1",
+"SourceVersion": "release-69",
+"SourceSize": 26194685,
+"DerivedSize": 14103388,
+"SourceLastModifiedDate": "2012-10-12",
+"DerivedLastModifiedDate": "2012-11-29",
+"Coordinate_1_based": true,
+"Maintainer": "Martin Morgan <mtmorgan@fhcrc.org>",
+"DataProvider": "ftp.ensembl.org",
+"BiocVersion": "2.12",
+"Notes": "" 
+}
