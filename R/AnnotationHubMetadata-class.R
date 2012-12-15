@@ -43,7 +43,7 @@ setClass("AnnotationHubMetadata",
     for (file in files)
     {
         ret <- c(ret, 
-            as.character(as.Date(file.info(file)$mtime))
+            strsplit(as.character(file.info(file)$mtime), " ")[[1]][1]
         )
     }
     ret
