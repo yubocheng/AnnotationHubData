@@ -4,7 +4,8 @@ setRefClass("MsgClass",
     )
 )
 
-
+##' Metadata about a resource in AnnotationHub
+##' @name AnnotationHubMetadata-class
 setClass("AnnotationHubMetadata",
     representation(
        AnnotationHubRoot="character",

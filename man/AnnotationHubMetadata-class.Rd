@@ -133,6 +133,10 @@
 \alias{Version,AnnotationHubMetadata-method}
 \alias{Version<-,AnnotationHubMetadata-method}
 
+\alias{constructAnnotationHubMetadataFromOriginalFilePath}
+\alias{constructMetadataFromJsonPath}
+\alias{postProcessMetadata}
+
 
 \title{Class \code{"AnnotationHubMetadata"}}
 \description{
@@ -141,36 +145,6 @@ description will go here
 \section{Objects from the Class}{
 Objects can be created by calls of the form \code{new("AnnotationHubMetadata", ...)}.
 %%  ~~ describe objects here ~~ 
-}
-\section{Slots}{
-  \describe{
-    \item{\code{AnnotationHubRoot}:}{Object of class \code{"character"} ~~ }
-    \item{\code{Title}:}{Object of class \code{"character"} ~~ }
-    \item{\code{Species}:}{Object of class \code{"character"} ~~ }
-    \item{\code{TaxonomyId}:}{Object of class \code{"character"} ~~ }
-    \item{\code{Genome}:}{Object of class \code{"character"} ~~ }
-    \item{\code{Recipe}:}{Object of class \code{"character"} ~~ }
-    \item{\code{RecipeArgs}:}{Object of class \code{"list"} ~~ }
-    \item{\code{Url}:}{Object of class \code{"character"} ~~ }
-    \item{\code{OriginalFile}:}{Object of class \code{"character"} ~~ }
-    \item{\code{ResourcePath}:}{Object of class \code{"character"} ~~ }
-    \item{\code{Md5}:}{Object of class \code{"character"} ~~ }
-    \item{\code{Derived.md5}:}{Object of class \code{"character"} ~~ }
-    \item{\code{Description}:}{Object of class \code{"character"} ~~ }
-    \item{\code{Tags}:}{Object of class \code{"character"} ~~ }
-    \item{\code{ResourceClass}:}{Object of class \code{"character"} ~~ }
-    \item{\code{Version}:}{Object of class \code{"character"} ~~ }
-    \item{\code{SourceVersion}:}{Object of class \code{"character"} ~~ }
-    \item{\code{SourceSize}:}{Object of class \code{"integer"} ~~ }
-    \item{\code{DerivedSize}:}{Object of class \code{"integer"} ~~ }
-    \item{\code{SourceLastModifiedDate}:}{Object of class \code{"character"} ~~ }
-    \item{\code{DerivedLastModifiedDate}:}{Object of class \code{"character"} ~~ }
-    \item{\code{Coordinate_1_based}:}{Object of class \code{"logical"} ~~ }
-    \item{\code{Maintainer}:}{Object of class \code{"character"} ~~ }
-    \item{\code{DataProvider}:}{Object of class \code{"character"} ~~ }
-    \item{\code{BiocVersion}:}{Object of class \code{"character"} ~~ }
-    \item{\code{Notes}:}{Object of class \code{"character"} ~~ }
-  }
 }
 \usage{
   AnnotationHubMetadata(AnnotationHubRoot, OriginalFile, Url, Title,
@@ -182,23 +156,25 @@ Objects can be created by calls of the form \code{new("AnnotationHubMetadata", .
 }
 
 \arguments{
-    \item{AnnotationHubRoot}{}
-    \item{OriginalFile}{foo}
-    \item{Url}{}
-    \item{Title}{}
-    \item{Description}{}
-    \item{Species}{}
-    \item{Genome}{}
-    \item{Recipe}{}
-    \item{RecipeArgs}{}
-    \item{Tags}{}
-    \item{ResourceClass}{}
-    \item{Version}{}
-    \item{SourceVersion}{}
-    \item{Coordinate_1_based}{}
-    \item{Maintainer}{}
-    \item{DataProvider}{}
-    \item{Notes}{}
+    \item{AnnotationHubRoot}{Absolute path to directory structure containing
+        resources to be added to AnnotationHub}
+    \item{OriginalFile}{A path, relative to \code{AnnotationHubRoot}, to a
+        resource to be added to AnnotationHub.}
+    \item{Url}{URL where resource can be found}
+    \item{Title}{Title for this resource}
+    \item{Description}{Description of the resource}
+    \item{Species}{Species name}
+    \item{Genome}{Name of genome build}
+    \item{Recipe}{Name of recipe function}
+    \item{RecipeArgs}{Arguments to recipe function}
+    \item{Tags}{Free-form tags}
+    \item{ResourceClass}{Class of derived object (e.g. GRanges)}
+    \item{Version}{Version of resource}
+    \item{SourceVersion}{Version of original file}
+    \item{Coordinate_1_based}{Do coordinates start with 1 or 0?}
+    \item{Maintainer}{Maintainer name and email address}
+    \item{DataProvider}{Where did this resource come from?}
+    \item{Notes}{Notes about the resource.}
 }
 
 
