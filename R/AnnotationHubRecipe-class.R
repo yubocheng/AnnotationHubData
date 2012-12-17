@@ -1,7 +1,6 @@
 setClass("AnnotationHubRecipe",
     representation(
         metadata="AnnotationHubMetadata",
-        annotationHubRoot="character",
         recipeName="character",
         inputFiles="character",
         outputFile="character"
@@ -9,9 +8,9 @@ setClass("AnnotationHubRecipe",
 )
 
 #-------------------------------------------------------------------------------
-setGeneric("annotationHubRoot", signature="object",
+setGeneric("metadata", signature="object",
            function(object)
-           standardGeneric ("annotationHubRoot"))
+           standardGeneric ("metadata"))
 
 setGeneric("recipeName", signature="object",
            function(object)
@@ -25,26 +24,34 @@ setGeneric("outputFile", signature="object",
            function(object)
            standardGeneric ("outputFile"))
 
-setGeneric("run", signature="object",
-           function(object)
-           standardGeneric ("run"))
+#setGeneric("run", signature="object",
+#           function(object)
+#           standardGeneric ("run"))
 
-setGeneric("runWild", signature="object",
-           function(object, recipe.function=NULL)
-           standardGeneric ("runWild"))
+#setGeneric("runWild", signature="object",
+#           function(object, recipe.function=NULL)
+#           standardGeneric ("runWild"))
+
+setGeneric("run", signature="object",
+    function(object, recipeFunction, ...)
+        standardGeneric ("run"))
+
+
+
 
 #-------------------------------------------------------------------------------
 setValidity("AnnotationHubRecipe",
 
     function(object) {
         msg <- NULL
-        #validMetadata <- validObject(object@metadata)
-        #if(is.character(validMetadata))
-        #    msg <- c(msg, validMetadata)
-     
+        metadata.msg <- validObject(object@metadata)
+        if(metadata.msg != TRUE)
+            msg <- c(msg, sprintf("%s\n", msg))
+        for(file in inputFiles(object)) 
+            if(!file.exists(file))
+                msg <- c(msg, sprintf("input file '%s' does not exist\n", file))
         if(!is.null(msg))
             return(msg)
-     
         return(TRUE)
     })
 #-------------------------------------------------------------------------------
@@ -54,7 +61,6 @@ AnnotationHubRecipe <- function(metadata)
     x <- new("AnnotationHubRecipe")
     x@metadata <- metadata
     x@recipeName <- metadata@Recipe
-    x@annotationHubRoot <- metadata@AnnotationHubRoot
     x@inputFiles <- file.path(metadata@AnnotationHubRoot, metadata@OriginalFile)
     x@outputFile <- file.path(metadata@AnnotationHubRoot, metadata@ResourcePath)
     x
@@ -63,8 +69,10 @@ AnnotationHubRecipe <- function(metadata)
 setMethod("show", "AnnotationHubRecipe",
 
     function(object) {
-       msg = sprintf ("AnnotationHubRecipe object")
-       cat (msg, "\n", sep="")
+       cat(sprintf ("| AnnotationHubRecipe: %s\n", recipeName(object)))
+       for(file in inputFiles(object))
+         cat(sprintf("| inputFile: %s\n", file))
+       cat(sprintf("| outputFile: %s\n", outputFile(object)))
        })
 #-------------------------------------------------------------------------------
 # function (object, recipe=get(getRecipeName(object), envir=getNamespace("package:AnnotationHubData"))
@@ -74,45 +82,39 @@ setMethod("show", "AnnotationHubRecipe",
 # r <- get(recipeName(recipe), envir=getNamespace("AnnotationHubData"))
 # do.call(r, list(recipe))
 
+#setMethod("run", "AnnotationHubRecipe",
+#
+#    function(object) {
+#       recipe.function <- get(recipeName(object), envir=getNamespace("AnnotationHubData"))
+#       result <- do.call(recipe.function, list(object))
+#       postProcessMetadata(metadata(object)@AnnotationHubRoot, metadata(object)@OriginalFile)
+#       result
+#       })
+
+
+#setMethod("runWild", "AnnotationHubRecipe",
+#
+#    function(object, recipe.function=NULL) {
+#       if(is.null (recipe.function))
+#         recipe.function <- get(recipeName(object), envir=getNamespace("AnnotationHubData"))
+#       result <- do.call(recipe.function, list(object))
+#       postProcessMetadata(metadata(object)@AnnotationHubRoot, metadata(object)@OriginalFile)
+#       result
+#       })
+
 setMethod("run", "AnnotationHubRecipe",
-
-    function(object) {
-       recipe.function <- get(recipeName(object), envir=getNamespace("AnnotationHubData"))
-       result <- do.call(recipe.function, list(object))
-       postProcessMetadata(annotationHubRoot(object), object@metadata@OriginalFile)
+    function(object, recipeFunction, ...) {
+       if (missing(recipeFunction))
+           recipeFunction <- get(recipeName(object), envir=getNamespace("AnnotationHubData"))
+       result <- recipeFunction(object)
+       postProcessMetadata(metadata(object)@AnnotationHubRoot, metadata(object)@OriginalFile)
        result
        })
 
 
-setMethod("runWild", "AnnotationHubRecipe",
 
-    function(object, recipe.function=NULL) {
-       if(is.null (recipe.function))
-         recipe.function <- get(recipeName(object), envir=getNamespace("AnnotationHubData"))
-       result <- do.call(recipe.function, list(object))
-       postProcessMetadata(annotationHubRoot(object), object@metadata@OriginalFile)
-       result
-       })
 
-#-------------------------------------------------------------------------------
-recipe1 <- function(inputDataFileName)
-{
-    printf("recipe1, word count in %s: %d", inputDataFileName, 
-           length(scan(inputDataFileName, what=character(), quiet=TRUE)))
-}
-#-------------------------------------------------------------------------------
-bedFileRecipe <- function(inputFiles)
-{
-    browser()
-    stopifnot(length(inputFiles) == 1)   # for now.
-  
-    if(grep("\\.gz$", inputFiles[1]))
-        connection <- gzfile(inputFiles[1])
-    else
-        connection <- file(inputfiles[1])
-    tbl <- read.table(connection, sep="\t", as.is=TRUE)
-       
-}
+
 #-------------------------------------------------------------------------------
 setMethod("recipeName", "AnnotationHubRecipe",
 
@@ -121,10 +123,10 @@ setMethod("recipeName", "AnnotationHubRecipe",
         })
 
 #-------------------------------------------------------------------------------
-setMethod("annotationHubRoot", "AnnotationHubRecipe",
+setMethod("metadata", "AnnotationHubRecipe",
 
     function(object) {
-        object@annotationHubRoot
+        object@metadata
         })
 
 #-------------------------------------------------------------------------------
