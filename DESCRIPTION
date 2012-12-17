@@ -4,7 +4,7 @@ Title: Transform public data resources into Bioconductor Data Structures
 Version: 0.99.4
 Date: 2012-12-11
 Author: Paul Shannon<pshannon@fhcrc.org>
-Maintainer: Paul Shannon<pshannon@fhcrc.org>
+Maintainer: Bioconductor Package Maintainer <maintainer@bioconductor.org>
 Depends: R (>= 2.15.0), methods, IRanges, GenomicRanges
 Suggests: RUnit
 Imports: BiocGenerics, RJSONIO, BiocInstaller, rtracklayer
