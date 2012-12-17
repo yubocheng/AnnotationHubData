@@ -1,8 +1,8 @@
-\name{AnnotationHubRecipes}
+\name{AnnotationHubMetadata}
 \docType{class}
-\alias{AnnotationHubRecipes--class}
+\alias{AnnotationHubMetadata--class}
 
-\title{Build and Run AnnotationHubRecipes}
+\title{Build and Run AnnotationHubMetadata}
 
 \description{
 
@@ -10,7 +10,7 @@
   
 \usage{
 ## Constructors
-AnnotationHubRecipes(dcfFile, ...)
+AnnotationHubMetadata(dcfFile, ...)
 }
 \arguments{
 
