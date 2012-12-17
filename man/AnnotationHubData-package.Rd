@@ -1,13 +1,13 @@
 \name{AnnotationHubRecipes-package}
 \alias{AnnotationHubRecipes-package}
 \alias{AnnotationHubRecipes}
+
 \docType{package}
 \title{
 Transform public data resources into Bioconductor Data Structures
 ~~ package title ~~
 }
 \description{
-More about what it does (maybe more than one line)
 These recipes convert a wide variety and a growing number of public bioinformatic data sets into easily-used standard Bioconductor data structures.
 }
 \details{
@@ -29,10 +29,6 @@ curation":  unless absolutely required, the "cooked" version of the data
 resource produced by a recipe is a simple and unembellished reflection
 of the original data in its downloaded form.
 }
-\author{Paul Shannon}
+\author{Dan Tenenbaum, Paul Shannon}
 
 \keyword{package}
-\seealso{
-}
-\examples{
-}
