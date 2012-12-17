@@ -57,7 +57,6 @@ test_simpleConstructor <- function()
     checkTrue(validObject(recipe))
     checkEquals(md@Recipe, "extendedBedToGRanges")
     checkEquals(recipeName(recipe), "extendedBedToGRanges")
-    checkEquals(annotationHubRoot(recipe), md@AnnotationHubRoot)
     checkTrue(file.exists(inputFiles(recipe)))
 
        # the output file has the same path and name as the 'main' (and often only)
@@ -90,10 +89,11 @@ test_nullRecipe <- function()
     checkEquals(md@Recipe, "nullRecipe")
     checkEquals(recipeName(recipe), "nullRecipe")
     checkTrue(file.exists(inputFiles(recipe)[1]))
+    #run(recipe)
+    #checkTrue(file.exists(outputFile(recipe)))
     run(recipe)
     checkTrue(file.exists(outputFile(recipe)))
-    runWild(recipe)
-    checkTrue(file.exists(outputFile(recipe)))
+    #runWild(recipe)
 
 } # test_nullRecipe
 #-------------------------------------------------------------------------------
@@ -127,7 +127,7 @@ test_adhocRecipe <- function()
        # adhoc  does character count on the input file specified
        # in the json file.  will change on each run due to the
        # random tmp directory name.  check for identical counts
-    checkEquals(runWild(recipe, adhoc), nchar(inputFiles(recipe)[1]))
+    checkEquals(run(recipe, adhoc), nchar(inputFiles(recipe)[1]))
 
 } # test_adhocRecipe
 #-------------------------------------------------------------------------------
