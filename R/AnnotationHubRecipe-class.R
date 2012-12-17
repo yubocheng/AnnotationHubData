@@ -60,9 +60,10 @@ AnnotationHubRecipe <- function(metadata)
 {
     x <- new("AnnotationHubRecipe")
     x@metadata <- metadata
-    x@recipeName <- metadata@Recipe
-    x@inputFiles <- file.path(metadata@AnnotationHubRoot, metadata@OriginalFile)
-    x@outputFile <- file.path(metadata@AnnotationHubRoot, metadata@ResourcePath)
+    x@recipeName <- Recipe(metadata)
+
+    x@inputFiles <- file.path(AnnotationHubRoot(metadata), OriginalFile(metadata))
+    x@outputFile <- file.path(AnnotationHubRoot(metadata), ResourcePath(metadata))
     x
 }
 #-------------------------------------------------------------------------------
@@ -107,7 +108,7 @@ setMethod("run", "AnnotationHubRecipe",
        if (missing(recipeFunction))
            recipeFunction <- get(recipeName(object), envir=getNamespace("AnnotationHubData"))
        result <- recipeFunction(object)
-       postProcessMetadata(metadata(object)@AnnotationHubRoot, metadata(object)@OriginalFile)
+       postProcessMetadata(AnnotationHubRoot(metadata(object)), OriginalFile(metadata(object)))
        result
        })
 

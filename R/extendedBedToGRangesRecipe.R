@@ -1,6 +1,6 @@
 extendedBedToGRanges <- function(recipe)
 {
-    colClasses <- recipe@metadata@RecipeArgs$colClasses
+    colClasses <- RecipeArgs(recipe@metadata)$colClasses
     colnames <- names(colClasses)
     unused <- which(colnames == "")
     if(length(unused) > 0)
@@ -17,7 +17,7 @@ extendedBedToGRanges <- function(recipe)
     mcols(gr) <- DataFrame(tbl[, otherColnames])
 
         # add seqlength & chromosome circularity information
-    newSeqInfo <- constructSeqInfo(recipe@metadata@Species, recipe@metadata@Genome) 
+    newSeqInfo <- constructSeqInfo(Species(recipe@metadata), Genome(recipe@metadata)) 
         # if gr only has a subset of all possible chromosomes, then update those only
     seqinfo(gr) <- newSeqInfo[names(seqinfo(gr))]
 

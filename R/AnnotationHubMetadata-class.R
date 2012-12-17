@@ -43,7 +43,7 @@ setGeneric("AnnotationHubRoot", function(x, ...)
     standardGeneric("AnnotationHubRoot"))
 setMethod("AnnotationHubRoot", "AnnotationHubMetadata",
     function(x) {
-        x@AnnotationHubRoot
+        as.character(x@AnnotationHubRoot)
 })
 setGeneric("AnnotationHubRoot<-",
            function(x, ..., value) standardGeneric("AnnotationHubRoot<-"))
@@ -495,7 +495,8 @@ setReplaceMethod("Notes", "AnnotationHubMetadata",
 .constructFromJson <- function(ahroot, pathToJson)
 {
     x <- new("AnnotationHubMetadata")
-    x@AnnotationHubRoot <- ahroot
+    #x@AnnotationHubRoot <- ahroot
+    AnnotationHubRoot(x) <- ahroot
     l <- fromJSON(pathToJson)
     for (name in names(l))
     {
@@ -505,6 +506,7 @@ setReplaceMethod("Notes", "AnnotationHubMetadata",
             l[[name]] <- as.integer(l[[name]])
         }
         slot(x, name) <- l[[name]]
+        ###do.call(paste(name, "<-", sep=""), list(x=x, value=l[[name]]))
     }
     x
 }
@@ -539,11 +541,14 @@ constructMetadataFromJsonPath <-
 postProcessMetadata <- function(ahroot, originalFile)
 {
     x <- constructAnnotationHubMetadataFromOriginalFilePath(ahroot, originalFile)
-    x@AnnotationHubRoot <- ahroot
+    #x@AnnotationHubRoot <- ahroot
+    AnnotationHubRoot(x) <- ahroot
 
     derived <- file.path(ahroot, x@ResourcePath)
-    x@DerivedSize <- as.integer(file.info(derived)$size)
-    x@DerivedLastModifiedDate <- .getModificationTime(derived)
+    #x@DerivedSize <- as.integer(file.info(derived)$size)
+    DerivedSize(x) <- as.integer(file.info(derived)$size)
+    #x@DerivedLastModifiedDate <- .getModificationTime(derived)
+    DerivedLastModifiedDate(x) <- .getModificationTime(derived)
     json <- as.json(x)
     resourceDir <- dirname(originalFile[1])
     outfile <- file.path(ahroot, resourceDir, .getDerivedFileName(originalFile, "json"))
@@ -583,26 +588,27 @@ AnnotationHubMetadata <- function(AnnotationHubRoot, OriginalFile, Url, Title,
         if (!is.null(item))
         {
             if (class(item) %in% "call") item <- as.list(item) # rapply?
+            #do.call(paste(i, "<-", sep=""), list(x=x, value=item))
             slot(x, i) <- item
         }
     }
-    x@BiocVersion <- as.character(biocVersion())
-    x@SourceLastModifiedDate <- "1970-1-1"
-    x@DerivedLastModifiedDate <- "1970-1-1"
-    x@TaxonomyId <-
+
+    BiocVersion(x) <- as.character(biocVersion())
+    SourceLastModifiedDate(x) <- "1970-1-1"
+    DerivedLastModifiedDate(x) <- "1970-1-1"
+    TaxonomyId(x) <- 
         as.character(with(speciesMap, taxon[species == Species]))
-    x@Md5 <- unname(tools::md5sum(OriginalFile))
-    x@SourceLastModifiedDate <-
+    Md5(x) <- unname(tools::md5sum(OriginalFile)) 
+    SourceLastModifiedDate(x) <- 
         unlist(lapply(OriginalFile, .getModificationTime))
-    x@SourceSize <- as.integer(file.info(OriginalFile)$size)
+    SourceSize(x)  <- as.integer(file.info(OriginalFile)$size)
     validObject(x)
     jsonDir <- dirname(OriginalFile[1])
 
     resourceFile <- .getDerivedFileName(OriginalFile, "RData")
     jsonFile <- .getDerivedFileName(OriginalFile, "json")
     resourcePath <- file.path(jsonDir, resourceFile)
-    x@ResourcePath <- resourcePath
-
+    ResourcePath(x) <- resourcePath
 
     json <- as.json(x)
 
@@ -654,10 +660,11 @@ as.json <- function(annotationHubMetadata)
     ## fixme do better than this
     oldwd <- getwd()
     on.exit(setwd(oldwd))
-    setwd(object@AnnotationHubRoot)
+    #setwd(object@AnnotationHubRoot)
+    setwd(AnnotationHubRoot(object))
 
     if (!exists("speciesMap")) data(speciesMap)
-    taxonomyId <- with(speciesMap, taxon[species == object@Species])
+    taxonomyId <- with(speciesMap, taxon[species == Species(object)])
     if (!length(taxonomyId))
         e("Unknown species")
 
@@ -666,7 +673,7 @@ as.json <- function(annotationHubMetadata)
     ## emailed Hadley, hope he can fix it.
     ##headers <- HEAD(object@Url)$headers
     ##if (headers$status != "200")
-    ##    e(sprintf("Can't access URL %s"), object@Url)
+    ##    e(sprintf("Can't access URL %s"), Url(object))
 
 
     emailRegex <- 
@@ -686,45 +693,6 @@ setValidity("AnnotationHubMetadata",
         function(object) .AnnotationHubMetadata.validity(object))
 
 
-#setGeneric('metadataTitle', signature='object', function(object) standardGeneric('metadataTitle'))
-#setGeneric('dcfFile', signature='object', function(object) standardGeneric('dcfFile'))
-#setGeneric('dataFile', signature='object', function(object) standardGeneric ('dataFile'))
-
-
-#setValidity('AnnotationHubMetadata', function(object) {
-#   msg <- NULL
-#   dcfFile <- dcfFile(object)
-#     # the empty constructor is valid, if not very interesting nor useful
-#   if(is.na(dcfFile))
-#       return(TRUE)
-#   if(!file.exists(dcfFile))
-#       msg <- c(msg, sprintf("cannot read '%s'", dcfFile))
-#   title <- metadataTitle(object)
-#   if(nchar(title) == 0)
-#       msg <- c(msg, sprintf("zero-length 'metadata title is missing"))
-#   if (!is.null(msg))
-#       return(msg)
-#   
-#   return(TRUE)
-#})
-#
-
-
-#setMethod('dcfFile', 'AnnotationHubMetadata',
-#    function(object){
-#        object@dcfFile
-#      })
-#
-#setMethod('metadataTitle', 'AnnotationHubMetadata',
-#    function(object){
-#        object@title
-#      })
-#
-#setMethod('dataFile', 'AnnotationHubMetadata',
-#    function(object){
-#        object@dataFile
-#      })
-#
 #setMethod('show', 'AnnotationHubMetadata',
 #
 #    function(object) {

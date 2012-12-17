@@ -5,16 +5,16 @@ extendedBedWithAuxiliaryTableToGRanges <- function(recipe)
      stopifnot(length(bedFile) == 1)
      stopifnot(length(auxFile) == 1)
 
-     colClasses <- recipe@metadata@RecipeArgs$bedColClasses
+     colClasses <- RecipeArgs(recipe@metadata)$bedColClasses
      tbl.bed <- read.table(gzfile(bedFile), sep="\t", header=FALSE,
                            colClasses=colClasses)
      colnames(tbl.bed) <- names(colClasses)
      
-     colClasses <- recipe@metadata@RecipeArgs$auxColClasses
+     colClasses <- RecipeArgs(recipe@metadata)$auxColClasses
      tbl.aux <- read.table(auxFile, sep="\t", colClasses=colClasses)
      colnames(tbl.aux) <- names(colClasses)
 
-     mergeArgs <- recipe@metadata@RecipeArgs$merge
+     mergeArgs <- RecipeArgs(recipe@metadata)$merge
 
         # TODO:  special knowledge inserted here, adding a column
         # TODO:  to tbl.aux (rowIndex) so that tables can be linked.
@@ -35,7 +35,7 @@ extendedBedWithAuxiliaryTableToGRanges <- function(recipe)
      mcols(gr) <- DataFrame(tbl[, otherColnames])
 
         # add seqlength & chromosome circularity information
-    newSeqInfo <- constructSeqInfo(recipe@metadata@Species, recipe@metadata@Genome) 
+    newSeqInfo <- constructSeqInfo(Species(recipe@metadata), Genome(recipe@metadata))
         # if gr only has a subset of all possible chromosomes, then update those only
     seqinfo(gr) <- newSeqInfo[names(seqinfo(gr))]
 

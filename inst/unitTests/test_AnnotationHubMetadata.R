@@ -42,10 +42,10 @@ test_post_processing <- function()
     md2 <- constructMetadataFromJsonPath(workingDirectory, jsonPath)
 
     info <- file.info(pathToRDataFile)
-    checkEquals(as.integer(info$size), md2@DerivedSize)
+    checkEquals(as.integer(info$size), DerivedSize(md2))
 
     checkEquals(strftime(info$mtime, "%Y-%m-%d"),
-        strftime(md2@DerivedLastModifiedDate, "%Y-%m-%d"))
+        strftime(DerivedLastModifiedDate(md2), "%Y-%m-%d"))
 }
 
 

@@ -55,14 +55,14 @@ test_simpleConstructor <- function()
 
     recipe <- AnnotationHubRecipe(md)
     checkTrue(validObject(recipe))
-    checkEquals(md@Recipe, "extendedBedToGRanges")
+    checkEquals(Recipe(md), "extendedBedToGRanges")
     checkEquals(recipeName(recipe), "extendedBedToGRanges")
     checkTrue(file.exists(inputFiles(recipe)))
 
        # the output file has the same path and name as the 'main' (and often only)
        # input file, with '.RData' added to it remove that suffix, then compare it
        # to the full path to that input file, aka 'ResourcePath'
-    checkEquals(file.path(md@AnnotationHubRoot, md@ResourcePath),
+    checkEquals(file.path(AnnotationHubRoot(md), ResourcePath(md)),
                 outputFile(recipe))
     TRUE
 
@@ -83,10 +83,10 @@ test_nullRecipe <- function()
     annotationHubRoot <- workingDirectory
 
     md <- constructMetadataFromJsonPath(annotationHubRoot, jsonPath)
-    md@Recipe <- "nullRecipe"
+    Recipe(md) <- "nullRecipe"
     recipe <- AnnotationHubRecipe(md)
     checkTrue(validObject(recipe))
-    checkEquals(md@Recipe, "nullRecipe")
+    checkEquals(Recipe(md), "nullRecipe")
     checkEquals(recipeName(recipe), "nullRecipe")
     checkTrue(file.exists(inputFiles(recipe)[1]))
     #run(recipe)
@@ -117,11 +117,11 @@ test_adhocRecipe <- function()
         nchar(inputFiles(recipe)[1])
         }
     
-    md@Recipe <- "adhoc"
+    Recipe(md) <- "adhoc"
     
     recipe <- AnnotationHubRecipe(md)
     checkTrue(validObject(recipe))
-    checkEquals(md@Recipe, "adhoc")
+    checkEquals(Recipe(md), "adhoc")
     checkEquals(recipeName(recipe), "adhoc")
 
        # adhoc  does character count on the input file specified
@@ -202,16 +202,18 @@ dev.extendedBedWithAuxiliaryTable <- function(recipe)
      stopifnot(length(bedFile) == 1)
      stopifnot(length(auxFile) == 1)
 
-     colClasses <- recipe@metadata@RecipeArgs$bedColClasses
+     colClasses <- RecipeArgs(recipe@metadata)$bedColClasses
      tbl.bed <- read.table(gzfile(bedFile), sep="\t", header=FALSE,
                            colClasses=colClasses)
      colnames(tbl.bed) <- names(colClasses)
      
-     colClasses <- recipe@metadata@RecipeArgs$auxColClasses
+     colClasses <- RecipeArgs(recipe@metadata)$auxColClasses
+
      tbl.aux <- read.table(auxFile, sep="\t", colClasses=colClasses)
      colnames(tbl.aux) <- names(colClasses)
 
-     mergeArgs <- recipe@metadata@RecipeArgs$merge
+
+     mergeArgs <- RecipeArgs(recipe@metadata)$merge
 
         # TODO:  special knowledge inserted here, adding a column
         # TODO:  to tbl.aux (rowIndex) so that tables can be linked.
@@ -232,7 +234,7 @@ dev.extendedBedWithAuxiliaryTable <- function(recipe)
      mcols(gr) <- DataFrame(tbl[, otherColnames])
 
         # add seqlength & chromosome circularity information
-    newSeqInfo <- constructSeqInfo(recipe@metadata@Species, recipe@metadata@Genome) 
+    newSeqInfo <- constructSeqInfo(Species(recipe@metadata), Genome(recipe@metadata)) 
         # if gr only has a subset of all possible chromosomes, then update those only
     seqinfo(gr) <- newSeqInfo[names(seqinfo(gr))]
 
