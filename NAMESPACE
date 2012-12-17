@@ -14,9 +14,8 @@ export(constructSeqInfo,
 exportMethods(
     show,
     run,
-    runWild,
     recipeName,
     inputFiles,
     outputFile,
-    annotationHubRoot
+    metadata
     )
