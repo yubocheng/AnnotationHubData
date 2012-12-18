@@ -5,10 +5,33 @@ Version: 0.99.4
 Date: 2012-12-11
 Author: Paul Shannon<pshannon@fhcrc.org>
 Maintainer: Bioconductor Package Maintainer <maintainer@bioconductor.org>
-Depends: R (>= 2.15.0), methods, IRanges, GenomicRanges
-Suggests: RUnit
-Imports: BiocGenerics, RJSONIO, BiocInstaller, rtracklayer, GenomicFeatures
-Description: These recipes convert a wide variety and a growing number of public bioinformatic data sets into easily-used standard Bioconductor data structures.
+Depends:
+    R (>= 2.15.0),
+    methods,
+    IRanges,
+    GenomicRanges
+Suggests:
+    RUnit
+Imports:
+    BiocGenerics,
+    RJSONIO,
+    BiocInstaller,
+    rtracklayer
+Description: These recipes convert a wide variety and a growing number of
+    public bioinformatic data sets into easily-used standard Bioconductor data
+    structures.
 License: Artistic-2.0
 LazyLoad: yes
 biocViews: DataImport
+Collate:
+    'AnnotationHubMetadata-class.R'
+    'AnnotationHubRecipe-class.R'
+    'ensemblGtfToGRangesRecipe.R'
+    'extendedBedToGRangesRecipe.R'
+    'extendedBedWithAuxiliaryTableToGRangesRecipe.R'
+    'importBedFiles.R'
+    'importEnsemblGTFs.R'
+    'nullRecipe.R'
+    'testutils.R'
+    'utils.R'
+    'zzz.R'
