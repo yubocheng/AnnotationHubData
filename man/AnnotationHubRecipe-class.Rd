@@ -22,6 +22,8 @@
 \alias{show}
 \alias{show,AnnotationHubRecipe-method}
 
+\alias{AnnotationHubRecipe}   % ctor
+\alias{constructSeqInfo}
 
 \title{Class \code{"AnnotationHubRecipe"}}
 \description{
@@ -30,9 +32,18 @@ object, and perform data-driven transformation of input data into
 standard Bioconductor data types (e.g., GRanges), in which the data and
 recipe specifics are contained in the AnnotationHubMetadata.
 }
+
 \usage{
-\S4method{runWild}{AnnotationDataRecipe}()
+AnnotationHubRecipe(metadata)
+constructSeqInfo(species, genome)
+
 }
+
+\arguments{
+  \item{metadata}{An instance of the \code{AnnotationHubMetadata} class.}
+  \item{species}{The orgamism, e.g., "Homo sapiens"}.
+  \item{genome}{The genome build, e.g., "hg19".}
+  }
 
 \section{Objects from the Class}{
 Objects can be created by calls to the class constructor \code{AnnotationHubRecipe(metadata)}.
