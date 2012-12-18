@@ -6,7 +6,6 @@ setClass("AnnotationHubRecipe",
         outputFile="character"
         )
 )
-
 #-------------------------------------------------------------------------------
 setGeneric("metadata", signature="object",
            function(object)
@@ -23,14 +22,6 @@ setGeneric("inputFiles", signature="object",
 setGeneric("outputFile", signature="object",
            function(object)
            standardGeneric ("outputFile"))
-
-#setGeneric("run", signature="object",
-#           function(object)
-#           standardGeneric ("run"))
-
-#setGeneric("runWild", signature="object",
-#           function(object, recipe.function=NULL)
-#           standardGeneric ("runWild"))
 
 setGeneric("run", signature="object",
     function(object, recipeFunction, ...)
@@ -55,7 +46,6 @@ setValidity("AnnotationHubRecipe",
         return(TRUE)
     })
 #-------------------------------------------------------------------------------
-# ctor
 AnnotationHubRecipe <- function(metadata)
 {
     x <- new("AnnotationHubRecipe")
