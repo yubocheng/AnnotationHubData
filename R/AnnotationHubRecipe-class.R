@@ -7,10 +7,6 @@ setClass("AnnotationHubRecipe",
         )
 )
 #------------------------------------------------------------------------------
-setGeneric("metadata", signature="object",
-           function(object)
-           standardGeneric ("metadata"))
-
 setGeneric("recipeName", signature="object",
            function(object)
            standardGeneric ("recipeName"))
@@ -91,8 +87,8 @@ setMethod("recipeName", "AnnotationHubRecipe",
 #------------------------------------------------------------------------------
 setMethod("metadata", "AnnotationHubRecipe",
 
-    function(object) {
-        object@metadata
+    function(x, ...) {
+        x@metadata
         })
 
 #------------------------------------------------------------------------------

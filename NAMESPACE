@@ -6,6 +6,8 @@ export(constructAnnotationHubMetadataFromOriginalFilePath,
 import(RJSONIO)
 importFrom(BiocInstaller, biocVersion)
 
+importFrom(IRanges, metadata, "metadata<-")
+
 export(constructSeqInfo,
        extendedBedToGRanges,
        extendedBedWithAuxiliaryTableToGRanges,

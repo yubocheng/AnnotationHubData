@@ -17,7 +17,8 @@ Imports:
     BiocGenerics,
     RJSONIO,
     BiocInstaller,
-    rtracklayer
+    rtracklayer,
+    IRanges
 Description: These recipes convert a wide variety and a growing number of
     public bioinformatic data sets into easily-used standard Bioconductor data
     structures.

@@ -38,6 +38,26 @@ setClass("AnnotationHubMetadata",
 )
 
 
+setMethod("metadata", "AnnotationHubMetadata",
+    function(x, ...) 
+{
+    nms <- slotNames(class(x))
+    names(nms) <- nms
+    lapply(nms, slot, object=x)
+})
+
+
+setReplaceMethod("metadata", c("AnnotationHubMetadata", "list"),
+     function(x, ..., value)
+{
+    do.call(new, c(list(class(x)), value))
+})
+
+# So you can do stuff like this:
+# set a to be an AnnotationHubMetadata object, then:
+#  metadata(a)[c("AnnotationHubRoot","Maintainer")]
+#   <- list("/etc", "foo@bar.com")
+
 ### generics, getters and setters
 
 setGeneric("AnnotationHubRoot", function(x, ...)
@@ -579,37 +599,40 @@ AnnotationHubMetadata <- function(AnnotationHubRoot, OriginalFile, Url, Title,
     setwd(AnnotationHubRoot)
 
     if (!exists("speciesMap")) data(speciesMap)
-    x <- new("AnnotationHubMetadata")
 
-    f <- formals()
-    for (i in names(f))
-    {   
-        item <- NULL
-        tryCatch(item <- get(i, inherits=FALSE), error=function(e) {})
-        if (!is.null(item))
-        {
-            if (class(item) %in% "call") item <- as.list(item) # rapply?
-            #do.call(paste(i, "<-", sep=""), list(x=x, value=item))
-            slot(x, i) <- item
-        }
-    }
-
-    BiocVersion(x) <- as.character(biocVersion())
-    SourceLastModifiedDate(x) <- "1970-1-1"
-    DerivedLastModifiedDate(x) <- "1970-1-1"
-    TaxonomyId(x) <- 
-        as.character(with(speciesMap, taxon[species == Species]))
-    Md5(x) <- unname(tools::md5sum(OriginalFile)) 
-    SourceLastModifiedDate(x) <- 
-        unlist(lapply(OriginalFile, .getModificationTime))
-    SourceSize(x)  <- as.integer(file.info(OriginalFile)$size)
-    validObject(x)
     jsonDir <- dirname(OriginalFile[1])
-
     resourceFile <- .getDerivedFileName(OriginalFile, "RData")
     jsonFile <- .getDerivedFileName(OriginalFile, "json")
     resourcePath <- file.path(jsonDir, resourceFile)
-    ResourcePath(x) <- resourcePath
+
+    x <- new("AnnotationHubMetadata",
+        AnnotationHubRoot=AnnotationHubRoot,
+        OriginalFile=OriginalFile,
+        Url=Url,
+        Title=Title,
+        Description=Description,
+        Species=Species,
+        Genome=Genome,
+        Recipe=Recipe,
+        RecipeArgs=RecipeArgs,
+        Tags=Tags,
+        ResourceClass=ResourceClass,
+        Version=Version,
+        SourceVersion=SourceVersion,
+        Coordinate_1_based=Coordinate_1_based,
+        Maintainer=Maintainer,
+        DataProvider=DataProvider,
+        Notes=Notes,
+        BiocVersion=as.character(biocVersion()),
+        SourceLastModifiedDate=unlist(lapply(OriginalFile,
+            .getModificationTime)),
+        TaxonomyId=as.character(with(speciesMap, taxon[species == Species])),
+        Md5=unname(tools::md5sum(OriginalFile)),
+        DerivedLastModifiedDate="1970-1-1",
+        SourceSize=as.integer(file.info(OriginalFile)$size),
+        ResourcePath=resourcePath
+    )
+
 
     json <- as.json(x)
 
