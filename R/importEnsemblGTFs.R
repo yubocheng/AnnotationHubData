@@ -48,7 +48,7 @@ importOneGTF <- function(ahroot, gtf, rdata)
     params$SourceVersion <- "release-69"
     params$Maintainer <- "Martin Morgan <mtmorgan@fhcrc.org>"
     params$DataProvider <- "ftp.ensembl.org"
-    params$Coordinate_1_based <- TRUE ## FIXME I really have no idea...
+    params$Coordinate_1_based <- TRUE
     params$Tags <-
         c("GTF", "ensembl", "Gene", "Transcript", "Annotation")
     x <- do.call("AnnotationHubMetadata", params)
