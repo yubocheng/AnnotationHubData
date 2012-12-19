@@ -114,20 +114,23 @@ test_adhocRecipe <- function()
 
     md <- constructMetadataFromJsonPath(annotationHubRoot, jsonPath)
     adhoc <- function(recipe) {
-        nchar(inputFiles(recipe)[1])
+        result <- nchar(inputFiles(recipe)[1])
+        save(result, file=outputFile(recipe))
+        result
         }
-    
-    Recipe(md) <- "adhoc"
     
     recipe <- AnnotationHubRecipe(md)
     checkTrue(validObject(recipe))
-    checkEquals(Recipe(md), "adhoc")
-    checkEquals(recipeName(recipe), "adhoc")
 
        # adhoc  does character count on the input file specified
        # in the json file.  will change on each run due to the
        # random tmp directory name.  check for identical counts
     checkEquals(run(recipe, adhoc), nchar(inputFiles(recipe)[1]))
+       # every recipe should save its results to the specified 
+       # output file.  check this
+    if(exists('result')) rm(result)
+    load(outputFile(recipe))
+    checkEquals(result, nchar(inputFiles(recipe)[1]))
 
 } # test_adhocRecipe
 #-------------------------------------------------------------------------------

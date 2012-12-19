@@ -66,45 +66,15 @@ setMethod("show", "AnnotationHubRecipe",
        cat(sprintf("| outputFile: %s\n", outputFile(object)))
        })
 #-------------------------------------------------------------------------------
-# function (object, recipe=get(getRecipeName(object), envir=getNamespace("package:AnnotationHubData"))
-#                   inputFiles=getInputFiles(object),
-#                   args=getRecipeArgs(object))
-# do.call(recipe, c(list(inputFiles), args))
-# r <- get(recipeName(recipe), envir=getNamespace("AnnotationHubData"))
-# do.call(r, list(recipe))
-
-#setMethod("run", "AnnotationHubRecipe",
-#
-#    function(object) {
-#       recipe.function <- get(recipeName(object), envir=getNamespace("AnnotationHubData"))
-#       result <- do.call(recipe.function, list(object))
-#       postProcessMetadata(metadata(object)@AnnotationHubRoot, metadata(object)@OriginalFile)
-#       result
-#       })
-
-
-#setMethod("runWild", "AnnotationHubRecipe",
-#
-#    function(object, recipe.function=NULL) {
-#       if(is.null (recipe.function))
-#         recipe.function <- get(recipeName(object), envir=getNamespace("AnnotationHubData"))
-#       result <- do.call(recipe.function, list(object))
-#       postProcessMetadata(metadata(object)@AnnotationHubRoot, metadata(object)@OriginalFile)
-#       result
-#       })
-
 setMethod("run", "AnnotationHubRecipe",
     function(object, recipeFunction, ...) {
        if (missing(recipeFunction))
            recipeFunction <- get(recipeName(object), envir=getNamespace("AnnotationHubData"))
+       stopifnot(is.function(recipeFunction))
        result <- recipeFunction(object)
        postProcessMetadata(AnnotationHubRoot(metadata(object)), OriginalFile(metadata(object)))
        result
        })
-
-
-
-
 
 #-------------------------------------------------------------------------------
 setMethod("recipeName", "AnnotationHubRecipe",
@@ -132,6 +102,7 @@ setMethod("outputFile", "AnnotationHubRecipe",
     function(object) {
         object@outputFile
         })
+
 #-------------------------------------------------------------------------------
 # the GRanges that we assemble here need SeqInfo (which is a generalized name for
 # what is typically chromosome info:  chromosome name, chromosome length and
