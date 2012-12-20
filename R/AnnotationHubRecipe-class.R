@@ -47,12 +47,12 @@ AnnotationHubRecipe <- function(metadata)
 {
     x <- new("AnnotationHubRecipe")
     x@metadata <- metadata
-    x@recipeName <- Recipe(metadata)
+    x@recipeName <- metadata(metadata)$Recipe
 
-    x@inputFiles <- file.path(AnnotationHubRoot(metadata),
-                              OriginalFile(metadata))
-    x@outputFile <- file.path(AnnotationHubRoot(metadata),
-                              ResourcePath(metadata))
+    x@inputFiles <- file.path(metadata(metadata)$AnnotationHubRoot,
+                              metadata(metadata)$OriginalFile)
+    x@outputFile <- file.path(metadata(metadata)$AnnotationHubRoot,
+                              metadata(metadata)$ResourcePath)
     x
 }
 #------------------------------------------------------------------------------
@@ -72,8 +72,9 @@ setMethod("run", "AnnotationHubRecipe",
                                  envir=getNamespace("AnnotationHubData"))
        stopifnot(is.function(recipeFunction))
        result <- recipeFunction(object)
-       postProcessMetadata(AnnotationHubRoot(metadata(object)),
-                           OriginalFile(metadata(object)))
+       m <- metadata(object)
+       postProcessMetadata(metadata(m)$AnnotationHubRoot,
+                           metadata(m)$OriginalFile)
        result
        })
 

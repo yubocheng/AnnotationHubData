@@ -19,34 +19,7 @@ exportMethods(
     recipeName,
     inputFiles,
     outputFile,
-    metadata
+    metadata,
+    "metadata<-"
     )
 
-## AnnotationHubMetadata methods:
-exportMethods(AnnotationHubRoot, "AnnotationHubRoot<-",
-    Title, "Title<-",
-    Species, "Species<-",
-    TaxonomyId, "TaxonomyId<-",
-    Genome, "Genome<-",
-    Recipe, "Recipe<-",
-    RecipeArgs, "RecipeArgs<-",
-    Url, "Url<-",
-    OriginalFile, "OriginalFile<-",
-    ResourcePath, "ResourcePath<-",
-    Md5, "Md5<-",
-    Derived.md5, "Derived.md5<-",
-    Description, "Description<-",
-    Tags, "Tags<-",
-    ResourceClass, "ResourceClass<-",
-    Version, "Version<-",
-    SourceVersion, "SourceVersion<-",
-    SourceSize, "SourceSize<-",
-    DerivedSize, "DerivedSize<-",
-    SourceLastModifiedDate, "SourceLastModifiedDate<-",
-    DerivedLastModifiedDate, "DerivedLastModifiedDate<-",
-    Coordinate_1_based, "Coordinate_1_based<-",
-    Maintainer, "Maintainer<-",
-    DataProvider, "DataProvider<-",
-    BiocVersion, "BiocVersion<-",
-    Notes, "Notes<-"
-    )

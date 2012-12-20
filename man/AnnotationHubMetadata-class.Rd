@@ -179,14 +179,6 @@ Objects can be created by calls of the form \code{new("AnnotationHubMetadata", .
 
 
 
-\section{Accessors}{
-  \describe{
-    \item{}{
-      \code{RecipeArgs}, \code{RecipeArgs(x) <- value}:
-         Gets or sets the recipe arguments.
-       }
-    }
-}
 
 
 
