@@ -27,10 +27,9 @@
 \title{Class \code{"AnnotationHubRecipe"}}
 
 \description{
-Objects of this class are constructed from an AnnotationHubMetadata
-object to  perform data-driven transformation of public annotation data into
-standard Bioconductor data types (e.g., GRanges).  The details about
-where to find and how to transform the data are contained in the AnnotationHubMetadata.
+Instances of this class perform data-driven transformation of public annotation data into
+standard Bioconductor data types (e.g., GRanges).  Each is constructed from an AnnotationHubMetadata
+object, which specifies where to find, how to transform, and where to write the data.
 }
 
 \usage{
