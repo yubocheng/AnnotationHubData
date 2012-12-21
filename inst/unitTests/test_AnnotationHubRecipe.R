@@ -61,9 +61,9 @@ test_simpleConstructor <- function()
 
        # the output file has the same path and name as the 'main' (and often only)
        # input file, with '.RData' added to it remove that suffix, then compare it
-       # to the full path to that input file, aka 'ResourcePath'
+       # to the full path to that input file, aka 'RDataPath'
     checkEquals(file.path(metadata(md)$AnnotationHubRoot,
-                metadata(md)$ResourcePath),
+                metadata(md)$RDataPath),
                 outputFile(recipe))
     TRUE
 

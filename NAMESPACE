@@ -1,6 +1,6 @@
 exportClasses(AnnotationHubMetadata, AnnotationHubRecipe)
 export(AnnotationHubMetadata, AnnotationHubRecipe)
-export(constructAnnotationHubMetadataFromOriginalFilePath,
+export(constructAnnotationHubMetadataFromSourceFilePath,
   postProcessMetadata,
   constructMetadataFromJsonPath)
 import(RJSONIO)

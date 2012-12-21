@@ -13,20 +13,20 @@ setClass("AnnotationHubMetadata",
        Genome="character",
        Recipe="character",
        RecipeArgs="list",
-       Url="character",
-       OriginalFile="character",
-       ResourcePath="character",
-       Md5="character",
-       Derived.md5="character",
+       SourceUrl="character",
+       SourceFile="character",
+       RDataPath="character",
+       SourceMd5="character",
+       DerivedMd5="character",
        Description='character',
        Tags='character',
-       ResourceClass="character",
-       Version="character",
+       RDataClass="character",
+       RDataVersion="character",
        SourceVersion="character",
        SourceSize="integer",
-       DerivedSize="integer",
+       RDataSize="integer",
        SourceLastModifiedDate="character",
-       DerivedLastModifiedDate="character",
+       RDataLastModifiedDate="character",
        Coordinate_1_based="logical",
        Maintainer="character",
        DataProvider="character",
@@ -90,7 +90,7 @@ setReplaceMethod("metadata", c("AnnotationHubMetadata", "list"),
     x
 }
 
-constructAnnotationHubMetadataFromOriginalFilePath <- function(ahroot, originalFile)
+constructAnnotationHubMetadataFromSourceFilePath <- function(ahroot, originalFile)
 {
     dir <- dirname(file.path(ahroot, originalFile))
     jsonFile <- .getDerivedFileName(originalFile, "json")
@@ -119,12 +119,12 @@ constructMetadataFromJsonPath <-
 
 postProcessMetadata <- function(ahroot, originalFile)
 {
-    x <- constructAnnotationHubMetadataFromOriginalFilePath(ahroot, originalFile)
+    x <- constructAnnotationHubMetadataFromSourceFilePath(ahroot, originalFile)
     metadata(x)$AnnotationHubRoot <- ahroot
 
-    derived <- file.path(ahroot, x@ResourcePath)
-    metadata(x)$DerivedSize <- as.integer(file.info(derived)$size)
-    metadata(x)$DerivedLastModifiedDate <- .getModificationTime(derived)
+    derived <- file.path(ahroot, x@RDataPath)
+    metadata(x)$RDataSize <- as.integer(file.info(derived)$size)
+    metadata(x)$RDataLastModifiedDate <- .getModificationTime(derived)
     json <- as.json(x)
     resourceDir <- dirname(originalFile[1])
     outfile <- file.path(ahroot, resourceDir, .getDerivedFileName(originalFile, "json"))
@@ -141,10 +141,10 @@ postProcessMetadata <- function(ahroot, originalFile)
     ret
 }
 
-AnnotationHubMetadata <- function(AnnotationHubRoot, OriginalFile, Url, Title,
+AnnotationHubMetadata <- function(AnnotationHubRoot, SourceFile, SourceUrl, Title,
     Description,
-    Species, Genome, Recipe, RecipeArgs=list(), Tags, ResourceClass,
-    Version, SourceVersion, Coordinate_1_based, Maintainer,
+    Species, Genome, Recipe, RecipeArgs=list(), Tags, RDataClass,
+    RDataVersion, SourceVersion, Coordinate_1_based, Maintainer,
     DataProvider,
     Notes="")
 {
@@ -155,15 +155,15 @@ AnnotationHubMetadata <- function(AnnotationHubRoot, OriginalFile, Url, Title,
 
     if (!exists("speciesMap")) data(speciesMap)
 
-    jsonDir <- dirname(OriginalFile[1])
-    resourceFile <- .getDerivedFileName(OriginalFile, "RData")
-    jsonFile <- .getDerivedFileName(OriginalFile, "json")
+    jsonDir <- dirname(SourceFile[1])
+    resourceFile <- .getDerivedFileName(SourceFile, "RData")
+    jsonFile <- .getDerivedFileName(SourceFile, "json")
     resourcePath <- file.path(jsonDir, resourceFile)
 
     x <- new("AnnotationHubMetadata",
         AnnotationHubRoot=AnnotationHubRoot,
-        OriginalFile=OriginalFile,
-        Url=Url,
+        SourceFile=SourceFile,
+        SourceUrl=SourceUrl,
         Title=Title,
         Description=Description,
         Species=Species,
@@ -171,21 +171,21 @@ AnnotationHubMetadata <- function(AnnotationHubRoot, OriginalFile, Url, Title,
         Recipe=Recipe,
         RecipeArgs=RecipeArgs,
         Tags=Tags,
-        ResourceClass=ResourceClass,
-        Version=Version,
+        RDataClass=RDataClass,
+        RDataVersion=RDataVersion,
         SourceVersion=SourceVersion,
         Coordinate_1_based=Coordinate_1_based,
         Maintainer=Maintainer,
         DataProvider=DataProvider,
         Notes=Notes,
         BiocVersion=as.character(biocVersion()),
-        SourceLastModifiedDate=unlist(lapply(OriginalFile,
+        SourceLastModifiedDate=unlist(lapply(SourceFile,
             .getModificationTime)),
         TaxonomyId=as.character(with(speciesMap, taxon[species == Species])),
-        Md5=unname(tools::md5sum(OriginalFile)),
-        DerivedLastModifiedDate="1970-1-1",
-        SourceSize=as.integer(file.info(OriginalFile)$size),
-        ResourcePath=resourcePath
+        SourceMd5=unname(tools::md5sum(SourceFile)),
+        RDataLastModifiedDate="1970-1-1",
+        SourceSize=as.integer(file.info(SourceFile)$size),
+        RDataPath=resourcePath
     )
 
 
@@ -221,9 +221,9 @@ as.json <- function(annotationHubMetadata)
        rc$name <- c(rc$name, m)
     }
 
-    requiredFields <- c("AnnotationHubRoot", "OriginalFile", "Url", "Title",
-        "Species", "Genome", "Recipe", "Tags", "ResourceClass",
-        "Version", "SourceVersion",
+    requiredFields <- c("AnnotationHubRoot", "SourceFile", "SourceUrl", "Title",
+        "Species", "Genome", "Recipe", "Tags", "RDataClass",
+        "RDataVersion", "SourceVersion",
         "Coordinate_1_based", "Maintainer", "DataProvider")
 
     empty <- function(x) {
@@ -249,9 +249,9 @@ as.json <- function(annotationHubMetadata)
 
     ## dropping this for now, this fails with ftp:// urls.
     ## emailed Hadley, hope he can fix it.
-    ##headers <- HEAD(object@Url)$headers
+    ##headers <- HEAD(object@SourceUrl)$headers
     ##if (headers$status != "200")
-    ##    e(sprintf("Can't access URL %s"), metadata(object)$Url)
+    ##    e(sprintf("Can't access URL %s"), metadata(object)$SourceUrl)
 
 
     emailRegex <- 

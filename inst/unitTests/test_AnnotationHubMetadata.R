@@ -42,10 +42,10 @@ test_post_processing <- function()
     md2 <- constructMetadataFromJsonPath(workingDirectory, jsonPath)
 
     info <- file.info(pathToRDataFile)
-    checkEquals(as.integer(info$size), metadata(md2)$DerivedSize)
+    checkEquals(as.integer(info$size), metadata(md2)$RDataSize)
 
     checkEquals(strftime(info$mtime, "%Y-%m-%d"),
-        strftime(metadata(md2)$DerivedLastModifiedDate, "%Y-%m-%d"))
+        strftime(metadata(md2)$RDataLastModifiedDate, "%Y-%m-%d"))
 }
 
 
@@ -57,12 +57,12 @@ test_constructor <- function()
     ahroot <- AnnotationHubData:::.createWorkingDirectory(sourceDirectory)
     ahm <- AnnotationHubMetadata(ahroot,
         "goldenpath/hg19/encodeDCC/wgEncodeRikenCage/wgEncodeRikenCageCd20CellPapTssHmm.bedRnaElements",
-        Url="http://hgdownload.cse.ucsc.edu/goldenpath/hg19/encodeDCC/wgEncodeRikenCage/wgEncodeRikenCageCd20CellPapTssHmm.bedRnaElements",
+        SourceUrl="http://hgdownload.cse.ucsc.edu/goldenpath/hg19/encodeDCC/wgEncodeRikenCage/wgEncodeRikenCageCd20CellPapTssHmm.bedRnaElements",
         Title="CD20 CAGE defined Transcriptional Start Sites",
         Description="120785  TSS sites predicted by CAGE (Capped Analysis of GeneExpression) in CD20 cells, from Timo Lassmann",
         Species="Homo sapiens", Genome="hg19", Recipe="extendedBedToGranges", Tags="gene regulation",
-        ResourceClass="GRanges",
-        Version="0.0.1", SourceVersion="unknown", Coordinate_1_based=TRUE,
+        RDataClass="GRanges",
+        RDataVersion="0.0.1", SourceVersion="unknown", Coordinate_1_based=TRUE,
         Maintainer="Paul Shannon <pshannon@fhcrc.org>",
         DataProvider="hgdownload.cse.ucsc.edu",
         Notes="9 total columns in the bed file, 8 of which are presented here ('empty' is omitted)  (a) Chromosome   (b) Start  (c) End  (d) (coordinates):(paraclu cluster strength):(TSS prediction strength)  (e) empty   (f) Strand  (g) level - expression level in tpm  (h) signif - currently empty - will be IDR  (i) score2 - raw number of reads   wgEncodeRikenCageCd20CellPapTssHmm.bedRnaElements.gz project=wgEncode; grant=Gingeras; lab=RIKEN; composite=wgEncodeRikenCage; dataType=Cage; view=TssHmm; cell=CD20+; localization=cell; rnaExtract=longPolyA; readType=1x50; donorId=RO01794,RO01778; dataVersion=ENCODE Mar 2012 Freeze; dccAccession=wgEncodeEH002738; dateSubmitted=2012-03-30; dateUnrestricted=2012-12-30; subId=6744; geoSampleAccession=GSM979634; labExpId=CThi10023,CThi10024; bioRep=041WC,042WC; seqPlatform=Illumina_HiSeq_2000; tableName=wgEncodeRikenCageCd20CellPapTssHmm; type=bedRnaElements; md5sum=c69036e9a1bf0eb39d0b73687fc31ec1; size=2.5M")
@@ -78,8 +78,8 @@ test_validity <- function()
     ahroot <- AnnotationHubData:::.createWorkingDirectory(sourceDirectory)
     l <- list()
     l$AnnotationHubRoot <- ahroot
-    l$OriginalFile <- "goldenpath/hg19/encodeDCC/wgEncodeRikenCage/wgEncodeRikenCageCd20CellPapTssHmm.bedRnaElements"
-    l$Url <- "http://hgdownload.cse.ucsc.edu/goldenpath/hg19/encodeDCC/wgEncodeRikenCage/wgEncodeRikenCageCd20CellPapTssHmm.bedRnaElements"
+    l$SourceFile <- "goldenpath/hg19/encodeDCC/wgEncodeRikenCage/wgEncodeRikenCageCd20CellPapTssHmm.bedRnaElements"
+    l$SourceUrl <- "http://hgdownload.cse.ucsc.edu/goldenpath/hg19/encodeDCC/wgEncodeRikenCage/wgEncodeRikenCageCd20CellPapTssHmm.bedRnaElements"
     l$Title <- "CD20 CAGE defined Transcriptional Start Sites"
     l$Description="120785  TSS sites predicted by CAGE (Capped Analysis of GeneExpression) in CD20 cells, from Timo Lassmann"
 
@@ -87,8 +87,8 @@ test_validity <- function()
     l$Genome <- "hg19"
     l$Recipe <- "extendedBedToGranges"
     l$Tags <- "gene regulation"
-    l$ResourceClass <- "GRanges"
-    l$Version <- "0.0.1"
+    l$RDataClass <- "GRanges"
+    l$RDataVersion <- "0.0.1"
     l$SourceVersion <- "unknown"
     l$Coordinate_1_based <- TRUE
     l$Maintainer = "Paul Shannon <pshannon at fhcrc.org>"
@@ -123,30 +123,30 @@ test_multi_input <- function()
 
     l <- list()
     l$AnnotationHubRoot <- ahroot
-    l$OriginalFile <- files
+    l$SourceFile <- files
     l$Species <- "Homo sapiens"
     l$Genome <- "hg19"
     l$Recipe <- "unknown" # FIXME
     l$RecipeArgs <- list() # FIXME
-    l$ResourceClass <- "GRanges"
-    l$Version <- "0.0.1"
+    l$RDataClass <- "GRanges"
+    l$RDataVersion <- "0.0.1"
     l$Maintainer <- "Paul Shannon <pshannon@fhcrc.org>"
     l$DataProvider <- "hgdownload.cse.ucsc.edu"
     l$Coordinate_1_based <- TRUE
     l$Title <- " ENCODE Composite DNaseI Hypersensitivity Regions"
     l$Description <- "999,988 DNaseI hypersensitivity regions, combined from 75 cell types"
-    l$Url <- c("http://hgdownload.cse.ucsc.edu/goldenpath/hg19/encodeDCC/wgEncodeRegDnaseClustered/wgEncodeRegDnaseClusteredInputs.tab.gz",
+    l$SourceUrl <- c("http://hgdownload.cse.ucsc.edu/goldenpath/hg19/encodeDCC/wgEncodeRegDnaseClustered/wgEncodeRegDnaseClusteredInputs.tab.gz",
         "http://hgdownload.cse.ucsc.edu/goldenpath/hg19/encodeDCC/wgEncodeRegDnaseClustered/wgEncodeRegDnaseClustered.bed.gz")
     l$SourceVersion <- "dateSubmitted=2011-04-28"
     l$Maintainer <- "Paul Shannon <pshannon@fhcrc.org>"
     l$Tags <- "gene regulation"
     x <- do.call(AnnotationHubMetadata, l)
 ## don't postprocess because there is no derived file yet.    
-##    x <- postProcessMetadata(ahroot, x@OriginalFile)
-    checkEquals(2L, length(x@Url))
-    checkEquals(2L, length(x@Md5))
+##    x <- postProcessMetadata(ahroot, x@SourceFile)
+    checkEquals(2L, length(x@SourceUrl))
+    checkEquals(2L, length(x@SourceMd5))
     checkEquals(2L, length(x@SourceSize))
-    checkEquals(2L, length(x@OriginalFile))
+    checkEquals(2L, length(x@SourceFile))
 }
 
 

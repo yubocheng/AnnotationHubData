@@ -28,7 +28,7 @@ importOneGTF <- function(ahroot, gtf, rdata)
     print(gtf)
     params <- list()
     params$AnnotationHubRoot <- ahroot
-    params$OriginalFile <- gtf
+    params$SourceFile <- gtf
     params$Species <- strsplit(basename(gtf), ".", fixed=TRUE)[[1]][1]
     params$Species <- gsub("_", " ", params$Species, fixed=TRUE)
     params$Genome <- strsplit(basename(gtf), ".", fixed=TRUE)[[1]][2]
@@ -36,15 +36,15 @@ importOneGTF <- function(ahroot, gtf, rdata)
     params$Recipe <- "recipe_ensembl_gtf"
     params$Description <- sprintf("Gene Annotation for %s",
         params$Species)
-    params$Url <- sprintf("ftp://%s", gtf)
-    #OriginalFile <- rdata
-    params$ResourceClass <- "GRanges"
+    params$SourceUrl <- sprintf("ftp://%s", gtf)
+    #SourceFile <- rdata
+    params$RDataClass <- "GRanges"
     #objName <- load(rdata)
     #gr <- get(objName)
     #params$ResourceDimensions <- 
     #    sprintf("GRanges with %s ranges and %s metadata columns", 
     #        length(ranges(gr)), length(mcols(gr)))
-    params$Version <- "0.0.1"
+    params$RDataVersion <- "0.0.1"
     params$SourceVersion <- "release-69"
     params$Maintainer <- "Martin Morgan <mtmorgan@fhcrc.org>"
     params$DataProvider <- "ftp.ensembl.org"
@@ -52,7 +52,7 @@ importOneGTF <- function(ahroot, gtf, rdata)
     params$Tags <-
         c("GTF", "ensembl", "Gene", "Transcript", "Annotation")
     x <- do.call("AnnotationHubMetadata", params)
-    x <- postProcessMetadata(ahroot, metadata(x)$OriginalFile)
+    x <- postProcessMetadata(ahroot, metadata(x)$SourceFile)
 
     x
 }

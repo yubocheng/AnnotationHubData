@@ -50,9 +50,9 @@ AnnotationHubRecipe <- function(metadata)
     x@recipeName <- metadata(metadata)$Recipe
 
     x@inputFiles <- file.path(metadata(metadata)$AnnotationHubRoot,
-                              metadata(metadata)$OriginalFile)
+                              metadata(metadata)$SourceFile)
     x@outputFile <- file.path(metadata(metadata)$AnnotationHubRoot,
-                              metadata(metadata)$ResourcePath)
+                              metadata(metadata)$RDataPath)
     x
 }
 #------------------------------------------------------------------------------
@@ -74,7 +74,7 @@ setMethod("run", "AnnotationHubRecipe",
        result <- recipeFunction(object)
        m <- metadata(object)
        postProcessMetadata(metadata(m)$AnnotationHubRoot,
-                           metadata(m)$OriginalFile)
+                           metadata(m)$SourceFile)
        result
        })
 
