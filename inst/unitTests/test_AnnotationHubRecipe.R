@@ -42,7 +42,7 @@ test_simpleConstructor <- function()
 {
     print ("--- test_simpleConstructor")
 
-    jsonFile <- "wgEncodeRikenCageCd20CellPapTssHmm.bedRnaElements.json"
+    jsonFile <- "wgEncodeRikenCageCd20CellPapTssHmm.bedRnaElements_0.0.1.json"
     resourcePath <- 'goldenpath/hg19/encodeDCC/wgEncodeRikenCage'
     jsonPath <- file.path(resourcePath, jsonFile)
     
@@ -75,7 +75,7 @@ test_nullRecipe <- function()
 {
     print ("--- test_nullRecipe")
 
-    jsonFile <- "wgEncodeRikenCageCd20CellPapTssHmm.bedRnaElements.json"
+    jsonFile <- "wgEncodeRikenCageCd20CellPapTssHmm.bedRnaElements_0.0.1.json"
     resourcePath <- 'goldenpath/hg19/encodeDCC/wgEncodeRikenCage'
     jsonPath <- file.path(resourcePath, jsonFile)
     
@@ -105,7 +105,7 @@ test_adhocRecipe <- function()
 {
     print ("--- test_adhocRecipe")
 
-    jsonFile <- "wgEncodeRikenCageCd20CellPapTssHmm.bedRnaElements.json"
+    jsonFile <- "wgEncodeRikenCageCd20CellPapTssHmm.bedRnaElements_0.0.1.json"
     resourcePath <- 'goldenpath/hg19/encodeDCC/wgEncodeRikenCage'
     jsonPath <- file.path(resourcePath, jsonFile)
     
@@ -169,7 +169,7 @@ test_extendedBedToGranges <- function()
     annotationHubRoot <- workingDirectory
 
         # locate the json metadata file
-    jsonFile <- "wgEncodeRikenCageCd20CellPapTssHmm.bedRnaElements.json"
+    jsonFile <- "wgEncodeRikenCageCd20CellPapTssHmm.bedRnaElements_0.0.1.json"
     resourcePath <- "goldenpath/hg19/encodeDCC/wgEncodeRikenCage"
     jsonPath <- file.path(resourcePath, jsonFile)
 
@@ -261,7 +261,7 @@ test_extendedBedWithAuxiliaryTableToGRanges <- function()
 
         # locate the json metadata file
     jsonFile <-
-       "wgEncodeRegDnaseClustered.bed-wgEncodeRegDnaseClusteredInputs.tab.json"
+       "wgEncodeRegDnaseClustered.bed-wgEncodeRegDnaseClusteredInputs.tab_0.0.1.json"
     resourcePath <- "goldenpath/hg19/encodeDCC/wgEncodeRegDnaseClustered"
     jsonPath <- file.path(resourcePath, jsonFile)
 
@@ -309,7 +309,7 @@ test_ensemblGtfToGRanges <- function()
     annotationHubRoot <- workingDirectory
 
         # locate the json metadata file
-    jsonFile <- "Homo_sapiens.GRCh37.69.gtf.json"
+    jsonFile <- "Homo_sapiens.GRCh37.69.gtf_0.0.1.json"
     resourcePath <- "pub/release-69/gtf/homo_sapiens"
     jsonPath <- file.path(resourcePath, jsonFile)
     checkTrue(file.exists(file.path(annotationHubRoot,jsonPath)))

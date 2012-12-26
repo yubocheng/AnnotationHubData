@@ -31,6 +31,7 @@ Collate:
     'ensemblGtfToGRangesRecipe.R'
     'extendedBedToGRangesRecipe.R'
     'extendedBedWithAuxiliaryTableToGRangesRecipe.R'
+    'fakedata.R'
     'importBedFiles.R'
     'importEnsemblGTFs.R'
     'nullRecipe.R'

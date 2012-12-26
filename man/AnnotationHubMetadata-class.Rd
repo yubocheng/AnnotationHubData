@@ -16,7 +16,7 @@ Objects can be created by calls of the form \code{new("AnnotationHubMetadata", .
   AnnotationHubMetadata(AnnotationHubRoot, SourceFile, SourceUrl, Title,
     Description,
     Species, Genome, Recipe, RecipeArgs=list(), Tags, RDataClass,
-    Version, SourceVersion, Coordinate_1_based, Maintainer,
+    RDataVersion, SourceVersion, Coordinate_1_based, Maintainer,
     DataProvider,
     Notes="")
 }

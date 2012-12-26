@@ -77,7 +77,7 @@ Paul Shannon
 }
 
 \examples{
-jsonFile <- "wgEncodeRikenCageCd20CellPapTssHmm.bedRnaElements.json"
+jsonFile <- "wgEncodeRikenCageCd20CellPapTssHmm.bedRnaElements_0.0.1.json"
 resourcePath <- 'goldenpath/hg19/encodeDCC/wgEncodeRikenCage'
 jsonPath <- file.path(resourcePath, jsonFile)
 

@@ -22,7 +22,7 @@ test_post_processing <- function()
     workingDirectory <- AnnotationHubData:::.createWorkingDirectory(sourceDirectory)
 
         # locate the json metadata file
-    jsonFile <- "wgEncodeRikenCageCd20CellPapTssHmm.bedRnaElements.json"
+    jsonFile <- "wgEncodeRikenCageCd20CellPapTssHmm.bedRnaElements_0.0.1.json"
     resourcePath <- "goldenpath/hg19/encodeDCC/wgEncodeRikenCage"
     jsonPath <- file.path(resourcePath, jsonFile)
 
@@ -152,7 +152,7 @@ test_multi_input <- function()
 
 test_from_json <- function()
 {
-    jsonFile <- "wgEncodeRikenCageCd20CellPapTssHmm.bedRnaElements.json"
+    jsonFile <- "wgEncodeRikenCageCd20CellPapTssHmm.bedRnaElements_0.0.1.json"
     resourcePath <- 'goldenpath/hg19/encodeDCC/wgEncodeRikenCage'
     jsonPath <- file.path(resourcePath, jsonFile)
     

@@ -52,7 +52,8 @@ importOneGTF <- function(ahroot, gtf, rdata)
     params$Tags <-
         c("GTF", "ensembl", "Gene", "Transcript", "Annotation")
     x <- do.call("AnnotationHubMetadata", params)
-    x <- postProcessMetadata(ahroot, metadata(x)$SourceFile)
+    x <- postProcessMetadata(ahroot, metadata(x)$RDataVersion,
+        metadata(x)$SourceFile)
 
     x
 }
