@@ -57,21 +57,6 @@ setReplaceMethod("metadata", c("AnnotationHubMetadata", "list"),
 #   <- list("/etc", "foo@bar.com")
 
 
-setGeneric("RDataPath", signature="object",
-           function(object)
-           standardGeneric ("RDataPath"))
-
-setMethod("RDataPath", "AnnotationHubRecipe",
-
-    function(object) {
-        url <- object@Url
-        path <- URL_parts(url)[, 'path']
-        version <- object@RDataVersion
-
-        sprintf("")
-        object@outputFile
-        })
-
 
 .getModificationTime <- function(files)
 {
@@ -153,7 +138,7 @@ postProcessMetadata <- function(ahroot, RDataVersion, originalFile)
 
 .getDerivedFileName <- function(originalFile, RDataVersion, suffix)
 {
-    ret <- sub(".gz", "", basename(originalFile))
+    ret <- sub(".gz", "", basename(originalFile[1]))
     ret <- paste(ret, collapse="-")
     ret <- sprintf("%s_%s.%s", ret, RDataVersion, suffix)
     ret
@@ -177,8 +162,8 @@ AnnotationHubMetadata <- function(AnnotationHubRoot, SourceFile, SourceUrl, Titl
     resourceFile <- .getDerivedFileName(SourceFile,  RDataVersion, "RData")
     jsonFile <- .getDerivedFileName(SourceFile, RDataVersion, "json")
     resourcePath <- file.path(jsonDir, resourceFile)
-    resourcePath <- sub("\\.RData$",
-        sprintf("_%s.RData", RDataVersion), resourcePath)
+#    resourcePath <- sub("\\.RData$",
+#        sprintf("_%s.RData", RDataVersion), resourcePath)
 
     x <- new("AnnotationHubMetadata",
         AnnotationHubRoot=AnnotationHubRoot,

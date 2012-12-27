@@ -21,7 +21,7 @@
                },
 "SourceUrl": [ "http://hgdownload.cse.ucsc.edu/goldenpath/hg19/encodeDCC/wgEncodeRegDnaseClustered/wgEncodeRegDnaseClusteredInputs.tab.gz", "http://hgdownload.cse.ucsc.edu/goldenpath/hg19/encodeDCC/wgEncodeRegDnaseClustered/wgEncodeRegDnaseClustered.bed.gz" ],
 "SourceFile": [ "goldenpath/hg19/encodeDCC/wgEncodeRegDnaseClustered/wgEncodeRegDnaseClustered.bed.gz", "goldenpath/hg19/encodeDCC/wgEncodeRegDnaseClustered/wgEncodeRegDnaseClusteredInputs.tab" ],
-"RDataPath": "goldenpath/hg19/encodeDCC/wgEncodeRegDnaseClustered/wgEncodeRegDnaseClustered.bed-wgEncodeRegDnaseClusteredInputs.tab.RData",
+"RDataPath": "goldenpath/hg19/encodeDCC/wgEncodeRegDnaseClustered/wgEncodeRegDnaseClustered.bed-wgEncodeRegDnaseClusteredInputs.tab_0.0.1.RData",
 "SourceMd5": [ "48b02b32a6f721b86c780126e14cf413", "4ae4471edd064db80918ed1413fbf470" ],
 "Description": "subset of 999,988 DNaseI hypersensitivity regions, combined from 75 cell types",
 "Tags": "gene regulation",

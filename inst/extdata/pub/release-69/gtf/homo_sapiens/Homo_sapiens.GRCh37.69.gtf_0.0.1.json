@@ -9,7 +9,7 @@
 ],
 "SourceUrl": "ftp://pub/release-69/gtf/homo_sapiens/Homo_sapiens.GRCh37.69.gtf.gz",
 "SourceFile": "pub/release-69/gtf/homo_sapiens/Homo_sapiens.GRCh37.69.gtf.gz",
-"RDataPath": "pub/release-69/gtf/homo_sapiens/Homo_sapiens.GRCh37.69.gtf.RData",
+"RDataPath": "pub/release-69/gtf/homo_sapiens/Homo_sapiens.GRCh37.69.gtf_0.0.1.RData",
 "SourceMd5": "98f5bda6e621806ad4d99ec45bd14aac",
 "Description": "Gene Annotation for Homo sapiens",
 "Tags": [ "GTF", "ensembl", "Gene", "Transcript", "Annotation" ],
