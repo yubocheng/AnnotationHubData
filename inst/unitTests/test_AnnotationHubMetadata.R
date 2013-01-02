@@ -73,7 +73,7 @@ test_constructor <- function()
     checkTrue(validObject(ahm))
     expected <- 
         "goldenpath/hg19/encodeDCC/wgEncodeRikenCage/wgEncodeRikenCageCd20CellPapTssHmm.bedRnaElements_0.0.1.RData"
-    .printf("expected == %s, actual == %s", expected, metadata(ahm)$RDataPath)
+    ##.printf("expected == %s, actual == %s", expected, metadata(ahm)$RDataPath)
     checkEquals(expected, metadata(ahm)$RDataPath)
 
 }
