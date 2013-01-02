@@ -35,12 +35,13 @@ Objects can be created by calls of the form \code{new("AnnotationHubMetadata", .
     \item{RecipeArgs}{Arguments to recipe function}
     \item{Tags}{Free-form tags}
     \item{RDataClass}{Class of derived object (e.g. GRanges)}
-    \item{Version}{Version of resource}
+    \item{RDataVersion}{Version of resource}
     \item{SourceVersion}{Version of original file}
     \item{Coordinate_1_based}{Do coordinates start with 1 or 0?}
     \item{Maintainer}{Maintainer name and email address}
     \item{DataProvider}{Where did this resource come from?}
     \item{Notes}{Notes about the resource.}
+    \item{RDataDateAdded}{Date added to AnnotationHub. Used to determine snapshots.}
 }
 
 

@@ -31,7 +31,8 @@ setClass("AnnotationHubMetadata",
        Maintainer="character",
        DataProvider="character",
        BiocVersion="character",
-       Notes='character'
+       Notes='character',
+       RDataDateAdded="character"
     )
 )
 
@@ -149,7 +150,7 @@ AnnotationHubMetadata <- function(AnnotationHubRoot, SourceFile, SourceUrl, Titl
     Species, Genome, Recipe, RecipeArgs=list(), Tags, RDataClass,
     RDataVersion, SourceVersion, Coordinate_1_based, Maintainer,
     DataProvider,
-    Notes="")
+    Notes="", RDataDateAdded)
 {
     ## fixme do better than this
     oldwd <- getwd()
@@ -190,7 +191,8 @@ AnnotationHubMetadata <- function(AnnotationHubRoot, SourceFile, SourceUrl, Titl
         SourceMd5=unname(tools::md5sum(SourceFile)),
         RDataLastModifiedDate="1970-1-1",
         SourceSize=as.integer(file.info(SourceFile)$size),
-        RDataPath=resourcePath
+        RDataPath=resourcePath,
+        RDataDateAdded=RDataDateAdded
     )
 
 
@@ -229,7 +231,7 @@ as.json <- function(annotationHubMetadata)
     requiredFields <- c("AnnotationHubRoot", "SourceFile", "SourceUrl", "Title",
         "Species", "Genome", "Recipe", "Tags", "RDataClass",
         "RDataVersion", "SourceVersion",
-        "Coordinate_1_based", "Maintainer", "DataProvider")
+        "Coordinate_1_based", "Maintainer", "DataProvider", "RDataDateAdded")
 
     empty <- function(x) {
         return(length(slot(object, x))==0)
