@@ -29,7 +29,7 @@ import_wgEncodeRegDnaseClustered <- function(ahroot)
 
     #c("goldenpath/hg19/encodeDCC/wgEncodeRegDnaseClustered/wgEncodeRegDnaseClusteredInputs.tab",
     #    "goldenpath/hg19/encodeDCC/wgEncodeRegDnaseClustered/wgEncodeRegDnaseClusteredInputs.tab")
-    params$Title <- " ENCODE Composite DNaseI Hypersensitivity Regions"
+    params$Title <- "ENCODE Composite DNaseI Hypersensitivity Regions"
     params$Description <- "999,988 DNaseI hypersensitivity regions, combined from 75 cell types"
     params$SourceUrl <- c("http://hgdownload.cse.ucsc.edu/goldenpath/hg19/encodeDCC/wgEncodeRegDnaseClustered/wgEncodeRegDnaseClusteredInputs.tab.gz",
         "http://hgdownload.cse.ucsc.edu/goldenpath/hg19/encodeDCC/wgEncodeRegDnaseClustered/wgEncodeRegDnaseClustered.bed.gz")
@@ -169,7 +169,7 @@ import_wgEncodeRikenCageCd34mobilizedCellPapTssHmm <- function(ahroot)
 "  (g) level - expression level in tpm",
 "  (h) signif - currently empty - will be IDR",
 "  (i) score2 - raw number of reads",
-" ENCODE metadata: wgEncodeRikenCageCd34mobilizedCellPapTssHmm.bedRnaElements.gz project=wgEncode; grant=Gingeras; lab=RIKEN; composite=wgEncodeRikenCage; dataType=Cage; view=TssHmm; cell=CD34+_Mobilized; localization=cell; rnaExtract=longPolyA; readType=1x50; dataVersion=ENCODE Mar 2012 Freeze; dccAccession=wgEncodeEH002739; dateSubmitted=2012-03-30; dateUnrestricted=2012-12-30; subId=6725; geoSampleAccession=GSM979635; labExpId=CThi10058; bioRep=043WC; seqPlatform=Illumina_HiSeq_2000; tableName=wgEncodeRikenCageCd34mobilizedCellPapTssHmm; type=bedRnaElements; md5sum=ab8da53f0160caed5bf387c3f1f376d0; size=1.9M",
+"ENCODE metadata: wgEncodeRikenCageCd34mobilizedCellPapTssHmm.bedRnaElements.gz project=wgEncode; grant=Gingeras; lab=RIKEN; composite=wgEncodeRikenCage; dataType=Cage; view=TssHmm; cell=CD34+_Mobilized; localization=cell; rnaExtract=longPolyA; readType=1x50; dataVersion=ENCODE Mar 2012 Freeze; dccAccession=wgEncodeEH002739; dateSubmitted=2012-03-30; dateUnrestricted=2012-12-30; subId=6725; geoSampleAccession=GSM979635; labExpId=CThi10058; bioRep=043WC; seqPlatform=Illumina_HiSeq_2000; tableName=wgEncodeRikenCageCd34mobilizedCellPapTssHmm; type=bedRnaElements; md5sum=ab8da53f0160caed5bf387c3f1f376d0; size=1.9M",
 collapse="\n", sep="")
     x <- do.call(AnnotationHubMetadata, params)
     x <- postProcessMetadata(ahroot, metadata(x)$RDataVersion,

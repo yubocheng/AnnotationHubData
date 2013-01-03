@@ -142,7 +142,7 @@ test_multi_input <- function()
     l$Maintainer <- "Paul Shannon <pshannon@fhcrc.org>"
     l$DataProvider <- "hgdownload.cse.ucsc.edu"
     l$Coordinate_1_based <- TRUE
-    l$Title <- " ENCODE Composite DNaseI Hypersensitivity Regions"
+    l$Title <- "ENCODE Composite DNaseI Hypersensitivity Regions"
     l$Description <- "999,988 DNaseI hypersensitivity regions, combined from 75 cell types"
     l$SourceUrl <- c("http://hgdownload.cse.ucsc.edu/goldenpath/hg19/encodeDCC/wgEncodeRegDnaseClustered/wgEncodeRegDnaseClusteredInputs.tab.gz",
         "http://hgdownload.cse.ucsc.edu/goldenpath/hg19/encodeDCC/wgEncodeRegDnaseClustered/wgEncodeRegDnaseClustered.bed.gz")
