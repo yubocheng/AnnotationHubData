@@ -13,7 +13,7 @@ bedCommon <- function()
     l$Maintainer <- "Paul Shannon <pshannon@fhcrc.org>"
     l$DataProvider <- "hgdownload.cse.ucsc.edu"
     l$Coordinate_1_based <- TRUE
-    l$RDataDateAdded <- "2013-01-01 00:00:00"
+    l$RDataDateAdded <- "2013-01-01"
 
     l
 }

@@ -26,7 +26,7 @@ import_fakeData <- function(ahroot, version, RDataDateAdded)
 
 import_all_fake_data <- function(ahroot)
 {
-    import_fakeData(ahroot, "0.0.1", "2012-12-31 00:00:00")
-    import_fakeData(ahroot, "0.0.2", "2013-01-01 00:00:00")
-    import_fakeData(ahroot, "0.0.3", "2013-01-02 00:00:00")
+    import_fakeData(ahroot, "0.0.1", "2012-12-31")
+    import_fakeData(ahroot, "0.0.2", "2013-01-01")
+    import_fakeData(ahroot, "0.0.3", "2013-01-02")
 }
