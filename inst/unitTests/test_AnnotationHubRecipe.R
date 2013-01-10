@@ -13,6 +13,7 @@ runTests <- function()
     test_adhocRecipe()
 
     test_extendedBedToGranges()
+    test_extendedBedToGrangesImplicitColClasses()
     test_extendedBedWithAuxiliaryTableToGRanges ()
 
     test_ensemblGtfToGRanges()
@@ -198,6 +199,54 @@ test_extendedBedToGranges <- function()
     checkEquals(width(gr[9]), 60)
 
 } # test_extendedBedToGranges
+#-------------------------------------------------------------------------------
+test_extendedBedToGrangesImplicitColClasses <- function()
+{
+    print ("--- test_extendedBedToGrangesImplicitColClasses")
+
+        # copy the source data to a writable temporary directory
+
+    sourceDirectory <- system.file("extdata", package="AnnotationHubData")
+
+    workingDirectory <- AnnotationHubData:::.createWorkingDirectory(sourceDirectory)
+    annotationHubRoot <- workingDirectory
+
+        # locate the json metadata file
+    jsonFile <- "wgEncodeRikenCageCd20CellPapTssHmm.bedRnaElements_0.0.1.json"
+    resourcePath <- "goldenpath/hg19/encodeDCC/wgEncodeRikenCage"
+    jsonPath <- file.path(resourcePath, jsonFile)
+
+    checkTrue(file.exists(file.path(annotationHubRoot, jsonPath)))
+
+        # create a metadata object from this file
+    md <- constructMetadataFromJsonPath(annotationHubRoot, jsonPath)
+
+        # reassign colClasses to implicit, to test those cases where we do
+        # not know, and do not want to find out, what the extra bed
+        # table columns are.  seqName, start, and end will be assumed
+    md@RecipeArgs$colClasses <- "implicit"
+
+        # now create a Recipe instance
+    recipe <- AnnotationHubRecipe(md)
+    browser()
+    checkEquals(recipeName(recipe), "extendedBedToGRanges")
+    checkEquals(metadata(recipe)@RecipeArgs$colClasses, "implicit")
+    
+        # create GRanges from the extended bed file, save as RData where
+        # instructed by the recipe
+    pathToRDataFile <- run(recipe)
+
+        # check the result
+    load(pathToRDataFile)
+
+    checkEquals(length(gr), 50)
+    checkEquals(names(mcols(gr)),
+                c("col.04", "col.05", "col.06", "col.07", "col.08", "col.09"))
+    checkEquals(start(gr[9]), 54704676)
+    checkEquals(end(gr[9]),   54704735)
+    checkEquals(width(gr[9]), 60)
+
+} # test_extendedBedToGrangesImplicitColClasses
 #-------------------------------------------------------------------------------
 dev.extendedBedWithAuxiliaryTable <- function(recipe)
 {
