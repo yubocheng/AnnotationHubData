@@ -77,6 +77,7 @@ setReplaceMethod("metadata", c("AnnotationHubMetadata", "list"),
 {
     x <- new("AnnotationHubMetadata")
     l <- fromJSON(pathToJson)
+    l$RecipeArgs <- as.list(l$RecipeArgs)
     for (name in names(l))
     {
         type <- getSlots("AnnotationHubMetadata")[[name]]
