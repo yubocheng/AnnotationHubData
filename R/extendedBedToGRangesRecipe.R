@@ -1,20 +1,37 @@
 extendedBedToGRanges <- function(recipe)
 {
     colClasses <- metadata(recipe@metadata)$RecipeArgs$colClasses
-    colnames <- names(colClasses)
-    unused <- which(colnames == "")
-    if(length(unused) > 0)
-        colnames <- colnames[-unused]
+    browser("extendedBedToGRanges")
+    if(colClasses[1] == 'implicit') {
+           # TODO: if a strand column can be deduced, it SHOULD be deduced.
+           # TODO: pshannon (10 jan 2013)
+        tbl <- read.table(inputFiles(recipe)[1], sep="\t", header=FALSE)
+        columnCount <- ncol(tbl)
+        mandatory.colnames <- c("seqnames", "start", "end")
+        if (columnCount > 3) {
+            implicitColumnCount <- ncol(tbl) - 3
+            implicitColumnNumbers <- 4:(3+implicitColumnCount)
+            implicit.colnames = sprintf("col.%02d", implicitColumnNumbers)
+            colnames <- c(mandatory.colnames, implicit.colnames)
+            colnames(tbl) <- colnames
+            gr <- with(tbl, GRanges(seqnames, IRanges(start, end)))
+            other.colnames <- setdiff(colnames, mandatory.colnames)
+            mcols(gr) <- DataFrame(tbl[, other.colnames])
 
-    requiredColnames <- c("seqnames", "start", "end", "strand")
-    stopifnot(all(requiredColnames %in% colnames))
-    otherColnames <- setdiff(colnames, requiredColnames)
-
-    tbl <- read.table(inputFiles(recipe)[1], sep="\t", header=FALSE, colClasses=colClasses)
-    colnames(tbl) <- colnames
-
-    gr <- with(tbl, GRanges(seqnames, IRanges(start, end), strand))
-    mcols(gr) <- DataFrame(tbl[, otherColnames])
+            }
+    } else {
+        colnames <- names(colClasses)
+        unused <- which(colnames == "")
+        if(length(unused) > 0)
+            colnames <- colnames[-unused]
+        required.colnames <- c("seqnames", "start", "end", "strand")
+        stopifnot(all(required.colnames %in% colnames))
+        other.colnames <- setdiff(colnames, required.colnames)
+        tbl <- read.table(inputFiles(recipe)[1], sep="\t", header=FALSE, colClasses=colClasses)
+        colnames(tbl) <- colnames
+        gr <- with(tbl, GRanges(seqnames, IRanges(start, end), strand))
+        mcols(gr) <- DataFrame(tbl[, other.colnames])
+        }
 
         # add seqlength & chromosome circularity information
     newSeqInfo <- constructSeqInfo(metadata(recipe@metadata)$Species,
