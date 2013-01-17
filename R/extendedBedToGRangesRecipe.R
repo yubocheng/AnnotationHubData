@@ -1,7 +1,6 @@
 extendedBedToGRanges <- function(recipe)
 {
     colClasses <- metadata(recipe@metadata)$RecipeArgs$colClasses
-    browser("extendedBedToGRanges")
     if(colClasses[1] == 'implicit') {
            # TODO: if a strand column can be deduced, it SHOULD be deduced.
            # TODO: pshannon (10 jan 2013)
@@ -29,6 +28,8 @@ extendedBedToGRanges <- function(recipe)
         other.colnames <- setdiff(colnames, required.colnames)
         tbl <- read.table(inputFiles(recipe)[1], sep="\t", header=FALSE, colClasses=colClasses)
         colnames(tbl) <- colnames
+        if(length(grep("\\.", tbl$strand)) > 0)
+            tbl$strand <- gsub("\\.", "\\*", tbl$strand)
         gr <- with(tbl, GRanges(seqnames, IRanges(start, end), strand))
         mcols(gr) <- DataFrame(tbl[, other.colnames])
         }
