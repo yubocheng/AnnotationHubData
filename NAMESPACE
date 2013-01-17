@@ -11,7 +11,8 @@ importFrom(IRanges, metadata, "metadata<-")
 export(constructSeqInfo,
        extendedBedToGRanges,
        extendedBedWithAuxiliaryTableToGRanges,
-       ensemblGtfToGRanges)
+       ensemblGtfToGRanges,
+       EncodeImporter)
 
 exportMethods(
     show,
@@ -20,6 +21,9 @@ exportMethods(
     inputFiles,
     outputFile,
     metadata,
-    "metadata<-"
+    "metadata<-",
+    metadataTable,
+    assembleParams,
+    createResource
     )
 
