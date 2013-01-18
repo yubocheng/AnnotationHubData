@@ -28,9 +28,8 @@ extendedBedToGRanges <- function(recipe)
         other.colnames <- setdiff(colnames, required.colnames)
         tbl <- read.table(inputFiles(recipe)[1], sep="\t", header=FALSE, colClasses=colClasses)
         colnames(tbl) <- colnames
-        if(length(grep("\\.", tbl$strand)) > 0)
-            tbl$strand <- gsub("\\.", "\\*", tbl$strand)
-        gr <- with(tbl, GRanges(seqnames, IRanges(start, end), strand))
+        new.strand <- sub(".", "*", tbl$strand, fixed=TRUE)
+        gr <- with(tbl, GRanges(seqnames, IRanges(start, end), new.strand))
         mcols(gr) <- DataFrame(tbl[, other.colnames])
         }
 
