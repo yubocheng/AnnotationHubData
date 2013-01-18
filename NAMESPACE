@@ -8,6 +8,8 @@ importFrom(BiocInstaller, biocVersion)
 
 importFrom(IRanges, metadata, "metadata<-")
 
+importFrom(Rsamtools, indexFa)
+
 export(constructSeqInfo,
        extendedBedToGRanges,
        extendedBedWithAuxiliaryTableToGRanges,
