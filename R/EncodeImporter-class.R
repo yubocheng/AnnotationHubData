@@ -131,6 +131,11 @@ setMethod("createResource", "EncodeImporter",
        recipe <- AnnotationHubRecipe(md)
        RDataFilename <- run(recipe)
        postProcessMetadata(annotationHubRoot,  metadata(md)$RDataVersion, metadata(md)$SourceFile)
+
+       localJsonFile <- sub("\\.RData", "\\.json", RDataFilename)
+       stopifnot(file.exists(localJsonFile))
+       stopifnot(json2mongo(localJsonFile))
+       
        RDataFilename
        }) # createResource
 
