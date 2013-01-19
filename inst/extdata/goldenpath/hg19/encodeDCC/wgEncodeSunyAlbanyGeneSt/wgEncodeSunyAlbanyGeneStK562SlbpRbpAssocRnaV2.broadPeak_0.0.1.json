@@ -1,0 +1,39 @@
+{
+ "Title": "wgEncodeSunyAlbanyGeneStK562SlbpRbpAssocRnaV2",
+"Species": "Homo sapiens",
+"TaxonomyId": "9606",
+"Genome": "hg19",
+"Recipe": "extendedBedToGRanges",
+"RecipeArgs": {
+ "colClasses": {
+ "seqnames": "character",
+"start": "integer",
+"end": "integer",
+"name": "character",
+"score": "integer",
+"strand": "character",
+"signalValue": "numeric",
+"pValue": "numeric",
+"qValue": "numeric" 
+} 
+},
+"SourceUrl": "http://hgdownload.cse.ucsc.edu/goldenpath/hg19/encodeDCC/wgEncodeSunyAlbanyGeneSt/wgEncodeSunyAlbanyGeneStK562SlbpRbpAssocRnaV2.broadPeak.gz",
+"SourceFile": "goldenpath/hg19/encodeDCC/wgEncodeSunyAlbanyGeneSt/wgEncodeSunyAlbanyGeneStK562SlbpRbpAssocRnaV2.broadPeak.gz",
+"RDataPath": "goldenpath/hg19/encodeDCC/wgEncodeSunyAlbanyGeneSt/wgEncodeSunyAlbanyGeneStK562SlbpRbpAssocRnaV2.broadPeak_0.0.1.RData",
+"SourceMd5": "64b1727d4a95f76ed50dc2435dde6273",
+"Description": "RbpAssocRna broadPeak K562 GSM787573 wgEncodeSunyAlbanyGeneStK562SlbpRbpAssocRnaV2 RipGeneSt wgEncodeEH001224 SunyAlbany",
+"Tags": "SLBP|K562|wgEncodeSunyAlbanyGeneSt|RipGeneSt|ENCODE Mar 2012 Freeze|2010-06-01|2011-03-01|wgEncodeEH001224|GSM787573|Tenenbaum|SunyAlbany|SC_26522,Mil_061376 antibodies|64b1727d4a95f76ed50dc2435dde6273|hg18|wgEncode|878|4790|V2 - P and Q values are now -log10 and scores reflect p Values|wgEncodeSunyAlbanyGeneStK562SlbpRbpAssocRnaV2|broadPeak|RbpAssocRna|wgEncodeSunyAlbanyGeneSt",
+"RDataClass": "GRanges",
+"RDataVersion": "0.0.1",
+"SourceVersion": "SC_26522,Mil_061376 antibodies",
+"SourceSize": 878,
+"RDataSize": 1498,
+"SourceLastModifiedDate": "2013-01-18",
+"RDataLastModifiedDate": "2013-01-18",
+"Coordinate_1_based": false,
+"Maintainer": "Paul Shannon <pshannon@fhcrc.org>",
+"DataProvider": "hgdownload.cse.ucsc.edu",
+"BiocVersion": "2.12",
+"Notes": "",
+"RDataDateAdded": "2013-01-18" 
+}
