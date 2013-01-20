@@ -4,17 +4,14 @@ library(RUnit)
 #-------------------------------------------------------------------------------
 printf <- function(...) print(noquote(sprintf(...)))
 #-------------------------------------------------------------------------------
-createJson <- function()
+createJson <- function(projectName, dataFileName)
 {
     importer <- EncodeImporter()
     tbl.md <- metadataTable(importer)
 
-    # http://hgdownload.cse.ucsc.edu/goldenPath/hg19/encodeDCC/wgEncodeSydhTfbs/wgEncodeSydhTfbsK562Brf2StdPk.narrowPeak.gz
-    dataFileName <- "wgEncodeSydhTfbsK562Brf2StdPk.narrowPeak.gz"
     stopifnot(dataFileName %in% rownames(tbl.md))
     tbl.bpk <- tbl.md[dataFileName,]
     annotationHubRoot <- "/home/ubuntu/AnnotationHubData/inst/extdata"
-                         # "/mnt/extdata/AnnotationHubServer_data"
     directory <- tbl.bpk[1, "dataDir"]
     file.info <- as.list(tbl.bpk[1,])
     file.size <- tbl.bpk[1,"size"]
@@ -31,8 +28,8 @@ createJson <- function()
     webSiteSourceDirectory <- file.path(webSiteRoot, projectPath)
     
     checkEquals(localStorageDirectory,
-                "/home/ubuntu/AnnotationHubData/inst/extdata/goldenpath/hg19/encodeDCC/wgEncodeSydhTfbs")
-    checkEquals(projectPath, "goldenpath/hg19/encodeDCC/wgEncodeSydhTfbs")
+                file.path("/home/ubuntu/AnnotationHubData/inst/extdata/goldenpath/hg19/encodeDCC", projectName))
+    checkEquals(projectPath, file.path("goldenpath/hg19/encodeDCC", projectName))
 
     params <- assembleParams(importer, experiment.md, webSiteSourceDirectory,
                              annotationHubRoot, projectPath, genomeVersion,
@@ -53,3 +50,9 @@ createJson <- function()
 
 } # createJson
 #-------------------------------------------------------------------------------
+# from http://hgdownload.cse.ucsc.edu/goldenPath/hg19/encodeDCC/wgEncodeSydhTfbs/wgEncodeSydhTfbsK562Brf2StdPk.narrowPeak.gz
+projectName <- "wgEncodeSydhTfbs"
+dataFileName <- "wgEncodeSydhTfbsK562Brf2StdPk.narrowPeak.gz"
+jsonPath <- createJson(projectName, dataFileName)
+printf("created new jsonfile: %s", jsonPath)
+stopifnot(file.exists(jsonPath))
