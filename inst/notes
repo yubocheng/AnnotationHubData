@@ -1,0 +1,72 @@
+*-------------------------------------------------------------------------------
+* to support a new input file format (19 jan 2012) by example: narrowPeak
+
+  1) find a short example file
+     library(AnnotationHubData)
+     importer <- EncodeImporter()
+     tbl.md <- metadataTable(importer)
+     nrow(subset(tbl.md, type=='narrowPeak')) # [1] 1193
+     fivenum(subset(tbl.md, type=='narrowPeak')$size) #     536  578000  914000 1900000 5200000
+     rownames(subset(tbl.md, type=='narrowPeak' & size==536)) # [1] 
+         # "wgEncodeSydhTfbsK562Xrcc4StdPk.narrowPeak.gz"
+
+  2) the metadata (collected from files.txt in each ucsc/encode project directory)
+     helps to fill out much of the json-related, AnnotationHub-required
+     per-file metadata (per-resource metadata)
+     EncodeImporter::assembleParams does this job, assigning the fields
+     of a params object which can be used this way in
+     EncodeImporter::createResource:
+
+         md <- do.call(AnnotationHubMetadata, params)
+
+  3) every resource has a source directory, from which a gzipped data file is read
+     and to which an AnnotationHubServer-ready RData file is written.
+     An AnnotationHubRecipe specifies how the first is transformed to the
+     second.  a json file can express those params.  a mongo datbase
+     entry can too.  when adding a new encode data file format (here 'narrowPeak')
+     we must make sure that the params successfully specify the transformation.
+
+  4) test_AnnotationHubRecipe::test_narrowPeakToGranges is that function.
+     it needs a directory with the gzipped data file, and a json file
+         $(AHROOT)/inst/extdata/goldenpath/hg19/encodeDCC/wgEncodeSydhTfbs:
+     where AHROOT today is /home/ubuntu/AnnotationHubData/
+
+       1575 Jan 20 01:00 wgEncodeSydhTfbsK562Brf2StdPk.narrowPeak_0.0.1.json
+        664 Jan 19 21:52 wgEncodeSydhTfbsK562Brf2StdPk.narrowPeak.gz
+
+     the test consists of these commands:
+
+          md <- constructMetadataFromJsonPath(annotationHubRoot, jsonPath)
+          recipe <- AnnotationHubRecipe(md)
+          checkEquals(recipeName(recipe), "extendedBedToGRanges")
+          pathToRDataFile <- run(recipe)
+          load(pathToRDataFile)
+          checkEquals(length(gr), 19)
+          checkEquals(names(mcols(gr)), c("name","score","signalValue","pValue","qValue", "peak"))
+
+      the final step of EncodeImporter::createResource is
+         stopifnot(file.exists(localJsonFile))
+         stopifnot(json2mongo(localJsonFile))
+
+  5) this illustrates that json files are not a permanent part of the AnnotationHub.
+     But they are needed on import, and their contents have to WORK:  good GRanges
+     (or whatever) need to result from running a recipe on the params
+
+  6) so the creation of support for a new data format requires a json 
+     file.  for that purpose, use
+
+         ~/AnnotationHubData/inst/scripts/createJsonForTesting.R
+
+      called this way:
+
+          projectName <- "wgEncodeSydhTfbs"
+          dataFileName <- "wgEncodeSydhTfbsK562Brf2StdPk.narrowPeak.gz"
+          jsonPath <- createJson(projectName, dataFileName)
+          stopifnot(file.exists(jsonPath))
+
+      all the necessary specifiity is learned from 
+          tbl.md[dataFileName,] (see above)
+           EncodeImporter::assembleParams format-specific code, branching on
+           tbl.md[dataFileName, "type"] to learn what recipe to use, with what
+           colclasses.
+*-------------------------------------------------------------------------------
