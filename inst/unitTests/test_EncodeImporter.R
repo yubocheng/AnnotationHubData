@@ -31,6 +31,7 @@ test_assemblParams <- function()
     genomeVersion <- "hg19"
     dataFileName <- "wgEncodeSunyAlbanyGeneStH1hescT7tagRbpAssocRna.broadPeak.gz"
 
+
     experiment.md <- as.list(tbl.md[dataFileName,])
     projectName <- experiment.md$dataDir
     projectPath <- file.path("goldenpath", genomeVersion, "encodeDCC", projectName)

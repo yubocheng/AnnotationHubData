@@ -51,8 +51,14 @@ createJson <- function(projectName, dataFileName)
 } # createJson
 #-------------------------------------------------------------------------------
 # from http://hgdownload.cse.ucsc.edu/goldenPath/hg19/encodeDCC/wgEncodeSydhTfbs/wgEncodeSydhTfbsK562Brf2StdPk.narrowPeak.gz
-projectName <- "wgEncodeSydhTfbs"
-dataFileName <- "wgEncodeSydhTfbsK562Brf2StdPk.narrowPeak.gz"
+# projectName <- "wgEncodeSydhTfbs"
+# dataFileName <- "wgEncodeSydhTfbsK562Brf2StdPk.narrowPeak.gz"
+# jsonPath <- createJson(projectName, dataFileName)
+# printf("created new jsonfile: %s", jsonPath)
+# stopifnot(file.exists(jsonPath))
+
+projectName <- "wgEncodeCshlLongRnaSeq"
+dataFileName <- "wgEncodeCshlLongRnaSeqHmecCellPamGeneDeNovo.gtf.gz"
 jsonPath <- createJson(projectName, dataFileName)
 printf("created new jsonfile: %s", jsonPath)
 stopifnot(file.exists(jsonPath))

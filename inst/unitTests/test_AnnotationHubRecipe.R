@@ -20,6 +20,8 @@ runTests <- function()
     test_broadPeakToGRanges()
     test_narrowPeakToGRanges()
 
+    test_rtracklayerGenericImportOfEncodeGtf()
+
 } # runTests
 #-------------------------------------------------------------------------------
 test_.createWorkingDirectory <- function()
@@ -478,7 +480,47 @@ test_narrowPeakToGRanges <- function()
     load(pathToRDataFile)
 
     checkEquals(length(gr), 19)
-    checkEquals(names(mcols(gr)), c("name","score","signalValue","pValue","qValue", "peak"))
+    checkEquals(names(mcols(gr)), c("name","score","signalValue",
+                                    "pValue","qValue", "peak"))
 
 } # test_narrowPeakToGRanges
+#-------------------------------------------------------------------------------
+test_rtracklayerGenericImportOfEncodeGtf <- function ()
+{
+
+    print ("--- test_rtracklayerGenericImportOfEncodeGtf")
+        # copy the source data to a writable temporary directory
+    sourceDirectory <- system.file("extdata", package="AnnotationHubData")
+
+    workingDirectory <- AnnotationHubData:::.createWorkingDirectory(sourceDirectory)
+    annotationHubRoot <- workingDirectory
+
+        # locate the json metadata file
+    jsonFile <- "wgEncodeCshlLongRnaSeqHmecCellPamGeneDeNovo.gtf_0.0.1.json"
+    resourcePath <- "goldenpath/hg19/encodeDCC/wgEncodeCshlLongRnaSeq"
+    jsonPath <- file.path(resourcePath, jsonFile)
+    fullJsonPath <- file.path(annotationHubRoot, jsonPath)
+    checkTrue(file.exists(fullJsonPath))
+    
+        # create a metadata object from this file
+    md <- constructMetadataFromJsonPath(annotationHubRoot, jsonPath)
+        # now create a Recipe instance
+    recipe <- AnnotationHubRecipe(md)
+
+    checkEquals(recipeName(recipe), "rtrackLayerImport")
+
+        # create GRanges from the extended bed file, save as RData where
+        # instructed by the recipe
+    pathToRDataFile <- run(recipe)
+
+        # check the result
+    load(pathToRDataFile)
+
+    checkEquals(length(gr), 8556)
+    checkEquals(names(mcols(gr)), c("source","type","score","phase","gene_id",
+                                     "IDR", "FPKM1", "FPKM2"))
+
+    TRUE
+
+} # test_rtracklayerGenericImportOfEncodeGtf 
 #-------------------------------------------------------------------------------

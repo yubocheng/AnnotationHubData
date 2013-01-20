@@ -60,7 +60,10 @@ setMethod("assembleParams", "EncodeImporter",
        params$Genome <- genomeVersion
 
        dataFormat <- experimentMetadata$type
-       stopifnot(dataFormat %in% c("broadPeak", "narrowPeak"))
+       stopifnot(dataFormat %in% c("broadPeak", "narrowPeak", "gtf"))
+
+       if(dataFormat == "gtf")
+           params$Recipe = "rtrackLayerImport"
 
        if(dataFormat == "broadPeak") {
            params$Recipe <- "extendedBedToGRanges"
@@ -97,10 +100,15 @@ setMethod("assembleParams", "EncodeImporter",
      params$AnnotationHubRoot <- annotationHubRoot
      params$SourceFile <- file.path(projectPath, dataFileName)
  
+        # most files.txt-derived entries have tableName, but
+        # wgEncodeCshlLongRnaSeq, for one, does not
+        # accomodate this by direct assignment from the
+        # supplied dataFileName
+
      if(nchar(experimentMetadata$tableName) > 0)
          params$Title <- experimentMetadata$tableName
      else
-         params$Title <- filename
+         params$Title <- dataFileName
  
      params$Description <- with(experimentMetadata,
                                 {paste (view, type, cell, geoSampleAccession,
