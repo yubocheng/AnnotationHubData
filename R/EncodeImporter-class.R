@@ -62,8 +62,6 @@ setMethod("assembleParams", "EncodeImporter",
        dataFormat <- experimentMetadata$type
        stopifnot(dataFormat %in% c("broadPeak", "narrowPeak"))
 
-       browser("importer, dataformat");
-       
        if(dataFormat == "broadPeak") {
            params$Recipe <- "extendedBedToGRanges"
            params$RecipeArgs <- list(colClasses=list(seqnames="character",
