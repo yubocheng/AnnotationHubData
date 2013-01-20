@@ -4,12 +4,12 @@ library(RUnit)
 #-------------------------------------------------------------------------------
 printf <- function(...) print(noquote(sprintf(...)))
 #-------------------------------------------------------------------------------
-bulkBroadPeakImport <- function(max.data.resource.size=20000)
+bulkImport <- function(formatName, max.data.resource.size=20000)
 {
     importer <- EncodeImporter()
     tbl.md <- metadataTable(importer)
 
-    tbl.bpk <- subset(tbl.md, type=="broadPeak" & size < max.data.resource.size)
+    tbl.bpk <- subset(tbl.md, type==formatName & size < max.data.resource.size)
     printf(" %d broadPeak resources below %d bytes", nrow(tbl.bpk), max.data.resource.size)
     #annotationHubRoot <- "."
     annotationHubRoot <- "/mnt/extdata/AnnotationHubServer_data"
@@ -33,5 +33,5 @@ bulkBroadPeakImport <- function(max.data.resource.size=20000)
        } # for r
 
 
-} # bulkBroadPeakImport
+} # bulkImport
 #-------------------------------------------------------------------------------
