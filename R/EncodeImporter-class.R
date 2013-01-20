@@ -58,8 +58,13 @@ setMethod("assembleParams", "EncodeImporter",
        params <- list()
        params$Species <- "Homo sapiens"
        params$Genome <- genomeVersion
- 
-       if(experimentMetadata$type == "broadPeak") {
+
+       dataFormat <- experimentMetadata$type
+       stopifnot(dataFormat %in% c("broadPeak", "narrowPeak"))
+
+       browser("importer, dataformat");
+       
+       if(dataFormat == "broadPeak") {
            params$Recipe <- "extendedBedToGRanges"
            params$RecipeArgs <- list(colClasses=list(seqnames="character",
                                                      start="integer",
@@ -71,6 +76,19 @@ setMethod("assembleParams", "EncodeImporter",
                                                      pValue="numeric",
                                                      qValue="numeric"))
            } # if broadPeak
+       if(dataFormat == "narrowPeak") {
+           params$Recipe <- "extendedBedToGRanges"
+           params$RecipeArgs <- list(colClasses=list(seqnames="character",
+                                                     start="integer",
+                                                     end="integer",
+                                                     name="character",
+                                                     score="integer",
+                                                     strand="character",
+                                                     signalValue="numeric",
+                                                     pValue="numeric",
+                                                     qValue="numeric",
+                                                     peak="integer"))
+           } # if narrowPeak
      
      params$RDataClass <- "GRanges"
      params$RDataVersion <- "0.0.1"

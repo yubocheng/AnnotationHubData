@@ -12,11 +12,13 @@ runTests <- function()
     test_nullRecipe()
     test_adhocRecipe()
 
-    test_extendedBedToGranges()
-    test_extendedBedToGrangesImplicitColClasses()
+    test_extendedBedToGRanges()
+    #test_extendedBedToGRangesImplicitColClasses()
     #test_extendedBedWithAuxiliaryTableToGRanges ()
 
     test_ensemblGtfToGRanges()
+    test_broadPeakToGRanges()
+    test_narrowPeakToGRanges()
 
 } # runTests
 #-------------------------------------------------------------------------------
@@ -161,9 +163,9 @@ test_constructSeqInfo <- function()
     
 } # test_constructSeqInfo
 #-------------------------------------------------------------------------------
-test_extendedBedToGranges <- function()
+test_extendedBedToGRanges <- function()
 {
-    print ("--- test_extendedBedToGranges")
+    print ("--- test_extendedBedToGRanges")
 
         # copy the source data to a writable temporary directory
 
@@ -202,11 +204,11 @@ test_extendedBedToGranges <- function()
     checkEquals(end(gr[9]),   54704735)
     checkEquals(width(gr[9]), 60)
 
-} # test_extendedBedToGranges
+} # test_extendedBedToGRanges
 #-------------------------------------------------------------------------------
-test_extendedBedToGrangesImplicitColClasses <- function()
+test_extendedBedToGRangesImplicitColClasses <- function()
 {
-    print ("--- test_extendedBedToGrangesImplicitColClasses")
+    print ("--- test_extendedBedToGRangesImplicitColClasses")
 
         # copy the source data to a writable temporary directory
 
@@ -249,7 +251,7 @@ test_extendedBedToGrangesImplicitColClasses <- function()
     checkEquals(end(gr[9]),   54704735)
     checkEquals(width(gr[9]), 60)
 
-} # test_extendedBedToGrangesImplicitColClasses
+} # test_extendedBedToGRangesImplicitColClasses
 #-------------------------------------------------------------------------------
 dev.extendedBedWithAuxiliaryTable <- function(recipe)
 {
@@ -402,4 +404,81 @@ test_ensemblGtfToGRanges <- function()
     checkEquals(y$exon_id, "ENSE00002923654")
 
 } # test_ensemblGtfToGRanges
+#-------------------------------------------------------------------------------
+test_broadPeakToGRanges <- function()
+{
+    print ("--- test_broadPeakToGRanges")
+
+        # copy the source data to a writable temporary directory
+
+    sourceDirectory <- system.file("extdata", package="AnnotationHubData")
+
+    workingDirectory <- AnnotationHubData:::.createWorkingDirectory(sourceDirectory)
+    annotationHubRoot <- workingDirectory
+
+        # locate the json metadata file
+    jsonFile <- "wgEncodeSunyAlbanyGeneStK562SlbpRbpAssocRnaV2.broadPeak_0.0.1.json"
+    resourcePath <- "goldenpath/hg19/encodeDCC/wgEncodeSunyAlbanyGeneSt"
+    jsonPath <- file.path(resourcePath, jsonFile)
+
+    checkTrue(file.exists(file.path(annotationHubRoot, jsonPath)))
+    
+        # create a metadata object from this file
+    md <- constructMetadataFromJsonPath(annotationHubRoot, jsonPath)
+
+        # now create a Recipe instance
+    recipe <- AnnotationHubRecipe(md)
+
+    checkEquals(recipeName(recipe), "extendedBedToGRanges")
+
+        # create GRanges from the extended bed file, save as RData where
+        # instructed by the recipe
+    pathToRDataFile <- run(recipe)
+
+
+        # check the result
+    load(pathToRDataFile)
+
+    checkEquals(length(gr), 25)
+    checkEquals(names(mcols(gr)), c("name","score","signalValue","pValue","qValue"))
+
+} # test_broadPeakToGRanges
+#-------------------------------------------------------------------------------
+test_narrowPeakToGRanges <- function()
+{
+    print ("--- test_narrowPeakToGRanges")
+
+        # copy the source data to a writable temporary directory
+
+    sourceDirectory <- system.file("extdata", package="AnnotationHubData")
+
+    workingDirectory <- AnnotationHubData:::.createWorkingDirectory(sourceDirectory)
+    annotationHubRoot <- workingDirectory
+
+        # locate the json metadata file
+    jsonFile <- "wgEncodeSydhTfbsK562Brf2StdPk.narrowPeak_0.0.1.json"
+    resourcePath <- "goldenpath/hg19/encodeDCC/wgEncodeSydhTfbs"
+    jsonPath <- file.path(resourcePath, jsonFile)
+    fullJsonPath <- file.path(annotationHubRoot, jsonPath)
+    checkTrue(file.exists(fullJsonPath))
+    
+        # create a metadata object from this file
+    md <- constructMetadataFromJsonPath(annotationHubRoot, jsonPath)
+        # now create a Recipe instance
+    recipe <- AnnotationHubRecipe(md)
+
+    checkEquals(recipeName(recipe), "extendedBedToGRanges")
+
+        # create GRanges from the extended bed file, save as RData where
+        # instructed by the recipe
+    pathToRDataFile <- run(recipe)
+
+
+        # check the result
+    load(pathToRDataFile)
+
+    checkEquals(length(gr), 19)
+    checkEquals(names(mcols(gr)), c("name","score","signalValue","pValue","qValue", "peak"))
+
+} # test_narrowPeakToGRanges
 #-------------------------------------------------------------------------------
