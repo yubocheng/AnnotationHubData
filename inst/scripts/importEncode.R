@@ -10,7 +10,7 @@ bulkImport <- function(formatName, max.data.resource.size=20000)
     tbl.md <- metadataTable(importer)
 
     tbl.bpk <- subset(tbl.md, type==formatName & size < max.data.resource.size)
-    printf(" %d broadPeak resources below %d bytes", nrow(tbl.bpk), max.data.resource.size)
+    printf(" %d %sresources below %d bytes", nrow(tbl.bpk), max.data.resource.size, formatName)
     #annotationHubRoot <- "."
     annotationHubRoot <- "/mnt/extdata/AnnotationHubServer_data"
 
