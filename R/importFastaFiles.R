@@ -114,10 +114,10 @@ createMetadata <- function(ahroot, subtree="pub/release-70/fasta",
                              type)
         }
         params$Description <- sprintf("FASTA file for %s", params$Species)
-        ## TODO - indexFa and set DerivedSource and size appropriately
-        indexFa(file.path(ahroot, subtree, gzfile))
         index <- sprintf("%s.fai", gzfile)
         fullIndex <- file.path(ahroot, subtree, index)
+        if (!file.exists(fullIndex))
+            indexFa(file.path(ahroot, subtree, gzfile))
         params$AnnotationHubRoot <- ahroot
         md <- do.call(AnnotationHubMetadata, params)
         metadata(md)$RDataPath <- file.path(subtree, gzfile)
