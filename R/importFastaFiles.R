@@ -75,12 +75,13 @@ commonMetadata <- function(BiocVersion)
     params$Recipe <- "ensembl.fasta"
     params$RecipeArgs <- list()
     params$RDataClass <- "fasta"
+    params$SourceVersion <- "release-70"
     params$Maintainer <- "Dan Tenenbaum <dtenenba@fhcrc.org>"
     params$DataProvider <- "ftp.ensembl.org"
-    params$Coordinate_1_based <- logical(0)
+    params$Coordinate_1_based <- TRUE#logical(0)
     params$RDataDateAdded <- format(Sys.time(), "%Y-%m-%d")
-    params$SourceLastModifiedDate <- "2012-12-18"
-    params$BiocVersion <- BiocVersion
+    ##params$SourceLastModifiedDate <- "2012-12-18"
+    ##params$BiocVersion <- BiocVersion
     params$Tags <- c("ensembl", "fasta")
     params
 }
@@ -88,27 +89,22 @@ commonMetadata <- function(BiocVersion)
 createMetadata <- function(ahroot, subtree="pub/release-70/fasta",
     RDataVersion="0.0.1", BiocVersion="2.12")
 {
-    if (!exists("speciesMap")) data(speciesMap)
     
     path <- file.path(ahroot, subtree)
     gzfiles <- dir(path, pattern="*.gz$", recursive=TRUE)
     for (gzfile in gzfiles)
     {
+        .printf("Processing %s...", gzfile)
         params <- commonMetadata(BiocVersion)
         params$RDataVersion <- RDataVersion
-        params$SourceMd5 <- tools::md5sum(gzfile)
         params$SourceUrl <-
             sprintf("ftp://ftp.ensembl.org/pub/release-70/fasta/%s", gzfile)
-        params$SourceFile <- gzfile
+        params$SourceFile <- file.path(subtree, gzfile)
         basename <- basename(gzfile)
         params$Title <- basename
         segs <- strsplit(basename, ".", fixed=TRUE)[[1]]
         params$Species <- sub("_", " ", segs[1])
-        params$TaxonomyId <-
-            as.character(with(speciesMap, taxon[species == params$Species]))
         params$Genome <- segs[2]
-        ## should there be a chromosome field? We can easily parse it from
-        ## some of the fasta filenames.
         if(grepl("\\.chromosome\\.", basename))
         {
             chr <- which(segs == "chromosome")
@@ -118,6 +114,19 @@ createMetadata <- function(ahroot, subtree="pub/release-70/fasta",
                              type)
         }
         params$Description <- sprintf("FASTA file for %s", params$Species)
-        ## TODO - indexFa and set DerivedSource and size appropriately        
+        ## TODO - indexFa and set DerivedSource and size appropriately
+        indexFa(file.path(ahroot, subtree, gzfile))
+        index <- sprintf("%s.fai", gzfile)
+        fullIndex <- file.path(ahroot, subtree, index)
+        params$AnnotationHubRoot <- ahroot
+        md <- do.call(AnnotationHubMetadata, params)
+        metadata(md)$RDataPath <- file.path(subtree, gzfile)
+        metadata(md)$DerivedMd5 <-
+            unname(tools::md5sum(path.expand(fullIndex)))
+        metadata(md)$RDataLastModifiedDate <-
+            AnnotationHubData:::.getModificationTime(fullIndex)
+        metadata(md)$RDataSize <- as.integer(file.info(fullIndex)$size)
+        AnnotationHubData:::writeJSON(ahroot, md)
+        
     }
 }

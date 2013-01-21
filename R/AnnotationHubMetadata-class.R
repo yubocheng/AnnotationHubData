@@ -36,6 +36,7 @@ setClass("AnnotationHubMetadata",
     )
 )
 
+### generics, getters and setters
 
 setMethod("metadata", "AnnotationHubMetadata",
     function(x, ...) 
@@ -137,6 +138,16 @@ postProcessMetadata <- function(ahroot, RDataVersion, originalFile)
     x
 }
 
+writeJSON <- function(ahroot, metadata)
+{
+    json <- as.json(metadata)
+    sourceFile <- metadata(metadata)$SourceFile[1]
+    resourceDir <- dirname(sourceFile)
+    outfile <- file.path(ahroot, resourceDir,
+        .getDerivedFileName(sourceFile,
+            metadata(metadata)$RDataVersion, "json"))
+    cat(json, file=outfile)
+}
 
 .getDerivedFileName <- function(originalFile, RDataVersion, suffix)
 {
