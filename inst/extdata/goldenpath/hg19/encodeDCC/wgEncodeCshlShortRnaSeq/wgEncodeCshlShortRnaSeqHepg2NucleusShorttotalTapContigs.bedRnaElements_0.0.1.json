@@ -1,0 +1,38 @@
+{
+ "Title": "wgEncodeCshlShortRnaSeqHepg2NucleusShorttotalTapContigs",
+"Species": "Homo sapiens",
+"TaxonomyId": "9606",
+"Genome": "hg19",
+"Recipe": "extendedBedToGRanges",
+"RecipeArgs": {
+ "colClasses": {
+ "seqnames": "character",
+"start": "integer",
+"end": "integer",
+"name": "character",
+"score": "integer",
+"strand": "character",
+"level": "numeric",
+"signif": "numeric",
+"score2": "integer" 
+} 
+},
+"SourceUrl": "http://hgdownload.cse.ucsc.edu/goldenpath/hg19/encodeDCC/wgEncodeCshlShortRnaSeq/wgEncodeCshlShortRnaSeqHepg2NucleusShorttotalTapContigs.bedRnaElements.gz",
+"SourceFile": "goldenpath/hg19/encodeDCC/wgEncodeCshlShortRnaSeq/wgEncodeCshlShortRnaSeqHepg2NucleusShorttotalTapContigs.bedRnaElements.gz",
+"RDataPath": "goldenpath/hg19/encodeDCC/wgEncodeCshlShortRnaSeq/wgEncodeCshlShortRnaSeqHepg2NucleusShorttotalTapContigs.bedRnaElements_0.0.1.RData",
+"SourceMd5": "f1243aee2df502cd7ec8b177ba94e5c0",
+"Description": "Contigs bedRnaElements HepG2 GSM897085 wgEncodeCshlShortRnaSeqHepg2NucleusShorttotalTapContigs RnaSeq wgEncodeEH001742 CSHL",
+"Tags": "|013N,014N|HepG2|wgEncodeCshlShortRnaSeq|RnaSeq|ENCODE Mar 2012 Freeze|2012-02-07|2011-07-12|2012-04-12|wgEncodeEH001742|GSM897085|Gingeras|CSHL|LID44462,LID44463|iIDR|nucleus|f1243aee2df502cd7ec8b177ba94e5c0|wgEncode|TAP-Only|1x36|shortTotal|Illumina_GA2x|206000|4480|wgEncodeCshlShortRnaSeqHepg2NucleusShorttotalTapContigs|bedRnaElements|Contigs|wgEncodeCshlShortRnaSeq",
+"RDataClass": "GRanges",
+"RDataVersion": "0.0.1",
+"SourceVersion": "iIDR",
+"SourceSize": 210398,
+"SourceLastModifiedDate": "2013-01-21",
+"RDataLastModifiedDate": "1970-1-1",
+"Coordinate_1_based": false,
+"Maintainer": "Paul Shannon <pshannon@fhcrc.org>",
+"DataProvider": "hgdownload.cse.ucsc.edu",
+"BiocVersion": "2.12",
+"Notes": "",
+"RDataDateAdded": "2013-01-22" 
+}
