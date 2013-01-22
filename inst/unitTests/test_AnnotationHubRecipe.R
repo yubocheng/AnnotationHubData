@@ -21,6 +21,7 @@ runTests <- function()
     test_narrowPeakToGRanges()
 
     test_rtracklayerGenericImportOfEncodeGtf()
+    test_bedRnaElementsToGRanges()
 
 } # runTests
 #-------------------------------------------------------------------------------
@@ -536,6 +537,44 @@ test_rtracklayerGenericImportOfEncodeGtf <- function ()
     TRUE
 
 } # test_rtracklayerGenericImportOfEncodeGtf 
+#-------------------------------------------------------------------------------
+test_bedRnaElementsToGRanges <- function()
+{
+    print("--- test_bedRnaElementsToGRanges")
+
+        # copy the source data to a writable temporary directory
+    sourceDirectory <- system.file("extdata", package="AnnotationHubData")
+
+    workingDirectory <- AnnotationHubData:::.createWorkingDirectory(sourceDirectory)
+    annotationHubRoot <- workingDirectory
+
+        # locate the json metadata file
+    jsonFile <- "wgEncodeCshlShortRnaSeqHepg2NucleusShorttotalTapContigs.bedRnaElements_0.0.1.json"
+    resourcePath <- "goldenpath/hg19/encodeDCC/wgEncodeCshlShortRnaSeq"
+    jsonPath <- file.path(resourcePath, jsonFile)
+    fullJsonPath <- file.path(annotationHubRoot, jsonPath)
+    checkTrue(file.exists(fullJsonPath))
+    
+        # create a metadata object from this file
+    md <- constructMetadataFromJsonPath(annotationHubRoot, jsonPath)
+        # now create a Recipe instance
+    recipe <- AnnotationHubRecipe(md)
+
+    browser("recipe")
+    checkEquals(recipeName(recipe), "extendedBedToGRanges")
+
+        # create GRanges from the extended bed file, save as RData where
+        # instructed by the recipe
+    pathToRDataFile <- run(recipe)
+
+        # check the result
+    load(pathToRDataFile)
+    browser("bedRnaElements")
+    checkEquals(length(gr), 11342)
+    checkEquals(names(mcols(gr)), c("name", "score", "level", "signif", "score2"))
+    checkSeqInfo(gr)
+
+} # test_bedRnaElementsToGRanges
 #-------------------------------------------------------------------------------
 checkSeqInfo <- function(gr)
 {
