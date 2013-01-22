@@ -57,8 +57,15 @@ createJson <- function(projectName, dataFileName)
 # printf("created new jsonfile: %s", jsonPath)
 # stopifnot(file.exists(jsonPath))
 
-projectName <- "wgEncodeCshlLongRnaSeq"
-dataFileName <- "wgEncodeCshlLongRnaSeqHmecCellPamGeneDeNovo.gtf.gz"
+# projectName <- "wgEncodeCshlLongRnaSeq"
+# dataFileName <- "wgEncodeCshlLongRnaSeqHmecCellPamGeneDeNovo.gtf.gz"
+# jsonPath <- createJson(projectName, dataFileName)
+# printf("created new jsonfile: %s", jsonPath)
+# stopifnot(file.exists(jsonPath))
+
+projectName <- "wgEncodeCshlShortRnaSeq"
+dataFileName <- "wgEncodeCshlShortRnaSeqHepg2NucleusShorttotalTapContigs.bedRnaElements.gz"
 jsonPath <- createJson(projectName, dataFileName)
 printf("created new jsonfile: %s", jsonPath)
 stopifnot(file.exists(jsonPath))
+
