@@ -80,8 +80,6 @@ commonMetadata <- function(BiocVersion)
     params$DataProvider <- "ftp.ensembl.org"
     params$Coordinate_1_based <- TRUE#logical(0)
     params$RDataDateAdded <- format(Sys.time(), "%Y-%m-%d")
-    ##params$SourceLastModifiedDate <- "2012-12-18"
-    ##params$BiocVersion <- BiocVersion
     params$Tags <- c("ensembl", "fasta")
     params
 }
@@ -103,7 +101,7 @@ createMetadata <- function(ahroot, subtree="pub/release-70/fasta",
         basename <- basename(gzfile)
         params$Title <- basename
         segs <- strsplit(basename, ".", fixed=TRUE)[[1]]
-        params$Species <- sub("_", " ", segs[1])
+        params$Species <- gsub("_", " ", segs[1])
         params$Genome <- segs[2]
         if(grepl("\\.chromosome\\.", basename))
         {
