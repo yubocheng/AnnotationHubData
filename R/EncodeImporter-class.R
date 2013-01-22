@@ -60,7 +60,7 @@ setMethod("assembleParams", "EncodeImporter",
        params$Genome <- genomeVersion
 
        dataFormat <- experimentMetadata$type
-       stopifnot(dataFormat %in% c("broadPeak", "narrowPeak", "gtf"))
+       stopifnot(dataFormat %in% c("broadPeak", "narrowPeak", "gtf", "bedRnaElements"))
 
        if(dataFormat == "gtf")
            params$Recipe = "rtrackLayerImport"
@@ -90,6 +90,19 @@ setMethod("assembleParams", "EncodeImporter",
                                                      qValue="numeric",
                                                      peak="integer"))
            } # if narrowPeak
+     
+       if(dataFormat == "bedRnaElements") {
+           params$Recipe <- "extendedBedToGRanges"
+           params$RecipeArgs <- list(colClasses=list(seqnames="character",
+                                                     start="integer",
+                                                     end="integer",
+                                                     name="character",
+                                                     score="integer",
+                                                     strand="character",
+                                                     level="numeric",
+                                                     signif="numeric",
+                                                     score2="integer"))
+           } # if bedRnaElements
      
      params$RDataClass <- "GRanges"
      params$RDataVersion <- "0.0.1"
