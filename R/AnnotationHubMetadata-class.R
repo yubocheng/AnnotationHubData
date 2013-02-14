@@ -151,7 +151,7 @@ writeJSON <- function(ahroot, metadata)
 
 .getDerivedFileName <- function(originalFile, RDataVersion, suffix)
 {
-    ret <- sub(".gz", "", basename(originalFile[1]))
+    ret <- sub(".gz", "", basename(originalFile))
     ret <- paste(ret, collapse="-")
     ret <- sprintf("%s_%s.%s", ret, RDataVersion, suffix)
     ret

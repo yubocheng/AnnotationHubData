@@ -165,6 +165,7 @@ setMethod("createResource", "EncodeImporter",
           }
        
        md <- do.call(AnnotationHubMetadata, params)
+       ## everything below here should be a server maintenance task
        recipe <- AnnotationHubRecipe(md)
        RDataFilename <- run(recipe)
        postProcessMetadata(annotationHubRoot,  metadata(md)$RDataVersion, metadata(md)$SourceFile)
