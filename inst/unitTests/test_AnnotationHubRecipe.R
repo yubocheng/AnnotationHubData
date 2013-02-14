@@ -14,7 +14,7 @@ runTests <- function()
 
     test_extendedBedToGRanges()
     #test_extendedBedToGRangesImplicitColClasses()
-    #test_extendedBedWithAuxiliaryTableToGRanges ()
+    test_extendedBedWithAuxiliaryTableToGRanges ()
 
     # test_ensemblGtfToGRanges()  seqinfo not set
     test_broadPeakToGRanges()
@@ -260,8 +260,9 @@ test_extendedBedToGRangesImplicitColClasses <- function()
 
 } # test_extendedBedToGRangesImplicitColClasses
 #-------------------------------------------------------------------------------
-dev.extendedBedWithAuxiliaryTable <- function(recipe)
+test_extendedBedWithAuxiliaryTable <- function(recipe)
 {
+     print("--- test_extendedBedWithAuxiliaryTable")
      bedFile <- grep(".bed.gz$", inputFiles(recipe), value=TRUE)
      auxFile <- grep(".tab$", inputFiles(recipe), value=TRUE)
      stopifnot(length(bedFile) == 1)
@@ -311,7 +312,12 @@ dev.extendedBedWithAuxiliaryTable <- function(recipe)
 } # dev.extendedBedWithAuxiliaryTable 
 #-------------------------------------------------------------------------------
 # TODO: bug here!  find and fix (pshannon, 17jan2012)
-hidden.test_extendedBedWithAuxiliaryTableToGRanges <- function()
+# TODO: detail (14 feb 2013):
+#  AnnotationHubRecipe-class.R::run calls
+#  AnnotationHubMetadata-class.R::postProcessMetaData
+#  which appears to have trouble with
+#    metadata(m)$SourceFile being a list of two files, not the usual one file
+test_extendedBedWithAuxiliaryTableToGRanges <- function()
 {
     print ("--- test_extendedBedWithAuxiliaryTableToGRanges")
 
@@ -560,7 +566,6 @@ test_bedRnaElementsToGRanges <- function()
         # now create a Recipe instance
     recipe <- AnnotationHubRecipe(md)
 
-    browser("recipe")
     checkEquals(recipeName(recipe), "extendedBedToGRanges")
 
         # create GRanges from the extended bed file, save as RData where
@@ -569,7 +574,6 @@ test_bedRnaElementsToGRanges <- function()
 
         # check the result
     load(pathToRDataFile)
-    browser("bedRnaElements")
     checkEquals(length(gr), 11342)
     checkEquals(names(mcols(gr)), c("name", "score", "level", "signif", "score2"))
     checkSeqInfo(gr)
