@@ -12,18 +12,23 @@
                                     "strand": "character",
 				      "name": "character"},
 
+
                "auxColClasses": {"1": {"cols": {       "id": "character",
                	                       	        "attribute": "character",
                               		 	   "attVal": "character"}, 
-			               "merge": {"byX": "experimentID",
-                         	       		 "byY": "rowIndex"} } },
-				{"2": {"cols": {       "id": "character",
+					"merge": {"byX": "experimentID",
+                         	       	    	  "byY": "rowIndex"} }, 
+						  
+				 "2": {"cols": {       "id": "character",
                	                       		"attribute": "character", 
                	                       	  	    "raKey": "character",
                              		 	   "attAcc": "character"},
-			               "merge": {"byX": "experimentID",
-                         	       		 "byY": "rowIndex"} } },
-               },
+					"merge": {"byX": "experimentID",
+                         	       	    	  "byY": "rowIndex"} }
+
+				}
+				      				      
+              },
 "SourceUrl": [ "ftp://hgdownload.cse.ucsc.edu/goldenPath/hg19/database/oreganno.txt.gz", "ftp://hgdownload.cse.ucsc.edu/goldenPath/hg19/database/oregannoAttr.txt.gz", "ftp://hgdownload.cse.ucsc.edu/goldenPath/hg19/database/oregannoLink.txt.gz" ],
 "SourceFile": [ "goldenPath/hg19/database/oreganno/oreganno.txt.gz", "goldenPath/hg19/database/oreganno/oregannoAttr.txt.gz", "goldenPath/hg19/database/oreganno/oregannoLink.txt.gz" ],
 "RDataPath": "goldenPath/hg19/database/oreganno/oreganno.txt-oregannoAttr.txt-oregannoLink.txt_0.0.1.RData",
@@ -43,4 +48,5 @@
 "BiocVersion": "2.12",
 "Notes": "",
 "RDataDateAdded": "2013-02-15"
+                
 }
