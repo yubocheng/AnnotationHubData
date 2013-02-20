@@ -20,7 +20,7 @@ importEnsemblGTFs <-
     description <- paste("Gene Annotation for", species)
     sourceUrl <- paste0("ftp://ftp.ensembl.org/", gtf)
     sourceVersion <- sub(".*(release-[[:digit:]]+).*", "\\1", gtf)
-    rDataDateAdded <- format(Sys.Date(), "%Y-%m-%d %T")
+    rDataDateAdded <- format(Sys.time(), "%Y-%m-%d %T")
 
     Map(importOneGTF, gtf=gtf, rdata=rdata, title=title,
         species=species, genome=genome, description=description,
