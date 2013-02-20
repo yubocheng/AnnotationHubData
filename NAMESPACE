@@ -1,9 +1,16 @@
-exportClasses(AnnotationHubMetadata, AnnotationHubRecipe)
-export(AnnotationHubMetadata, AnnotationHubRecipe)
+exportClasses(AnnotationHubMetadata, AnnotationHubRecipe,
+    DataProvider, EncodeDCCProvider, EnsemblGtfProvider,
+    UCSCTableHubProvider)
+
+export(AnnotationHubMetadata, AnnotationHubRecipe,
+    EncodeDCCProvider, EnsemblGtfProvider, UCSCTableHubProvider)
+
 export(constructAnnotationHubMetadataFromSourceFilePath,
   postProcessMetadata,
   constructMetadataFromJsonPath)
+
 import(RJSONIO)
+
 importFrom(BiocInstaller, biocVersion)
 
 importFrom(IRanges, metadata, "metadata<-")

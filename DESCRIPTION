@@ -1,7 +1,7 @@
 Package: AnnotationHubData
 Type: Package
 Title: Transform public data resources into Bioconductor Data Structures
-Version: 0.99.10
+Version: 0.99.11
 Date: 2013-02-14
 Author: Paul Shannon<pshannon@fhcrc.org>
 Maintainer: Bioconductor Package Maintainer <maintainer@bioconductor.org>
@@ -28,6 +28,7 @@ License: Artistic-2.0
 LazyLoad: yes
 biocViews: DataImport
 Collate:
+    'DataProvider-classes.R'
     'AnnotationHubMetadata-class.R'
     'AnnotationHubRecipe-class.R'
     'ensemblGtfToGRangesRecipe.R'
