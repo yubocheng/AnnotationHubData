@@ -130,7 +130,7 @@ postProcessMetadata <- function(ahroot, RDataVersion, originalFile)
     derived <- file.path(ahroot, x@RDataPath)
     metadata(x)$RDataSize <- as.integer(file.info(derived)$size)
     metadata(x)$RDataLastModifiedDate <- .getModificationTime(derived)
-    json <- as.json(x)
+    json <- to.json(x)
     resourceDir <- dirname(originalFile[1])
     outfile <- file.path(ahroot, resourceDir, .getDerivedFileName(originalFile, 
         RDataVersion, "json"))
@@ -138,15 +138,22 @@ postProcessMetadata <- function(ahroot, RDataVersion, originalFile)
     x
 }
 
-writeJSON <- function(ahroot, metadata)
+writeJSON <- function(ahroot, metadata, flat=FALSE, filename=NULL)
 {
-    json <- as.json(metadata)
+    json <- to.json(metadata)
     sourceFile <- metadata(metadata)$SourceFile[1]
     resourceDir <- dirname(sourceFile)
-    outfile <- file.path(ahroot, resourceDir,
-        .getDerivedFileName(sourceFile,
-            metadata(metadata)$RDataVersion, "json"))
+    if (is.null(filename))
+    {
+        filename <- .getDerivedFileName(sourceFile,
+            metadata(metadata)$RDataVersion, "json")
+    }
+    if (flat)
+        outfile <- file.path(ahroot, filename)
+    else
+        outfile <- file.path(ahroot, resourceDir, filename)
     cat(json, file=outfile)
+    outfile
 }
 
 .getDerivedFileName <- function(originalFile, RDataVersion, suffix)
@@ -208,14 +215,19 @@ AnnotationHubMetadata <- function(AnnotationHubRoot, SourceFile, SourceUrl, Titl
     )
 
 
-    json <- as.json(x)
+    json <- to.json(x)
 
     cat(json, file=file.path(AnnotationHubRoot, jsonDir, jsonFile))
 
     x
 }
 
-as.json <- function(annotationHubMetadata)
+to.json <- function(annotationHubMetadata)
+{
+    toJSON(to.list(annotationHubMetadata))
+}
+
+to.list <- function(annotationHubMetadata)
 {
     l <- list()
     for (name in slotNames(annotationHubMetadata))
@@ -229,8 +241,7 @@ as.json <- function(annotationHubMetadata)
             }
         }
     }
-    l2<- rapply(l, as.list, "call", how="replace")
-    toJSON(l)
+    rapply(l, as.list, "call", how="replace")
 }
 
 .AnnotationHubMetadata.validity <- function(object)

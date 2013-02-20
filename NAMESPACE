@@ -10,7 +10,10 @@ importFrom(IRanges, metadata, "metadata<-")
 
 importFrom(Rsamtools, indexFa)
 
-export(constructSeqInfo,
+export(
+       to.json,
+       to.list,
+       constructSeqInfo,
        extendedBedToGRanges,
        extendedBedWithAuxiliaryTableToGRanges,
        ensemblGtfToGRanges,
