@@ -3,8 +3,8 @@
 "Species": "Homo sapiens",
 "TaxonomyId": "9606",
 "Genome": "hg19",
-"Recipe": "extendedBedWithAuxiliaryTableToGRanges",
-"RecipeArgs": {"bedColClasses": {    "index": "integer",
+"Recipe": "trackWithAuxiliaryTablesToGRanges",
+"RecipeArgs": {"mainColClasses": {    "index": "integer",
 	      			   "seqname": "character",
                                      "start": "integer",
                                        "end": "integer",
@@ -16,22 +16,22 @@
                "auxColClasses": {"1": {"cols": {       "id": "character",
                	                       	        "attribute": "character",
                               		 	   "attVal": "character"}, 
-					"merge": {"byX": "experimentID",
-                         	       	    	  "byY": "rowIndex"} }, 
+					"merge": {"byX": "id",
+                         	       	    	  "byY": "id"} }, 
 						  
 				 "2": {"cols": {       "id": "character",
                	                       		"attribute": "character", 
                	                       	  	    "raKey": "character",
                              		 	   "attAcc": "character"},
-					"merge": {"byX": "experimentID",
-                         	       	    	  "byY": "rowIndex"} }
+					"merge": {"byX": "id",
+                         	       	    	  "byY": "id"} }
 
 				}
 				      				      
               },
-"SourceUrl": [ "ftp://hgdownload.cse.ucsc.edu/goldenPath/hg19/database/oreganno.txt.gz", "ftp://hgdownload.cse.ucsc.edu/goldenPath/hg19/database/oregannoAttr.txt.gz", "ftp://hgdownload.cse.ucsc.edu/goldenPath/hg19/database/oregannoLink.txt.gz" ],
-"SourceFile": [ "goldenPath/hg19/database/oreganno/oreganno.txt.gz", "goldenPath/hg19/database/oreganno/oregannoAttr.txt.gz", "goldenPath/hg19/database/oreganno/oregannoLink.txt.gz" ],
-"RDataPath": "goldenPath/hg19/database/oreganno/oreganno.txt-oregannoAttr.txt-oregannoLink.txt_0.0.1.RData",
+"SourceUrl": [ "ftp://hgdownload.cse.ucsc.edu/goldenpath/hg19/database/oreganno.txt.gz", "ftp://hgdownload.cse.ucsc.edu/goldenpath/hg19/database/oregannoAttr.txt.gz", "ftp://hgdownload.cse.ucsc.edu/goldepath/hg19/database/oregannoLink.txt.gz" ],
+"SourceFile": [ "goldenpath/hg19/database/oreganno/oreganno.txt.gz", "goldenpath/hg19/database/oreganno/oregannoAttr.txt.gz", "goldenpath/hg19/database/oreganno/oregannoLink.txt.gz" ],
+"RDataPath": "goldenpath/hg19/database/oreganno/oreganno.txt-oregannoAttr.txt-oregannoLink.txt_0.0.1.RData",
 "SourceMd5": [ "ef65ee9664a3137b4596c66eb577c5cd", "0f24dcb10a9e554167b505314e49daa8", "a5c9cce6bedecedf1fb02895393a5048" ],
 "Description": "An ORegAnno record describes an experimentally proven and published regulatory region (promoter, enhancer, etc.), transcription factor binding site, or regulatory polymorphism.",
 "Tags": "gene regulation",

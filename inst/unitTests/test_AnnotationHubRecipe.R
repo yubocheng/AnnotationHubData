@@ -368,6 +368,60 @@ test_extendedBedWithAuxiliaryTableToGRanges <- function()
     checkSeqInfo(gr)
 
 } # test_extendedBedWithAuxiliaryTableToGRanges
+test_trackWithAuxiliaryTablesToGRanges <- function()
+{
+    print ("--- test_trackWithAuxiliaryTablesToGRanges")
+
+        # copy the source data to a writable temporary directory
+    sourceDirectory <- system.file("extdata", package="AnnotationHubData")
+    workingDirectory <-
+        AnnotationHubData:::.createWorkingDirectory(sourceDirectory)
+    annotationHubRoot <- workingDirectory
+
+        # locate the json metadata file
+    jsonFile <-
+       "oreganno.txt-oregannoAttr.txt-oregannoLink.txt_0.0.1.json"
+    resourcePath <- "goldenpath/hg19/database/oreganno"
+    jsonPath <- file.path(resourcePath, jsonFile)
+
+        # create a metadata object from this file
+    md <- constructMetadataFromJsonPath(annotationHubRoot, jsonPath)    
+    recipe <- AnnotationHubRecipe(md)
+
+        # run the recipe
+    RDataFilename <- run(recipe) ## the recipe run is one in trackWithAuxiliaryTableToGRanges
+    
+    checkEquals(RDataFilename, outputFile(recipe))
+    loadedDataName <- load(RDataFilename)
+    checkEquals(loadedDataName, 'gr')
+    checkEquals(length(gr), 100)
+    checkEquals(dim(mcols(gr)), c(100,8))
+    checkEquals(colnames(mcols(gr)), c("experimentID", "score", "track", "cellType",
+                                       "treatment", "replicate", "source", "date"))
+      # hand-check one range, extracted from our sample data
+      # --- from the bed file
+      #    seqname     start       end experimentID score
+      # 71   chr13  95923360  95924150          118  1000
+      # --- from auxiliary data
+      #                             track        cellType treatment replicate source       date rowIndex
+      # 118 wgEncodeUwDnaseMonocd14PkRep1 Monocytes-CD14+      None         1     UW 2011-10-10      118
+
+    x <- gr[start(gr)==95923360]
+    checkEquals(end(x), 95924150)
+    checkEquals(as.character(seqnames(x)), "chr13")
+    z <- as.list(mcols(x))
+    checkEquals(z$experimentID, 118L)
+    checkEquals(z$score, 1000)
+    checkEquals(z$track, "wgEncodeUwDnaseMonocd14PkRep1")
+    checkEquals(z$cellType, "Monocytes-CD14+")
+    checkEquals(z$treatment, "None")
+    checkEquals(z$replicate, 1L)
+    checkEquals(z$source, "UW")
+    checkEquals(z$date, "2011-10-10")
+
+    checkSeqInfo(gr)
+
+} # test_extendedBedWithAuxiliaryTableToGRanges
 #-------------------------------------------------------------------------------
 test_ensemblGtfToGRanges <- function()
 {
