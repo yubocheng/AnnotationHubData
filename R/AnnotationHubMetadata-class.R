@@ -289,12 +289,10 @@ as.json <- function(annotationHubMetadata)
 setValidity("AnnotationHubMetadata",
         function(object) .AnnotationHubMetadata.validity(object))
 
-
-#setMethod('show', 'AnnotationHubMetadata',
-#
-#    function(object) {
-#        msg = sprintf('AnnotationHubMetadata')
-#        cat(msg, '\n', sep='')
-#        })
-#
-#
+setMethod(show, "AnnotationHubMetadata",
+    function(object)
+{
+    cat("class: ", class(object), '\n', sep='')
+    for (slt in sort(slotNames(object)))
+        cat(slt, ": ", slot(object, slt), "\n", sep="")
+})
