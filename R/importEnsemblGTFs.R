@@ -1,60 +1,55 @@
 #library(AnnotationHubData)
 
-importEnsemblGTFs <- function(ahroot)
+importEnsemblGTFs <-
+    function(ahroot)
 {
     ahroot <- normalizePath(ahroot)
     gtf <- dir(ahroot, pattern=".*gtf.gz", recursive=TRUE, full.names=TRUE)
     #oldwd <- getwd()
     #on.exit(setwd(oldwd))
     #setwd(ahroot)
-    gtf <- sub(ahroot, "", gtf)
+    gtf <- sub(ahroot, "", gtf, fixed=TRUE)
     gtf <- sub(sprintf("^%s", .Platform$file.sep), "", gtf)
-    rda <- sub(".gz$", ".RData", gtf)
-    map <- setNames(rda, gtf)
+    rdata <- sub(".gz$", ".RData", gtf)
 
-    gtfs <- names(map)
-    rdatas <- unname(map)
+    regex <- "^([[:alpha:]_]+)\\.([[:alpha:]]+).*"
+    title <- sub(".gz$", "", basename(gtf))
+    species <- gsub("_", " ", sub(regex, "\\1", title), fixed=TRUE)
+    genome <- sub(regex, "\\2", title)
 
-    for (i in 1:length(gtfs))
-    {
-        importOneGTF(ahroot, gtfs[i], rdatas[i])
-    }
+    description <- paste("Gene Annotation for", species)
+    sourceUrl <- paste0("ftp://ftp.ensembl.org/", gtf)
+    sourceVersion <- sub(".*(release-[[:digit:]]+).*", "\\1", gtf)
+    rDataDateAdded <- format(Sys.Date(), "%Y-%m-%d %T")
 
+    Map(importOneGTF, gtf=gtf, rdata=rdata, title=title,
+        species=species, genome=genome, description=description,
+        sourceUrl=sourceUrl, sourceVersion=sourceVersion,
+        MoreArgs=list(ahroot=ahroot, rDataDateAdded=rDataDateAdded))
 }
 
-
-importOneGTF <- function(ahroot, gtf, rdata)
+importOneGTF <-
+    function(ahroot, gtf, rdata, species, genome, title, description,
+             sourceUrl, sourceVersion, rDataDateAdded)
 {
-    print(gtf)
-    params <- list()
-    params$AnnotationHubRoot <- ahroot
-    params$SourceFile <- gtf
-    params$Species <- strsplit(basename(gtf), ".", fixed=TRUE)[[1]][1]
-    params$Species <- gsub("_", " ", params$Species, fixed=TRUE)
-    params$Genome <- strsplit(basename(gtf), ".", fixed=TRUE)[[1]][2]
-    params$Title <- sub(".gz", "", basename(gtf), fixed=FALSE)
-    params$Recipe <- "recipe_ensembl_gtf"
-    params$Description <- sprintf("Gene Annotation for %s",
-        params$Species)
-    params$SourceUrl <- sprintf("ftp://%s", gtf)
-    #SourceFile <- rdata
-    params$RDataClass <- "GRanges"
-    #objName <- load(rdata)
-    #gr <- get(objName)
-    #params$ResourceDimensions <- 
-    #    sprintf("GRanges with %s ranges and %s metadata columns", 
-    #        length(ranges(gr)), length(mcols(gr)))
-    params$RDataVersion <- "0.0.1"
-    params$SourceVersion <- "release-69"
-    params$Maintainer <- "Martin Morgan <mtmorgan@fhcrc.org>"
-    params$DataProvider <- "ftp.ensembl.org"
-    params$Coordinate_1_based <- TRUE
-    params$RDataDateAdded <- "2012-12-31 00:00:00"
-    params$Tags <-
-        c("GTF", "ensembl", "Gene", "Transcript", "Annotation")
-    x <- do.call("AnnotationHubMetadata", params)
-    x <- postProcessMetadata(ahroot, metadata(x)$RDataVersion,
-        metadata(x)$SourceFile)
-
-    x
+    message(gtf)
+    x = AnnotationHubMetadata(
+      AnnotationHubRoot = ahroot,
+      SourceFile = gtf,
+      Species = species,
+      Genome = genome,
+      Title = title,
+      Recipe = "recipe_ensembl_gtf",
+      Description = description,
+      SourceUrl = sourceUrl,
+      RDataClass = "GRanges",
+      RDataVersion = "0.0.1",
+      SourceVersion = sourceVersion,
+      Maintainer = "Martin Morgan <mtmorgan@fhcrc.org>",
+      DataProvider = "ftp.ensembl.org",
+      Coordinate_1_based = TRUE,
+      RDataDateAdded = rDataDateAdded,
+      Tags = c("GTF", "ensembl", "Gene", "Transcript", "Annotation"))
+    postProcessMetadata(ahroot, metadata(x)$RDataVersion,
+                        metadata(x)$SourceFile)
 }
