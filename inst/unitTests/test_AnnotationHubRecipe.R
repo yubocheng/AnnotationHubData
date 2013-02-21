@@ -371,7 +371,6 @@ test_extendedBedWithAuxiliaryTableToGRanges <- function()
 test_trackWithAuxiliaryTablesToGRanges <- function()
 {
     print ("--- test_trackWithAuxiliaryTablesToGRanges")
-
         # copy the source data to a writable temporary directory
     sourceDirectory <- system.file("extdata", package="AnnotationHubData")
     workingDirectory <-
@@ -389,7 +388,8 @@ test_trackWithAuxiliaryTablesToGRanges <- function()
     recipe <- AnnotationHubRecipe(md)
 
         # run the recipe
-    RDataFilename <- run(recipe) ## the recipe run is one in trackWithAuxiliaryTableToGRanges
+    RDataFilename <- run(recipe)
+        ## the recipe run is one in trackWithAuxiliaryTableToGRanges
     
     checkEquals(RDataFilename, outputFile(recipe))
     loadedDataName <- load(RDataFilename)
@@ -399,14 +399,7 @@ test_trackWithAuxiliaryTablesToGRanges <- function()
     checkEquals(colnames(mcols(gr)), c("id", "index", "name", "attribute.x",
                                        "attVal", "attribute.y", "raKey",
                                        "attAcc"))
-      # hand-check one range, extracted from our sample data
-      # --- from the bed file
-      #    seqname     start       end experimentID score
-      # 71   chr13  95923360  95924150          118  1000
-      # --- from auxiliary data
-      #                             track        cellType treatment replicate source       date rowIndex
-      # 118 wgEncodeUwDnaseMonocd14PkRep1 Monocytes-CD14+      None         1     UW 2011-10-10      118
-
+        ## test to make sure contents are accurate.
     x <- gr[start(gr)==873498]
     checkEquals(end(x)[1], 873849)
     checkEquals(as.character(seqnames(x))[1], "chr1")
@@ -419,7 +412,6 @@ test_trackWithAuxiliaryTablesToGRanges <- function()
     checkEquals(z$attribute.y, "SrcLink")
     checkEquals(z$raKey, "ORegAnno")
     checkEquals(z$attAcc, "OREG0012989")
-
 
     checkSeqInfo(gr)
 
