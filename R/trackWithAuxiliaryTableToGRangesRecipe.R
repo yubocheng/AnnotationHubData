@@ -49,7 +49,16 @@ trackWithAuxiliaryTablesToGRanges <- function(recipe)
      stopifnot(all(requiredColnames %in% colnames))
      otherColnames <- setdiff(colnames, requiredColnames)
 
-     gr <- with(tbl, GRanges(seqname, IRanges(start, end)))
+     ## drop any rows withouth a seqname
+     tbl <- tbl[!is.na(tbl$seqname),]
+     
+     if("strand" %in%  otherColnames){
+         gr <- with(tbl, GRanges(seqname, IRanges(start, end), strand))
+         otherColnames <- setdiff(colnames, c(requiredColnames,"strand"))
+     }else{  
+         gr <- with(tbl, GRanges(seqname, IRanges(start, end)))
+     }
+     
      mcols(gr) <- DataFrame(tbl[, otherColnames])
 
         # add seqlength & chromosome circularity information

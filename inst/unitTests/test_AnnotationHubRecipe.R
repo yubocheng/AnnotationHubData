@@ -394,10 +394,11 @@ test_trackWithAuxiliaryTablesToGRanges <- function()
     checkEquals(RDataFilename, outputFile(recipe))
     loadedDataName <- load(RDataFilename)
     checkEquals(loadedDataName, 'gr')
-    checkEquals(length(gr), 100)
-    checkEquals(dim(mcols(gr)), c(100,8))
-    checkEquals(colnames(mcols(gr)), c("experimentID", "score", "track", "cellType",
-                                       "treatment", "replicate", "source", "date"))
+    checkEquals(length(gr), 74084)
+    checkEquals(dim(mcols(gr)), c(74084,8))
+    checkEquals(colnames(mcols(gr)), c("id", "index", "name", "attribute.x",
+                                       "attVal", "attribute.y", "raKey",
+                                       "attAcc"))
       # hand-check one range, extracted from our sample data
       # --- from the bed file
       #    seqname     start       end experimentID score
@@ -406,18 +407,19 @@ test_trackWithAuxiliaryTablesToGRanges <- function()
       #                             track        cellType treatment replicate source       date rowIndex
       # 118 wgEncodeUwDnaseMonocd14PkRep1 Monocytes-CD14+      None         1     UW 2011-10-10      118
 
-    x <- gr[start(gr)==95923360]
-    checkEquals(end(x), 95924150)
-    checkEquals(as.character(seqnames(x)), "chr13")
-    z <- as.list(mcols(x))
-    checkEquals(z$experimentID, 118L)
-    checkEquals(z$score, 1000)
-    checkEquals(z$track, "wgEncodeUwDnaseMonocd14PkRep1")
-    checkEquals(z$cellType, "Monocytes-CD14+")
-    checkEquals(z$treatment, "None")
-    checkEquals(z$replicate, 1L)
-    checkEquals(z$source, "UW")
-    checkEquals(z$date, "2011-10-10")
+    x <- gr[start(gr)==873498]
+    checkEquals(end(x)[1], 873849)
+    checkEquals(as.character(seqnames(x))[1], "chr1")
+    z <- as.list(mcols(x[1]))
+    checkEquals(z$id, "OREG0012989")
+    checkEquals(z$index, 591)    
+    checkEquals(z$name, "OREG0012989")
+    checkTrue(is.na(z$attribute.x))
+    checkTrue(is.na(z$attVal))
+    checkEquals(z$attribute.y, "SrcLink")
+    checkEquals(z$raKey, "ORegAnno")
+    checkEquals(z$attAcc, "OREG0012989")
+
 
     checkSeqInfo(gr)
 
