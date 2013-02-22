@@ -1,11 +1,15 @@
 ## Code to import tracks from UCSC and to make them into AHMs
 
-## .importUCSCTracks <-
-##     function(files)
-## {
-##     base <- "ftp://hgdownload.cse.ucsc.edu/goldenPath/hg19/database/"
-##     gtf <- dir(base, pattern=".*gtf.gz", recursive=TRUE, full.names=TRUE)
+## .importUCSCTracks <- function() {
+## ##     base <- "ftp://hgdownload.cse.ucsc.edu/goldenPath/hg19/database/"
+## ##     gtf <- dir(base, pattern=".*gtf.gz", recursive=TRUE, full.names=TRUE)
 
+##     ## 1st list all the genome types.
+
+##     ## then list all the builds for each one.
+
+##     ## then list all the tracks for each combination of 
+    
     
 ##     gtf <- sub(ahroot, "", gtf, fixed=TRUE)
 ##     gtf <- sub(sprintf("^%s", .Platform$file.sep), "", gtf)
@@ -80,8 +84,9 @@
 ## ?trackName
 ## library(rtracklayer)
 ## session <- browserSession()
+## head(ucscGenomes())
 ## genome(session) <- "hg19"
-## trackNames(session)
+## head(trackNames(session))
 
 
 ## Already can do stuff like this:
@@ -106,3 +111,15 @@
 ## bar  = getTable(query)
 
 ## ?ucscGenomes
+
+
+
+
+## There are some other issues: (some tracks are listed but are also unknown).
+## BUT: these failure tracks seem to be consistently failing.
+
+## So for example: c("ruler", "oligoMatch","cutters") all fail on hg19 and hg16.
+## And others too?  (untested).  This suggests that I can probably
+## just make a black list and use that to prevent certain things.
+
+## 
