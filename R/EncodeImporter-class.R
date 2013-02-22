@@ -1,8 +1,21 @@
 setClass("EncodeImporter",
-    representation(
-        tbl.md="data.frame"
-        )
-)
+    contains="AnnotationHubImporter"
+    )
+
+setMethod("getRawMetadata", "EncodeImporter",
+   function(x){
+       # read and collate all "files.txt" at and below
+       # http://hgdownload.cse.ucsc.edu/goldenpath/hg19/encodeDCC/
+       # into raw.metadata data.frame
+       })
+
+#------------------------------------------------------------------------------
+ucscHome <- function() return("http://hgdownload.cse.ucsc.edu/")
+ucscEncodePath <- function() return("goldenpath/hg19/encodeDCC/")
+ucscEncodeTop <- function() return(paste(ucscHome(),
+                                         ucscEncodePath(), sep=""))
+EncodeBaseURL <- ucscEncodeTop
+printf <- function(...) print(noquote(sprintf(...)))
 #------------------------------------------------------------------------------
 EncodeImporter <- function()
 {
@@ -28,7 +41,8 @@ setGeneric("assembleParams", signature="object",
 
 setGeneric("createResource", signature="object",
            function(object, annotationHubRoot, webSiteRoot,
-                    genomeVersion, dataFileName,experimentMetadata)
+                    genomeVersion, dataFileName,experimentMetadata,
+                    insertIntoDatabase, verbose)
            standardGeneric ("createResource"))
 
 
@@ -139,7 +153,8 @@ setMethod("assembleParams", "EncodeImporter",
 setMethod("createResource", "EncodeImporter",
 
    function (object, annotationHubRoot, webSiteRoot,
-             genomeVersion, dataFileName, experimentMetadata) {
+             genomeVersion, dataFileName, experimentMetadata,
+             insertIntoDatabase=TRUE, verbose=FALSE) {
 
        projectName <- experimentMetadata$dataDir
        projectPath <- file.path("goldenpath", genomeVersion, "encodeDCC", projectName)
@@ -148,7 +163,8 @@ setMethod("createResource", "EncodeImporter",
        localFile <- file.path(localStorageDirectory, dataFileName)
    
        if(!file.exists(localStorageDirectory)) {
-           message(sprintf(" -- fresh directory creation: %s", localStorageDirectory))
+           if(verbose)
+               message(sprintf(" -- fresh directory creation: %s", localStorageDirectory))
            dir.create(localStorageDirectory, recursive=TRUE)
            }
    
@@ -160,7 +176,8 @@ setMethod("createResource", "EncodeImporter",
 
 
        if(!file.exists (localFile)) {
-          message(sprintf("-- fresh download to %s",localFile))
+          if(verbose)
+              message(sprintf("-- fresh download to %s",localFile))
           download.file(params$SourceUrl, destfile=localFile, quiet=TRUE)
           }
        
@@ -172,9 +189,152 @@ setMethod("createResource", "EncodeImporter",
 
        localJsonFile <- sub("\\.RData", "\\.json", RDataFilename)
        stopifnot(file.exists(localJsonFile))
-       stopifnot(json2mongo(localJsonFile))
+       if(insertIntoDatabase)
+           stopifnot(json2mongo(localJsonFile))
        
        RDataFilename
        }) # createResource
 
+#-------------------------------------------------------------------------------
+.downloadFileInfo <- function(baseUrl, subdirs, destinationDir, verbose=FALSE)
+{
+  for(subdir in subdirs){
+     #printf('--- %s', subdir)
+     url <- file.path(baseUrl, subdir, "files.txt")
+     subdir.stripped <- gsub("/", "", subdir)
+     destination <- file.path(destinationDir, sprintf("%s.info", subdir.stripped))
+     if(verbose)
+        printf ("%s -> %s", url, destination)
+     download.file(url, destination, quiet=!verbose)
+     }
+
+} # .downloadFileInfo
+#--------------------------------------------------------------------------------
+.extractLinksFromHtmlLines <- function(htmlLines)
+{
+        # some lines (at least) look like this:
+        #  <a href=\"wgEncodeAffyRnaChip/\">wgEncodeAffyRnaChip/</a>       05-Jul-2012 06:57    -   "
+        # match from start of quoted string up to the escaped closing quote
+        # will eliminate the trailing slash ("Chip/") below
+
+    hrefLines <- grep("a href", htmlLines, ignore.case=TRUE, value=TRUE)
+    matches <- gregexpr("<a href=\"(.*?)\">", hrefLines, perl=TRUE)
+
+    result <- vector('character', length(hrefLines))
+    for(i in 1:length(hrefLines)){
+      match <- matches [[i]]
+      start <- attr(match, "capture.start")
+      length <- attr(match, "capture.length")
+         # subtract 1 for basic arithmetic, and 1 to eliminate trailing / in the href link text
+      end <- start + length - 1
+      result[i] <- substr(hrefLines[i], start, end)
+      } # for i
+
+    result
+
+
+} # .extractLinksFromHtmlLines
+#-------------------------------------------------------------------------------
+.extractExperimentDirectoriesFromWebPage <- function(encodeSummaryWebPageURL)
+{
+    lines <- strsplit(getURL(encodeSummaryWebPageURL), "\n")[[1]]
+    lines <- lines[grep("href", lines, ignore.case=TRUE)]
+    removers <- grep ("Parent Directory", lines, ignore.case=TRUE)
+    if(length(removers) > 0)
+      lines <- lines[-removers]
+
+    .extractLinksFromHtmlLines(lines)
+
+} # .extractExperimentDirectoriesFromWebPage
+#-------------------------------------------------------------------------------
+.retrieveAllEncodeDCCMetadataFiles <- function(destinationDir, verbose=TRUE)
+{
+    all.dirs <- .extractExperimentDirectoriesFromWebPage(EncodeBaseURL())
+    skip.these.dirs <- grep("referenceSequences", all.dirs)
+    if(length(skip.these.dirs) > 0)
+        all.dirs <- all.dirs[-skip.these.dirs]
+    .downloadFileInfo(EncodeBaseURL(),all.dirs,
+                      destinationDir, verbose=verbose)
+
+
+} # .retrieveAllEncodeDCCMetadataFiles
+#-------------------------------------------------------------------------------
+.learnAllEncodeMetadataCategories <- function(metadataFilesDirectory,
+                                              verbose=FALSE)
+{
+        # get a list of all metadataFiles, each titled "file.info",
+        # each having as many lines as there are data files in
+        # the encodeDCC directory from which file.info was read
+  
+    files <- list.files(metadataFilesDirectory)
+
+    all.keys <- c()
+
+    total.lines <- 0
+    
+    for(file in files){
+       full.path <- file.path(metadataFilesDirectory, file)
+          # one line per data file, each separately characterized in this
+          # metadata file
+       lines <- scan(full.path, what=character(0), sep="\n",
+                     quiet=TRUE)
+       total.lines <- total.lines + length(lines)
+          # first split on tab character, separating filename from info
+       tokens.0 <- strsplit(lines, "\t")
+       data.filenames <- sapply(tokens.0, "[", 1)
+       info.strings <- sapply(tokens.0, "[", 2)
+       keyValuePairSets <- strsplit(info.strings, "; ")
+       stopifnot(length(data.filenames) == length(keyValuePairSets))
+       for(i in 1:length(keyValuePairSets)) {
+           pairs <- strsplit(keyValuePairSets[[i]], "=")
+           keys <- sapply(pairs, "[", 1)
+           new.unique.keys <- setdiff(keys, all.keys)
+           all.keys <- unique(c(all.keys, keys))
+           } # for i
+       if(verbose)
+            printf("%30s  new keys %d  currentTotal: %d", file,
+                   length(keys), length(all.keys))
+        } # file
+
+    list(all.keys=sort(all.keys), total.lines=total.lines)
+
+} # .learnAllEncodeMetadataCategories
+#-------------------------------------------------------------------------------
+.parseMetadataFiles <- function(metadata.filenames, all.keys, data.file.count)
+{
+    tbl <- data.frame()
+    row.template <-vector("character", length(all.keys))
+    names(row.template) <- all.keys
+    all.data.filenames <- c()
+
+    for(filename in metadata.filenames) {
+        stopifnot(file.exists(filename))
+        lines <- scan(filename, what=character(0), sep="\n", quiet=TRUE)
+            # first split on tab character, separating filename from info
+        printf("%s metadata file has %d lines of metadata", filename, length(lines))
+        tokens.0 <- strsplit(lines, "\t")
+        data.filenames <- sapply(tokens.0, "[", 1)
+        info.strings <- sapply(tokens.0, "[", 2)
+        keyValuePairSets <- strsplit(info.strings, "; ")
+        stopifnot(length(data.filenames) == length(keyValuePairSets))
+        printf("   about to traverse %d keyValuePairs", length(keyValuePairSets))
+        for(i in 1:length(keyValuePairSets)) {
+            pairs <- strsplit(keyValuePairSets[[i]], "=")
+            keys <- sapply(pairs, "[", 1)
+            new.row <- sapply(pairs, "[", 2)
+            names(new.row) <- keys
+            new.row.full <- row.template
+            new.row.full[names(new.row)] <- as.character(new.row)
+            new.row.as.df <- t(data.frame(new.row.full))
+            tbl <- rbind(tbl, new.row.as.df)
+            }# for i
+        printf("about to add %d to existing %d filenames to be used as rownames",
+                length(data.filenames), length (all.data.filenames))
+        all.data.filenames <- c(all.data.filenames, data.filenames)
+        } # for filename
+        
+    rownames(tbl) <- all.data.filenames
+    tbl
+  
+} # .parseMetadataFile
 #-------------------------------------------------------------------------------
