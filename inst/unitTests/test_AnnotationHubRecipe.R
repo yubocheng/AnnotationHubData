@@ -389,7 +389,7 @@ test_trackWithAuxiliaryTablesToGRanges <- function()
 
         # run the recipe
     RDataFilename <- run(recipe)
-        ## the recipe run is one in trackWithAuxiliaryTableToGRanges
+        ## the recipe run is one in trackWithAuxiliaryTablesToGRanges
     
     checkEquals(RDataFilename, outputFile(recipe))
     loadedDataName <- load(RDataFilename)

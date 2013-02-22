@@ -40,6 +40,7 @@ Collate:
     'importBedFiles.R'
     'importEnsemblGTFs.R'
     'importFastaFiles.R'
+    'importUCSCTracks.R'
     'genericRtracklayer.R'
     'nullRecipe.R'
     'testutils.R'
