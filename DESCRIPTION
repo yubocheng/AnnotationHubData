@@ -2,7 +2,6 @@ Package: AnnotationHubData
 Type: Package
 Title: Transform public data resources into Bioconductor Data Structures
 Version: 0.99.15
-Date: 2013-02-22
 Author: Paul Shannon<pshannon@fhcrc.org>
 Maintainer: Bioconductor Package Maintainer <maintainer@bioconductor.org>
 Depends:
@@ -29,21 +28,21 @@ License: Artistic-2.0
 LazyLoad: yes
 biocViews: DataImport
 Collate:
-    'ImportPreparer-class.R'
-    'EnsemblGtfImportPreparer-class.R'
-    'AnnotationHubMetadata-class.R'
-    'AnnotationHubRecipe-class.R'
-    'ensemblGtfToGRanges.R'
-    'extendedBedToGRangesRecipe.R'
-    'extendedBedWithAuxiliaryTableToGRangesRecipe.R'
-    'trackWithAuxiliaryTableToGRangesRecipe.R'
-    'EncodeImporter-class.R'
-    'fakedata.R'
-    'importBedFiles.R'
-    'importFastaFiles.R'
-    'importUCSCTracks.R'
-    'genericRtracklayer.R'
-    'nullRecipe.R'
-    'testutils.R'
-    'utils.R'
-    'zzz.R'
+    ImportPreparer-class.R
+    EnsemblGtfImportPreparer-class.R
+    AnnotationHubMetadata-class.R
+    AnnotationHubRecipe-class.R
+    ensemblGtfToGRanges.R
+    extendedBedToGRangesRecipe.R
+    extendedBedWithAuxiliaryTableToGRangesRecipe.R
+    trackWithAuxiliaryTableToGRangesRecipe.R
+    EncodeImporter-class.R
+    fakedata.R
+    importBedFiles.R
+    importFastaFiles.R
+    importUCSCTracks.R
+    genericRtracklayer.R
+    nullRecipe.R
+    testutils.R
+    utils.R
+    zzz.R

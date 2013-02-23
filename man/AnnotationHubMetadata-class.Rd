@@ -2,28 +2,36 @@
 \docType{class}
 \alias{AnnotationHubMetadata}
 \alias{AnnotationHubMetadata-class}
-
+\alias{show,AnnotationHubMetadata-method}
 
 \title{Class \code{"AnnotationHubMetadata"}}
+
 \description{
-description will go here
+
+  \code{AnnotationHubMetadata} is used to represent record(s) in the
+  server data base.
+
 }
+
 \section{Objects from the Class}{
-Objects can be created by calls of the form \code{new("AnnotationHubMetadata", ...)}.
-%%  ~~ describe objects here ~~ 
+
+  Objects can be created by calls to the constructor,
+  \code{AnnotationHubMetadata()}.
+
 }
+
 \usage{
-  AnnotationHubMetadata(AnnotationHubRoot, SourceFile, SourceUrl, Title,
-    Description,
-    Species, Genome, Recipe, RecipeArgs=list(), Tags, RDataClass,
-    RDataVersion, SourceVersion, Coordinate_1_based, Maintainer,
-    DataProvider,
-    Notes="")
+
+AnnotationHubMetadata(AnnotationHubRoot, SourceFile, SourceUrl, Title,
+    Description, Species, Genome, Recipe, RecipeArgs=list(), Tags,
+    RDataClass, RDataVersion, SourceVersion, Coordinate_1_based,
+    Maintainer, DataProvider, Notes="", RDataDateAdded)
+
 }
 
 \arguments{
-    \item{AnnotationHubRoot}{Absolute path to directory structure containing
-        resources to be added to AnnotationHub}
+    \item{AnnotationHubRoot}{Absolute path to directory structure
+        containing resources to be added to AnnotationHub}
     \item{SourceFile}{A path, relative to \code{AnnotationHubRoot}, to a
         resource to be added to AnnotationHub.}
     \item{SourceUrl}{URL where resource can be found}
@@ -41,28 +49,17 @@ Objects can be created by calls of the form \code{new("AnnotationHubMetadata", .
     \item{Maintainer}{Maintainer name and email address}
     \item{DataProvider}{Where did this resource come from?}
     \item{Notes}{Notes about the resource.}
-    \item{RDataDateAdded}{Date added to AnnotationHub. Used to determine snapshots.}
+    \item{RDataDateAdded}{Date added to AnnotationHub. Used to determine
+      snapshots.}
 }
 
-
-
-
-
-
-\author{
-Dan Tenenbaum
-}
-
-%% ~Make other sections like Warning with \section{Warning }{....} ~
+\author{Dan Tenenbaum}
 
 \seealso{
 \code{\linkS4class{AnnotationHubRecipe}}
 }
 \examples{
-showClass("AnnotationHubMetadata")
+new("AnnotationHubMetadata")
 }
+
 \keyword{classes}
-
-
-
-
