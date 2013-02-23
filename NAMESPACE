@@ -25,7 +25,8 @@ export(
        extendedBedWithAuxiliaryTableToGRanges,
        ensemblGtfToGRanges,
        rtrackLayerImport,
-       EncodeImporter)
+       EncodeImporter,
+       EncodeBaseURL)
 
 exportMethods(
     show,

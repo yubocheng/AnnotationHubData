@@ -1,29 +1,22 @@
 setClass("EncodeImporter",
-    contains="AnnotationHubImporter"
-    )
-
-setMethod("getRawMetadata", "EncodeImporter",
-   function(x){
-       # read and collate all "files.txt" at and below
-       # http://hgdownload.cse.ucsc.edu/goldenpath/hg19/encodeDCC/
-       # into raw.metadata data.frame
-       })
+         representation=representation(x="character"))
 
 #------------------------------------------------------------------------------
 ucscHome <- function() return("http://hgdownload.cse.ucsc.edu/")
 ucscEncodePath <- function() return("goldenpath/hg19/encodeDCC/")
 ucscEncodeTop <- function() return(paste(ucscHome(),
                                          ucscEncodePath(), sep=""))
-EncodeBaseURL <- ucscEncodeTop
+EncodeBaseURL <- function () return (ucscEncodeTop())
 printf <- function(...) print(noquote(sprintf(...)))
 #------------------------------------------------------------------------------
 EncodeImporter <- function()
 {
-   x <- new("EncodeImporter")
-   file.path <- system.file("extdata", "encodeMetadata.RData",
-                            package="AnnotationHubData")
-   load(file.path)
-   x@tbl.md <- tbl.md
+   #x <- new("EncodeImporter")
+   #file.path <- system.file("extdata", "encodeMetadata.RData",
+   #                         package="AnnotationHubData")
+   #load(file.path)
+   #x@tbl.md <- tbl.md
+   x <- "holding pattern"
    x
 }
 #------------------------------------------------------------------------------
