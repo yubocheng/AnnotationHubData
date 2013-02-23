@@ -1,5 +1,5 @@
-EnsemblGtfProvider <-
-    setClass("EnsemblGtfProvider", contains="DataProvider")
+EnsemblGtfImportPreparer <-
+    setClass("EnsemblGtfImportPreparer", contains="ImportPreparer")
 
 .ensemblGtfSourceUrls <-
     function(url)
@@ -50,14 +50,16 @@ EnsemblGtfProvider <-
           Tags = c("GTF", "ensembl", "Gene", "Transcript", "Annotation")))
 }
 
-setMethod(newResources, "EnsemblGtfProvider",
-    function(object, ahmeta)
+setMethod(newResources, "EnsemblGtfImportPreparer",
+    function(importPreparer, currentMetadata)
 {
     baseUrl <- "ftp://ftp.ensembl.org/pub/"
     sourceUrls <- .ensemblGtfSourceUrls(baseUrl)
 
     ## filter known
-    knownUrls <- sapply(ahmeta, function(elt) metadata(ahmeta)$SourceUrl)
+    knownUrls <- sapply(currentMetadata, function(elt) {
+        metadata(elt)$SourceUrl
+    })
     sourceUrls <- sourceUrls[!sourceUrls %in% knownUrls]
 
     ## AnnotationHubMetadata

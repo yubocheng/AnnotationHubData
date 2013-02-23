@@ -1,9 +1,8 @@
 exportClasses(AnnotationHubMetadata, AnnotationHubRecipe,
-    DataProvider, EncodeDCCProvider, EnsemblGtfProvider,
-    UCSCTableHubProvider)
+    ImportPreparer, EnsemblGtfImportPreparer)
 
 export(AnnotationHubMetadata, AnnotationHubRecipe,
-    EncodeDCCProvider, EnsemblGtfProvider, UCSCTableHubProvider)
+    EnsemblGtfImportPreparer)
 
 export(newResources,
   constructAnnotationHubMetadataFromSourceFilePath,

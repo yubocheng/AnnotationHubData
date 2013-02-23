@@ -1,5 +1,6 @@
 setClass("EncodeImporter",
-         representation=representation(x="character"))
+         representation=representation(x="character"),
+         contains="ImportPreparer")
 
 #------------------------------------------------------------------------------
 ucscHome <- function() return("http://hgdownload.cse.ucsc.edu/")

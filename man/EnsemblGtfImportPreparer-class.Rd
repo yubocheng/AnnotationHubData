@@ -1,38 +1,39 @@
-\name{EnsemblGtfProvider-class}
+\name{EnsemblGtfImportPreparer-class}
 \docType{class}
-\alias{EnsemblGtfProvider-class}
-\alias{EnsemblGtfProvider}
+\alias{EnsemblGtfImportPreparer-class}
+\alias{EnsemblGtfImportPreparer}
 
-\alias{newResources,EnsemblGtfProvider-method}
+\alias{newResources,EnsemblGtfImportPreparer-method}
 
-\title{Class \code{EnsemblGtfProvider}}
+\title{Class \code{EnsemblGtfImportPreparer}}
 
 \description{
 
-  The \code{EnsemblGtfProvider} is used to maintain AnnotationHub
+  The \code{EnsemblGtfImportPreparer} is used to maintain AnnotationHub
   resources corresponding to GTF files provided by Ensembl. It
-  implements \code{newResources,EnsemblGtfProvider-method} for resource
-  discovery, and uses \code{ensemblGtfToGRangesRecipe} to coerce GTF
-  files to \code{GRanges} instances.
+  implements \code{newResources,EnsemblGtfImportPreparer-method} for
+  resource discovery, and uses \code{ensemblGtfToGRangesRecipe} to
+  coerce GTF files to \code{GRanges} instances.
 
 }
 
 \usage{
-EnsemblGtfProvider(...)
+EnsemblGtfImportPreparer(...)
 
-\S4method{newResources}{EnsemblGtfProvider}(object, ahmeta)
+\S4method{newResources}{EnsemblGtfImportPreparer}(importPreparer, currentMetadata)
 }
 
 \arguments{
 
   \item{\ldots}{Further arguments to the constructor; ignored.}
 
-  \item{object}{An instance of \code{EnsemblGtfProvider}, used for
-    method dispatch.}
+  \item{importPreparer}{An instance of \code{EnsemblGtfImportPreparer},
+    used for method dispatch.}
 
-  \item{ahmeta}{A list of \code{\linkS4class{AnnotationHubMetadata}}
-    instances, representing already-curated data from the data
-    provider indicated by \code{object}.}
+  \item{currentMetadata}{A list of
+    \code{\linkS4class{AnnotationHubMetadata}} instances, representing
+    already-curated data from the data provider indicated by
+    \code{object}.}
 
 }
 
@@ -55,7 +56,7 @@ EnsemblGtfProvider(...)
 
 \value{
 
-  \code{EnsemblGtfProvider} returns an instance of the class.
+  \code{EnsemblGtfImportPreparer} returns an instance of the class.
 
   \code{newResources} returns a list of
   \code{\linkS4class{AnnotationHubMetadata}} objects representing
@@ -70,7 +71,7 @@ EnsemblGtfProvider(...)
   \code{\linkS4class{AnnotationHubMetadata}}.
 }
 \examples{
-EnsemblGtfProvider()
+EnsemblGtfImportPreparer()
 }
 \keyword{classes}
 
