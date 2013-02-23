@@ -1,7 +1,7 @@
 Package: AnnotationHubData
 Type: Package
 Title: Transform public data resources into Bioconductor Data Structures
-Version: 0.99.13
+Version: 0.99.14
 Date: 2013-02-22
 Author: Paul Shannon<pshannon@fhcrc.org>
 Maintainer: Bioconductor Package Maintainer <maintainer@bioconductor.org>
@@ -13,7 +13,8 @@ Depends:
     GenomicFeatures,
     AnnotationHubServer
 Suggests:
-    RUnit
+    RUnit,
+    RCurl
 Imports:
     BiocGenerics,
     RJSONIO,
@@ -29,16 +30,16 @@ LazyLoad: yes
 biocViews: DataImport
 Collate:
     'DataProvider-classes.R'
+    'EnsemblGtfProvider-class.R'
     'AnnotationHubMetadata-class.R'
     'AnnotationHubRecipe-class.R'
-    'ensemblGtfToGRangesRecipe.R'
+    'ensemblGtfToGRanges.R'
     'extendedBedToGRangesRecipe.R'
     'extendedBedWithAuxiliaryTableToGRangesRecipe.R'
     'trackWithAuxiliaryTableToGRangesRecipe.R'
     'EncodeImporter-class.R'
     'fakedata.R'
     'importBedFiles.R'
-    'importEnsemblGTFs.R'
     'importFastaFiles.R'
     'importUCSCTracks.R'
     'genericRtracklayer.R'

@@ -4,8 +4,6 @@
 \alias{DataProvider}
 \alias{EncodeDCCProvider-class}
 \alias{EncodeDCCProvider}
-\alias{EnsemblGtfProvider-class}
-\alias{EnsemblGtfProvider}
 \alias{UCSCTableHubProvider-class}
 \alias{UCSCTableHubProvider}
 
@@ -29,7 +27,6 @@
 
 \usage{
 EncodeDCCProvider(...)
-EnsemblGtfProvider(...)
 UCSCTableHubProvider(...)
 
 newResources(object, ahmeta)
@@ -51,7 +48,7 @@ newResources(object, ahmeta)
 \section{Objects from \code{DataProvider}-derived Class}{
   
   Objects can be created by calls of the form
-  \code{EnsemblGtfProvider()}; the \code{DataProvider} class is itself a
+  \code{EncodeDCCProvider()}; the \code{DataProvider} class is itself a
   virtual class.
 
 }
@@ -75,7 +72,7 @@ newResources(object, ahmeta)
 }
 \examples{
 names(getClassDef("DataProvider")@subclasses)
-EnsemblGtfProvider()
+EncodeDCCProvider()
 }
 \keyword{classes}
 

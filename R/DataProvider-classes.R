@@ -5,9 +5,6 @@ setClass("DataProvider")                # VIRTUAL
 EncodeDCCProvider <- 
     setClass("EncodeDCCProvider", contains="DataProvider")
 
-EnsemblGtfProvider <-
-    setClass("EnsemblGtfProvider", contains="DataProvider")
-
 UCSCTableHubProvider <-
     setClass("UCSCTableHubProvider", contains="DataProvider")
 

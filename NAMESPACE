@@ -5,7 +5,8 @@ exportClasses(AnnotationHubMetadata, AnnotationHubRecipe,
 export(AnnotationHubMetadata, AnnotationHubRecipe,
     EncodeDCCProvider, EnsemblGtfProvider, UCSCTableHubProvider)
 
-export(constructAnnotationHubMetadataFromSourceFilePath,
+export(newResources,
+  constructAnnotationHubMetadataFromSourceFilePath,
   postProcessMetadata,
   constructMetadataFromJsonPath)
 
@@ -16,6 +17,8 @@ importFrom(BiocInstaller, biocVersion)
 importFrom(IRanges, metadata, "metadata<-")
 
 importFrom(Rsamtools, indexFa)
+
+importFrom(rtracklayer, import)
 
 export(
        to.json,
