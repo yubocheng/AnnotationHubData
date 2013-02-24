@@ -28,6 +28,7 @@ License: Artistic-2.0
 LazyLoad: yes
 biocViews: DataImport
 Collate:
+    Message-class.R
     ImportPreparer-class.R
     EnsemblGtfImportPreparer-class.R
     AnnotationHubMetadata-class.R
