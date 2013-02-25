@@ -9,7 +9,7 @@ export(newResources,
   postProcessMetadata,
   constructMetadataFromJsonPath)
 
-import(RJSONIO)
+import(rjson)
 
 importFrom(BiocInstaller, biocVersion)
 

@@ -1,7 +1,7 @@
 Package: AnnotationHubData
 Type: Package
 Title: Transform public data resources into Bioconductor Data Structures
-Version: 0.99.15
+Version: 0.99.16
 Author: Paul Shannon<pshannon@fhcrc.org>
 Maintainer: Bioconductor Package Maintainer <maintainer@bioconductor.org>
 Depends:
@@ -16,7 +16,7 @@ Suggests:
     RCurl
 Imports:
     BiocGenerics,
-    RJSONIO,
+    rjson,
     BiocInstaller,
     rtracklayer,
     IRanges,

@@ -73,11 +73,41 @@ setReplaceMethod("metadata", c("AnnotationHubMetadata", "list"),
 }
 
 
+## Helpers to be able to catch warnings
+## from Martin at
+## http://stackoverflow.com/questions/4948361/how-do-i-save-warnings-and-errors-as-output-from-a-function
+factory <- function(fun)
+    function(...) {
+        warn <- err <- NULL
+        res <- withCallingHandlers(
+            tryCatch(fun(...), error=function(e) {
+                err <<- conditionMessage(e)
+                NULL
+            }), warning=function(w) {
+                warn <<- append(warn, conditionMessage(w))
+                invokeRestart("muffleWarning")
+            })
+        list(res, warn=warn, err=err)
+    }
+
 
 .constructFromJson <- function(ahroot, pathToJson)
 {
     x <- new("AnnotationHubMetadata")
-    l <- fromJSON(pathToJson)
+    fromJSON2 <- factory(fromJSON)
+    res <- fromJSON2(file=pathToJson)
+    if (!is.null(res[['warn']]))
+    {
+        realWarnings <-
+            res[['warn']][!grepl("^incomplete final line found on ",
+                res[['warn']])]
+        lapply(realWarnings, warning)
+    }
+    if (!is.null(res[['err']]))
+    {
+        stop(paste(res['err'], collapse="\n"))
+    }
+    l <- res[[1]]
     l$RecipeArgs <- as.list(l$RecipeArgs)
     for (name in names(l))
     {
@@ -130,11 +160,11 @@ postProcessMetadata <- function(ahroot, RDataVersion, originalFile)
     derived <- file.path(ahroot, x@RDataPath)
     metadata(x)$RDataSize <- as.integer(file.info(derived)$size)
     metadata(x)$RDataLastModifiedDate <- .getModificationTime(derived)
-    json <- to.json(x)
-    resourceDir <- dirname(originalFile[1])
-    outfile <- file.path(ahroot, resourceDir, .getDerivedFileName(originalFile, 
-        RDataVersion, "json"))
-    cat(json, file=outfile)
+#    json <- to.json(x)
+#    resourceDir <- dirname(originalFile[1])
+#    outfile <- file.path(ahroot, resourceDir, .getDerivedFileName(originalFile, 
+#        RDataVersion, "json"))
+#    cat(json, file=outfile)
     x
 }
 
@@ -215,9 +245,9 @@ AnnotationHubMetadata <- function(AnnotationHubRoot, SourceFile, SourceUrl, Titl
     )
 
 
-    json <- to.json(x)
+    #json <- to.json(x)
 
-    cat(json, file=file.path(AnnotationHubRoot, jsonDir, jsonFile))
+    #cat(json, file=file.path(AnnotationHubRoot, jsonDir, jsonFile))
 
     x
 }
