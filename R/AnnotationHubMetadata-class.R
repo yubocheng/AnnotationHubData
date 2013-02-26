@@ -1,42 +1,181 @@
-setRefClass("MsgClass",
-    fields=list(
-        name="character"
-    )
-)
+## ------------------------------------------------------------------------------
+## helper classes
+## 
+
+setOldClass(c("POSIXct", "POSIXt"))
+setOldClass("numeric_version")
+setOldClass(c("package_version", "numeric_version"))
+
+.NA_version_ <- numeric_version("0.0")  # proxy for unknown version
+.as.numeric_version <-
+    function(x, ...)
+{
+    if (is(x, "character"))
+        x[x == "unknown"] <- as.character(.NA_version_)
+    base::as.numeric_version(x)
+}
+
+## ------------------------------------------------------------------------------
+## Class defintion
+## 
+## The prototype needs to be fully specified, using 'NA' to indicate
+## unknown, otherwise to / from JSON is confused
 
 setClass("AnnotationHubMetadata",
     representation(
-       AnnotationHubRoot="character",
-       Title="character",
-       Species="character",
-       TaxonomyId="character",
-       Genome="character",
-       Recipe="character",
-       RecipeArgs="list",
-       SourceUrl="character",
-       SourceFile="character",
-       RDataPath="character",
-       SourceMd5="character",
-       DerivedMd5="character",
-       Description='character',
-       Tags='character',
-       RDataClass="character",
-       RDataVersion="character",
-       SourceVersion="character",
-       SourceSize="integer",
-       RDataSize="integer",
-       SourceLastModifiedDate="character",
-       RDataLastModifiedDate="character",
-       Coordinate_1_based="logical",
-       Maintainer="character",
-       DataProvider="character",
-       BiocVersion="character",
-       Notes='character',
-       RDataDateAdded="character"
-    )
+        AnnotationHubRoot="character",
+        BiocVersion="package_version",
+        Coordinate_1_based="logical",
+        DataProvider="character",
+        DerivedMd5="character",
+        Description='character',
+        Genome="character",
+        Maintainer="character",
+        Notes='character',
+        RDataClass="character",
+        RDataDateAdded="POSIXct",
+        RDataLastModifiedDate="POSIXct",
+        RDataPath="character",
+        RDataSize="integer",
+        RDataVersion="numeric_version",
+        Recipe="character",
+        RecipeArgs="list",
+        SourceFile="character",
+        SourceLastModifiedDate="POSIXct",
+        SourceMd5="character",
+        SourceSize="integer",
+        SourceUrl="character",
+        SourceVersion="character",
+        Species="character",
+        Tags='character',
+        TaxonomyId="character",
+        Title="character"
+    ),
+    prototype = prototype(
+        AnnotationHubRoot=NA_character_,
+        BiocVersion=biocVersion(),
+        Coordinate_1_based=NA,
+        DataProvider=NA_character_,
+        DerivedMd5=NA_character_,
+        Description=NA_character_,
+        Genome=NA_character_,
+        Maintainer=
+            "Bioconductor Package Maintainer <maintainer@bioconductor.org>",
+        Notes=NA_character_,
+        RDataClass=NA_character_,
+        RDataDateAdded=as.POSIXct(NA_character_),
+        RDataLastModifiedDate=as.POSIXct(NA_character_),
+        RDataPath=NA_character_,
+        RDataSize=NA_integer_,
+        RDataVersion=.NA_version_,
+        Recipe=NA_character_,
+        RecipeArgs=list(),
+        SourceFile=NA_character_,
+        SourceLastModifiedDate=as.POSIXct(NA_character_),
+        SourceMd5=NA_character_,
+        SourceSize=NA_integer_,
+        SourceVersion=NA_character_,
+        Species=NA_character_,
+        Tags=NA_character_,
+        TaxonomyId=NA_character_,
+        Title=NA_character_
+    )        
 )
 
-### generics, getters and setters
+## ------------------------------------------------------------------------------
+## constructor, validity, isComplete
+## 
+
+.derivedFileName <-
+    function(originalFile, RDataVersion, suffix)
+{
+    ret <- sub(".gz$", "", basename(originalFile))
+    ret <- paste(ret, collapse="-")
+    sprintf("%s_%s.%s", ret, RDataVersion, suffix)
+}
+
+.taxonomyId <-
+    function(species)
+{
+    if (!exists("speciesMap"))
+        data(speciesMap, package="AnnotationHubData")
+    as.character(speciesMap$taxon[speciesMap$species == species])
+}
+
+AnnotationHubMetadata <-
+    function(AnnotationHubRoot, SourceFile, SourceUrl, SourceVersion,
+        DataProvider, Title, Description, Species, Genome, Tags,
+        Recipe, RecipeArgs = list(), RDataClass, RDataVersion,
+        RDataDateAdded, Maintainer, ..., Coordinate_1_based = TRUE,
+        Notes=NA_character_)
+{
+    resourceDir <- dirname(SourceFile[1])
+    resourceFiles <- .derivedFileName(SourceFile,  RDataVersion, "RData")
+    resourcePath <- file.path(resourceDir, resourceFiles)
+
+    new("AnnotationHubMetadata",
+        AnnotationHubRoot=AnnotationHubRoot,
+        BiocVersion=biocVersion(),
+        Coordinate_1_based=Coordinate_1_based,
+        DataProvider=DataProvider,
+        Description=Description,
+        Genome=Genome,
+        Maintainer=Maintainer,
+        Notes=Notes,
+        RDataClass=RDataClass,
+        RDataDateAdded=as.POSIXct(RDataDateAdded),
+        RDataPath=resourcePath,
+        RDataVersion=numeric_version(RDataVersion),
+        Recipe=Recipe,
+        RecipeArgs=RecipeArgs,
+        SourceFile=SourceFile,
+        SourceMd5=unname(tools::md5sum(SourceFile)),
+        SourceSize=as.integer(file.info(SourceFile)$size),
+        SourceUrl=SourceUrl,
+        SourceVersion=SourceVersion,
+        Species=Species,
+        Tags=Tags,
+        TaxonomyId=.taxonomyId(Species),
+        Title=Title,
+        ...
+    )
+}
+
+.isComplete <-
+    function(object)
+{
+    rc <- .Message()
+
+    ## required fields must have non-zero length
+    requiredFields <- c("AnnotationHubRoot", "SourceFile",
+        "SourceUrl", "Title", "Species", "Genome", "Recipe", "Tags",
+        "RDataClass", "RDataVersion", "SourceVersion",
+        "Coordinate_1_based", "Maintainer", "DataProvider",
+        "RDataDateAdded")
+    values <- metadata(object)[requiredFields]
+    idx <- sapply(values, length) == 0L
+    if (any(idx))
+        rc$append("slots(s) must have non-zero length: %s",
+                  paste(sQuote(requiredFields[idx]), collapse=", "))
+
+    ## look up species id in data table
+    taxonomyId <- .taxonomyId(metadata(object)$Species)
+    if (!length(taxonomyId))
+        rc$append("'Species' unknown: %s", sQuote(metadata(object)$Species))
+
+    ## valid e-mail address
+    emailRegex <- 
+        "\\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,4}\\b"
+    if (!grepl(emailRegex, metadata(object)$Maintainer, ignore.case=TRUE))
+        rc$append("'Maintainer' not a valid email address: %s",
+          sQuote(metadata(object)$Maintainer))
+
+    rc$isComplete()
+}
+
+## ------------------------------------------------------------------------------
+## getters and setters
+## 
 
 setMethod("metadata", "AnnotationHubMetadata",
     function(x, ...) 
@@ -46,32 +185,40 @@ setMethod("metadata", "AnnotationHubMetadata",
     lapply(nms, slot, object=x)
 })
 
-
 setReplaceMethod("metadata", c("AnnotationHubMetadata", "list"),
      function(x, ..., value)
 {
     do.call(new, c(class(x), x, value))
 })
 
-# So you can do stuff like this:
-# set a to be an AnnotationHubMetadata object, then:
-#  metadata(a)[c("AnnotationHubRoot","Maintainer")]
-#   <- list("/etc", "foo@bar.com")
+## ------------------------------------------------------------------------------
+## to / from Json
+## 
 
-
-
-.getModificationTime <- function(files)
+jsonPath <-
+    function(x)
 {
-    ret <- character()
-    for (file in files)
-    {
-        ret <- c(ret, 
-            strsplit(as.character(file.info(file)$mtime), " ")[[1]][1]
-        )
-    }
-    ret
+    with(metadata(x), {
+        fl <- sprintf("%s_%s.json", SourceFile, RDataVersion)
+        file.path(AnnotationHubRoot, fl)
+    })
 }
+              
+toJson <-
+    function(x)
+{
+    lst <- metadata(x)
 
+    lst$AnnotationHubRoot <- NULL       # drop AHRoot
+
+    idx <- grep("(RData|Bioc)Version", names(lst))  # version as character
+    lst[idx] <- lapply(lst[idx], as.character)
+
+    idx <- grep("Date", names(lst))
+    lst[idx] <- lapply(lst[idx], format, "%Y-%m-%d %T UTC")
+
+    toJSON(lst)
+}
 
 ## Helpers to be able to catch warnings
 ## from Martin at
@@ -90,92 +237,47 @@ factory <- function(fun)
         list(res, warn=warn, err=err)
     }
 
-
-.constructFromJson <- function(ahroot, pathToJson)
+fromJson <-
+    function(path, ahroot=NA_character_)
 {
-    x <- new("AnnotationHubMetadata")
-    fromJSON2 <- factory(fromJSON)
-    res <- fromJSON2(file=pathToJson)
-    if (!is.null(res[['warn']]))
-    {
-        realWarnings <-
-            res[['warn']][!grepl("^incomplete final line found on ",
-                res[['warn']])]
-        lapply(realWarnings, warning)
-    }
-    if (!is.null(res[['err']]))
-    {
-        stop(paste(res['err'], collapse="\n"))
-    }
-    l <- res[[1]]
-    l$RecipeArgs <- as.list(l$RecipeArgs)
-    for (name in names(l))
-    {
-        type <- getSlots("AnnotationHubMetadata")[[name]]
-        if (type == "integer")
-        {
-            l[[name]] <- as.integer(l[[name]])
-        }
-        slot(x, name) <- l[[name]]
-        ###do.call(paste(name, "<-", sep=""), list(x=x, value=l[[name]]))
-    }
-    metadata(x)$AnnotationHubRoot <- ahroot
-    x
-}
+    lst <- withCallingHandlers({
+        fromJSON(file=path)
+    }, warning=function(warn) {
+        if (all(grepl("^incomplete final line found on ",
+                      conditionMessage(warn))))
+            invokeRestart("muffleWarning")
+    })
+    lst <- lst[!sapply(lst, is.null)]         # replace with default values
 
-constructAnnotationHubMetadataFromSourceFilePath <-
-    function(ahroot, RDataVersion, originalFile)
-{
-    dir <- dirname(file.path(ahroot, originalFile))
-    jsonFile <- .getDerivedFileName(originalFile, RDataVersion, "json")
-    jsonFile <- file.path(dir[1], jsonFile)
-    .constructFromJson(ahroot, jsonFile)
-}
+    ## coerce types
+    lst[["RDataVersion"]] <- .as.numeric_version(lst[["RDataVersion"]])
+    lst[["BiocVersion"]] <- package_version(lst[["BiocVersion"]])
+    idx <- grep("Date", names(lst))
+    lst[idx] <- lapply(lst[idx], as.POSIXct)
 
-constructMetadataFromJsonPath <-
-    function(ahroot, jsonpath)
-{
-    dir <- dirname(file.path(ahroot, jsonpath))
-    jsonFile <- file.path(dir[1], basename(jsonpath))
-    .constructFromJson(ahroot, jsonFile)
-}
+    idx <- sapply(lst, is, "AsIs")
+    lst[idx] <- lapply(lst[idx], unclass)
 
-.getJsonFileName <- function(ahroot, originalFile)
-{
-    dir <- dirname(file.path(ahroot, originalFile))
-#    b <- basename(originalFile)
-    b <- .getDerivedFileName(originalFile, "json")
-    b <- sub(".gz", "", b)
-    b <- sprintf("%s.json", b)
-    dir(dir, pattern=b, recursive=FALSE, full=TRUE)
-}
+    slots <- getSlots("AnnotationHubMetadata")[names(lst)]
+    lst <- Map(function(value, to) {
+        do.call(sprintf("as.%s", to), list(value))
+    }, lst, slots)
 
-
-postProcessMetadata <- function(ahroot, RDataVersion, originalFile)
-{
-    x <- constructAnnotationHubMetadataFromSourceFilePath(ahroot, 
-        RDataVersion, originalFile)
-    metadata(x)$AnnotationHubRoot <- ahroot
-
-    derived <- file.path(ahroot, x@RDataPath)
-    metadata(x)$RDataSize <- as.integer(file.info(derived)$size)
-    metadata(x)$RDataLastModifiedDate <- .getModificationTime(derived)
-#    json <- to.json(x)
-#    resourceDir <- dirname(originalFile[1])
-#    outfile <- file.path(ahroot, resourceDir, .getDerivedFileName(originalFile, 
-#        RDataVersion, "json"))
-#    cat(json, file=outfile)
-    x
+    ## create AnnotationHubMetadata object
+    args <- c(list("AnnotationHubMetadata", AnnotationHubRoot=ahroot), lst)
+    ahm <- do.call(new, args)
+    .isComplete(ahm)
+    ahm
 }
 
 writeJSON <- function(ahroot, metadata, flat=FALSE, filename=NULL)
 {
-    json <- to.json(metadata)
+    json <- toJson(metadata)
     sourceFile <- metadata(metadata)$SourceFile[1]
     resourceDir <- dirname(sourceFile)
     if (is.null(filename))
     {
-        filename <- .getDerivedFileName(sourceFile,
+        filename <- .derivedFileName(sourceFile,
             metadata(metadata)$RDataVersion, "json")
     }
     if (flat)
@@ -186,154 +288,53 @@ writeJSON <- function(ahroot, metadata, flat=FALSE, filename=NULL)
     outfile
 }
 
-.getDerivedFileName <- function(originalFile, RDataVersion, suffix)
+constructAnnotationHubMetadataFromSourceFilePath <-
+    function(ahroot, RDataVersion, originalFile)
 {
-    ret <- sub(".gz", "", basename(originalFile))
-    ret <- paste(ret, collapse="-")
-    ret <- sprintf("%s_%s.%s", ret, RDataVersion, suffix)
-    ret
+    dir <- dirname(file.path(ahroot, originalFile))
+    jsonFile <- .derivedFileName(originalFile, RDataVersion, "json")
+    jsonFile <- file.path(dir[1], jsonFile)
+    fromJson(jsonFile, ahroot)
 }
 
-AnnotationHubMetadata <- function(AnnotationHubRoot, SourceFile, SourceUrl, Title,
-    Description,
-    Species, Genome, Recipe, RecipeArgs=list(), Tags, RDataClass,
-    RDataVersion, SourceVersion, Coordinate_1_based, Maintainer,
-    DataProvider,
-    Notes="", RDataDateAdded)
+constructMetadataFromJsonPath <-
+    function(ahroot, jsonpath)
 {
-    ## fixme do better than this
-    oldwd <- getwd()
-    on.exit(setwd(oldwd))
-    setwd(AnnotationHubRoot)
+    jsonFile <- file.path(ahroot, jsonpath)[1]
+    fromJson(jsonFile, ahroot)
+}
 
-    if (!exists("speciesMap")) data(speciesMap)
+## ------------------------------------------------------------------------------
+## postProcess
+## 
 
-    jsonDir <- dirname(SourceFile[1])
-    resourceFile <- .getDerivedFileName(SourceFile,  RDataVersion, "RData")
-    jsonFile <- .getDerivedFileName(SourceFile, RDataVersion, "json")
-    resourcePath <- file.path(jsonDir, resourceFile)
-#    resourcePath <- sub("\\.RData$",
-#        sprintf("_%s.RData", RDataVersion), resourcePath)
+postProcessMetadata <- function(ahroot, RDataVersion, originalFile)
+{
+    x <- constructAnnotationHubMetadataFromSourceFilePath(ahroot, 
+        RDataVersion, originalFile)
+    metadata(x)$AnnotationHubRoot <- ahroot
 
-    x <- new("AnnotationHubMetadata",
-        AnnotationHubRoot=AnnotationHubRoot,
-        SourceFile=SourceFile,
-        SourceUrl=SourceUrl,
-        Title=Title,
-        Description=Description,
-        Species=Species,
-        Genome=Genome,
-        Recipe=Recipe,
-        RecipeArgs=RecipeArgs,
-        Tags=Tags,
-        RDataClass=RDataClass,
-        RDataVersion=RDataVersion,
-        SourceVersion=SourceVersion,
-        Coordinate_1_based=Coordinate_1_based,
-        Maintainer=Maintainer,
-        DataProvider=DataProvider,
-        Notes=Notes,
-        BiocVersion=as.character(biocVersion()),
-        SourceLastModifiedDate=unlist(lapply(SourceFile,
-            .getModificationTime)),
-        TaxonomyId=as.character(with(speciesMap, taxon[species == Species])),
-        SourceMd5=unname(tools::md5sum(SourceFile)),
-        RDataLastModifiedDate="1970-1-1",
-        SourceSize=as.integer(file.info(SourceFile)$size),
-        RDataPath=resourcePath,
-        RDataDateAdded=RDataDateAdded
-    )
-
-
-    #json <- to.json(x)
-
-    #cat(json, file=file.path(AnnotationHubRoot, jsonDir, jsonFile))
-
+    derived <- file.path(ahroot, metadata(x)$RDataPath)
+    metadata(x)$RDataSize <- as.integer(file.info(derived)$size)
+    metadata(x)$RDataLastModifiedDate <- unname(file.info(derived)$mtime)
+    json <- toJson(x)
+    resourceDir <- dirname(originalFile[1])
+    outfile <- file.path(ahroot, resourceDir, .derivedFileName(originalFile, 
+        RDataVersion, "json"))
+    cat(json, file=outfile)
     x
 }
 
-to.json <- function(annotationHubMetadata)
-{
-    toJSON(to.list(annotationHubMetadata))
-}
-
-to.list <- function(annotationHubMetadata)
-{
-    l <- list()
-    for (name in slotNames(annotationHubMetadata))
-    {
-        item <- slot(annotationHubMetadata, name)
-        if (length(item))
-        {
-            if (name != "AnnotationHubRoot")
-            {
-                l[[name]] <- item
-            }
-        }
-    }
-    rapply(l, as.list, "call", how="replace")
-}
-
-.AnnotationHubMetadata.validity <- function(object)
-{
-    rc <- new("MsgClass", name=character(0))
-    e <- function(m) {
-       rc$name <- c(rc$name, m)
-    }
-
-    requiredFields <- c("AnnotationHubRoot", "SourceFile", "SourceUrl", "Title",
-        "Species", "Genome", "Recipe", "Tags", "RDataClass",
-        "RDataVersion", "SourceVersion",
-        "Coordinate_1_based", "Maintainer", "DataProvider", "RDataDateAdded")
-
-    empty <- function(x) {
-        return(length(slot(object, x))==0)
-    }
-
-    lapply(requiredFields, function(x)
-    {
-        if (empty(x))
-            e(sprintf("%s is required.", x))
-    })
-
-    ## fixme do better than this
-    oldwd <- getwd()
-    on.exit(setwd(oldwd))
-    setwd(metadata(object)$AnnotationHubRoot)
-
-    if (!exists("speciesMap")) data(speciesMap)
-    taxonomyId <- with(speciesMap, taxon[species == metadata(object)$Species])
-    if (!length(taxonomyId))
-        e("Unknown species")
-
-
-    ## dropping this for now, this fails with ftp:// urls.
-    ## emailed Hadley, hope he can fix it.
-    ##headers <- HEAD(object@SourceUrl)$headers
-    ##if (headers$status != "200")
-    ##    e(sprintf("Can't access URL %s"), metadata(object)$SourceUrl)
-
-
-    emailRegex <- 
-        "\\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,4}\\b"
-    if (!grepl(emailRegex, object@Maintainer, ignore.case=TRUE))
-        e("Maintainer must contain an email address")
-
-    
-    # Make sure dates are valid
-
-
-    if (length(rc$name) == 0) TRUE else rc$name
-
-}
-
-setValidity("AnnotationHubMetadata",
-        function(object) .AnnotationHubMetadata.validity(object))
+## ------------------------------------------------------------------------------
+## show
+## 
 
 setMethod(show, "AnnotationHubMetadata",
     function(object)
 {
     cat("class: ", class(object), '\n', sep='')
-    for (slt in sort(slotNames(object)))
-        cat(slt, ": ", slot(object, slt), "\n", sep="")
+    for (slt in sort(slotNames(object))) {
+        value <- slot(object, slt)
+        cat(slt, ": ", as.character(value), "\n", sep="")
+    }
 })

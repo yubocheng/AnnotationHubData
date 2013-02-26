@@ -235,7 +235,7 @@ test_extendedBedToGRangesImplicitColClasses <- function()
         # reassign colClasses to implicit, to test those cases where we do
         # not know, and do not want to find out, what the extra bed
         # table columns are.  seqName, start, and end will be assumed
-    md@RecipeArgs$colClasses <- "implicit"
+    metadata(md)$RecipeArgs$colClasses <- "implicit"
 
         # now create a Recipe instance
     recipe <- AnnotationHubRecipe(md)

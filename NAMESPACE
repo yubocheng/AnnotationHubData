@@ -19,9 +19,9 @@ importFrom(Rsamtools, indexFa)
 
 importFrom(rtracklayer, import)
 
-export(
-       to.json,
-       to.list,
+export(jsonPath,
+       fromJson,
+       toJson,
        constructSeqInfo,
        extendedBedToGRanges,
        extendedBedWithAuxiliaryTableToGRanges,
