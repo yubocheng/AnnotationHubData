@@ -13,8 +13,8 @@ Depends:
     AnnotationHubServer
 Suggests:
     RUnit,
-    RCurl
 Imports:
+    RCurl,
     BiocGenerics,
     rjson,
     BiocInstaller,

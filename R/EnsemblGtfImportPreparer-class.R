@@ -6,7 +6,7 @@ EnsemblGtfImportPreparer <-
     ## retrieve all possible files from Ensembl
 {
     ## releases
-    lst <- RCurl::getURL(url=url, dirlistonly=TRUE, followlocation=TRUE)
+    lst <- getURL(url=url, dirlistonly=TRUE, followlocation=TRUE)
     lst <- strsplit(lst, "\n")[[1]]
     releases <- paste0(url, lst)
     want <- paste0(grep(".*release-(69|7[[:digit:]])", releases, value=TRUE),

@@ -11,6 +11,8 @@ export(newResources,
 
 import(rjson)
 
+importFrom(RCurl, getURL)
+
 importFrom(BiocInstaller, biocVersion)
 
 importFrom(IRanges, metadata, "metadata<-")
