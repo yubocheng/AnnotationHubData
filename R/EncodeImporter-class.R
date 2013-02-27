@@ -207,7 +207,8 @@ setMethod("createResource", "EncodeImporter",
 .extractLinksFromHtmlLines <- function(htmlLines)
 {
         # some lines (at least) look like this:
-        #  <a href=\"wgEncodeAffyRnaChip/\">wgEncodeAffyRnaChip/</a>       05-Jul-2012 06:57    -   "
+        #  <a href=\"wgEncodeAffyRnaChip/\">wgEncodeAffyRnaChip/</a>
+        #     05-Jul-2012 06:57    -   "
         # match from start of quoted string up to the escaped closing quote
         # will eliminate the trailing slash ("Chip/") below
 
@@ -241,17 +242,25 @@ setMethod("createResource", "EncodeImporter",
 
 } # .extractExperimentDirectoriesFromWebPage
 #-------------------------------------------------------------------------------
-.retrieveAllEncodeDCCMetadataFiles <- function(destinationDir, verbose=TRUE)
+.retrieveEncodeDCCMetadataFiles <- function(destinationDir, max=NA, verbose=TRUE)
 {
     all.dirs <- .extractExperimentDirectoriesFromWebPage(EncodeBaseURL())
+
+        # some hard-coded knowledge.  there is no files.txt (no metadata)
+        # in http://hgdownload.cse.ucsc.edu/goldenpath/hg19/encodeDCC/referenceSequences/
     skip.these.dirs <- grep("referenceSequences", all.dirs)
+
     if(length(skip.these.dirs) > 0)
         all.dirs <- all.dirs[-skip.these.dirs]
+
+    if(!is.na(max))  # for testing only
+        all.dirs <- all.dirs[1:max]
+
     .downloadFileInfo(EncodeBaseURL(),all.dirs,
                       destinationDir, verbose=verbose)
 
 
-} # .retrieveAllEncodeDCCMetadataFiles
+} # .retrieveEncodeDCCMetadataFiles
 #-------------------------------------------------------------------------------
 .learnAllEncodeMetadataCategories <- function(metadataFilesDirectory,
                                               verbose=FALSE)
@@ -283,6 +292,9 @@ setMethod("createResource", "EncodeImporter",
            pairs <- strsplit(keyValuePairSets[[i]], "=")
            keys <- sapply(pairs, "[", 1)
            new.unique.keys <- setdiff(keys, all.keys)
+           if(verbose)
+               if (length(new.unique.keys) > 0)
+                   printf("%30s, new.unique.keys: %d", file, length(new.unique.keys))
            all.keys <- unique(c(all.keys, keys))
            } # for i
        if(verbose)
@@ -311,7 +323,7 @@ setMethod("createResource", "EncodeImporter",
         info.strings <- sapply(tokens.0, "[", 2)
         keyValuePairSets <- strsplit(info.strings, "; ")
         stopifnot(length(data.filenames) == length(keyValuePairSets))
-        printf("   about to traverse %d keyValuePairs", length(keyValuePairSets))
+        #printf("   about to traverse %d keyValuePairs", length(keyValuePairSets))
         for(i in 1:length(keyValuePairSets)) {
             pairs <- strsplit(keyValuePairSets[[i]], "=")
             keys <- sapply(pairs, "[", 1)
@@ -322,8 +334,8 @@ setMethod("createResource", "EncodeImporter",
             new.row.as.df <- t(data.frame(new.row.full))
             tbl <- rbind(tbl, new.row.as.df)
             }# for i
-        printf("about to add %d to existing %d filenames to be used as rownames",
-                length(data.filenames), length (all.data.filenames))
+        #printf("about to add %d to existing %d filenames to be used as rownames",
+        #        length(data.filenames), length (all.data.filenames))
         all.data.filenames <- c(all.data.filenames, data.filenames)
         } # for filename
         

@@ -3,28 +3,6 @@ library(RJSONIO)
 library(rtracklayer)
 library(RUnit)
 #-------------------------------------------------------------------------------
-runTests <- function()
-{
-    test_.createWorkingDirectory()
-    test_constructSeqInfo()
-
-    test_simpleConstructor()
-    test_nullRecipe()
-    test_adhocRecipe()
-
-    test_extendedBedToGRanges()
-    #test_extendedBedToGRangesImplicitColClasses()
-    test_extendedBedWithAuxiliaryTableToGRanges ()
-
-    # test_ensemblGtfToGRanges()  seqinfo not set
-    test_broadPeakToGRanges()
-    test_narrowPeakToGRanges()
-
-    test_rtracklayerGenericImportOfEncodeGtf()
-    test_bedRnaElementsToGRanges()
-
-} # runTests
-#-------------------------------------------------------------------------------
 test_.createWorkingDirectory <- function()
 {
     print ("--- test_.createWorkingDirectory")
@@ -174,7 +152,6 @@ test_extendedBedToGRanges <- function()
 
     sourceDirectory <- system.file("extdata", package="AnnotationHubData")
 
-
     workingDirectory <- AnnotationHubData:::.createWorkingDirectory(sourceDirectory)
     annotationHubRoot <- workingDirectory
 
@@ -211,112 +188,6 @@ test_extendedBedToGRanges <- function()
 
 } # test_extendedBedToGRanges
 #-------------------------------------------------------------------------------
-test_extendedBedToGRangesImplicitColClasses <- function()
-{
-    print ("--- test_extendedBedToGRangesImplicitColClasses")
-
-        # copy the source data to a writable temporary directory
-
-    sourceDirectory <- system.file("extdata", package="AnnotationHubData")
-
-    workingDirectory <- AnnotationHubData:::.createWorkingDirectory(sourceDirectory)
-    annotationHubRoot <- workingDirectory
-
-        # locate the json metadata file
-    jsonFile <- "wgEncodeRikenCageCd20CellPapTssHmm.bedRnaElements_0.0.1.json"
-    resourcePath <- "goldenpath/hg19/encodeDCC/wgEncodeRikenCage"
-    jsonPath <- file.path(resourcePath, jsonFile)
-
-    checkTrue(file.exists(file.path(annotationHubRoot, jsonPath)))
-
-        # create a metadata object from this file
-    md <- constructMetadataFromJsonPath(annotationHubRoot, jsonPath)
-
-        # reassign colClasses to implicit, to test those cases where we do
-        # not know, and do not want to find out, what the extra bed
-        # table columns are.  seqName, start, and end will be assumed
-    metadata(md)$RecipeArgs$colClasses <- "implicit"
-
-        # now create a Recipe instance
-    recipe <- AnnotationHubRecipe(md)
-    checkEquals(recipeName(recipe), "extendedBedToGRanges")
-    checkEquals(metadata(recipe)@RecipeArgs$colClasses, "implicit")
-    
-        # create GRanges from the extended bed file, save as RData where
-        # instructed by the recipe
-    pathToRDataFile <- run(recipe)
-
-        # check the result
-    load(pathToRDataFile)
-
-    checkEquals(length(gr), 50)
-    checkEquals(names(mcols(gr)),
-                c("col.04", "col.05", "col.06", "col.07", "col.08", "col.09"))
-    checkEquals(start(gr[9]), 54704676)
-    checkEquals(end(gr[9]),   54704735)
-    checkEquals(width(gr[9]), 60)
-
-    checkSeqInfo(gr)
-
-} # test_extendedBedToGRangesImplicitColClasses
-#-------------------------------------------------------------------------------
-test_extendedBedWithAuxiliaryTable <- function(recipe)
-{
-     print("--- test_extendedBedWithAuxiliaryTable")
-     bedFile <- grep(".bed.gz$", inputFiles(recipe), value=TRUE)
-     auxFile <- grep(".tab$", inputFiles(recipe), value=TRUE)
-     stopifnot(length(bedFile) == 1)
-     stopifnot(length(auxFile) == 1)
-
-     colClasses <- metadata(recipe@metadata)$RecipeArgs$bedColClasses
-     tbl.bed <- read.table(gzfile(bedFile), sep="\t", header=FALSE,
-                           colClasses=colClasses)
-     colnames(tbl.bed) <- names(colClasses)
-     
-     colClasses <- metadata(recipe@metadata)$RecipeArgs$auxColClasses
-
-     tbl.aux <- read.table(auxFile, sep="\t", colClasses=colClasses)
-     colnames(tbl.aux) <- names(colClasses)
-
-
-     mergeArgs <- metadata(recipe@metadata)$RecipeArgs$merge
-
-        # TODO:  special knowledge inserted here, adding a column
-        # TODO:  to tbl.aux (rowIndex) so that tables can be linked.
-        # TODO:  future data sources using otherwise identical
-        # TODO:  treatment may suggest more general approach.
-     
-     tbl.aux <- cbind(tbl.aux, rowIndex=1:nrow(tbl.aux))
-     tbl <- merge(tbl.bed, tbl.aux, by.x=mergeArgs[["byX"]],
-                                    by.y=mergeArgs[["byY"]],
-                                    all.x=TRUE)
-     tbl <- AnnotationHubData:::.sortTableByChromosomalLocation(tbl)
-     colnames <- colnames(tbl)
-     requiredColnames <- c("seqname", "start", "end")
-     stopifnot(all(requiredColnames %in% colnames))
-     otherColnames <- setdiff(colnames, requiredColnames)
-
-     gr <- with(tbl, GRanges(seqname, IRanges(start, end)))
-     mcols(gr) <- DataFrame(tbl[, otherColnames])
-
-        # add seqlength & chromosome circularity information
-    newSeqInfo <- constructSeqInfo(metadata(recipe@metadata)$Species,
-                                    metadata(recipe@metadata)$Species) 
-        # if gr only has a subset of all possible chromosomes, then update those only
-    seqinfo(gr) <- newSeqInfo[names(seqinfo(gr))]
-
-    save(gr, file=outputFile(recipe))
-
-    outputFile(recipe)
-
-} # dev.extendedBedWithAuxiliaryTable 
-#-------------------------------------------------------------------------------
-# TODO: bug here!  find and fix (pshannon, 17jan2012)
-# TODO: detail (14 feb 2013):
-#  AnnotationHubRecipe-class.R::run calls
-#  AnnotationHubMetadata-class.R::postProcessMetaData
-#  which appears to have trouble with
-#    metadata(m)$SourceFile being a list of two files, not the usual one file
 test_extendedBedWithAuxiliaryTableToGRanges <- function()
 {
     print ("--- test_extendedBedWithAuxiliaryTableToGRanges")
@@ -466,7 +337,6 @@ test_ensemblGtfToGRanges <- function()
     checkTrue(is.na(y$protein_id))
     checkEquals(y$exon_id, "ENSE00002923654")
 
-    checkSeqInfo(gr)
 
 } # test_ensemblGtfToGRanges
 #-------------------------------------------------------------------------------

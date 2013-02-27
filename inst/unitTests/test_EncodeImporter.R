@@ -1,37 +1,38 @@
+#destinationDir <- "~/tmp/encodeDCC"
+destinationDir <- tempdir()
+
 library(AnnotationHubData)
 library(RUnit)
 library(RCurl)
 #-------------------------------------------------------------------------------
-options(stringsAsFactors=FALSE)
-#destinationDir <- "~/tmp/encodeDCC"
-destinationDir <- tempdir()
-#-------------------------------------------------------------------------------
-runTests <- function()
+paulsTests <- function()
 {
-  notest_.extractLinksFromHtmlLines()
-  notest_.extractExperimentDirectoriesFromWebPage()
+    options(stringsAsFactors=FALSE)
 
-  notest_.downloadFileInfo(destinationDir)
-     # next test depends upon functions tested by preceeding two tests
-  #test_.retrieveAllEncodeDCCMetadataFiles(destinationDir)
-  #test_.learnAllEncodeMetadataCategories(destinationDir)
-  #notest_.parseMetadataFiles.1(destinationDir)
+    test_.extractLinksFromHtmlLines()
+    test_.extractExperimentDirectoriesFromWebPage()
 
-  #notest_loadMetadata()
-  #hotest_assemblParams()
-  #notest_createEncodeResource.1()
+    test_.downloadFileInfo()
+       # next test depends upon functions tested by preceeding two tests
+    test_.retrieveEncodeDCCMetadataFiles(destinationDir)
+    test_.learnAllEncodeMetadataCategories()
+    test_.parseMetadataFiles.1()
+    test_.parseMetadataFiles.2()
+
+    #test_loadMetadata()
+    #test_assemblParams()
+    #test_createEncodeResource.1()
   
 } # runTests
 #-------------------------------------------------------------------------------
 runTiming <- function()
 {
     abInitioMetadataLoad <- function(destinationDir){
-        AnnotationHubData:::.retrieveAllEncodeDCCMetadataFiles (destinationDir)
+        AnnotationHubData:::.retrieveEncodeDCCMetadataFiles (destinationDir)
         all.keys <-
            AnnotationHubData:::.learnAllEncodeMetadataCategories(destinationDir)$all.keys
         all.metadataFiles <- file.path(destinationDir, dir(destinationDir))
         tbl <- data.frame()
-        browser("start")
         for (filename in all.metadataFiles) {
             tbl.new <- AnnotationHubData:::.parseMetadataFile (filename, all.keys)
             tbl <- rbind(tbl, tbl.new)
@@ -55,7 +56,7 @@ notest_loadMetadata <- function ()
     tbl.md <- metadataTable(importer)
     checkEquals(dim(tbl.md), c(24396, 52))
 
-} # test_loadMetadata
+} # notest_loadMetadata
 #-------------------------------------------------------------------------------
 notest_assemblParams <- function()
 {
@@ -149,9 +150,9 @@ notest_createEncodeResource.1 <- function()
 #   "wgEncodeAffyRnaChip/"
 # from
 #  <a href=\"wgEncodeAffyRnaChip/\">wgEncodeAffyRnaChip/</a>       05-Jul-2012 06:57    -   "    
-notest_.extractLinksFromHtmlLines <- function()
+test_.extractLinksFromHtmlLines <- function()
 {
-    print("--- notest_.extractLinksFromHtmlLines")
+    print("--- test_.extractLinksFromHtmlLines")
 
     lines <- strsplit(getURL(EncodeBaseURL()), "\n")[[1]]
     lines <- lines[grep("href", lines, ignore.case=TRUE)]
@@ -166,23 +167,24 @@ notest_.extractLinksFromHtmlLines <- function()
     checkEquals(length(lines), length(links))
     checkTrue("wgEncodeAffyRnaChip/" %in% links)
     
-} # notest_.extractLinksFromHtmlLines
+} # test_.extractLinksFromHtmlLines
 #-------------------------------------------------------------------------------
-notest_.extractExperimentDirectoriesFromWebPage <- function()
+test_.extractExperimentDirectoriesFromWebPage <- function()
 {
-    print("--- notest_.extractExperimentDirectoriesFromWebPage")
+    print("--- test_.extractExperimentDirectoriesFromWebPage")
     subdirs <- AnnotationHubData:::.extractExperimentDirectoriesFromWebPage(EncodeBaseURL())
     checkTrue(length(subdirs) > 50)
     checkTrue("wgEncodeUwTfbs/" %in% subdirs)
 
-} # notest_.extractExperimentDirectoriesFromWebPage
+} # test_.extractExperimentDirectoriesFromWebPage
 #-------------------------------------------------------------------------------
-# download 54/55 file information files, save them in immediated subdirectory:
+# download 3/55 file information files, save them in immediated subdirectory:
 #  fileInfo/*.info
 #
-notest_.downloadFileInfo <- function(destinationDir)
+test_.downloadFileInfo <- function()
 {
-    print('--- notest_.downloadFileInfo')
+    print('--- test_.downloadFileInfo')
+    destinationDir <- tempdir()
     all.dirs <- AnnotationHubData:::.extractExperimentDirectoriesFromWebPage(EncodeBaseURL())
        # no files.txt in these directories:  referenceSequences
     postponed <- grep("referenceSequences", all.dirs)
@@ -201,92 +203,97 @@ notest_.downloadFileInfo <- function(destinationDir)
                    function(dir) length(grep(dir, list.files(destinationDir)))))
     checkEquals(match.count, length(selectedDirectoriesJustNames))
 
-} # notest_.downloadFileInfo
+} # test_.downloadFileInfo
 #-------------------------------------------------------------------------------
 # make sure we can get each files.txt (encodeDCC metadata file, one per
 # project directory).  each file has 1 or more (and as many as 4000) lines, each
-# describing a file in the project
-notest_.retrieveAllEncodeDCCMetadataFiles <- function(destinationDir)
+# describing a file in the project directory
+test_.retrieveEncodeDCCMetadataFiles <- function(destinationDir)
 {
-    print("--- notest_.retrieveAllEncodeDCCMetadataFiles")
-    AnnotationHubData:::.retrieveAllEncodeDCCMetadataFiles(destinationDir)
-    checkTrue(length(grep("wgEncode", dir(destinationDir))) > 50) # 55 in feb 2013
-    browser("trae")
+    print("--- test_.retrieveEncodeDCCMetadataFiles")
 
-} # notest_.retrieveAllEncodeDCCMetadataFiles
+      # max argument is only for testing.  
+    destinationDir <- tempdir()
+    AnnotationHubData:::.retrieveEncodeDCCMetadataFiles(destinationDir, max=3)
+    checkTrue(length(grep("wgEncode", dir(destinationDir))) >= 3)
+
+} # test_.retrieveEncodeDCCMetadataFiles
 #-------------------------------------------------------------------------------
-notest_.learnAllEncodeMetadataCategories <- function(destinationDir)
+test_.learnAllEncodeMetadataCategories <- function()
 {
-    print("--- notest_.learnAllEncodeMetadataCategories")
-    filesPresent <- length(grep("wgEncode", dir(destinationDir))) > 50
-    if(!filesPresent)
-        AnnotationHubData:::.retrieveAllEncodeDCCMetadataFiles(destinationDir)
+    print("--- test_.learnAllEncodeMetadataCategories")
+
+    destinationDir <- system.file("unitTests/cases/encodeDCCMetadata",
+                                   package="AnnotationHubData")
     result <-
         AnnotationHubData:::.learnAllEncodeMetadataCategories(destinationDir,
                                                               verbose=FALSE)
     all.keys <- result$all.keys
-    checkTrue(length(all.keys) > 50) # 51 in feb 2013
-       # a random sampling of empirically observed keys
-    checkTrue(all(c("fragSize","geoSampleAccession","grant","insertLength","lab")
-                    %in% all.keys))
-    checkTrue(result$total.lines > 24000)    # 24521 in feb 2013
-    result
+        # we are testing with just 3 files.txt metadata fines, in just 3 
+        # encodeDCC directories, so use lenient tests, on number of
+        # total files described, number of keys found
 
-} # notest_.learnAllEncodeMetadataCategories
+    checkEquals(length(all.keys), 20)
+    checkEquals(sort(all.keys),
+                c("cell", "composite", "dataType", "dataVersion", "dateSubmitted",
+                  "dateUnrestricted", "dccAccession", "grant", "lab", "localization",
+                  "md5sum", "origAssembly", "project", "rnaExtract",  "size", "subId",
+                  "tableName", "treatment", "type", "view"))
+
+
+
+        # choose some basic keys (aka, metadata columns)
+    checkEquals(result$total.lines, 12)
+    invisible(result)
+
+} # test_.learnAllEncodeMetadataCategories
 #-------------------------------------------------------------------------------
 # read one metadata file, make sure it has a sensible number of columns and rows
 # and that three previously observed files are mentioned
 #
-notest_.parseMetadataFiles.1 <- function(directory)
+test_.parseMetadataFiles.1 <- function()
 {
     print('--- test_.parseMetadataFiles.1')
-    
-    result <- test_.learnAllEncodeMetadataCategories(directory)
+    downloadDir <- system.file("unitTests/cases/encodeDCCMetadata",
+                                   package="AnnotationHubData")
 
-        # test wgEncodeAffyRnaChip
-    full.path <- file.path(directory, "wgEncodeAffyRnaChip.info")
+    result <- test_.learnAllEncodeMetadataCategories()
+    metadata.files <- dir(downloadDir)
+    stopifnot(length(metadata.files) > 0)
+    sample.file <- metadata.files[1]
+
+    full.path <- file.path(downloadDir, sample.file)
     tbl <- AnnotationHubData:::.parseMetadataFiles(full.path, result$all.keys)
-    checkTrue(ncol(tbl) > 50) # metadata columns
-    checkTrue(nrow(tbl) > 50) # metadata rows, 52 in feb 2013, one for each
-                              # data file in this directory
-    checkTrue(all(
-         c("wgEncodeAffyRnaChipFiltTransfragsGm12878CellTotal.broadPeak.gz",
-           "wgEncodeAffyRnaChipFiltTransfragsGm12878CytosolLongnonpolya.broadPeak.gz",
-           "wgEncodeAffyRnaChipFiltTransfragsGm12878CytosolLongpolya.broadPeak.gz")
-                %in% rownames(tbl)))
+    checkEquals(dim(tbl), c(6,20))
 
+    metadata.file.stem <- sub(".info", "", sample.file)
+
+        # make sure the project-name/directoryName is embedded in all
+        # of the individual filenames.
+        # encodeDCC is very reliable on this count (25 feb 2013)
+    
+    checkEquals(length(grep(metadata.file.stem, rownames (tbl))), nrow(tbl))
+    
 
 } # test_.parseMetadataFiles.1
 #-------------------------------------------------------------------------------
 # read three metadata file, make sure the combined data.frame returned
 # has a sensible number of columns and rows
 #
-notest_.parseMetadataFiles.2 <- function(directory)
+test_.parseMetadataFiles.2 <- function()
 {
-    print('--- notest_.parseMetadataFiles.2')
-    
-    summary <- notest_.learnAllEncodeMetadataCategories(directory)
+    print('--- test_.parseMetadataFiles.2')
+    downloadDir <- system.file("unitTests/cases/encodeDCCMetadata",
+                                   package="AnnotationHubData")
+    result <- test_.learnAllEncodeMetadataCategories()
+    metadata.files <- dir(downloadDir)
+    stopifnot(length(metadata.files) == 2)
+    sample.file <- metadata.files[1:2]
 
-    metadata.files.2 <- file.path(destinationDir, list.files(destinationDir)[1:2])
+    full.path <- file.path(downloadDir, sample.file)
+    tbl <- AnnotationHubData:::.parseMetadataFiles(full.path, result$all.keys)
+        # conservative tests on what (25 feb 2013) is a 177 x 41 tbl
+    checkEquals(dim(tbl), c(12, 20))
 
-
-    tbl <- AnnotationHubData:::.parseMetadataFiles(metadata.files.2,
-                                                   summary$all.keys,
-                                                   summary$total.lines)
-      # the composite metadata field is, in a sense, a project directory name
-      # shared by all files that come from the same encodeDCC directory
-
-    project.names <- unique(tbl$composite)
-    checkEquals(length(project.names), length(metadata.files.2))
-    
-      # now check the colnames, and row count of the returned tbl
-    checkEquals(ncol(tbl), length(summary$all.keys))
-    data.file.count <- 0
-    for (metadata.file in metadata.files.2)
-        data.file.count <- data.file.count +
-            length(scan(metadata.file, what=character(), sep="\n", quiet=TRUE))
-    checkEquals(nrow(tbl), data.file.count)
-    
-
-} # notest_.parseMetadataFiles.3
+} # test_.parseMetadataFiles.2
 #-------------------------------------------------------------------------------
