@@ -52,7 +52,7 @@ runTiming <- function()
 notest_loadMetadata <- function ()
 {
     print('--- test_loadMetadata')
-    importer <- EncodeImporter()
+    importer <- EncodeImportPreparer()
     tbl.md <- metadataTable(importer)
     checkEquals(dim(tbl.md), c(24396, 52))
 
@@ -62,7 +62,7 @@ notest_assemblParams <- function()
 {
     print('--- test_assembleParams')
 
-    importer <- EncodeImporter()
+    importer <- EncodeImportPreparer()
     tbl.md <- metadataTable(importer)
     
     annotationHubRoot <- "/foo/bar"
@@ -113,7 +113,7 @@ notest_assemblParams <- function()
 notest_createEncodeResource.1 <- function()
 {
     print('--- test_createEncodeResource.1')
-    importer <- EncodeImporter()
+    importer <- EncodeImportPreparer()
     tbl.md <- metadataTable(importer)
     
     dataFileName <- "wgEncodeSunyAlbanyGeneStH1hescT7tagRbpAssocRna.broadPeak.gz"
@@ -256,8 +256,9 @@ test_.parseMetadataFiles.1 <- function()
     print('--- test_.parseMetadataFiles.1')
     downloadDir <- system.file("unitTests/cases/encodeDCCMetadata",
                                    package="AnnotationHubData")
-
-    result <- test_.learnAllEncodeMetadataCategories()
+    result <-
+        AnnotationHubData:::.learnAllEncodeMetadataCategories(downloadDir,
+                                                              verbose=FALSE)
     metadata.files <- dir(downloadDir)
     stopifnot(length(metadata.files) > 0)
     sample.file <- metadata.files[1]
@@ -277,7 +278,7 @@ test_.parseMetadataFiles.1 <- function()
 
 } # test_.parseMetadataFiles.1
 #-------------------------------------------------------------------------------
-# read three metadata file, make sure the combined data.frame returned
+# read two metadata files, make sure the combined data.frame returned
 # has a sensible number of columns and rows
 #
 test_.parseMetadataFiles.2 <- function()
@@ -285,15 +286,34 @@ test_.parseMetadataFiles.2 <- function()
     print('--- test_.parseMetadataFiles.2')
     downloadDir <- system.file("unitTests/cases/encodeDCCMetadata",
                                    package="AnnotationHubData")
-    result <- test_.learnAllEncodeMetadataCategories()
+    result <-
+        AnnotationHubData:::.learnAllEncodeMetadataCategories(downloadDir,
+                                                              verbose=FALSE)
     metadata.files <- dir(downloadDir)
     stopifnot(length(metadata.files) == 2)
-    sample.file <- metadata.files[1:2]
 
-    full.path <- file.path(downloadDir, sample.file)
+    full.path <- file.path(downloadDir, metadata.files)
     tbl <- AnnotationHubData:::.parseMetadataFiles(full.path, result$all.keys)
-        # conservative tests on what (25 feb 2013) is a 177 x 41 tbl
-    checkEquals(dim(tbl), c(12, 20))
+    expected.column.count <- length(result$all.keys)
+    checkEquals(dim(tbl), c(12, expected.column.count))
+    checkEquals(sort(result$all.keys), sort(colnames(tbl)))
 
 } # test_.parseMetadataFiles.2
+#-------------------------------------------------------------------------------
+test_saveMetadata <- function()
+{
+    print("--- test_.saveMetadata")
+    downloadDir <- system.file("unitTests/cases/encodeDCCMetadata",
+                               package="AnnotationHubData")
+    result <-
+        AnnotationHubData:::.learnAllEncodeMetadataCategories(downloadDir,
+                                                              verbose=FALSE)
+    metadata.files <- dir(downloadDir)
+    stopifnot(length(metadata.files) == 2)
+
+    full.path <- file.path(downloadDir, metadata.files)
+    tbl <- AnnotationHubData:::.parseMetadataFiles(full.path, result$all.keys)
+    importer <- EncodeImportPreparer()    
+
+} # test_.saveMetadata
 #-------------------------------------------------------------------------------
