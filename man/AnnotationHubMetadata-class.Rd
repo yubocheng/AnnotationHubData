@@ -3,7 +3,7 @@
 \alias{AnnotationHubMetadata}
 \alias{AnnotationHubMetadata-class}
 \alias{jsonPath}
-\alias{fromJson}
+\alias{AnnotationHubMetadataFromJson}
 \alias{toJson}
 
 \alias{show,AnnotationHubMetadata-method}
@@ -34,7 +34,7 @@ AnnotationHubMetadata(AnnotationHubRoot, SourceFile, SourceUrl,
 
 jsonPath(x)
 toJson(x)
-fromJson(path, ahroot=NA_character_)
+AnnotationHubMetadataFromJson(path, ahroot=NA_character_)
 }
 
 \arguments{

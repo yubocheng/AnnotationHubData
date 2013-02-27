@@ -22,7 +22,7 @@ importFrom(Rsamtools, indexFa)
 importFrom(rtracklayer, import)
 
 export(jsonPath,
-       fromJson,
+       AnnotationHubMetadataFromJson,
        toJson,
        constructSeqInfo,
        extendedBedToGRanges,

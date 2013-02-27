@@ -36,14 +36,14 @@ setClass("AnnotationHubMetadata",
         RDataDateAdded="POSIXct",
         RDataLastModifiedDate="POSIXct",
         RDataPath="character",
-        RDataSize="integer",
+        RDataSize="numeric",
         RDataVersion="numeric_version",
         Recipe="character",
         RecipeArgs="list",
         SourceFile="character",
         SourceLastModifiedDate="POSIXct",
         SourceMd5="character",
-        SourceSize="integer",
+        SourceSize="numeric",
         SourceUrl="character",
         SourceVersion="character",
         Species="character",
@@ -66,14 +66,14 @@ setClass("AnnotationHubMetadata",
         RDataDateAdded=as.POSIXct(NA_character_),
         RDataLastModifiedDate=as.POSIXct(NA_character_),
         RDataPath=NA_character_,
-        RDataSize=NA_integer_,
+        RDataSize=NA_real_,
         RDataVersion=.NA_version_,
         Recipe=NA_character_,
         RecipeArgs=list(),
         SourceFile=NA_character_,
         SourceLastModifiedDate=as.POSIXct(NA_character_),
         SourceMd5=NA_character_,
-        SourceSize=NA_integer_,
+        SourceSize=NA_real_,
         SourceVersion=NA_character_,
         Species=NA_character_,
         Tags=NA_character_,
@@ -130,7 +130,7 @@ AnnotationHubMetadata <-
         RecipeArgs=RecipeArgs,
         SourceFile=SourceFile,
         SourceMd5=unname(tools::md5sum(SourceFile)),
-        SourceSize=as.integer(file.info(SourceFile)$size),
+        SourceSize=file.info(SourceFile)$size,
         SourceUrl=SourceUrl,
         SourceVersion=SourceVersion,
         Species=Species,
@@ -203,7 +203,37 @@ jsonPath <-
         file.path(AnnotationHubRoot, fl)
     })
 }
-              
+
+.encodeNA <- function(lst)
+{
+    rapply(lst, function(elt) {
+        isNA <- is.na(elt)
+        if (any(isNA))
+            ## NA token, coerce to 'character'
+            elt[isNA] <- sprintf(".__NA__%s_", class(elt[isNA]))
+        elt
+    }, how="replace")
+}
+
+.decodeNA <- function(lst)
+{
+    .NAmap <- setNames(list(NA, NA_integer_, NA_character_, NA_real_,
+                            NA_complex_),
+                       c(".__NA__logical_", ".__NA__integer_",
+                         ".__NA__character_", ".__NA__numeric_",
+                         ".__NA__complex_"))
+    rapply(lst, function(elt) {
+        isNA <- elt %in% names(.NAmap)
+        if (any(isNA)) {
+            type <- elt[isNA][[1]]
+            ## reverse coercion
+            elt[isNA] <- NA
+            elt <- as(elt, class(.NAmap[[type]]))
+        }
+        elt
+    }, "character", how="replace")
+}
+
 toJson <-
     function(x)
 {
@@ -217,31 +247,15 @@ toJson <-
     idx <- grep("Date", names(lst))
     lst[idx] <- lapply(lst[idx], format, "%Y-%m-%d %T UTC")
 
-    toJSON(lst)
+    ## encode NA to survive json via mangling
+    toJSON(.encodeNA(lst))
 }
 
-## Helpers to be able to catch warnings
-## from Martin at
-## http://stackoverflow.com/questions/4948361/how-do-i-save-warnings-and-errors-as-output-from-a-function
-factory <- function(fun)
-    function(...) {
-        warn <- err <- NULL
-        res <- withCallingHandlers(
-            tryCatch(fun(...), error=function(e) {
-                err <<- conditionMessage(e)
-                NULL
-            }), warning=function(w) {
-                warn <<- append(warn, conditionMessage(w))
-                invokeRestart("muffleWarning")
-            })
-        list(res, warn=warn, err=err)
-    }
-
-fromJson <-
+AnnotationHubMetadataFromJson <-
     function(path, ahroot=NA_character_)
 {
     lst <- withCallingHandlers({
-        fromJSON(file=path)
+        .decodeNA(fromJSON(file=path))
     }, warning=function(warn) {
         if (all(grepl("^incomplete final line found on ",
                       conditionMessage(warn))))
@@ -294,14 +308,14 @@ constructAnnotationHubMetadataFromSourceFilePath <-
     dir <- dirname(file.path(ahroot, originalFile))
     jsonFile <- .derivedFileName(originalFile, RDataVersion, "json")
     jsonFile <- file.path(dir[1], jsonFile)
-    fromJson(jsonFile, ahroot)
+    AnnotationHubMetadataFromJson(jsonFile, ahroot)
 }
 
 constructMetadataFromJsonPath <-
     function(ahroot, jsonpath)
 {
     jsonFile <- file.path(ahroot, jsonpath)[1]
-    fromJson(jsonFile, ahroot)
+    AnnotationHubMetadataFromJson(jsonFile, ahroot)
 }
 
 ## ------------------------------------------------------------------------------

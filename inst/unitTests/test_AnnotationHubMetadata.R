@@ -85,13 +85,32 @@ test_multi_input <- function()
     checkEquals(2L, length(metadata(x)$SourceFile))
 }
 
-test_fromJson <- function()
+test_json_prerequisites <- function()
+{
+    ## handling NA's
+    ## we'll opt for c(x=NA) --> list(x="NA") on round trip
+    checkTrue(grepl("rjson", packageDescription("AnnotationHubData")$Imports))
+    obs <- rjson::fromJSON(rjson::toJSON(c(x=NA)))
+    checkIdentical(list(x="NA"), obs)
+
+    ## encoding NA as .__NA__<class>_
+    encode <- AnnotationHubData:::.encodeNA
+    decode <- AnnotationHubData:::.decodeNA
+
+    nas <- list(NA, NA_integer_, NA_character_, NA_real_, NA_complex_)
+    checkIdentical(nas, decode(encode(nas)))
+
+    nas <- list(x=c(1, NA), y =c("a", NA))
+    checkIdentical(nas, decode(encode(nas)))
+}
+
+test_AnnotationHubMetadataFromJson <- function()
 {
     ahroot <- system.file('extdata', package='AnnotationHubData')
     jsonPath <-
         file.path(ahroot, "goldenpath/hg19/encodeDCC/wgEncodeRikenCage",
                   "wgEncodeRikenCageCd20CellPapTssHmm.bedRnaElements_0.0.1.json")
-    ahm <- fromJson(jsonPath)
+    ahm <- AnnotationHubMetadataFromJson(jsonPath)
     checkTrue(validObject(ahm))
 }
 
@@ -100,7 +119,8 @@ test_toJson <- function()
     ahm <- .AnnotationHubMetadata
     path <- tempfile()
     cat(toJson(ahm), file=path)
-    obs <- fromJson(path, metadata(.AnnotationHubMetadata)$AnnotationHubRoot)
+    ahroot <- metadata(.AnnotationHubMetadata)$AnnotationHubRoot
+    obs <- AnnotationHubMetadataFromJson(path, ahroot)
     checkIdentical(ahm, obs)
 }
 
@@ -108,7 +128,7 @@ test_post_processing <- function()
 {
     path <- jsonPath(.AnnotationHubMetadata)
     ahroot <- metadata(.AnnotationHubMetadata)$AnnotationHubRoot
-    md <- fromJson(path, ahroot)
+    md <- AnnotationHubMetadataFromJson(path, ahroot)
 
     ## now create a Recipe instance
     recipe <- AnnotationHubRecipe(md)
@@ -118,10 +138,10 @@ test_post_processing <- function()
     pathToRDataFile <- run(recipe)
 
     ## reload the metadata
-    md2 <- fromJson(path)
+    md2 <- AnnotationHubMetadataFromJson(path)
 
     info <- file.info(pathToRDataFile)
-    checkEquals(as.integer(info$size), metadata(md2)$RDataSize)
+    checkEquals(info$size, metadata(md2)$RDataSize)
 
     difft <- info$mtime - metadata(md2)$RDataLastModifiedDate
     checkEqualsNumeric(0, difft, tolerance=1) # rouding to 1s diff
