@@ -1,4 +1,4 @@
-setClass("EncodeImporter",
+setClass("EncodeImportPreparer",
          representation=representation(x="character"),
          contains="ImportPreparer")
 
@@ -10,9 +10,9 @@ ucscEncodeTop <- function() return(paste(ucscHome(),
 EncodeBaseURL <- function () return (ucscEncodeTop())
 printf <- function(...) print(noquote(sprintf(...)))
 #------------------------------------------------------------------------------
-EncodeImporter <- function()
+EncodeImportPreparer <- function()
 {
-   #x <- new("EncodeImporter")
+   #x <- new("EncodeImportPreparer")
    #file.path <- system.file("extdata", "encodeMetadata.RData",
    #                         package="AnnotationHubData")
    #load(file.path)
@@ -42,7 +42,7 @@ setGeneric("createResource", signature="object",
 
 
 #------------------------------------------------------------------------------
-setMethod("metadataTable", "EncodeImporter",
+setMethod("metadataTable", "EncodeImportPreparer",
 
     function(object) {
         object@tbl.md
@@ -56,7 +56,7 @@ setMethod("metadataTable", "EncodeImporter",
 # website.baseUrl: "http://hgdownload.cse.ucsc.edu/goldenpath/hg19/encodeDCC/"
 # projectPath: "goldenpath/hg19/encodeDCC/wgEncodeSunyAlbanyGeneSt"
 
-setMethod("assembleParams", "EncodeImporter",
+setMethod("assembleParams", "EncodeImportPreparer",
 
    function (object, experimentMetadata, webSiteSourceDirectory,
              annotationHubRoot, projectPath,
@@ -144,7 +144,7 @@ setMethod("assembleParams", "EncodeImporter",
      params
      }) # assembleParams
 #-------------------------------------------------------------------------------
-setMethod("createResource", "EncodeImporter",
+setMethod("createResource", "EncodeImportPreparer",
 
    function (object, annotationHubRoot, webSiteRoot,
              genomeVersion, dataFileName, experimentMetadata,
@@ -317,7 +317,6 @@ setMethod("createResource", "EncodeImporter",
         stopifnot(file.exists(filename))
         lines <- scan(filename, what=character(0), sep="\n", quiet=TRUE)
             # first split on tab character, separating filename from info
-        printf("%s metadata file has %d lines of metadata", filename, length(lines))
         tokens.0 <- strsplit(lines, "\t")
         data.filenames <- sapply(tokens.0, "[", 1)
         info.strings <- sapply(tokens.0, "[", 2)
@@ -334,8 +333,6 @@ setMethod("createResource", "EncodeImporter",
             new.row.as.df <- t(data.frame(new.row.full))
             tbl <- rbind(tbl, new.row.as.df)
             }# for i
-        #printf("about to add %d to existing %d filenames to be used as rownames",
-        #        length(data.filenames), length (all.data.filenames))
         all.data.filenames <- c(all.data.filenames, data.filenames)
         } # for filename
         
