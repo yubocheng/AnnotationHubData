@@ -10,7 +10,6 @@ Depends:
     IRanges,
     GenomicRanges,
     GenomicFeatures,
-    AnnotationHubServer
 Suggests:
     RUnit,
 Imports:
