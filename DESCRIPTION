@@ -37,7 +37,7 @@ Collate:
     extendedBedToGRangesRecipe.R
     extendedBedWithAuxiliaryTableToGRangesRecipe.R
     trackWithAuxiliaryTableToGRangesRecipe.R
-    EncodeImporter-class.R
+    EncodeImportPreparer-class.R
     fakedata.R
     importBedFiles.R
     importFastaFiles.R

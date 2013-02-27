@@ -1,5 +1,5 @@
 exportClasses(AnnotationHubMetadata, AnnotationHubRecipe,
-    ImportPreparer, EnsemblGtfImportPreparer)
+    ImportPreparer, EnsemblGtfImportPreparer, EncodeImportPreparer)
 
 export(AnnotationHubMetadata, AnnotationHubRecipe,
     EnsemblGtfImportPreparer)
@@ -29,7 +29,7 @@ export(jsonPath,
        extendedBedWithAuxiliaryTableToGRanges,
        ensemblGtfToGRanges,
        rtrackLayerImport,
-       EncodeImporter,
+       EncodeImportPreparer,
        EncodeBaseURL)
 
 exportMethods(
