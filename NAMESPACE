@@ -42,6 +42,10 @@ exportMethods(
     "metadata<-",
     metadataTable,
     assembleParams,
-    createResource
+    createResource,
+    parseMetadataFiles,
+    assembleEncodeMetadata,
+    saveMetadata,
+    loadMetadata
     )
 
