@@ -25,11 +25,27 @@ paulsTests <- function()
   
 } # runTests
 #-------------------------------------------------------------------------------
-notest_assemblParams <- function()
+test_assemblParams <- function()
 {
     print('--- test_assembleParams')
 
     importer <- EncodeImportPreparer()
+    downloadDir <- system.file("unitTests/cases/encodeDCCMetadata",
+                               package="AnnotationHubData")
+    result <-
+        AnnotationHubData:::.learnAllEncodeMetadataCategories(downloadDir,
+                                                              verbose=FALSE)
+    metadata.files <- dir(downloadDir)
+    stopifnot(length(metadata.files) == 2)
+    full.paths <- file.path(downloadDir, metadata.files)
+    
+    importer <- EncodeImportPreparer()
+    tbl <- parseMetadataFiles(importer, full.paths, result$all.keys)
+
+
+
+
+
     tbl.md <- metadataTable(importer)
     
     annotationHubRoot <- "/foo/bar"
@@ -294,4 +310,41 @@ test_saveAndLoadMetadata <- function()
     checkIdentical(tbl, tbl.2)
 
 } # test_saveAndLoadMetadata
+#-------------------------------------------------------------------------------
+# take the first line of the first metadata file cached with the package
+# (inst/unitTests/casesencodeDCCMetadata/wgEncodeAffyRnaChip.info), and
+# turn it into an AnnotationHubData 
+test_assembleParams <- function()
+{
+    print("--- test_assembleParams")
+
+    importPrep <- EncodeImportPreparer()
+
+    downloadDir <- system.file("unitTests/cases/encodeDCCMetadata", package="AnnotationHubData")
+    md.info <- AnnotationHubData:::.learnAllEncodeMetadataCategories(downloadDir, verbose=FALSE)
+    metadata.file <- dir(downloadDir)[1]  # we need just one; take the first
+    metadata.file.fullPath <- file.path(downloadDir,metadata.file)
+    checkTrue(file.exists(metadata.file.fullPath))
+    
+       # the metadata table:
+    tbl <- parseMetadataFiles(importPrep, metadata.file.fullPath, md.info$all.keys)
+
+       # now get the first data file and its me
+    data.filename <- rownames(tbl)[1]
+
+    ahRoot <- tempdir()
+    sourceFile <- data.filename
+    metadata <- as.list(tbl[1,])
+    stopifnot("composite" %in% names(metadata))
+    sourceUrl <- file.path(EncodeBaseURL(), metadata$composite, data.filename)
+
+    #ahmd <- assembleMetadata(importPrep, 
+    #                         "invented/source/directory",
+    #                         "ahdRoot",
+    #                         "goldenpath/hg19/encodeDCC/wgEncodeAffyRnaChip/",
+    #                         "hg19",
+    #                         filename)
+
+
+} # test_assembleParams
 #-------------------------------------------------------------------------------

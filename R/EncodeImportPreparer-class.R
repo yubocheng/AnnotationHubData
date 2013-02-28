@@ -20,12 +20,11 @@ setGeneric("metadataTable", signature="object",
            function(object)
            standardGeneric ("metadataTable"))
 
-setGeneric("assembleParams", signature="object",
-           function(object, experimentMetadata, webSiteSourceDirectory,
-                    annotationHubRoot, projectPath,
-                    genomeVersion, dataFileName)
-
-           standardGeneric ("assembleParams"))
+setGeneric("assembleMetadata", signature="object",
+   function (object, experimentMetadata, sourceURI,
+             annotationHubRoot, projectPath,
+             genomeVersion, dataFileName)
+           standardGeneric ("assembleMetadata"))
 
 
 setGeneric("createResource", signature="object",
@@ -65,138 +64,144 @@ setMethod("metadataTable", "EncodeImportPreparer",
 # website.baseUrl: "http://hgdownload.cse.ucsc.edu/goldenpath/hg19/encodeDCC/"
 # projectPath: "goldenpath/hg19/encodeDCC/wgEncodeSunyAlbanyGeneSt"
 
-setMethod("assembleParams", "EncodeImportPreparer",
+setMethod("assembleMetadata", "EncodeImportPreparer",
 
-   function (object, experimentMetadata, webSiteSourceDirectory,
+   function (object, experimentMetadata, sourceURI,
              annotationHubRoot, projectPath,
              genomeVersion, dataFileName) {
 
 
-       params <- list()
-       params$Species <- "Homo sapiens"
-       params$Genome <- genomeVersion
+   ahmd <- AnnotationHubMetadata(AnnotationHubRoot=annotationHubRoot,
+                                 SourceFile=file.path(sourceURI, projectPath, dataFileName),
+                                 SourceUrl,
+                                 SourceVersion,
+                                 DataProvider,
+                                 Title,
+                                 Description,
+                                 Species,
+                                 Genome,
+                                 Tags,
+                                 Recipe,
+                                 RecipeArgs = list(),
+                                 RDataClass,
+                                 RDataVersion,
+                                 RDataDateAdded,
+                                 Maintainer,
+                                 Coordinate_1_based = TRUE,
+                                 Notes=NA_character_)
+ })
+                               
+  # AnnotationHubRoot=NA_character_,
+  # BiocVersion=biocVersion(),
+  # Coordinate_1_based=NA,
+  # DataProvider=NA_character_,
+  # DerivedMd5=NA_character_,
+  # Description=NA_character_,
+  # Genome=NA_character_,
+  # Maintainer=
+  # "Bioconductor Package Maintainer <maintainer@bioconductor.org>",
+  # Notes=NA_character_,
+  # RDataClass=NA_character_,
+  # RDataDateAdded=as.POSIXct(NA_character_),
+  # RDataLastModifiedDate=as.POSIXct(NA_character_),
+  # RDataPath=NA_character_,
+  # RDataSize=NA_integer_,
+  # RDataVersion=.NA_version_,
+  # Recipe=NA_character_,
+  # RecipeArgs=list(),
+  # SourceFile=NA_character_,
+  # SourceLastModifiedDate=as.POSIXct(NA_character_),
+  # SourceMd5=NA_character_,
+  # SourceSize=NA_integer_,
+  # SourceVersion=NA_character_,
+  # Species=NA_character_,
+  # Tags=NA_character_,
+  # TaxonomyId=NA_character_,
+  # Title=NA_character_
 
-       dataFormat <- experimentMetadata$type
-       stopifnot(dataFormat %in% c("broadPeak", "narrowPeak", "gtf", "bedRnaElements"))
-
-       if(dataFormat == "gtf")
-           params$Recipe = "rtrackLayerImport"
-
-       if(dataFormat == "broadPeak") {
-           params$Recipe <- "extendedBedToGRanges"
-           params$RecipeArgs <- list(colClasses=list(seqnames="character",
-                                                     start="integer",
-                                                     end="integer",
-                                                     name="character",
-                                                     score="integer",
-                                                     strand="character",
-                                                     signalValue="numeric",
-                                                     pValue="numeric",
-                                                     qValue="numeric"))
-           } # if broadPeak
-       if(dataFormat == "narrowPeak") {
-           params$Recipe <- "extendedBedToGRanges"
-           params$RecipeArgs <- list(colClasses=list(seqnames="character",
-                                                     start="integer",
-                                                     end="integer",
-                                                     name="character",
-                                                     score="integer",
-                                                     strand="character",
-                                                     signalValue="numeric",
-                                                     pValue="numeric",
-                                                     qValue="numeric",
-                                                     peak="integer"))
-           } # if narrowPeak
-     
-       if(dataFormat == "bedRnaElements") {
-           params$Recipe <- "extendedBedToGRanges"
-           params$RecipeArgs <- list(colClasses=list(seqnames="character",
-                                                     start="integer",
-                                                     end="integer",
-                                                     name="character",
-                                                     score="integer",
-                                                     strand="character",
-                                                     level="numeric",
-                                                     signif="numeric",
-                                                     score2="integer"))
-           } # if bedRnaElements
-     
-     params$RDataClass <- "GRanges"
-     params$RDataVersion <- "0.0.1"
-     params$Maintainer <- "Paul Shannon <pshannon@fhcrc.org>"
-     params$DataProvider <- "hgdownload.cse.ucsc.edu"
-     params$Coordinate_1_based <- FALSE
-     params$RDataDateAdded <- as.character(Sys.Date())
-     params$AnnotationHubRoot <- annotationHubRoot
-     params$SourceFile <- file.path(projectPath, dataFileName)
- 
-        # most files.txt-derived entries have tableName, but
-        # wgEncodeCshlLongRnaSeq, for one, does not
-        # accomodate this by direct assignment from the
-        # supplied dataFileName
-
-     if(nchar(experimentMetadata$tableName) > 0)
-         params$Title <- experimentMetadata$tableName
-     else
-         params$Title <- dataFileName
- 
-     params$Description <- with(experimentMetadata,
-                                {paste (view, type, cell, geoSampleAccession,
-                                        tableName, dataType, dccAccession, lab)})
-     params$SourceUrl <- file.path(webSiteSourceDirectory, dataFileName)
-     params$SourceVersion <- experimentMetadata$labVersion
- 
-     all.fields <- paste(as.character(experimentMetadata), collapse='@')
-     all.fields.clean <- gsub('@+', '|', all.fields, perl=TRUE)
-     params$Tags <- all.fields.clean
- 
-     params
-     }) # assembleParams
-#-------------------------------------------------------------------------------
-setMethod("createResource", "EncodeImportPreparer",
-
-   function (object, annotationHubRoot, webSiteRoot,
-             genomeVersion, dataFileName, experimentMetadata,
-             insertIntoDatabase=TRUE, verbose=FALSE) {
-
-       projectName <- experimentMetadata$dataDir
-       projectPath <- file.path("goldenpath", genomeVersion, "encodeDCC", projectName)
-       localStorageDirectory <- file.path(annotationHubRoot, projectPath)
-       webSiteSourceDirectory <- file.path(webSiteRoot, projectPath)
-       localFile <- file.path(localStorageDirectory, dataFileName)
-   
-       if(!file.exists(localStorageDirectory)) {
-           if(verbose)
-               message(sprintf(" -- fresh directory creation: %s", localStorageDirectory))
-           dir.create(localStorageDirectory, recursive=TRUE)
-           }
-   
-       params <- assembleParams(object, experimentMetadata,
-                                webSiteSourceDirectory,
-                                annotationHubRoot,
-                                projectPath, genomeVersion,
-                                dataFileName)
-
-
-       if(!file.exists (localFile)) {
-          if(verbose)
-              message(sprintf("-- fresh download to %s",localFile))
-          download.file(params$SourceUrl, destfile=localFile, quiet=TRUE)
-          }
-       
-       md <- do.call(AnnotationHubMetadata, params)
-       ## everything below here should be a server maintenance task
-       recipe <- AnnotationHubRecipe(md)
-       RDataFilename <- run(recipe)
-       postProcessMetadata(annotationHubRoot,  metadata(md)$RDataVersion, metadata(md)$SourceFile)
-
-       localJsonFile <- sub("\\.RData", "\\.json", RDataFilename)
-       stopifnot(file.exists(localJsonFile))
-       if(insertIntoDatabase)
-           stopifnot(json2mongo(localJsonFile))
-       
-       RDataFilename
-       }) # createResource
+#
+#   
+#     
+#       params <- list()
+#       params$Species <- "Homo sapiens"
+#       params$Genome <- genomeVersion
+#
+#       dataFormat <- experimentMetadata$type
+#       stopifnot(dataFormat %in% c("broadPeak", "narrowPeak", "gtf", "bedRnaElements"))
+#
+#       if(dataFormat == "gtf")
+#           params$Recipe = "rtrackLayerImport"
+#
+#       if(dataFormat == "broadPeak") {
+#           params$Recipe <- "extendedBedToGRanges"
+#           params$RecipeArgs <- list(colClasses=list(seqnames="character",
+#                                                     start="integer",
+#                                                     end="integer",
+#                                                     name="character",
+#                                                     score="integer",
+#                                                     strand="character",
+#                                                     signalValue="numeric",
+#                                                     pValue="numeric",
+#                                                     qValue="numeric"))
+#           } # if broadPeak
+#       if(dataFormat == "narrowPeak") {
+#           params$Recipe <- "extendedBedToGRanges"
+#           params$RecipeArgs <- list(colClasses=list(seqnames="character",
+#                                                     start="integer",
+#                                                     end="integer",
+#                                                     name="character",
+#                                                     score="integer",
+#                                                     strand="character",
+#                                                     signalValue="numeric",
+#                                                     pValue="numeric",
+#                                                     qValue="numeric",
+#                                                     peak="integer"))
+#           } # if narrowPeak
+#     
+#       if(dataFormat == "bedRnaElements") {
+#           params$Recipe <- "extendedBedToGRanges"
+#           params$RecipeArgs <- list(colClasses=list(seqnames="character",
+#                                                     start="integer",
+#                                                     end="integer",
+#                                                     name="character",
+#                                                     score="integer",
+#                                                     strand="character",
+#                                                     level="numeric",
+#                                                     signif="numeric",
+#                                                     score2="integer"))
+#           } # if bedRnaElements
+#     
+#     params$RDataClass <- "GRanges"
+#     params$RDataVersion <- "0.0.1"
+#     params$Maintainer <- "Paul Shannon <pshannon@fhcrc.org>"
+#     params$DataProvider <- "hgdownload.cse.ucsc.edu"
+#     params$Coordinate_1_based <- FALSE
+#     params$RDataDateAdded <- as.character(Sys.Date())
+#     params$AnnotationHubRoot <- annotationHubRoot
+#     params$SourceFile <- file.path(projectPath, dataFileName)
+# 
+#        # most files.txt-derived entries have tableName, but
+#        # wgEncodeCshlLongRnaSeq, for one, does not
+#        # accomodate this by direct assignment from the
+#        # supplied dataFileName
+#
+#     if(nchar(experimentMetadata$tableName) > 0)
+#         params$Title <- experimentMetadata$tableName
+#     else
+#         params$Title <- dataFileName
+# 
+#     params$Description <- with(experimentMetadata,
+#                                {paste (view, type, cell, tableName,
+#                                        dataType, dccAccession, lab)})
+#     params$SourceUrl <- file.path(sourceDirectory, dataFileName) 
+#     params$SourceVersion <- experimentMetadata$labVersion
+# 
+#     all.fields <- paste(as.character(experimentMetadata), collapse='@')
+#     all.fields.clean <- gsub('@+', '|', all.fields, perl=TRUE)
+#     params$Tags <- all.fields.clean
+# 
+#     params
+#     }) # assembleMetadata
 
 #-------------------------------------------------------------------------------
 .downloadFileInfo <- function(baseUrl, subdirs, destinationDir, verbose=FALSE)
