@@ -12,12 +12,7 @@ printf <- function(...) print(noquote(sprintf(...)))
 #------------------------------------------------------------------------------
 EncodeImportPreparer <- function()
 {
-   #x <- new("EncodeImportPreparer")
-   #file.path <- system.file("extdata", "encodeMetadata.RData",
-   #                         package="AnnotationHubData")
-   #load(file.path)
-   #x@tbl.md <- tbl.md
-   x <- "holding pattern"
+   x <- new("EncodeImportPreparer")
    x
 }
 #------------------------------------------------------------------------------
@@ -37,8 +32,22 @@ setGeneric("createResource", signature="object",
            function(object, annotationHubRoot, webSiteRoot,
                     genomeVersion, dataFileName,experimentMetadata,
                     insertIntoDatabase, verbose)
-           standardGeneric ("createResource"))
+           standardGeneric("createResource"))
 
+setGeneric("parseMetadataFiles", signature="object",
+           function(object, metadata.filenames, all.keys, data.file.count)
+           standardGeneric("parseMetadataFiles"))
+
+setGeneric("assembleEncodeMetadata", signature="object",
+           function(object, verbose=FALSE, test=FALSE) standardGeneric("assembleEncodeMetadata"))
+
+setGeneric("saveMetadata", signature="object",
+           function(object, tbl, directory, filename="encodeDCC.metadata.RData")
+           standardGeneric("saveMetadata"))
+
+setGeneric("loadMetadata", signature="object",
+           function(object, directory, filename="encodeDCC.metadata.RData")
+           standardGeneric("loadMetadata"))
 
 
 #------------------------------------------------------------------------------
@@ -306,14 +315,27 @@ setMethod("createResource", "EncodeImportPreparer",
 
 } # .learnAllEncodeMetadataCategories
 #-------------------------------------------------------------------------------
-.parseMetadataFiles <- function(metadata.filenames, all.keys, data.file.count)
-{
+setMethod("parseMetadataFiles", "EncodeImportPreparer",
+
+   function (object, metadata.filenames, all.keys, data.file.count) {
+
+        # our convention is that encodeDCC metadata files, though starting
+        # out life as "files.txt", is downloaded and renamed xxxx.info,
+        # where "xxxx" is the name of the encodeDCC/xxxx directory
+        # from which the files.txt file was obtained.
+        # it is always possible that other files could be found in
+        # the download directory; filter them out here:
+    metadata.filenames <- grep(".info$", metadata.filenames, value=TRUE)
     tbl <- data.frame()
     row.template <-vector("character", length(all.keys))
     names(row.template) <- all.keys
     all.data.filenames <- c()
 
     for(filename in metadata.filenames) {
+        if(!file.exists(filename)){
+            msg <- sprintf("parseMetadataFiles, %s does not exist", sQuote(filename))
+            stop(msg)
+            }
         stopifnot(file.exists(filename))
         lines <- scan(filename, what=character(0), sep="\n", quiet=TRUE)
             # first split on tab character, separating filename from info
@@ -322,7 +344,6 @@ setMethod("createResource", "EncodeImportPreparer",
         info.strings <- sapply(tokens.0, "[", 2)
         keyValuePairSets <- strsplit(info.strings, "; ")
         stopifnot(length(data.filenames) == length(keyValuePairSets))
-        #printf("   about to traverse %d keyValuePairs", length(keyValuePairSets))
         for(i in 1:length(keyValuePairSets)) {
             pairs <- strsplit(keyValuePairSets[[i]], "=")
             keys <- sapply(pairs, "[", 1)
@@ -338,6 +359,38 @@ setMethod("createResource", "EncodeImportPreparer",
         
     rownames(tbl) <- all.data.filenames
     tbl
-  
-} # .parseMetadataFile
+    }) # parseMetadataFiles
+#-------------------------------------------------------------------------------
+setMethod("assembleEncodeMetadata", "EncodeImportPreparer",
+
+   function (object, verbose=FALSE, test=FALSE) {
+       remote.directory.names <-.extractExperimentDirectoriesFromWebPage(EncodeBaseURL()) 
+       avoid <- grep("referenceSequences", remote.directory.names)
+       if(length(avoid) > 0)
+           remote.directory.names <- remote.directory.names[-avoid]
+
+       local.destinationDir <- tempdir()
+       if(test)
+           remote.directory.names <- remote.directory.names[1:2]
+       .downloadFileInfo(EncodeBaseURL(), remote.directory.names,
+                         local.destinationDir, verbose=verbose)
+       info <- .learnAllEncodeMetadataCategories(local.destinationDir)
+       all.files <- file.path(local.destinationDir, dir(local.destinationDir))
+       parseMetadataFiles(object, all.files, info$all.keys, info$total.lines)
+     })
+#-------------------------------------------------------------------------------
+setMethod("saveMetadata", "EncodeImportPreparer",
+
+    function(object, tbl, directory, filename="encodeDCC.metadata.RData") {
+        full.path <- file.path(directory, filename)
+        save(tbl, file=full.path)
+        })
+#-------------------------------------------------------------------------------
+setMethod("loadMetadata", "EncodeImportPreparer",
+
+    function(object, directory, filename="encodeDCC.metadata.RData") {
+        full.path <- file.path(directory, filename)
+        load(file=full.path)
+        tbl
+        })
 #-------------------------------------------------------------------------------

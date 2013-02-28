@@ -16,47 +16,14 @@ paulsTests <- function()
        # next test depends upon functions tested by preceeding two tests
     test_.retrieveEncodeDCCMetadataFiles(destinationDir)
     test_.learnAllEncodeMetadataCategories()
-    test_.parseMetadataFiles.1()
-    test_.parseMetadataFiles.2()
-
-    #test_loadMetadata()
+    test_parseMetadataFiles.1()
+    test_parseMetadataFiles.2()
+    test_saveAndLoadMetadata()
+    
     #test_assemblParams()
     #test_createEncodeResource.1()
   
 } # runTests
-#-------------------------------------------------------------------------------
-runTiming <- function()
-{
-    abInitioMetadataLoad <- function(destinationDir){
-        AnnotationHubData:::.retrieveEncodeDCCMetadataFiles (destinationDir)
-        all.keys <-
-           AnnotationHubData:::.learnAllEncodeMetadataCategories(destinationDir)$all.keys
-        all.metadataFiles <- file.path(destinationDir, dir(destinationDir))
-        tbl <- data.frame()
-        for (filename in all.metadataFiles) {
-            tbl.new <- AnnotationHubData:::.parseMetadataFile (filename, all.keys)
-            tbl <- rbind(tbl, tbl.new)
-            printf("%40s new rows: %3d  total.rows: %4d", filename, nrow(tbl.new),
-                   nrow(tbl))
-          } # for file
-        tbl
-        }# abInitioMetadataLoad
-
-    print(system.time({tbl <- abInitioMetadataLoad(destinationDir)}))
-
-    tbl
-                 
-
-} # runTiming
-#-------------------------------------------------------------------------------
-notest_loadMetadata <- function ()
-{
-    print('--- test_loadMetadata')
-    importer <- EncodeImportPreparer()
-    tbl.md <- metadataTable(importer)
-    checkEquals(dim(tbl.md), c(24396, 52))
-
-} # notest_loadMetadata
 #-------------------------------------------------------------------------------
 notest_assemblParams <- function()
 {
@@ -212,9 +179,10 @@ test_.retrieveEncodeDCCMetadataFiles <- function(destinationDir)
 {
     print("--- test_.retrieveEncodeDCCMetadataFiles")
 
-      # max argument is only for testing.  
     destinationDir <- tempdir()
-    AnnotationHubData:::.retrieveEncodeDCCMetadataFiles(destinationDir, max=3)
+      # max argument is only for testing.  
+    AnnotationHubData:::.retrieveEncodeDCCMetadataFiles(destinationDir, max=3,
+                                                        verbose=FALSE)
     checkTrue(length(grep("wgEncode", dir(destinationDir))) >= 3)
 
 } # test_.retrieveEncodeDCCMetadataFiles
@@ -251,9 +219,11 @@ test_.learnAllEncodeMetadataCategories <- function()
 # read one metadata file, make sure it has a sensible number of columns and rows
 # and that three previously observed files are mentioned
 #
-test_.parseMetadataFiles.1 <- function()
+test_parseMetadataFiles.1 <- function()
 {
-    print('--- test_.parseMetadataFiles.1')
+    print('--- test_parseMetadataFiles.1')
+    importer <- EncodeImportPreparer()
+    
     downloadDir <- system.file("unitTests/cases/encodeDCCMetadata",
                                    package="AnnotationHubData")
     result <-
@@ -264,7 +234,7 @@ test_.parseMetadataFiles.1 <- function()
     sample.file <- metadata.files[1]
 
     full.path <- file.path(downloadDir, sample.file)
-    tbl <- AnnotationHubData:::.parseMetadataFiles(full.path, result$all.keys)
+    tbl <- parseMetadataFiles(importer, full.path, result$all.keys)
     checkEquals(dim(tbl), c(6,20))
 
     metadata.file.stem <- sub(".info", "", sample.file)
@@ -276,14 +246,15 @@ test_.parseMetadataFiles.1 <- function()
     checkEquals(length(grep(metadata.file.stem, rownames (tbl))), nrow(tbl))
     
 
-} # test_.parseMetadataFiles.1
+} # test_parseMetadataFiles.1
 #-------------------------------------------------------------------------------
 # read two metadata files, make sure the combined data.frame returned
 # has a sensible number of columns and rows
 #
-test_.parseMetadataFiles.2 <- function()
+test_parseMetadataFiles.2 <- function()
 {
-    print('--- test_.parseMetadataFiles.2')
+    print('--- test_parseMetadataFiles.2')
+    importer <- EncodeImportPreparer()
     downloadDir <- system.file("unitTests/cases/encodeDCCMetadata",
                                    package="AnnotationHubData")
     result <-
@@ -293,16 +264,16 @@ test_.parseMetadataFiles.2 <- function()
     stopifnot(length(metadata.files) == 2)
 
     full.path <- file.path(downloadDir, metadata.files)
-    tbl <- AnnotationHubData:::.parseMetadataFiles(full.path, result$all.keys)
+    tbl <- parseMetadataFiles(importer, full.path, result$all.keys)
     expected.column.count <- length(result$all.keys)
     checkEquals(dim(tbl), c(12, expected.column.count))
     checkEquals(sort(result$all.keys), sort(colnames(tbl)))
 
-} # test_.parseMetadataFiles.2
+} # test_parseMetadataFiles.2
 #-------------------------------------------------------------------------------
-test_saveMetadata <- function()
+test_saveAndLoadMetadata <- function()
 {
-    print("--- test_.saveMetadata")
+    print("--- test_saveAndLoadMetadata")
     downloadDir <- system.file("unitTests/cases/encodeDCCMetadata",
                                package="AnnotationHubData")
     result <-
@@ -310,10 +281,17 @@ test_saveMetadata <- function()
                                                               verbose=FALSE)
     metadata.files <- dir(downloadDir)
     stopifnot(length(metadata.files) == 2)
+    full.paths <- file.path(downloadDir, metadata.files)
+    
+    importer <- EncodeImportPreparer()
+    tbl <- parseMetadataFiles(importer, full.paths, result$all.keys)
 
-    full.path <- file.path(downloadDir, metadata.files)
-    tbl <- AnnotationHubData:::.parseMetadataFiles(full.path, result$all.keys)
-    importer <- EncodeImportPreparer()    
+    path <- tempdir()
+    filename <- "enodeMDTest.RData"
+    saveMetadata(importer, tbl, path, filename)
+    checkTrue(file.exists(file.path(path, filename)))
+    tbl.2 <- loadMetadata(importer, path, filename)
+    checkIdentical(tbl, tbl.2)
 
-} # test_.saveMetadata
+} # test_saveAndLoadMetadata
 #-------------------------------------------------------------------------------
