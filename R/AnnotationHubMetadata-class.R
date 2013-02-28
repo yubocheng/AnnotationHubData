@@ -254,13 +254,14 @@ toJson <-
 AnnotationHubMetadataFromJson <-
     function(path, ahroot=NA_character_)
 {
-    lst <- withCallingHandlers({
-        .decodeNA(fromJSON(file=path))
-    }, warning=function(warn) {
-        if (all(grepl("^incomplete final line found on ",
-                      conditionMessage(warn))))
-            invokeRestart("muffleWarning")
-    })
+    lst <- .decodeNA(fromJSON(file=path))
+    # lst <- withCallingHandlers({
+    #     .decodeNA(fromJSON(file=path))
+    # }, warning=function(warn) {
+    #     if (all(grepl("^incomplete final line found on ",
+    #                   conditionMessage(warn))))
+    #         invokeRestart("muffleWarning")
+    # })
     lst <- lst[!sapply(lst, is.null)]         # replace with default values
 
     ## coerce types

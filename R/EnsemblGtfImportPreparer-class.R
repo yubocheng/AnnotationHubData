@@ -33,7 +33,6 @@ EnsemblGtfImportPreparer <-
     description <- paste("Gene Annotation for", species)
 
     sourceVersion <- sub(".*(release-[[:digit:]]+).*", "\\1", sourceUrl)
-    rDataDateAdded <- 
     
     Map(AnnotationHubMetadata, AnnotationHubRoot=NA_character_,
         Description=description, Genome=genome, SourceFile=gtf,
@@ -44,7 +43,7 @@ EnsemblGtfImportPreparer <-
           DataProvider = "ftp.ensembl.org",
           Maintainer = "Martin Morgan <mtmorgan@fhcrc.org>",
           RDataClass = "GRanges",
-          RDataDateAdded = format(Sys.time(), "%Y-%m-%d %T"),
+          RDataDateAdded = format(Sys.time(), "%Y-%m-%d GMT"),
           RDataVersion = "0.0.1",
           Recipe = c("ensemblGtfToGRangesRecipe", package="AnnotationHubData"),
           Tags = c("GTF", "ensembl", "Gene", "Transcript", "Annotation")))
