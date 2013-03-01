@@ -243,8 +243,8 @@ test_encodeMetadataToAnnotationHubMetadata <- function()
 
     downloadDir <- system.file("unitTests/cases/encodeDCCMetadata", package="AnnotationHubData")
     full.path <- file.path(downloadDir, "tbl.mdTest.RData")
-
-    load(
+    load(full.path)
+    
     checkEquals(dim(tbl.mdTest), c(2,51))
     importPrep <- EncodeImportPreparer(tbl.mdTest)
 
