@@ -62,10 +62,24 @@
 
 
 
+
+
+
+
+
+
+##############################################################################
+##############################################################################
+##############################################################################
+
 ##############################################################################
 ## Code to import tracks from UCSC and to make them into AHMs
 UCSCTrackImportPreparer <-
     setClass("UCSCTrackImportPreparer", contains="ImportPreparer")
+
+UCSCFullTrackImportPreparer <-
+    setClass("UCSCFullTrackImportPreparer", contains="ImportPreparer")
+
 
 ## To store data on each track:
 ## ftp://hgdownload.cse.ucsc.edu/goldenPath/<genome name>/database/<track name>
@@ -107,32 +121,40 @@ UCSCTrackImportPreparer <-
 
 
 .UCSCTrackMetadata <-
-    function(sourceTracks)
+    function(sourceTracks, type)
 {
+    if(type=="FULL"){
+        recipe = "trackandTablesToGRangesRecipe"
+    }else if(type=="TRACKONLY"){
+        recipe = "trackToGRangesRecipe"
+    }else{
+        stop("No valid type argument")
+    }
 
 ## To store data on each track:
 ## ftp://hgdownload.cse.ucsc.edu/goldenPath/<genome name>/database/<track name>
 
-    genomes <- rep(names(sourceTracks),unlist(lapply(sourceTracks,length)))
-    tracks <- unlist(sourceTracks)
-    names(tracks) <- genomes
-    trackNames <- unlist(lapply(sourceTracks, names))
-    names(trackNames) <- NULL
+    genome <- rep(names(sourceTracks),unlist(lapply(sourceTracks,length)))
+    track <- unlist(sourceTracks)
+    names(track) <- genome
+    trackName <- unlist(lapply(sourceTracks, names))
+    names(trackName) <- NULL
     
-    sourceFiles <- paste0("goldenPath/", genomes, "/database/", tracks)    
-    sourceUrls <- paste0("rtracklayer://hgdownload.cse.ucsc.edu/", sourceFiles)
-    rdatas <- paste0(sourceFiles, ".RData")
-    titles <- trackNames
+    sourceFile <- paste0("goldenPath/", genome, "/database/", track)    
+    sourceUrl <- paste0("rtracklayer://hgdownload.cse.ucsc.edu/", sourceFile)
+    rdata <- paste0(sourceFile, ".RData")
+    title <- trackName
     require(GenomicFeatures)
     ## GenomicFeatures:::UCSCGenomeToOrganism("hg19")
-    species <-  unlist(lapply(genomes,GenomicFeatures:::UCSCGenomeToOrganism))
-    ## description <- NA  ## may not have to provide it.
-    sourceVersion <- genomes
-    otherTags <- tracks
+    species <-  unlist(lapply(genome,GenomicFeatures:::UCSCGenomeToOrganism))
+    description <- pasteo("This is a GRanges object based on the UCSC track ",
+                          trackName)
+    sourceVersion <- genome
+    otherTags <- track
 
     ## use Map to make all these from vectors
     Map(AnnotationHubMetadata, AnnotationHubRoot=NA_character_,
-        ## Description=description,
+        Description=description,
         Genome=genome, SourceFile=sourceFile,
         SourceUrl=sourceUrl, SourceVersion=sourceVersion,
         Species=species, Title=title,
@@ -150,6 +172,10 @@ UCSCTrackImportPreparer <-
     
 }
 
+
+
+
+## method for track only recipe
 setMethod(newResources, "UCSCTrackImportPreparer",
     function(importPreparer, currentMetadata)
 {
@@ -176,11 +202,43 @@ setMethod(newResources, "UCSCTrackImportPreparer",
     ## Not simple enough to work like below...
     ##     sourceTracks <- sourceTracks[!sourceTracks %in% knownTracks]
 
-    
-    
+   
     ## AnnotationHubMetadata
-    .UCSCTrackMetadata(sourceTracks)
+    .UCSCTrackMetadata(sourceTracks, type="TRACKONLY")
 })
+
+
+## For full tracks
+setMethod(newResources, "UCSCFullTrackImportPreparer",
+    function(importPreparer, currentMetadata)
+{
+    
+    allGoodTracks <- .UCSCTrackSourceTracks()
+    sourceTracks <- allGoodTracks
+
+    ## filter known
+    ## assumption is that we will stick the track info in $SourceUrl
+    ## So this string will ID a track uniquely (even though it won't
+    ## point to a real resource)
+
+    
+    knownTracks <- sapply(currentMetadata, function(elt) {
+        metadata(elt)$SourceUrl 
+    })
+    
+## TODO: implement an alternative way to compare all the knownTracks
+## to the sourceTracks, (the format will be different, so the
+## knownTracks have to be split into a list by genome after they come
+## back looking like URLs.
+
+    ## Not simple enough to work like below...
+    ##     sourceTracks <- sourceTracks[!sourceTracks %in% knownTracks]
+
+    ## AnnotationHubMetadata
+    .UCSCTrackMetadata(sourceTracks, type="FULL")
+})
+
+
 
 
 
