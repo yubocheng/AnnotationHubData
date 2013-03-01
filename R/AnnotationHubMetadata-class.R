@@ -104,14 +104,23 @@ setClass("AnnotationHubMetadata",
 
 AnnotationHubMetadata <-
     function(AnnotationHubRoot, SourceFile, SourceUrl, SourceVersion,
-        DataProvider, Title, Description, Species, Genome, Tags,
-        Recipe, RecipeArgs = list(), RDataClass, RDataVersion,
-        RDataDateAdded, Maintainer, ..., Coordinate_1_based = TRUE,
+        SourceMd5, SourceSize, DataProvider, Title, Description,
+        Species, TaxonomyId, Genome, Tags, Recipe, RecipeArgs =
+        list(), RDataClass, RDataVersion, RDataDateAdded, RDataPath, Maintainer,
+        ..., BiocVersion=biocVersion(), Coordinate_1_based = TRUE,
         Notes=NA_character_)
 {
-    resourceDir <- dirname(SourceFile[1])
-    resourceFiles <- .derivedFileName(SourceFile,  RDataVersion, "RData")
-    resourcePath <- file.path(resourceDir, resourceFiles)
+    if (missing(SourceMd5))
+        SourceMd5 <- unname(tools::md5sum(SourceFile))
+    if (missing(SourceSize))
+        SourceSize <- file.info(SourceFile)$size
+    if (missing(TaxonomyId))
+        TaxonomyId <- .taxonomyId(Species)
+    if (missing(RDataPath)) {
+        resourceDir <- dirname(SourceFile[1])
+        resourceFiles <- .derivedFileName(SourceFile,  RDataVersion, "RData")
+        RDataPath <- resourcePath <- file.path(resourceDir, resourceFiles)
+    }
 
     new("AnnotationHubMetadata",
         AnnotationHubRoot=AnnotationHubRoot,
@@ -124,18 +133,18 @@ AnnotationHubMetadata <-
         Notes=Notes,
         RDataClass=RDataClass,
         RDataDateAdded=as.POSIXct(RDataDateAdded),
-        RDataPath=resourcePath,
+        RDataPath=RDataPath,
         RDataVersion=numeric_version(RDataVersion),
         Recipe=Recipe,
         RecipeArgs=RecipeArgs,
         SourceFile=SourceFile,
-        SourceMd5=unname(tools::md5sum(SourceFile)),
-        SourceSize=file.info(SourceFile)$size,
+        SourceMd5=SourceMd5,
+        SourceSize=SourceSize,
         SourceUrl=SourceUrl,
         SourceVersion=SourceVersion,
         Species=Species,
         Tags=Tags,
-        TaxonomyId=.taxonomyId(Species),
+        TaxonomyId=TaxonomyId,
         Title=Title,
         ...
     )
@@ -255,33 +264,34 @@ AnnotationHubMetadataFromJson <-
     function(path, ahroot=NA_character_)
 {
     lst <- .decodeNA(fromJSON(file=path))
-    # lst <- withCallingHandlers({
-    #     .decodeNA(fromJSON(file=path))
-    # }, warning=function(warn) {
-    #     if (all(grepl("^incomplete final line found on ",
-    #                   conditionMessage(warn))))
-    #         invokeRestart("muffleWarning")
-    # })
     lst <- lst[!sapply(lst, is.null)]         # replace with default values
 
     ## coerce types
     lst[["RDataVersion"]] <- .as.numeric_version(lst[["RDataVersion"]])
     lst[["BiocVersion"]] <- package_version(lst[["BiocVersion"]])
     idx <- grep("Date", names(lst))
-    lst[idx] <- lapply(lst[idx], as.POSIXct)
+    lst[idx] <- rapply(lst[idx], function(x) {
+        x[!nzchar(x)] <- NA_character_
+        as.POSIXct(x)
+    }, "character", how="list")
 
     idx <- sapply(lst, is, "AsIs")
     lst[idx] <- lapply(lst[idx], unclass)
 
-    slots <- getSlots("AnnotationHubMetadata")[names(lst)]
-    lst <- Map(function(value, to) {
-        do.call(sprintf("as.%s", to), list(value))
-    }, lst, slots)
+    idx <- grep("Size", names(lst))
+    lst[idx] <- rapply(lst[idx], as.numeric, how="list")
 
     ## create AnnotationHubMetadata object
-    args <- c(list("AnnotationHubMetadata", AnnotationHubRoot=ahroot), lst)
-    ahm <- do.call(new, args)
-    .isComplete(ahm)
+    if (1L == length(lst$Title)) {
+        ahm <- do.call(AnnotationHubMetadata, c(AnnotationHubRoot=ahroot, lst))
+        ok <- .isComplete(ahm)
+    } else {
+        args <- c(list(AnnotationHubMetadata, AnnotationHubRoot=ahroot), lst)
+        ahm <- do.call(Map, args)
+        ok <- sapply(ahm, .isComplete)
+    }
+    if (!all(ok))
+        stop("some AnnotationHubMetadata objects incomplete")
     ahm
 }
 
@@ -299,7 +309,7 @@ writeJSON <- function(ahroot, metadata, flat=FALSE, filename=NULL)
         outfile <- file.path(ahroot, filename)
     else
         outfile <- file.path(ahroot, resourceDir, filename)
-    cat(json, file=outfile)
+    cat(json, "\n", file=outfile)
     outfile
 }
 
@@ -319,6 +329,17 @@ constructMetadataFromJsonPath <-
     AnnotationHubMetadataFromJson(jsonFile, ahroot)
 }
 
+.getExistingResources <-
+    function(BiocVersion=biocVersion(), RDataDateAdded="2013-01-02")
+{
+    url <-
+        sprintf("http://annotationhub.bioconductor.org/ah/%s/%s/query/cols/all",
+                BiocVersion, RDataDateAdded)
+    t <- tempfile()
+    download.file(url, t, quiet=TRUE)
+    AnnotationHubMetadataFromJson(t)
+}
+
 ## ------------------------------------------------------------------------------
 ## postProcess
 ## 
@@ -336,7 +357,7 @@ postProcessMetadata <- function(ahroot, RDataVersion, originalFile)
     resourceDir <- dirname(originalFile[1])
     outfile <- file.path(ahroot, resourceDir, .derivedFileName(originalFile, 
         RDataVersion, "json"))
-    cat(json, file=outfile)
+    cat(json, "\n", file=outfile)
     x
 }
 
