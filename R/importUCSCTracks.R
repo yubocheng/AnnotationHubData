@@ -1,18 +1,9 @@
-## Code to import tracks from UCSC and to make them into AHMs
+###########################################################################
+## Pre-Processing code to allow saving of "bad" tracks that will not load...
+## Run these helper functions ahead of time and save output objects
 
-UCSCTrackImportPreparer <-
-    setClass("UCSCTrackImportPreparer", contains="ImportPreparer")
-
-
-## To store data on each track:
-## ftp://hgdownload.cse.ucsc.edu/goldenPath/<genome name>/database/<track name>
-
-## SO: hg19, track oreganno looks like this.
-## ftp://hgdownload.cse.ucsc.edu/goldenPath/hg19/database/oreganno
-## The reason is that the 1st part (up to oreganno) is actual location
-## of ftp data the oreganno data will be there in several files dumped
-## from the DB.
-
+## This function takes about 20 + minutes to run.  The next two (for
+## finding bad tracks) take overnight.
 .getTracksForGenomes <- function(genomes, session){
 
     res <- list()
@@ -26,19 +17,15 @@ UCSCTrackImportPreparer <-
     
     ## return a list of genomes with a character of tracks for each.
     names(res) <- genomes
-#    save(res, file="allPossibleTracks.rda")
+    ## save(res, file="allPossibleTracks.rda") ## auto-save
     res
 }
+## Usage:
+## genomes <- ucscGenomes()$db; session <- browserSession()
+## tracks <- .getTracksForGenomes(genomes, session)
 
-## For each genome, I need to 1) set the build, 2) iterate through
-## tracknames, 3) list tables for each track.
 
-
-## foo <-  tracks[[1]]
-## now "try" each one capturing errors.  Should look similar to
-## tryCatch(stop(e), error = function(err){return(err)})
-
-## We must loop to learn which things are really "bad tracks".
+## Need a helper to find "bad tracks" for a genome.
 .findBadTracks <- function(tracks, genome){
     session <- browserSession()
     genome(session) <- genome    
@@ -50,13 +37,14 @@ UCSCTrackImportPreparer <-
     }
     idx = unlist(lapply(errors, is, "error"))
     badTracks <- tracks[idx]
-    save(badTracks, file=paste0(genome,"BadTracks.rda"))
+    ## save(badTracks, file=paste0(genome,"BadTracks.rda")) ## safety net
     badTracks
 }
-## Takes a vector of possible tracks, and a genome
+## Takes a vector of possible tracks, and a genome (as a string)
 ## Usage: (after calling:  tracks <- .getTracksForGenomes(genomes, session) )
 ## badTracks = .findBadTracks(tracks[[1]], "hg19")
 
+## helper to find bad tracks for ALL the genomes (this takes all night)
 .getBadTracksForGenomes <- function(genomes, tracksList){
     allBadTracks <- list()
     ## This step takes a lot of very long times.
@@ -65,7 +53,7 @@ UCSCTrackImportPreparer <-
     }
     ## return a list of genomes with a character of tracks for each.
     names(allBadTracks) <- genomes
-    save(allBadTracks, file="allBadTracks.rda")
+    ## save(allBadTracks, file="allBadTracks.rda") ## auto-save
     allBadTracks
 }
 ## just gets the bad tracks for all the genomes (should take ages to run)
@@ -74,75 +62,125 @@ UCSCTrackImportPreparer <-
 
 
 
+##############################################################################
+## Code to import tracks from UCSC and to make them into AHMs
+UCSCTrackImportPreparer <-
+    setClass("UCSCTrackImportPreparer", contains="ImportPreparer")
+
+## To store data on each track:
+## ftp://hgdownload.cse.ucsc.edu/goldenPath/<genome name>/database/<track name>
+
+## SO: hg19, track oreganno looks like this.
+## ftp://hgdownload.cse.ucsc.edu/goldenPath/hg19/database/oreganno
+## The reason is that the 1st part (up to oreganno) is actual location
+## of ftp data the oreganno data will be there in several files dumped
+## from the DB.
 
 
+## This helper lets me keep the named of the tracks as I subset them
+## Otherwise I could just mapply(setdiff, arg1, arg2)
+.getGoodTracks <- function(allTracks, allBadTracks){
+    diff <- function(trxa, trxb){
+        trxa[!(trxa %in% trxb)]
+    }
+    ## mapply
+    mapply(diff, allTracks, allBadTracks)
+}
 
 
 .UCSCTrackSourceTracks <- function(){
     ## retrieve all possible tracks from UCSC
     genomes <- ucscGenomes()$db
     session <- browserSession()
-    ## get the tracks for each genome.
-    tracks <- .getTracksForGenomes(genomes, session)
+    ## get the tracks for each genome. (pre-computed)
+    load(system.file("extdata","badUCSCTracks","allPossibleTracks.rda",
+                     package = "AnnotationHubData"))    ## allTracks
+    ## get the list of bad tracks. (pre-computed)
+    load(system.file("extdata","badUCSCTracks","allBadTracks.rda",
+                     package = "AnnotationHubData"))    ## allBadTracks
 
-    ## save the result of this to allPossibleTracks.rda
-    
-    ## I need a blacklist to remove busted tracks from consideration.
-    badTracks = .getBadTracksForGenomes(genomes, tracks)
-    
+    ## Now I just have to merge the results of these two things
+    .getGoodTracks(allTracks, allBadTracks)
 }
 
 
-## .UCSCTrackMetadata <-
-##     function(baseUrl, sourceUrl)
-## {
-##     gtf <- sub(baseUrl, "ensembl/", sourceUrl)
-##     rdata <- sub(".gz$", ".RData", gtf)
-##     regex <- "^([[:alpha:]_]+)\\.([[:alpha:]]+).*"
-##     title <- sub(".gz$", "", basename(gtf))
-##     species <- gsub("_", " ", sub(regex, "\\1", title), fixed=TRUE)
-##     genome <- sub(regex, "\\2", title)
-##     description <- paste("Gene Annotation for", species)
-##     sourceUrl <- paste0("ftp://ftp.ensembl.org/", gtf)
-##     sourceVersion <- sub(".*(release-[[:digit:]]+).*", "\\1", gtf)
-##     rDataDateAdded <- format(Sys.time(), "%Y-%m-%d GMT")
 
-##     sourceVersion <- sub(".*(release-[[:digit:]]+).*", "\\1", sourceUrl)
-##     rDataDateAdded <- 
+
+.UCSCTrackMetadata <-
+    function(sourceTracks)
+{
+
+## To store data on each track:
+## ftp://hgdownload.cse.ucsc.edu/goldenPath/<genome name>/database/<track name>
+
+    genomes <- rep(names(sourceTracks),unlist(lapply(sourceTracks,length)))
+    tracks <- unlist(sourceTracks)
+    names(tracks) <- genomes
+    trackNames <- unlist(lapply(sourceTracks, names))
+    names(trackNames) <- NULL
     
-##     Map(AnnotationHubMetadata, AnnotationHubRoot=NA_character_,
-##         Description=description, Genome=genome, SourceFile=gtf,
-##         SourceUrl=sourceUrl, SourceVersion=sourceVersion,
-##         Species=species, Title=title,
-##         MoreArgs=list(
-##           Coordinate_1_based = TRUE,
-##           DataProvider = "ftp.ensembl.org",
-##           Maintainer = "Martin Morgan <mtmorgan@fhcrc.org>",
-##           RDataClass = "GRanges",
-##           RDataDateAdded = format(Sys.time(), "%Y-%m-%d %T"),
-##           RDataVersion = "0.0.1",
-##           Recipe = c("UCSCTrackToGRangesRecipe", package="AnnotationHubData"),
-##           Tags = c("GTF", "ensembl", "Gene", "Transcript", "Annotation")))
-## }
+    sourceFiles <- paste0("goldenPath/", genomes, "/database/", tracks)    
+    sourceUrls <- paste0("rtracklayer://hgdownload.cse.ucsc.edu/", sourceFiles)
+    rdatas <- paste0(sourceFiles, ".RData")
+    titles <- trackNames
+    require(GenomicFeatures)
+    ## GenomicFeatures:::UCSCGenomeToOrganism("hg19")
+    species <-  unlist(lapply(genomes,GenomicFeatures:::UCSCGenomeToOrganism))
+    ## description <- NA  ## may not have to provide it.
+    sourceVersion <- genomes
+    otherTags <- tracks
 
-## setMethod(newResources, "UCSCTrackImportPreparer",
-##     function(importPreparer, currentMetadata)
-## {
+    ## use Map to make all these from vectors
+    Map(AnnotationHubMetadata, AnnotationHubRoot=NA_character_,
+        ## Description=description,
+        Genome=genome, SourceFile=sourceFile,
+        SourceUrl=sourceUrl, SourceVersion=sourceVersion,
+        Species=species, Title=title,
+        MoreArgs=list(
+          Coordinate_1_based = TRUE,
+          DataProvider = "hgdownload.cse.ucsc.edu",
+          Maintainer = "Marc Carlson <mcarlson@fhcrc.org>",
+          RDataClass = "GRanges",
+          RDataDateAdded = format(Sys.time(), "%Y-%m-%d GMT"),
+          RDataVersion = "0.0.1",
+          Recipe = c("trackandTablesToGRangesRecipe",
+            package="AnnotationHubData"),
+          Tags = c("UCSC", "track", "Gene", "Transcript", "Annotation",
+            otherTags)))
     
-##     sourceTracks <- .UCSCTrackSourceTracks()
+}
 
-##     ## filter known
-##     knownTracks <- sapply(currentMetadata, function(elt) {
-##         ## assumption is that we will stick the track info in $SourceUrl
-##         ## So this string will ID a track uniquely (even though it
-##         ## won't point to a real resource)
-##         metadata(elt)$SourceUrl 
-##     })
-##     sourceTracks <- sourceTracks[!sourceTracks %in% knownTracks]
+setMethod(newResources, "UCSCTrackImportPreparer",
+    function(importPreparer, currentMetadata)
+{
+    
+    allGoodTracks <- .UCSCTrackSourceTracks()
+    sourceTracks <- allGoodTracks
 
-##     ## AnnotationHubMetadata
-##     .UCSCTrackMetadata(baseUrl, sourceUrls)
-## })
+    ## filter known
+    ## assumption is that we will stick the track info in $SourceUrl
+    ## So this string will ID a track uniquely (even though it won't
+    ## point to a real resource)
+
+    
+    knownTracks <- sapply(currentMetadata, function(elt) {
+        metadata(elt)$SourceUrl 
+    })
+
+    
+## TODO: implement an alternative way to compare all the knownTracks
+## to the sourceTracks, (the format will be different, so the
+## knownTracks have to be split into a list by genome after they come
+## back looking like URLs.
+
+    ## Not simple enough to work like below...
+    ##     sourceTracks <- sourceTracks[!sourceTracks %in% knownTracks]
+
+    
+    
+    ## AnnotationHubMetadata
+    .UCSCTrackMetadata(sourceTracks)
+})
 
 
 
