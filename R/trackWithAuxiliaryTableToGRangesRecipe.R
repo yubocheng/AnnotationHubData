@@ -87,9 +87,9 @@ trackandTablesToGRangesRecipe <- function(recipe)
 {
 
     session <- browserSession()
-    genome <- recipe@Genome
+    genome <- metadata(recipe)@Genome
     genome(session) <- genome
-    sourceFile <- recipe@sourceFile
+    sourceFile <- metadata(recipe)@sourceFile
     track <- sub("^.+/database/","",sourceFile)
     query <- ucscTableQuery(session, track)
     tablenames <- tablenames(query)
@@ -144,8 +144,8 @@ trackandTablesToGRangesRecipe <- function(recipe)
     
     
     ## add seqlength & chromosome circularity information
-    newSeqInfo <- constructSeqInfo(metadata(recipe@metadata)$Species,
-                                    metadata(recipe@metadata)$Genome)
+    newSeqInfo <- constructSeqInfo(metadata(recipe)@Species,
+                                    metadata(recipe)@Genome)
     ## if gr only has a subset of all possible chromosomes,
     ## then update those only
     seqinfo(gr) <- newSeqInfo[names(seqinfo(gr))]

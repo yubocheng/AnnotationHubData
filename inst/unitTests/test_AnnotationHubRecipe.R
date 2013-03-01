@@ -292,23 +292,18 @@ test_trackWithAuxiliaryTablesToGRanges <- function()
 test_trackandTablesToGRangesRecipe <- function()
 {
     print ("--- test_trackandTablesToGRangesRecipe")
-
-    
-##   require(AnnotationHubData)
-    
-##   debug(AnnotationHubData:::.UCSCTrackMetadata)
-
+    ##   require(AnnotationHubData)    
+    ##   debug(AnnotationHubData:::.UCSCTrackMetadata)
     
     ## Lets begin by just making all the AHMs (that takes WAY too long BTW)
-#    ahms <- newResources(new("UCSCFullTrackImportPreparer"),numberGenomesToProcess=1)
+    ahms <- newResources(new("UCSCFullTrackImportPreparer"),
+                         numberGenomesToProcess=1)
 
-    ## Then grab the one for oreganno    
-    
-    
+    ## Then grab the one for oreganno        
+    oregAHM <- ahms[[86]]
+    recipe <- AnnotationHubRecipe(oregAHM)
 
-##         # create a metadata object from one of these 
-##     md <- constructMetadataFromJsonPath(annotationHubRoot, jsonPath)    
-##     recipe <- AnnotationHubRecipe(md)
+    RDataFilename <- run(recipe)  ## BOOM
 
 ##         # run the recipe
 ##     RDataFilename <- run(recipe)
