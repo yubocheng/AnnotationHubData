@@ -294,11 +294,13 @@ test_trackandTablesToGRangesRecipe <- function()
     print ("--- test_trackandTablesToGRangesRecipe")
 
     
-##   require(AnnotationHubData);debug(AnnotationHubData:::.UCSCTrackMetadata)
+##   require(AnnotationHubData)
+    
+##   debug(AnnotationHubData:::.UCSCTrackMetadata)
 
     
     ## Lets begin by just making all the AHMs (that takes WAY too long BTW)
-#    ahms <- newResources(new("UCSCFullTrackImportPreparer"))
+#    ahms <- newResources(new("UCSCFullTrackImportPreparer"),numberGenomesToProcess=1)
 
     ## Then grab the one for oreganno    
     

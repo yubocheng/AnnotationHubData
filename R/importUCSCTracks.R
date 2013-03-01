@@ -180,11 +180,15 @@ UCSCFullTrackImportPreparer <-
 
 ## method for track only recipe
 setMethod(newResources, "UCSCTrackImportPreparer",
-    function(importPreparer, currentMetadata=NULL)
+    function(importPreparer, currentMetadata=NULL, numberGenomesToProcess=NULL)
 {
     
     allGoodTracks <- .UCSCTrackSourceTracks()
-    sourceTracks <- allGoodTracks[1]
+    if( is.null(numberGenomesToProcess)){
+        sourceTracks <- allGoodTracks
+    }else{
+        sourceTracks <- allGoodTracks[numberGenomesToProcess]
+    }
 
     ## filter known
     ## assumption is that we will stick the track info in $SourceUrl
@@ -213,12 +217,15 @@ setMethod(newResources, "UCSCTrackImportPreparer",
 
 ## For full tracks
 setMethod(newResources, "UCSCFullTrackImportPreparer",
-    function(importPreparer, currentMetadata=NULL)
+    function(importPreparer, currentMetadata=NULL, numberGenomesToProcess=NULL)
 {
     
     allGoodTracks <- .UCSCTrackSourceTracks()
-    sourceTracks <- allGoodTracks[1]
-
+    if( is.null(numberGenomesToProcess)){
+        sourceTracks <- allGoodTracks
+    }else{
+        sourceTracks <- allGoodTracks[1:numberGenomesToProcess]
+    }
     ## filter known
     ## assumption is that we will stick the track info in $SourceUrl
     ## So this string will ID a track uniquely (even though it won't
