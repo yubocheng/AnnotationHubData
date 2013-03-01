@@ -4,6 +4,12 @@ destinationDir <- tempdir()
 library(AnnotationHubData)
 library(RUnit)
 library(RCurl)
+library(httr)
+#-------------------------------------------------------------------------------
+url.exists <- function(url)
+{
+   HEAD(url)$headers$status == "200"
+}
 #-------------------------------------------------------------------------------
 paulsTests <- function()
 {
@@ -19,6 +25,9 @@ paulsTests <- function()
     test_parseMetadataFiles.1()
     test_parseMetadataFiles.2()
     test_saveAndLoadMetadata()
+    
+    test_.mapFormatToRecipe()
+    test_encodeMetadataToAnnotationHubMetadata()
     
     #test_assemblParams()
     #test_createEncodeResource.1()
@@ -41,9 +50,6 @@ test_assemblParams <- function()
     
     importer <- EncodeImportPreparer()
     tbl <- parseMetadataFiles(importer, full.paths, result$all.keys)
-
-
-
 
 
     tbl.md <- metadataTable(importer)
@@ -245,8 +251,9 @@ test_parseMetadataFiles.1 <- function()
     result <-
         AnnotationHubData:::.learnAllEncodeMetadataCategories(downloadDir,
                                                               verbose=FALSE)
-    metadata.files <- dir(downloadDir)
-    stopifnot(length(metadata.files) > 0)
+       # only files which end in .info:
+    metadata.files <- grep("\\.info$", dir(downloadDir), value=TRUE)
+    checkEquals(length(metadata.files), 2)
     sample.file <- metadata.files[1]
 
     full.path <- file.path(downloadDir, sample.file)
@@ -276,7 +283,8 @@ test_parseMetadataFiles.2 <- function()
     result <-
         AnnotationHubData:::.learnAllEncodeMetadataCategories(downloadDir,
                                                               verbose=FALSE)
-    metadata.files <- dir(downloadDir)
+       # only files which end in .info:
+    metadata.files <- grep("\\.info$", dir(downloadDir), value=TRUE)
     stopifnot(length(metadata.files) == 2)
 
     full.path <- file.path(downloadDir, metadata.files)
@@ -295,8 +303,8 @@ test_saveAndLoadMetadata <- function()
     result <-
         AnnotationHubData:::.learnAllEncodeMetadataCategories(downloadDir,
                                                               verbose=FALSE)
-    metadata.files <- dir(downloadDir)
-    stopifnot(length(metadata.files) == 2)
+    metadata.files <- grep("\\.info$", dir(downloadDir), value=TRUE)
+    checkEquals(length(metadata.files), 2)
     full.paths <- file.path(downloadDir, metadata.files)
     
     importer <- EncodeImportPreparer()
@@ -311,40 +319,84 @@ test_saveAndLoadMetadata <- function()
 
 } # test_saveAndLoadMetadata
 #-------------------------------------------------------------------------------
+test_.mapFormatToRecipe <- function()
+{
+    print("--- test_.mapFormatToRecipe")
+    mapFormat <- AnnotationHubData:::.mapFormatToRecipe
+    checkTrue(is.null(mapFormat("bogus")$recipe))
+    checkEquals(mapFormat("bogus")$recipeArgs, list())
+
+    checkEquals(mapFormat("gtf")$recipe, "rtrackLayerImport")
+    checkEquals(mapFormat("gtf")$recipeArgs, list())
+
+    checkEquals(mapFormat("broadPeak")$recipe, "extendedBedToGRanges")
+    checkEquals(mapFormat("broadpeak")$recipe, "extendedBedToGRanges")
+    checkEquals(sort(names(mapFormat("broadPeak")$recipeArgs$colClasses)),
+                    c("end", "name", "pValue", "qValue",
+                      "score", "seqnames", "signalValue",
+                      "start", "strand"))
+
+} # test_.mapFormatToRecipe
+#-------------------------------------------------------------------------------
 # take the first line of the first metadata file cached with the package
 # (inst/unitTests/casesencodeDCCMetadata/wgEncodeAffyRnaChip.info), and
 # turn it into an AnnotationHubData 
-test_assembleParams <- function()
+test_encodeMetadataToAnnotationHubMetadata <- function()
 {
-    print("--- test_assembleParams")
-
-    importPrep <- EncodeImportPreparer()
+    print("--- test_encodeMetadataToAnnotationHubMetadata")
 
     downloadDir <- system.file("unitTests/cases/encodeDCCMetadata", package="AnnotationHubData")
-    md.info <- AnnotationHubData:::.learnAllEncodeMetadataCategories(downloadDir, verbose=FALSE)
-    metadata.file <- dir(downloadDir)[1]  # we need just one; take the first
-    metadata.file.fullPath <- file.path(downloadDir,metadata.file)
-    checkTrue(file.exists(metadata.file.fullPath))
-    
-       # the metadata table:
-    tbl <- parseMetadataFiles(importPrep, metadata.file.fullPath, md.info$all.keys)
-
-       # now get the first data file and its me
-    data.filename <- rownames(tbl)[1]
+    load(file.path(downloadDir, "tbl.mdTest.RData"))
+    checkEquals(dim(tbl.mdTest), c(2,51))
+    importPrep <- EncodeImportPreparer(tbl.mdTest)
 
     ahRoot <- tempdir()
-    sourceFile <- data.filename
-    metadata <- as.list(tbl[1,])
-    stopifnot("composite" %in% names(metadata))
-    sourceUrl <- file.path(EncodeBaseURL(), metadata$composite, data.filename)
 
-    #ahmd <- assembleMetadata(importPrep, 
-    #                         "invented/source/directory",
-    #                         "ahdRoot",
-    #                         "goldenpath/hg19/encodeDCC/wgEncodeAffyRnaChip/",
-    #                         "hg19",
-    #                         filename)
+    ahmd.list <- encodeMetadataToAnnotationHubMetadata(importPrep, ahRoot, 1)
+    checkEquals(length(ahmd.list), 1)
+    amd <- ahmd.list[[1]]
+
+      ## check the easy fields, avoid the ones not assigned by me, or which may
+      ## not be stable over time
+    
+    checkEquals(amd@AnnotationHubRoot, ahRoot)
+      ## checkEquals(amd@BiocVersion, "")
+    checkEquals(amd@Coordinate_1_based, TRUE)
+    checkEquals(amd@DataProvider, "EncodeDCC")
+      ## checkEquals(amd@DerivedMd5, "")
+    checkEquals(amd@Description, "wgEncodeAffyRnaChipFiltTransfragsGm12878CellTotal")
+    checkEquals(amd@Genome, "hg19")
+      ## checkEquals(amd@Maintainer, "")
+      ## checkEquals(amd@Notes, "")
+    checkEquals(amd@RDataClass, "GRanges")
+      ## checkEquals(amd@RDataDateAdded, "")
+      ## checkEquals(amd@RDataLastModifiedDate, "")
+      ## checkEquals(amd@RDataPath, "")
+      ## checkEquals(amd@RDataSize, "")
+      ## checkEquals(amd@RDataVersion, "")
+    checkEquals(amd@Recipe, "extendedBedToGRanges")
+    checkEquals(length(amd@RecipeArgs[[1]]), 9)
+    checkEquals(amd@SourceFile,
+       "goldenpath/hg19/encodeDCC/wgEncodeAffyRnaChip/wgEncodeAffyRnaChipFiltTransfragsGm12878CellTotal.broadPeak.gz")
+      ## checkEquals(amd@SourceLastModifiedDate, "")
+      ## checkEquals(amd@SourceMd5, "")
+      ## checkEquals(amd@SourceSize, "")
+    checkEquals(amd@SourceUrl,
+       "http://hgdownload.cse.ucsc.edu/goldenpath/hg19/encodeDCC//wgEncodeAffyRnaChip/wgEncodeAffyRnaChipFiltTransfragsGm12878CellTotal.broadPeak.gz")
+    checkEquals(amd@SourceVersion, "ENCODE Feb 2009 Freeze")
+    checkEquals(amd@Species, "Homo sapiens")
+    checkEquals(length(amd@Tags), 19)
+    checkEquals(amd@TaxonomyId, "9606")
+    checkEquals(amd@Title, "wgEncodeAffyRnaChipFiltTransfragsGm12878CellTotal")
 
 
-} # test_assembleParams
+    checkTrue(url.exists(amd@SourceUrl))
+
+    ahmd.2 <- encodeMetadataToAnnotationHubMetadata(importPrep, ahRoot, 1:2)
+    checkEquals(length(ahmd.2), 2)
+    checkEquals(ahmd.2[[1]]@Title, "wgEncodeAffyRnaChipFiltTransfragsGm12878CellTotal")
+    checkEquals(ahmd.2[[2]]@Title, "wgEncodeAwgDnaseDuke8988tUniPk")
+
+
+} # test_encodeMetadataToAnnotationHubMetadata
 #-------------------------------------------------------------------------------

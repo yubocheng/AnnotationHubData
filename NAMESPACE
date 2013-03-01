@@ -41,10 +41,9 @@ exportMethods(
     metadata,
     "metadata<-",
     metadataTable,
-    assembleMetadata,
     createResource,
     parseMetadataFiles,
-    assembleEncodeMetadata,
+    encodeMetadataToAnnotationHubMetadata,
     saveMetadata,
     loadMetadata
     )
