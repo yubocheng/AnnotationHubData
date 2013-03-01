@@ -103,6 +103,7 @@ UCSCFullTrackImportPreparer <-
 
 
 .UCSCTrackSourceTracks <- function(){
+    require(rtracklayer)
     ## retrieve all possible tracks from UCSC
     genomes <- ucscGenomes()$db
     session <- browserSession()
@@ -131,12 +132,13 @@ UCSCFullTrackImportPreparer <-
         stop("No valid type argument")
     }
 
+    
 ## To store data on each track:
 ## ftp://hgdownload.cse.ucsc.edu/goldenPath/<genome name>/database/<track name>
 
     genome <- rep(names(sourceTracks),unlist(lapply(sourceTracks,length)))
     track <- unlist(sourceTracks)
-    names(track) <- genome
+    names(track) <- genome    
     trackName <- unlist(lapply(sourceTracks, names))
     names(trackName) <- NULL
     
@@ -147,10 +149,11 @@ UCSCFullTrackImportPreparer <-
     require(GenomicFeatures)
     ## GenomicFeatures:::UCSCGenomeToOrganism("hg19")
     species <-  unlist(lapply(genome,GenomicFeatures:::UCSCGenomeToOrganism))
-    description <- pasteo("This is a GRanges object based on the UCSC track ",
+    description <- paste0("This is a GRanges object based on the UCSC track ",
                           trackName)
     sourceVersion <- genome
-    otherTags <- track
+    stockTags <- c("UCSC", "track", "Gene", "Transcript", "Annotation")
+    allTags <- lapply(track, c, stockTags)
 
     ## use Map to make all these from vectors
     Map(AnnotationHubMetadata, AnnotationHubRoot=NA_character_,
@@ -158,6 +161,7 @@ UCSCFullTrackImportPreparer <-
         Genome=genome, SourceFile=sourceFile,
         SourceUrl=sourceUrl, SourceVersion=sourceVersion,
         Species=species, Title=title,
+        Tags = allTags,
         MoreArgs=list(
           Coordinate_1_based = TRUE,
           DataProvider = "hgdownload.cse.ucsc.edu",
@@ -165,10 +169,9 @@ UCSCFullTrackImportPreparer <-
           RDataClass = "GRanges",
           RDataDateAdded = format(Sys.time(), "%Y-%m-%d GMT"),
           RDataVersion = "0.0.1",
-          Recipe = c("trackandTablesToGRangesRecipe",
-            package="AnnotationHubData"),
-          Tags = c("UCSC", "track", "Gene", "Transcript", "Annotation",
-            otherTags)))
+          Recipe = c(recipe,
+            package="AnnotationHubData")))
+
     
 }
 
@@ -177,11 +180,11 @@ UCSCFullTrackImportPreparer <-
 
 ## method for track only recipe
 setMethod(newResources, "UCSCTrackImportPreparer",
-    function(importPreparer, currentMetadata)
+    function(importPreparer, currentMetadata=NULL)
 {
     
     allGoodTracks <- .UCSCTrackSourceTracks()
-    sourceTracks <- allGoodTracks
+    sourceTracks <- allGoodTracks[1]
 
     ## filter known
     ## assumption is that we will stick the track info in $SourceUrl
@@ -189,9 +192,9 @@ setMethod(newResources, "UCSCTrackImportPreparer",
     ## point to a real resource)
 
     
-    knownTracks <- sapply(currentMetadata, function(elt) {
-        metadata(elt)$SourceUrl 
-    })
+##     knownTracks <- sapply(currentMetadata, function(elt) {
+##         metadata(elt)$SourceUrl 
+##     })
 
     
 ## TODO: implement an alternative way to compare all the knownTracks
@@ -210,11 +213,11 @@ setMethod(newResources, "UCSCTrackImportPreparer",
 
 ## For full tracks
 setMethod(newResources, "UCSCFullTrackImportPreparer",
-    function(importPreparer, currentMetadata)
+    function(importPreparer, currentMetadata=NULL)
 {
     
     allGoodTracks <- .UCSCTrackSourceTracks()
-    sourceTracks <- allGoodTracks
+    sourceTracks <- allGoodTracks[1]
 
     ## filter known
     ## assumption is that we will stick the track info in $SourceUrl
@@ -222,9 +225,9 @@ setMethod(newResources, "UCSCFullTrackImportPreparer",
     ## point to a real resource)
 
     
-    knownTracks <- sapply(currentMetadata, function(elt) {
-        metadata(elt)$SourceUrl 
-    })
+##     knownTracks <- sapply(currentMetadata, function(elt) {
+##         metadata(elt)$SourceUrl 
+##     })
     
 ## TODO: implement an alternative way to compare all the knownTracks
 ## to the sourceTracks, (the format will be different, so the
