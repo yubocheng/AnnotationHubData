@@ -344,21 +344,20 @@ constructMetadataFromJsonPath <-
 ## postProcess
 ## 
 
-postProcessMetadata <- function(ahroot, RDataVersion, originalFile)
+postProcessMetadata <- function(ahm)
 {
-    x <- constructAnnotationHubMetadataFromSourceFilePath(ahroot, 
-        RDataVersion, originalFile)
-    metadata(x)$AnnotationHubRoot <- ahroot
 
-    derived <- file.path(ahroot, metadata(x)$RDataPath)
-    metadata(x)$RDataSize <- as.integer(file.info(derived)$size)
-    metadata(x)$RDataLastModifiedDate <- unname(file.info(derived)$mtime)
-    json <- toJson(x)
-    resourceDir <- dirname(originalFile[1])
-    outfile <- file.path(ahroot, resourceDir, .derivedFileName(originalFile, 
-        RDataVersion, "json"))
+    derived <- file.path(metadata(ahm)$AnnotationHubRoot,
+        metadata(ahm)$RDataPath)
+    metadata(ahm)$RDataSize <- as.integer(file.info(derived)$size)
+    metadata(ahm)$RDataLastModifiedDate <- unname(file.info(derived)$mtime)
+    json <- toJson(ahm)
+    resourceDir <- dirname(metadata(ahm)$SourceFile[1])
+    outfile <- file.path(metadata(ahm)$AnnotationHubRoot,
+        resourceDir, .derivedFileName(metadata(ahm)$SourceFile, 
+        metadata(ahm)$RDataVersion, "json"))
     cat(json, "\n", file=outfile)
-    x
+    ahm
 }
 
 ## ------------------------------------------------------------------------------

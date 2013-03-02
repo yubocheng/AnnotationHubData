@@ -37,8 +37,7 @@ import_wgEncodeRegDnaseClustered <- function(ahroot)
     params$Maintainer <- "Paul Shannon <pshannon@fhcrc.org>"
     params$Tags <- "gene regulation"
     x <- do.call(AnnotationHubMetadata, params)
-    x <- postProcessMetadata(ahroot, metadata(x)$RDataVersion,
-        metadata(x)$SourceFile)
+    x <- postProcessMetadata(x)
     x
 }
 
@@ -56,8 +55,7 @@ import_wgEncodeRegTfbsClusteredV2 <- function(ahroot) # v2?
     params$Maintainer <- "Paul Shannon <pshannon@fhcrc.org>"
     params$Tags <- "gene regulation"
     x <- do.call(AnnotationHubMetadata, params)
-    x <- postProcessMetadata(ahroot, metadata(x)$RDataVersion,
-        metadata(x)$SourceFile)
+    x <- postProcessMetadata(x)
     x
 }
 
@@ -74,8 +72,7 @@ import_stamConnectivity <- function(ahroot)
     params$Maintainer <- "Paul Shannon <pshannon@fhcrc.org>"
     params$Tags <- "gene regulation"
     x <- do.call(AnnotationHubMetadata, params)
-    x <- postProcessMetadata(ahroot, metadata(x)$RDataVersion,
-        metadata(x)$SourceFile)
+    x <- postProcessMetadata(x)
     x
 }
 
@@ -91,8 +88,7 @@ import_stamFootprints <- function(ahroot)
     params$Maintainer <- "Paul Shannon <pshannon@fhcrc.org>"
     params$Tags <- "gene regulation"
     x <- do.call(AnnotationHubMetadata, params)
-    x <- postProcessMetadata(ahroot, metadata(x)$RDataVersion,
-        metadata(x)$SourceFile)
+    x <- postProcessMetadata(x)
     x
 }
 
@@ -112,8 +108,7 @@ import_stamH3K4me3ProfilePromoters <- function(ahroot)
     params$Maintainer <- "Paul Shannon <pshannon@fhcrc.org>"
     params$Tags <- "gene regulation"
     x <- do.call(AnnotationHubMetadata, params)
-    x <- postProcessMetadata(ahroot, metadata(x)$RDataVersion,
-        metadata(x)$SourceFile)
+    x <- postProcessMetadata(x)
     x
 }
 
@@ -142,8 +137,7 @@ import_wgEncodeRikenCageCd20CellPapTssHmm <- function(ahroot)
         "   wgEncodeRikenCageCd20CellPapTssHmm.bedRnaElements.gz project=wgEncode; grant=Gingeras; lab=RIKEN; composite=wgEncodeRikenCage; dataType=Cage; view=TssHmm; cell=CD20+; localization=cell; rnaExtract=longPolyA; readType=1x50; donorId=RO01794,RO01778; dataVersion=ENCODE Mar 2012 Freeze; dccAccession=wgEncodeEH002738; dateSubmitted=2012-03-30; dateUnrestricted=2012-12-30; subId=6744; geoSampleAccession=GSM979634; labExpId=CThi10023,CThi10024; bioRep=041WC,042WC; seqPlatform=Illumina_HiSeq_2000; tableName=wgEncodeRikenCageCd20CellPapTssHmm; type=bedRnaElements; md5sum=c69036e9a1bf0eb39d0b73687fc31ec1; size=2.5M",
     collapse="\n", sep="")
     x <- do.call(AnnotationHubMetadata, params)
-    x <- postProcessMetadata(ahroot, metadata(x)$RDataVersion,
-        metadata(x)$SourceFile)
+    x <- postProcessMetadata(x)
     x
 }
 
@@ -172,8 +166,7 @@ import_wgEncodeRikenCageCd34mobilizedCellPapTssHmm <- function(ahroot)
 "ENCODE metadata: wgEncodeRikenCageCd34mobilizedCellPapTssHmm.bedRnaElements.gz project=wgEncode; grant=Gingeras; lab=RIKEN; composite=wgEncodeRikenCage; dataType=Cage; view=TssHmm; cell=CD34+_Mobilized; localization=cell; rnaExtract=longPolyA; readType=1x50; dataVersion=ENCODE Mar 2012 Freeze; dccAccession=wgEncodeEH002739; dateSubmitted=2012-03-30; dateUnrestricted=2012-12-30; subId=6725; geoSampleAccession=GSM979635; labExpId=CThi10058; bioRep=043WC; seqPlatform=Illumina_HiSeq_2000; tableName=wgEncodeRikenCageCd34mobilizedCellPapTssHmm; type=bedRnaElements; md5sum=ab8da53f0160caed5bf387c3f1f376d0; size=1.9M",
 collapse="\n", sep="")
     x <- do.call(AnnotationHubMetadata, params)
-    x <- postProcessMetadata(ahroot, metadata(x)$RDataVersion,
-        metadata(x)$SourceFile)
+    x <- postProcessMetadata(x)
     x
 }
 
@@ -201,8 +194,7 @@ import_wgEncodeRikenCageMonocd14CellPapTssHmm <- function(ahroot)
 "   wgEncodeRikenCageMonocd14CellPapTssHmm.bedRnaElements.gz project=wgEncode; grant=Gingeras; lab=RIKEN; composite=wgEncodeRikenCage; dataType=Cage; view=TssHmm; cell=Monocytes-CD14+; localization=cell; rnaExtract=longPolyA; readType=1x50; donorId=RO01746; dataVersion=ENCODE Mar 2012 Freeze; dccAccession=wgEncodeEH002757; dateSubmitted=2012-03-30; dateUnrestricted=2012-12-30; subId=6715; geoSampleAccession=GSM979655; labExpId=CThi10021,CThi10022; bioRep=039WC,040WC; seqPlatform=Illumina_HiSeq_2000; tableName=wgEncodeRikenCageMonocd14CellPapTssHmm; type=bedRnaElements; md5sum=e44371b91fd0bb68b25c4231941fe096; size=2.7M",
         collapse="\n", sep="")
     x <- do.call(AnnotationHubMetadata, params)
-    x <- postProcessMetadata(ahroot, metadata(x)$RDataVersion,
-        metadata(x)$SourceFile)
+    x <- postProcessMetadata(x)
     x
 }
 

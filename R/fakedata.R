@@ -20,7 +20,7 @@ import_fakeData <- function(ahroot, version, RDataDateAdded)
     params$SourceVersion <- "dateSubmitted=2011-04-28"
     params$Tags <- "fake"
     x <- do.call(AnnotationHubMetadata, params)
-    x <- postProcessMetadata(ahroot,  metadata(x)$RDataVersion, metadata(x)$SourceFile)
+    x <- postProcessMetadata(x)
     x
 }
 

@@ -21,7 +21,8 @@ importFrom(Rsamtools, indexFa)
 
 importFrom(rtracklayer, import)
 
-export(jsonPath,
+export(AnnotationHubMetadataFromJson,
+       jsonPath,
        fromJSON,
        toJson,
        constructSeqInfo,

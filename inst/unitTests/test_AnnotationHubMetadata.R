@@ -3,6 +3,7 @@
     sourceDirectory <-
         system.file('extdata', package='AnnotationHubData')
     ahroot <- AnnotationHubData:::.createWorkingDirectory(sourceDirectory)
+    ##ahroot <- tempdir()
     basepath <- paste0("goldenpath/hg19/encodeDCC/wgEncodeRikenCage/",
                        "wgEncodeRikenCageCd20CellPapTssHmm.bedRnaElements")
 

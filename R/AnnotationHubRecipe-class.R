@@ -73,9 +73,7 @@ setMethod("run", "AnnotationHubRecipe",
        stopifnot(is.function(recipeFunction))
        result <- recipeFunction(object)
        m <- metadata(object)
-       postProcessMetadata(metadata(m)$AnnotationHubRoot,
-                           metadata(m)$RDataVersion,
-                           metadata(m)$SourceFile)
+       postProcessMetadata(m)
        result
        })
 
