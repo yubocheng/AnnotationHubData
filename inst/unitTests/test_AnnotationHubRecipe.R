@@ -1,5 +1,5 @@
 library(AnnotationHubData)
-library(RJSONIO)
+library(rjson)
 library(rtracklayer)
 library(RUnit)
 #-------------------------------------------------------------------------------
@@ -291,6 +291,11 @@ test_trackWithAuxiliaryTablesToGRanges <- function()
 #-------------------------------------------------------------------------------
 test_trackandTablesToGRangesRecipe <- function()
 {
+
+    ## TODO: modify this so that we can do the mcols as compressed
+    ## character lists (right now the ranges are getting duplicated
+    ## which is not cool.
+    
     print ("--- test_trackandTablesToGRangesRecipe")
     ##   require(AnnotationHubData)    
     ##   debug(AnnotationHubData:::.UCSCTrackMetadata)
@@ -301,84 +306,83 @@ test_trackandTablesToGRangesRecipe <- function()
 
     ## Then grab the one for oreganno        
     oregAHM <- ahms[[86]]
+    ## now assign AHMRoot path
+    sourceDirectory <- system.file("extdata", package="AnnotationHubData")
+    workingDirectory <-
+        AnnotationHubData:::.createWorkingDirectory(sourceDirectory)
+    metadata(oregAHM)$AnnotationHubRoot <- workingDirectory
+    ## now spawn a recipe
     recipe <- AnnotationHubRecipe(oregAHM)
 
+    ## debug(AnnotationHubData:::trackandTablesToGRangesRecipe)
     RDataFilename <- run(recipe)  ## BOOM
 
-##         # run the recipe
-##     RDataFilename <- run(recipe)
-##         ## the recipe run is one in trackWithAuxiliaryTablesToGRanges
     
-##     checkEquals(RDataFilename, outputFile(recipe))
-##     loadedDataName <- load(RDataFilename)
-##     checkEquals(loadedDataName, 'gr')
-##     checkEquals(length(gr), 74084)
-##     checkEquals(dim(mcols(gr)), c(74084,8))
-##     checkEquals(colnames(mcols(gr)), c("id", "index", "name", "attribute.x",
-##                                        "attVal", "attribute.y", "raKey",
-##                                        "attAcc"))
-##         ## test to make sure contents are accurate.
-##     x <- gr[start(gr)==873498]
-##     checkEquals(end(x)[1], 873849)
-##     checkEquals(as.character(seqnames(x))[1], "chr1")
-##     z <- as.list(mcols(x[1]))
-##     checkEquals(z$id, "OREG0012989")
-##     checkEquals(z$index, 591)    
-##     checkEquals(z$name, "OREG0012989")
-##     checkTrue(is.na(z$attribute.x))
-##     checkTrue(is.na(z$attVal))
-##     checkEquals(z$attribute.y, "SrcLink")
-##     checkEquals(z$raKey, "ORegAnno")
-##     checkEquals(z$attAcc, "OREG0012989")
+    checkEquals(RDataFilename, outputFile(recipe))
+    loadedDataName <- load(RDataFilename)
+    checkEquals(loadedDataName, 'gr')
+    checkEquals(length(gr), 74084)
+    checkEquals(dim(mcols(gr)), c(74084,8))
+    checkEquals(colnames(mcols(gr)), c("id", "index", "name", "attribute.x",
+                                       "attVal", "attribute.y", "raKey",
+                                       "attAcc"))
+        ## test to make sure contents are accurate.
+    x <- gr[start(gr)==873498]
+    checkEquals(end(x)[1], 873849)
+    checkEquals(as.character(seqnames(x))[1], "chr1")
+    z <- as.list(mcols(x[1]))
+    checkEquals(z$id, "OREG0012989")
+    checkEquals(z$index, 591)    
+    checkEquals(z$name, "OREG0012989")
+    checkTrue(is.na(z$attribute.x))
+    checkTrue(is.na(z$attVal))
+    checkEquals(z$attribute.y, "SrcLink")
+    checkEquals(z$raKey, "ORegAnno")
+    checkEquals(z$attAcc, "OREG0012989")
 
-##     checkSeqInfo(gr)
+    checkSeqInfo(gr)
 
 } # test_trackandTablesToGRangesRecipe
 #-------------------------------------------------------------------------------
 test_trackToGRangesRecipe <- function()
 {
-##     print ("--- test_trackWithAuxiliaryTablesToGRanges")
-##         # copy the source data to a writable temporary directory
-##     sourceDirectory <- system.file("extdata", package="AnnotationHubData")
-##     workingDirectory <-
-##         AnnotationHubData:::.createWorkingDirectory(sourceDirectory)
-##     annotationHubRoot <- workingDirectory
+    print ("--- test_trackToGRanges")
+    ##   require(AnnotationHubData);library(RUnit)
 
-##         # locate the json metadata file
-##     jsonFile <-
-##        "oreganno.txt-oregannoAttr.txt-oregannoLink.txt_0.0.1.json"
-##     resourcePath <- "goldenpath/hg19/database/oreganno"
-##     jsonPath <- file.path(resourcePath, jsonFile)
+    ##   debug(AnnotationHubData:::.UCSCTrackMetadata)
+    
+    ## Lets begin by just making all the AHMs (that takes WAY too long BTW)
+    ahms <- newResources(new("UCSCTrackImportPreparer"),
+                         numberGenomesToProcess=1)
 
-##         # create a metadata object from this file
-##     md <- constructMetadataFromJsonPath(annotationHubRoot, jsonPath)    
-##     recipe <- AnnotationHubRecipe(md)
+    ## Then grab the one for oreganno        
+    oregAHM <- ahms[[86]]
+    ## now assign AHMRoot path
+    metadata(oregAHM)$AnnotationHubRoot <- tempdir()    
+    workingDirectory  = file.path(metadata(oregAHM)$AnnotationHubRoot,
+      dirname(metadata(oregAHM)$RDataPath))
+    dir.create(workingDirectory, recursive=TRUE)
+    checkTrue(file.exists(workingDirectory))
+    
+    ## now spawn a recipe
+    recipe <- AnnotationHubRecipe(oregAHM)
 
-##         # run the recipe
-##     RDataFilename <- run(recipe)
-##         ## the recipe run is one in trackWithAuxiliaryTablesToGRanges
+    ## debug(AnnotationHubData:::trackToGRangesRecipe)
+    RDataFilename <- run(recipe)  ## BOOM
     
 ##     checkEquals(RDataFilename, outputFile(recipe))
 ##     loadedDataName <- load(RDataFilename)
 ##     checkEquals(loadedDataName, 'gr')
-##     checkEquals(length(gr), 74084)
-##     checkEquals(dim(mcols(gr)), c(74084,8))
-##     checkEquals(colnames(mcols(gr)), c("id", "index", "name", "attribute.x",
-##                                        "attVal", "attribute.y", "raKey",
-##                                        "attAcc"))
-##         ## test to make sure contents are accurate.
-##     x <- gr[start(gr)==873498]
-##     checkEquals(end(x)[1], 873849)
+##     checkEquals(length(gr), 23118)
+##     checkEquals(dim(mcols(gr)), c(23118,2))
+##     checkEquals(colnames(mcols(gr)), c("name", "score"))
+##     ## test to make sure contents are accurate.
+##     x <- gr[start(gr)==886938]
+##     checkEquals(end(x)[1], 886958)
 ##     checkEquals(as.character(seqnames(x))[1], "chr1")
 ##     z <- as.list(mcols(x[1]))
-##     checkEquals(z$id, "OREG0012989")
-##     checkEquals(z$index, 591)    
-##     checkEquals(z$name, "OREG0012989")
-##     checkTrue(is.na(z$attribute.x))
-##     checkTrue(is.na(z$attVal))
-##     checkEquals(z$attribute.y, "SrcLink")
-##     checkEquals(z$raKey, "ORegAnno")
-##     checkEquals(z$attAcc, "OREG0012989")
+##     checkEquals(z$name, "OREG0007909")
+##     checkEquals(z$score, 0)    
 
 ##     checkSeqInfo(gr)
 

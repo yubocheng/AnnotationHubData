@@ -89,13 +89,13 @@ trackandTablesToGRangesRecipe <- function(recipe)
     session <- browserSession()
     genome <- metadata(recipe)@Genome
     genome(session) <- genome
-    sourceFile <- metadata(recipe)@sourceFile
+    sourceFile <- metadata(recipe)@SourceFile
     track <- sub("^.+/database/","",sourceFile)
     query <- ucscTableQuery(session, track)
-    tablenames <- tablenames(query)
+    tableNames <- tableNames(query)
     
-    mainFile <- tablenames[1] ## always the 1st one to be main table 
-    auxFiles <- tablenames[-1]    
+    mainFile <- tableNames[1] ## always the 1st one to be main table 
+    auxFiles <- tableNames[-1]    
     if(!(length(auxFiles) >= 1)) { ## this means we are done already
         gr <- track(query, asRangedData = FALSE)
     }else{ ## have to do a merge 1st        
@@ -104,7 +104,9 @@ trackandTablesToGRangesRecipe <- function(recipe)
         auxLen <- length(auxFiles)
         auxTabs <- list()
         for(i in seq_len(auxLen)){
-            auxTabs[[i]] <- getTable(ucscTableQuery(session, auxFiles[i]))
+            ## query <- ucscTableQuery(session, track)
+            tableName(query) <- auxFiles[i]
+            auxTabs[[i]] <- getTable(query)
         } 
      
         ## merge together uses for loop again (to concentrate result
@@ -118,9 +120,9 @@ trackandTablesToGRangesRecipe <- function(recipe)
                          all.x=TRUE)  
         }
         ## replace "chrom" with "seqnames".
-        colnames(tbl)[colnames(main) %in% "chrom"] <- "seqname"
-        colnames(tbl)[colnames(main) %in% "chromStart"] <- "start"
-        colnames(tbl)[colnames(main) %in% "chromEnd"] <- "end"
+        colnames(tbl)[colnames(tbl) %in% "chrom"] <- "seqname"
+        colnames(tbl)[colnames(tbl) %in% "chromStart"] <- "start"
+        colnames(tbl)[colnames(tbl) %in% "chromEnd"] <- "end"
         
      
         tbl <- AnnotationHubData:::.sortTableByChromosomalLocation(tbl)
@@ -150,8 +152,7 @@ trackandTablesToGRangesRecipe <- function(recipe)
     ## then update those only
     seqinfo(gr) <- newSeqInfo[names(seqinfo(gr))]
 
-    save(gr, file=outputFile(recipe))
-
+    save(gr, file=outputFile(recipe))  
     outputFile(recipe)
 
 } # trackandTablesToGRangesRecipe
@@ -167,16 +168,15 @@ trackandTablesToGRangesRecipe <- function(recipe)
 trackToGRangesRecipe <- function(recipe)
 {
     session <- browserSession()
-    genome <- recipe@Genome
+    genome <- metadata(recipe)@Genome
     genome(session) <- genome
-    sourceFile <- recipe@sourceFile
+    sourceFile <- metadata(recipe)@SourceFile
     track <- sub("^.+/database/","",sourceFile)
     query <- ucscTableQuery(session, track)
 
     ## then get the object
     gr <- track(query, asRangedData = FALSE)
-    
-    
+        
         # add seqlength & chromosome circularity information
     newSeqInfo <- constructSeqInfo(metadata(recipe@metadata)$Species,
                                     metadata(recipe@metadata)$Genome)
