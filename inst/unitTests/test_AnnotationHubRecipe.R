@@ -370,21 +370,21 @@ test_trackToGRangesRecipe <- function()
     ## debug(AnnotationHubData:::trackToGRangesRecipe)
     RDataFilename <- run(recipe)  ## BOOM
     
-##     checkEquals(RDataFilename, outputFile(recipe))
-##     loadedDataName <- load(RDataFilename)
-##     checkEquals(loadedDataName, 'gr')
-##     checkEquals(length(gr), 23118)
-##     checkEquals(dim(mcols(gr)), c(23118,2))
-##     checkEquals(colnames(mcols(gr)), c("name", "score"))
-##     ## test to make sure contents are accurate.
-##     x <- gr[start(gr)==886938]
-##     checkEquals(end(x)[1], 886958)
-##     checkEquals(as.character(seqnames(x))[1], "chr1")
-##     z <- as.list(mcols(x[1]))
-##     checkEquals(z$name, "OREG0007909")
-##     checkEquals(z$score, 0)    
+    checkEquals(RDataFilename, outputFile(recipe))
+    loadedDataName <- load(RDataFilename)
+    checkEquals(loadedDataName, 'gr')
+    checkEquals(length(gr), 23118)
+    checkEquals(dim(mcols(gr)), c(23118,2))
+    checkEquals(colnames(mcols(gr)), c("name", "score"))
+    ## test to make sure contents are accurate.
+    x <- gr[start(gr)==886938]
+    checkEquals(end(x)[1], 886958)
+    checkEquals(as.character(seqnames(x))[1], "chr1")
+    z <- as.list(mcols(x[1]))
+    checkEquals(z$name, "OREG0007909")
+    checkEquals(z$score, 0)    
 
-##     checkSeqInfo(gr)
+    checkSeqInfo(gr)
 
 } # test_trackToGRangesRecipe
 #-------------------------------------------------------------------------------
