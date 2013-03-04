@@ -142,24 +142,27 @@ UCSCFullTrackImportPreparer <-
     trackName <- unlist(lapply(sourceTracks, names))
     names(trackName) <- NULL
     
-    sourceFile <- paste0("goldenPath/", genome, "/database/", track)    
+    ## customize name and description depending if it's the full track or not
+    if(type=="FULL"){
+        sourceFile <- paste0("goldenPath/", genome, "/database/", track,
+                             "_fullTrackData")    
+#        rdata <- paste0(sourceFile, "_fullTrackData.RData")
+        description <- paste0("This is a GRanges object based on UCSC track ",
+                              trackName,
+                              ", along with any of it's extra tables ")
+    }else if(type=="TRACKONLY"){
+        sourceFile <- paste0("goldenPath/", genome, "/database/", track)    
+#        rdata <- paste0(sourceFile, ".RData")
+        description <- paste0("This is a GRanges object based on UCSC track ",
+                          trackName)
+    }
     sourceUrl <- paste0("rtracklayer://hgdownload.cse.ucsc.edu/", sourceFile)
     title <- trackName
     require(GenomicFeatures)
     ## GenomicFeatures:::UCSCGenomeToOrganism("hg19")
     species <-  unlist(lapply(genome,GenomicFeatures:::UCSCGenomeToOrganism))
 
-    ## customize name and description depending if it's the full track or not
-    if(type=="FULL"){
-        rdata <- paste0(sourceFile, "_fullTrackData.RData")
-        description <- paste0("This is a GRanges object based on UCSC track ",
-                              trackName,
-                              ", along with any of it's extra tables ")
-    }else if(type=="TRACKONLY"){
-        rdata <- paste0(sourceFile, ".RData")
-        description <- paste0("This is a GRanges object based on UCSC track ",
-                          trackName)
-    }
+
     sourceVersion <- genome
     stockTags <- c("UCSC", "track", "Gene", "Transcript", "Annotation")
     allTags <- lapply(track, c, stockTags)
