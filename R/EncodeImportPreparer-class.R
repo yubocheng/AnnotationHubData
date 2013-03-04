@@ -21,7 +21,7 @@ setGeneric("metadataTable", signature="object",
            standardGeneric ("metadataTable"))
 
 setGeneric("encodeMetadataToAnnotationHubMetadata", signature="object",
-   function (object, annotationHubRoot, subset=NA)
+   function (object, annotationHubRoot, subset=NA, verbose=FALSE)
            standardGeneric ("encodeMetadataToAnnotationHubMetadata"))
 
 
@@ -34,9 +34,6 @@ setGeneric("createResource", signature="object",
 setGeneric("parseMetadataFiles", signature="object",
            function(object, metadata.filenames, all.keys, data.file.count, verbose=FALSE)
            standardGeneric("parseMetadataFiles"))
-
-setGeneric("assembleEncodeMetadata", signature="object",
-           function(object, verbose=FALSE, test=FALSE) standardGeneric("assembleEncodeMetadata"))
 
 setGeneric("saveMetadata", signature="object",
            function(object, tbl, directory, filename="encodeDCC.metadata.RData")
@@ -64,7 +61,7 @@ setMethod("metadataTable", "EncodeImportPreparer",
 
 setMethod("encodeMetadataToAnnotationHubMetadata", "EncodeImportPreparer",
 
-   function (object, annotationHubRoot, subset=NA){
+   function (object, annotationHubRoot, subset=NA, verbose=FALSE){
 
        if(length(subset) == 1 && is.na(subset))
            tbl.enc.md <- object@tbl.md
@@ -73,10 +70,12 @@ setMethod("encodeMetadataToAnnotationHubMetadata", "EncodeImportPreparer",
        
        xlate <- function(annotationHubRoot, filename, encode.metadata.list ){
            with(encode.metadata.list, {
-              recipe.info <- .mapFormatToRecipe(type)
-              sourceFile <- file.path("goldenpath/hg19/encodeDCC", composite,
+              if(verbose)
+                 print(noquote(sprintf("%s: %s", filename, type)))
+              recipe.info <- .assignRecipeAndArgs(type)
+              sourceFile <- file.path("goldenpath/hg19/encodeDCC", remoteDirectory,
                                       filename)
-              sourceUrl <- paste(EncodeBaseURL(), composite, filename, sep="/")
+              sourceUrl <- paste(EncodeBaseURL(), remoteDirectory, filename, sep="/")
               tags <- as.character(encode.metadata.list)
                   # remove empty fields
               tags <- tags[nchar(tags) > 0]
@@ -220,7 +219,7 @@ setMethod("encodeMetadataToAnnotationHubMetadata", "EncodeImportPreparer",
 #     }) # assembleMetadata
 
 #-------------------------------------------------------------------------------
-.mapFormatToRecipe <- function(dataFormat)
+.assignRecipeAndArgs <- function(dataFormat)
 {
     recipe <- NULL
     recipeArgs <- list()
@@ -271,7 +270,18 @@ setMethod("encodeMetadataToAnnotationHubMetadata", "EncodeImportPreparer",
   
    list(recipe=recipe, recipeArgs=recipeArgs)
 
-} # .mapFormatToRecipe
+} # .assignRecipeAndArgs
+#-------------------------------------------------------------------------------
+.mapCompositeFieldToDirectory <- function(composite)
+{
+    result <- composite
+    if(composite=="wgEncodeAwgDnaseUniPk")
+        result <- "wgEncodeAwgDnaseUniform"
+
+    result
+
+
+} # .mapCompositeFieldToDirectory 
 #-------------------------------------------------------------------------------
 .downloadFileInfo <- function(baseUrl, subdirs, destinationDir, verbose=FALSE)
 {
@@ -345,6 +355,41 @@ setMethod("encodeMetadataToAnnotationHubMetadata", "EncodeImportPreparer",
 
 } # .retrieveEncodeDCCMetadataFiles
 #-------------------------------------------------------------------------------
+.convertSizeStringsToNumeric <- function(sizeStrings)
+{
+    units.present <- grepl("[KMG]",sizeStrings)
+    has.units <- which(units.present)
+    no.units <- which(!units.present)
+    result <- integer(length=length(sizeStrings))
+    
+    result[no.units] <- as.integer(sizeStrings[no.units])
+
+    k.units <- which(grepl("K", sizeStrings))
+    if (length(k.units) > 0){
+        k.strings <- sizeStrings[k.units]
+        k.values <- 1000 * as.numeric(substring(k.strings, 1, nchar(k.strings)-1))
+        result[k.units] <- k.values
+        }
+
+    m.units <- which(grepl("M", sizeStrings))
+  
+    if (length(m.units) > 0){
+        m.strings <- sizeStrings[m.units]
+        m.values <- 1000000 * as.numeric(substring(m.strings, 1, nchar(m.strings)-1))
+        result[m.units] <- m.values
+        }
+
+    g.units <- which(grepl("G", sizeStrings))
+    if (length(g.units) > 0){
+        g.strings <- sizeStrings[g.units]
+        g.values <- 1000000000 * as.numeric(substring(g.strings, 1, nchar(g.strings)-1))
+        result[g.units] <- g.values
+        }# if
+
+    result
+
+} # .convertSizeStringsToNumeric
+#-------------------------------------------------------------------------------
 .learnAllEncodeMetadataCategories <- function(metadataFilesDirectory,
                                               verbose=FALSE)
 {
@@ -392,10 +437,11 @@ setMethod("encodeMetadataToAnnotationHubMetadata", "EncodeImportPreparer",
 #-------------------------------------------------------------------------------
 setMethod("parseMetadataFiles", "EncodeImportPreparer",
 
-   function (object, metadata.filenames, all.keys, data.file.count, verbose=FALSE) {
+   function (object, metadata.filenames, all.keys,
+             data.file.count, verbose=FALSE) {
 
         # our convention is that encodeDCC metadata files, though starting
-        # out life as "files.txt", is downloaded and renamed xxxx.info,
+        # out life as "files.txt", are downloaded and renamed xxxx.info,
         # where "xxxx" is the name of the encodeDCC/xxxx directory
         # from which the files.txt file was obtained.
         # it is always possible that other files could be found in
@@ -406,13 +452,23 @@ setMethod("parseMetadataFiles", "EncodeImportPreparer",
     names(row.template) <- all.keys
     all.data.filenames <- c()
 
-    for(filename in metadata.filenames) {
-        if(!file.exists(filename)){
-            msg <- sprintf("parseMetadataFiles, %s does not exist", sQuote(filename))
+    for(metadata.filename in metadata.filenames) {
+        if(!file.exists(metadata.filename)){
+            msg <- sprintf("parseMetadataFiles, %s does not exist", sQuote(metadata.filename))
             stop(msg)
             }
-        if(verbose) message(sprintf("parsing metadata file %s", sQuote(filename)))
-        lines <- scan(filename, what=character(0), sep="\n", quiet=TRUE)
+           # deterimine the remote directory.  
+           # our convention (visible in .downloadFileInfo)  is to rename
+           # each of the many "files.txt" into <directory>.info
+           # where <directory> is the immediate container of the actual
+           # encode data files.  here we re-extract that directory name from
+           # the metadata.filename.
+        tokens <- strsplit(metadata.filename, "/")[[1]]
+        short.filename <- tokens[length(tokens)]
+        stopifnot(grep(".info", short.filename, fixed=TRUE)==1)
+        remote.directory.name <- sub(".info", "", short.filename)
+        if(verbose) message(sprintf("parsing metadata file %s", sQuote(metadata.filename)))
+        lines <- scan(metadata.filename, what=character(0), sep="\n", quiet=TRUE)
             # first split on tab character, separating filename from info
         tokens.0 <- strsplit(lines, "\t")
         data.filenames <- sapply(tokens.0, "[", 1)
@@ -426,6 +482,7 @@ setMethod("parseMetadataFiles", "EncodeImportPreparer",
             names(new.row) <- keys
             new.row.full <- row.template
             new.row.full[names(new.row)] <- as.character(new.row)
+            new.row.full["remoteDirectory"] <- remote.directory.name
             new.row.as.df <- t(data.frame(new.row.full))
             tbl <- rbind(tbl, new.row.as.df)
             }# for i
@@ -434,35 +491,10 @@ setMethod("parseMetadataFiles", "EncodeImportPreparer",
         #save(tbl, file=filename)
         #printf("saved %d rows to %s", nrow(tbl), filename)
         } # for filename
-    #browser("all.data.filenames")
     rownames(tbl) <- all.data.filenames
     tbl
     }) # parseMetadataFiles
 
-#-------------------------------------------------------------------------------
-# not currently used
-setMethod("assembleEncodeMetadata", "EncodeImportPreparer",
-
-   function (object, verbose=FALSE, test=FALSE) {
-       remote.directory.names <-.extractExperimentDirectoriesFromWebPage(EncodeBaseURL()) 
-       avoid <- grep("referenceSequences", remote.directory.names)
-       if(length(avoid) > 0)
-           remote.directory.names <- remote.directory.names[-avoid]
-
-       local.destinationDir <- tempdir()
-       if(test)
-           remote.directory.names <- remote.directory.names[1:2]
-       .downloadFileInfo(EncodeBaseURL(), remote.directory.names,
-                         local.destinationDir, verbose=verbose)
-       if(verbose)
-           message(sprintf("learning metadata categories for %d encodeDCC metadata files",
-                           length(list.files(local.destinationDir))))
-       info <- .learnAllEncodeMetadataCategories(local.destinationDir)
-       if(verbose)
-           message("creating single metadata data.frame...")
-       all.files <- file.path(local.destinationDir, dir(local.destinationDir))
-       parseMetadataFiles(object, all.files, info$all.keys, info$total.lines, verbose)
-       })
 #-------------------------------------------------------------------------------
 setMethod("saveMetadata", "EncodeImportPreparer",
 
