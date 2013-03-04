@@ -330,7 +330,7 @@ constructMetadataFromJsonPath <-
 }
 
 .getExistingResources <-
-    function(BiocVersion=biocVersion(), RDataDateAdded="2013-01-02")
+    function(BiocVersion=biocVersion(), RDataDateAdded="2013-01-22")
 {
     url <-
         sprintf("http://annotationhub.bioconductor.org/ah/%s/%s/query/cols/all",
