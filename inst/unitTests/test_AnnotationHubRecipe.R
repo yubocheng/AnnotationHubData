@@ -319,7 +319,7 @@ test_trackandTablesToGRangesRecipe <- function()
 
     ## debug(AnnotationHubData:::trackandTablesToGRangesRecipe)
     ## debug(AnnotationHubData:::.compressTable)
-    RDataFilename <- run(recipe)  ## BOOM
+    RDataFilename <- run(recipe)  
 
     
     checkEquals(RDataFilename, outputFile(recipe))
@@ -372,7 +372,7 @@ test_trackToGRangesRecipe <- function()
     recipe <- AnnotationHubRecipe(oregAHM)
 
     ## debug(AnnotationHubData:::trackToGRangesRecipe)
-    RDataFilename <- run(recipe)  ## BOOM
+    RDataFilename <- run(recipe)  
     
     checkEquals(RDataFilename, outputFile(recipe))
     loadedDataName <- load(RDataFilename)

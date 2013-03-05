@@ -168,25 +168,7 @@ trackandTablesToGRangesRecipe <- function(recipe)
                                                        levels(splitFactor)))
             }
         }
-        
-        ## IF the $id element of each table is longer than the unique of as.character(splitFactor), then I have to compress the table.  Otherwise, I can just cbind it onto mcols() of the original
-        ## splitAsList() on t
-
-        
-        
-     
-##         ## merge together uses for loop again (to concentrate result
-##         ## down to one thing) 
-##         ## WARNING: this ASSUMES a consistent DB schema at UCSC!
-##         for(i in  seq_len(auxLen)){
-##             if(i ==1){tbl <- tbl.main}
-##             ## otherwise recycle
-##             tbl <- merge(tbl, auxTabs[[i]], by.x="id",
-##                          by.y="id",
-##                          all.x=TRUE)  
-##         }
-        
-     
+             
         
     }
     

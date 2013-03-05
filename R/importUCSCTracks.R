@@ -199,25 +199,11 @@ setMethod(newResources, "UCSCTrackImportPreparer",
         sourceTracks <- allGoodTracks[numberGenomesToProcess]
     }
 
-    ## filter known
-    ## assumption is that we will stick the track info in $SourceUrl
-    ## So this string will ID a track uniquely (even though it won't
-    ## point to a real resource)
-
-    
+    ## filter known    
 ##     knownTracks <- sapply(currentMetadata, function(elt) {
-##         metadata(elt)$SourceUrl 
+##         sub("^.+/database/","",(metadata(elt)@SourceFile) 
 ##     })
-
-    
-## TODO: implement an alternative way to compare all the knownTracks
-## to the sourceTracks, (the format will be different, so the
-## knownTracks have to be split into a list by genome after they come
-## back looking like URLs.
-
-    ## Not simple enough to work like below...
-    ##     sourceTracks <- sourceTracks[!sourceTracks %in% knownTracks]
-
+##     sourceTracks <- sourceTracks[!sourceTracks %in% knownTracks]
    
     ## AnnotationHubMetadata
     .UCSCTrackMetadata(sourceTracks, type="TRACKONLY")
@@ -235,23 +221,12 @@ setMethod(newResources, "UCSCFullTrackImportPreparer",
     }else{
         sourceTracks <- allGoodTracks[1:numberGenomesToProcess]
     }
-    ## filter known
-    ## assumption is that we will stick the track info in $SourceUrl
-    ## So this string will ID a track uniquely (even though it won't
-    ## point to a real resource)
 
-    
+    ## filter known    
 ##     knownTracks <- sapply(currentMetadata, function(elt) {
-##         metadata(elt)$SourceUrl 
+##         sub("^.+/database/","",(metadata(elt)@SourceFile) 
 ##     })
-    
-## TODO: implement an alternative way to compare all the knownTracks
-## to the sourceTracks, (the format will be different, so the
-## knownTracks have to be split into a list by genome after they come
-## back looking like URLs.
-
-    ## Not simple enough to work like below...
-    ##     sourceTracks <- sourceTracks[!sourceTracks %in% knownTracks]
+##     sourceTracks <- sourceTracks[!sourceTracks %in% knownTracks]
 
     ## AnnotationHubMetadata
     .UCSCTrackMetadata(sourceTracks, type="FULL")
