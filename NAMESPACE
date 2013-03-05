@@ -1,8 +1,9 @@
 exportClasses(AnnotationHubMetadata, AnnotationHubRecipe,
-    ImportPreparer, EnsemblGtfImportPreparer, EncodeImportPreparer)
+    ImportPreparer, EnsemblFastaImportPreparer,
+    EnsemblGtfImportPreparer, EncodeImportPreparer)
 
 export(AnnotationHubMetadata, AnnotationHubRecipe,
-    EnsemblGtfImportPreparer)
+    EnsemblFastaImportPreparer, EnsemblGtfImportPreparer)
 
 export(newResources,
   constructAnnotationHubMetadataFromSourceFilePath,
@@ -28,6 +29,7 @@ export(AnnotationHubMetadataFromJson,
        constructSeqInfo,
        extendedBedToGRanges,
        extendedBedWithAuxiliaryTableToGRanges,
+       ensemblFastaToFaFile,
        ensemblGtfToGRanges,
        rtrackLayerImport,
        EncodeImportPreparer,
