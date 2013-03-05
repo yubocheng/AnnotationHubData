@@ -318,32 +318,33 @@ test_trackandTablesToGRangesRecipe <- function()
     recipe <- AnnotationHubRecipe(oregAHM)
 
     ## debug(AnnotationHubData:::trackandTablesToGRangesRecipe)
+    ## debug(AnnotationHubData:::.compressTable)
     RDataFilename <- run(recipe)  ## BOOM
 
     
-##     checkEquals(RDataFilename, outputFile(recipe))
-##     loadedDataName <- load(RDataFilename)
-##     checkEquals(loadedDataName, 'gr')
-##     checkEquals(length(gr), 74084)
-##     checkEquals(dim(mcols(gr)), c(74084,8))
-##     checkEquals(colnames(mcols(gr)), c("id", "index", "name", "attribute.x",
-##                                        "attVal", "attribute.y", "raKey",
-##                                        "attAcc"))
-##         ## test to make sure contents are accurate.
-##     x <- gr[start(gr)==873498]
-##     checkEquals(end(x)[1], 873849)
-##     checkEquals(as.character(seqnames(x))[1], "chr1")
-##     z <- as.list(mcols(x[1]))
-##     checkEquals(z$id, "OREG0012989")
-##     checkEquals(z$index, 591)    
-##     checkEquals(z$name, "OREG0012989")
-##     checkTrue(is.na(z$attribute.x))
-##     checkTrue(is.na(z$attVal))
-##     checkEquals(z$attribute.y, "SrcLink")
-##     checkEquals(z$raKey, "ORegAnno")
-##     checkEquals(z$attAcc, "OREG0012989")
+    checkEquals(RDataFilename, outputFile(recipe))
+    loadedDataName <- load(RDataFilename)
+    checkEquals(loadedDataName, 'gr')
+    checkEquals(length(gr), 23113)
+    checkEquals(dim(mcols(gr)), c(23113,8))
+    checkEquals(colnames(mcols(gr)), c("bin", "id", "name", "attribute",
+                                       "attrVal", "attribute.1", "raKey",
+                                       "attrAcc"))
+        ## test to make sure contents are accurate.
+    x <- gr[start(gr)==873498]
+    checkEquals(end(x)[1], 873849)
+    checkEquals(as.character(seqnames(x))[1], "chr1")
+    z <- as.list(mcols(x[1]))
+    checkEquals(as.character(z$id),"OREG0012989")
+    checkEquals(as.integer(z$bin), 591)    
+    checkEquals(as.character(z$name), "OREG0012989")
+    checkEquals(as.character(unlist(z$attribute))[1],"type" )
+    checkEquals(as.character(unlist(z$attrVal))[1], "REGULATORY REGION")
+    checkEquals(as.character(unlist(z$attribute.1))[1], "SrcLink")
+    checkEquals(as.character(unlist(z$raKey))[1], "ORegAnno")
+    checkEquals(as.character(unlist(z$attrAcc))[1], "OREG0012975")
 
-##     checkSeqInfo(gr)
+    checkSeqInfo(gr)
 
 } # test_trackandTablesToGRangesRecipe
 #-------------------------------------------------------------------------------

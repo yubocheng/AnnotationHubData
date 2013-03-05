@@ -80,6 +80,28 @@ trackWithAuxiliaryTablesToGRanges <- function(recipe)
 
 
 
+## helper to remove 'id' col
+.removeId <- function(table){ 
+    newColnames <- setdiff(colnames(table), "id")
+    table[,newColnames]
+}
+## compress a whole table one col at a time.
+## This (currently) assumes all cols should be characters
+.compressTable <- function(table, levels){
+    sf <- factor(table$id,levels=levels)
+    table <- .removeId(table)
+    res <- DataFrame()
+    for(i in seq_len(ncol(table))){ ## for ea. column
+        col <- splitAsList(as.character(table[[i]]), f=sf)
+        if(i==1){
+            res <- DataFrame(col)
+        }else{
+            res <- DataFrame(res, DataFrame(col)) ## cbind doesn't work?
+        }
+    }
+    colnames(res) <- colnames(table)
+    res
+}
 
 
 ## Track AND auxiliary tables.
@@ -94,37 +116,18 @@ trackandTablesToGRangesRecipe <- function(recipe)
     query <- ucscTableQuery(session, track)
     tableNames <- tableNames(query)
     
-    mainFile <- tableNames[1] ## always the 1st one to be main table 
+    mainFile <- tableNames[1] ## always the 1st one to be 2main table 
     auxFiles <- tableNames[-1]    
     if(!(length(auxFiles) >= 1)) { ## this means we are done already
         gr <- track(query, asRangedData = FALSE)
-    }else{ ## have to do a merge 1st        
-        tbl.main <- getTable(ucscTableQuery(session, mainFile))
-        
-        auxLen <- length(auxFiles)
-        auxTabs <- list()
-        for(i in seq_len(auxLen)){
-            ## query <- ucscTableQuery(session, track)
-            tableName(query) <- auxFiles[i]
-            auxTabs[[i]] <- getTable(query)
-        } 
-     
-        ## merge together uses for loop again (to concentrate result
-        ## down to one thing) 
-        ## WARNING: this ASSUMES a consistent DB schema at UCSC!
-        for(i in  seq_len(auxLen)){
-            if(i ==1){tbl <- tbl.main}
-            ## otherwise recycle
-            tbl <- merge(tbl, auxTabs[[i]], by.x="id",
-                         by.y="id",
-                         all.x=TRUE)  
-        }
+    }else{ ## have to do a merge 1st
+        ## have to "get" primary in table form to assure "id" will be present
+        tbl <- getTable(ucscTableQuery(session, mainFile))        
         ## replace "chrom" with "seqnames".
         colnames(tbl)[colnames(tbl) %in% "chrom"] <- "seqname"
         colnames(tbl)[colnames(tbl) %in% "chromStart"] <- "start"
         colnames(tbl)[colnames(tbl) %in% "chromEnd"] <- "end"
-        
-     
+
         tbl <- AnnotationHubData:::.sortTableByChromosomalLocation(tbl)
         colnames <- colnames(tbl)
         requiredColnames <- c("seqname", "start", "end")
@@ -140,8 +143,51 @@ trackandTablesToGRangesRecipe <- function(recipe)
         }else{  
             gr <- with(tbl, GRanges(seqname, IRanges(start, end)))
         }
-        
+        ## append the initial mcols
         mcols(gr) <- DataFrame(tbl[, otherColnames])
+
+        
+        ## Now get the other tables
+        auxTabs <- list()
+        for(i in seq_along(auxFiles)){
+            ## query <- ucscTableQuery(session, track)
+            tableName(query) <- auxFiles[i]
+            auxTabs[[i]] <- getTable(query)
+        }
+
+        ## make a spliting factor based on the initial table
+        splitFactor <- factor(tbl$id, levels=tbl$id)
+
+        for(i in seq_along(auxFiles)){
+            new <- auxTabs[[i]]
+            if(identical(as.character(splitFactor), as.character(new$id))){
+                ## Add it in
+                mcols(gr) <- DataFrame(mcols(gr), .removeId(new))
+            }else{## otherwise compress it 1st               
+                mcols(gr) <- DataFrame(mcols(gr),.compressTable(new,
+                                                       levels(splitFactor)))
+            }
+        }
+        
+        ## IF the $id element of each table is longer than the unique of as.character(splitFactor), then I have to compress the table.  Otherwise, I can just cbind it onto mcols() of the original
+        ## splitAsList() on t
+
+        
+        
+     
+##         ## merge together uses for loop again (to concentrate result
+##         ## down to one thing) 
+##         ## WARNING: this ASSUMES a consistent DB schema at UCSC!
+##         for(i in  seq_len(auxLen)){
+##             if(i ==1){tbl <- tbl.main}
+##             ## otherwise recycle
+##             tbl <- merge(tbl, auxTabs[[i]], by.x="id",
+##                          by.y="id",
+##                          all.x=TRUE)  
+##         }
+        
+     
+        
     }
     
     

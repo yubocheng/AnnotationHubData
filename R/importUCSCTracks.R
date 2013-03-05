@@ -141,18 +141,15 @@ UCSCFullTrackImportPreparer <-
     names(track) <- genome    
     trackName <- unlist(lapply(sourceTracks, names))
     names(trackName) <- NULL
+    ## This really has to be the same for both. (parsed later on for trackName)
+    sourceFile <- paste0("goldenPath/", genome, "/database/", track)
     
     ## customize name and description depending if it's the full track or not
     if(type=="FULL"){
-        sourceFile <- paste0("goldenPath/", genome, "/database/", track,
-                             "_fullTrackData")    
-#        rdata <- paste0(sourceFile, "_fullTrackData.RData")
         description <- paste0("This is a GRanges object based on UCSC track ",
                               trackName,
                               ", along with any of it's extra tables ")
     }else if(type=="TRACKONLY"){
-        sourceFile <- paste0("goldenPath/", genome, "/database/", track)    
-#        rdata <- paste0(sourceFile, ".RData")
         description <- paste0("This is a GRanges object based on UCSC track ",
                           trackName)
     }
