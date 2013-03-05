@@ -118,7 +118,8 @@ AnnotationHubMetadata <-
     {
         if (!is.na(Species))
             TaxonomyId <- .taxonomyId(Species)
-
+        else
+            TaxonomyId <- NA_character_
     }
     if (missing(RDataPath)) {
         resourceDir <- dirname(SourceFile[1])
