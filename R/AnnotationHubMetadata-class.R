@@ -115,7 +115,11 @@ AnnotationHubMetadata <-
     if (missing(SourceSize))
         SourceSize <- file.info(SourceFile)$size
     if (missing(TaxonomyId))
-        TaxonomyId <- .taxonomyId(Species)
+    {
+        if (!is.na(Species))
+            TaxonomyId <- .taxonomyId(Species)
+
+    }
     if (missing(RDataPath)) {
         resourceDir <- dirname(SourceFile[1])
         resourceFiles <- .derivedFileName(SourceFile,  RDataVersion, "RData")
