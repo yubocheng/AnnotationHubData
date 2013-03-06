@@ -9,7 +9,7 @@ Depends:
     methods,
     IRanges,
     GenomicRanges,
-    GenomicFeatures,
+    GenomicFeatures (>= 1.11.14),
 Suggests:
     RUnit,
 Imports:
