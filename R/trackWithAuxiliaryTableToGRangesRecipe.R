@@ -104,10 +104,55 @@ trackWithAuxiliaryTablesToGRanges <- function(recipe)
 }
 
 
+.makeComplexGR <- function(tbl,auxFiles,auxTabs){
+    ## replace "chrom" with "seqnames".
+    colnames(tbl)[colnames(tbl) %in% "chrom"] <- "seqname"
+    colnames(tbl)[colnames(tbl) %in% "chromStart"] <- "start"
+    colnames(tbl)[colnames(tbl) %in% "chromEnd"] <- "end"
+    
+    tbl <- AnnotationHubData:::.sortTableByChromosomalLocation(tbl)
+    colnames <- colnames(tbl)
+    requiredColnames <- c("seqname", "start", "end")
+    stopifnot(all(requiredColnames %in% colnames))
+    otherColnames <- setdiff(colnames, requiredColnames)
+    
+    ## drop any rows withouth a seqname
+    tbl <- tbl[!is.na(tbl$seqname),]
+    
+    if("strand" %in%  otherColnames){
+        gr <- with(tbl, GRanges(seqname, IRanges(start, end), strand))
+        otherColnames <- setdiff(colnames, c(requiredColnames,"strand"))
+    }else{  
+        gr <- with(tbl, GRanges(seqname, IRanges(start, end)))
+    }
+    ## append the initial mcols
+    mcols(gr) <- DataFrame(tbl[, otherColnames])
+    
+    
+    
+    ## make a spliting factor based on the initial table
+    splitFactor <- factor(tbl$id, levels=tbl$id)
+    
+    for(i in seq_along(auxFiles)){
+        new <- auxTabs[[i]]
+        if(identical(as.character(splitFactor), as.character(new$id))){
+            ## Add it in
+            mcols(gr) <- DataFrame(mcols(gr), .removeId(new))
+        }else{## otherwise compress it 1st               
+            mcols(gr) <- DataFrame(mcols(gr),.compressTable(new,
+                                                    levels(splitFactor)))
+        }
+    }
+    gr
+}
+
 ## Track AND auxiliary tables.
+## Unfortunately, the schemas for some tracks are complex.
+## This means that in the future I will have to use ucscSchema etc. to
+## get the addional information so that I can properly assemble them.
+## For now, we will check for "id" and only proceed if all tables have this.
 trackandTablesToGRangesRecipe <- function(recipe)
 {
-
     session <- browserSession()
     genome <- metadata(recipe)@Genome
     genome(session) <- genome
@@ -122,31 +167,8 @@ trackandTablesToGRangesRecipe <- function(recipe)
         gr <- track(query, asRangedData = FALSE)
     }else{ ## have to do a merge 1st
         ## have to "get" primary in table form to assure "id" will be present
-        tbl <- getTable(ucscTableQuery(session, mainFile))        
-        ## replace "chrom" with "seqnames".
-        colnames(tbl)[colnames(tbl) %in% "chrom"] <- "seqname"
-        colnames(tbl)[colnames(tbl) %in% "chromStart"] <- "start"
-        colnames(tbl)[colnames(tbl) %in% "chromEnd"] <- "end"
+        tbl <- getTable(ucscTableQuery(session, mainFile))
 
-        tbl <- AnnotationHubData:::.sortTableByChromosomalLocation(tbl)
-        colnames <- colnames(tbl)
-        requiredColnames <- c("seqname", "start", "end")
-        stopifnot(all(requiredColnames %in% colnames))
-        otherColnames <- setdiff(colnames, requiredColnames)
-        
-        ## drop any rows withouth a seqname
-        tbl <- tbl[!is.na(tbl$seqname),]
-        
-        if("strand" %in%  otherColnames){
-            gr <- with(tbl, GRanges(seqname, IRanges(start, end), strand))
-            otherColnames <- setdiff(colnames, c(requiredColnames,"strand"))
-        }else{  
-            gr <- with(tbl, GRanges(seqname, IRanges(start, end)))
-        }
-        ## append the initial mcols
-        mcols(gr) <- DataFrame(tbl[, otherColnames])
-
-        
         ## Now get the other tables
         auxTabs <- list()
         for(i in seq_along(auxFiles)){
@@ -155,20 +177,23 @@ trackandTablesToGRangesRecipe <- function(recipe)
             auxTabs[[i]] <- getTable(query)
         }
 
-        ## make a spliting factor based on the initial table
-        splitFactor <- factor(tbl$id, levels=tbl$id)
-
-        for(i in seq_along(auxFiles)){
-            new <- auxTabs[[i]]
-            if(identical(as.character(splitFactor), as.character(new$id))){
-                ## Add it in
-                mcols(gr) <- DataFrame(mcols(gr), .removeId(new))
-            }else{## otherwise compress it 1st               
-                mcols(gr) <- DataFrame(mcols(gr),.compressTable(new,
-                                                       levels(splitFactor)))
-            }
+        allColNames <- list()
+        allColNames[[1]] <- colnames(tbl)
+        for(i in seq_len(length(auxTabs))){
+            idx <- i+1
+            #print(idx)
+            allColNames[[idx]] <- colnames(auxTabs[[i]])
         }
-             
+        ## for each element is there a value called "id"?
+        idPresent <- unlist(lapply(allColNames, function(x){'id' %in% x}))
+        
+        if(all(idPresent)){
+            gr <- .makeComplexGR(tbl,auxFiles,auxTabs)
+        }else{
+            message("track schema is too complex: using basic track instead")
+            query <- ucscTableQuery(session, track)
+            gr <- track(query, asRangedData = FALSE)
+        }
         
     }
     
@@ -179,7 +204,6 @@ trackandTablesToGRangesRecipe <- function(recipe)
     ## if gr only has a subset of all possible chromosomes,
     ## then update those only
     seqinfo(gr) <- newSeqInfo[names(seqinfo(gr))]
-
     save(gr, file=outputFile(recipe))  
     outputFile(recipe)
 
@@ -205,15 +229,13 @@ trackToGRangesRecipe <- function(recipe)
     ## then get the object
     gr <- track(query, asRangedData = FALSE)
         
-        # add seqlength & chromosome circularity information
+    ## add seqlength & chromosome circularity information
     newSeqInfo <- constructSeqInfo(metadata(recipe@metadata)$Species,
                                     metadata(recipe@metadata)$Genome)
-        # if gr only has a subset of all possible chromosomes,
-        # then update those only
+    ## if gr only has a subset of all possible chromosomes,
+    ## then update those only
     seqinfo(gr) <- newSeqInfo[names(seqinfo(gr))]
-
     save(gr, file=outputFile(recipe))
-
     outputFile(recipe)
 
 } # trackToGRangesRecipe
