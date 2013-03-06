@@ -29,13 +29,13 @@ EnsemblGtfImportPreparer <-
         Description=description, Genome=meta$genome,
         SourceFile=sourceFile, SourceUrl=sourceUrl,
         SourceVersion=meta$sourceVersion, Species=meta$species,
-        Title=meta$title,
+        TaxonomyId=meta$taxonomyId, Title=meta$title,
         MoreArgs=list(
           Coordinate_1_based = TRUE,
           DataProvider = "ftp.ensembl.org",
           Maintainer = "Martin Morgan <mtmorgan@fhcrc.org>",
           RDataClass = "GRanges",
-          RDataDateAdded = format(Sys.time(), "%Y-%m-%d GMT"),
+          RDataDateAdded = Sys.time(),
           RDataVersion = "0.0.1",
           Recipe = c("ensemblGtfToGRanges", package="AnnotationHubData"),
           Tags = c("GTF", "ensembl", "Gene", "Transcript", "Annotation")))

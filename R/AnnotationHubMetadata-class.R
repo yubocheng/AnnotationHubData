@@ -99,7 +99,11 @@ setClass("AnnotationHubMetadata",
 {
     if (!exists("speciesMap"))
         data(speciesMap, package="AnnotationHubData")
-    as.character(speciesMap$taxon[speciesMap$species == species])
+    idx <- match(species, speciesMap$species)
+    if (any(is.na(idx)))
+        stop(sum(is.na(idx)), " unknown species: ",
+             paste(sQuote(species[head(is.na(idx))]), collapse=" "))
+    as.character(speciesMap$taxon[idx])
 }
 
 AnnotationHubMetadata <-
@@ -124,7 +128,7 @@ AnnotationHubMetadata <-
     if (missing(RDataPath)) {
         resourceDir <- dirname(SourceFile[1])
         resourceFiles <- .derivedFileName(SourceFile,  RDataVersion, "RData")
-        RDataPath <- resourcePath <- file.path(resourceDir, resourceFiles)
+        RDataPath <- file.path(resourceDir, resourceFiles)
     }
 
     new("AnnotationHubMetadata",

@@ -30,6 +30,7 @@
     species <- gsub("_", " ", sub(sgRegex, "\\1", title), fixed=TRUE)
 
     list(annotationHubRoot = root, title=title, species = species,
+         taxonomyId = .taxonomyId(species),
          genome = sub(sgRegex, "\\2", title),
          sourceVersion = sub(releaseRegex, "\\1", sourceUrl))
 }

@@ -47,13 +47,14 @@ EnsemblFastaImportPreparer <-
         Description=description, Genome=meta$genome,
         RDataPath=sourceFile, SourceFile=sourceFile,
         SourceUrl=sourceUrl, SourceVersion=meta$sourceVersion,
-        Species=meta$species, Title=meta$title,
+        Species=meta$species, TaxonomyId=meta$taxonomyId,
+        Title=meta$title,
         MoreArgs=list(
           Coordinate_1_based = TRUE,
           DataProvider = "ftp.ensembl.org",
           Maintainer = "Martin Morgan <mtmorgan@fhcrc.org>",
           RDataClass = "FaFile",
-          RDataDateAdded = format(Sys.time(), "%Y-%m-%d GMT"),
+          RDataDateAdded = Sys.time(),
           RDataVersion = "0.0.1",
           Recipe = c("ensemblFastaToFaFile", package="AnnotationHubData"),
           Tags = c("FASTA", "ensembl", "sequence")))
