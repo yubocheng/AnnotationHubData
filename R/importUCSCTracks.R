@@ -101,6 +101,19 @@ UCSCFullTrackImportPreparer <-
     mapply(diff, allTracks, allBadTracks)
 }
 
+.checkAllTracks <- function(){
+    names <- names(allTracks)
+    species <- unlist(lapply(names, GenomicFeatures:::UCSCGenomeToOrganism))
+    badSpecies <- names[is.na(species)]
+    if(any(is.na(species))){
+        stop(paste0("You need to update the UCSCGenomeToOrganism function",
+                    " in the GenomicFeatures package to support the ",
+                    "following new tracks: ",
+                paste(badSpecies, collapse=",")))
+    }else{
+        message("Genome names are OK.  Species found for all genome names.")
+    }
+}
 
 .UCSCTrackSourceTracks <- function(){
     require(rtracklayer)
@@ -110,6 +123,9 @@ UCSCFullTrackImportPreparer <-
     ## get the tracks for each genome. (pre-computed)
     load(system.file("extdata","badUCSCTracks","allPossibleTracks.rda",
                      package = "AnnotationHubData"))    ## allTracks
+    ## check that we can know all species names for all these tracks.
+    .checkAllTracks()
+    
     ## get the list of bad tracks. (pre-computed)
     load(system.file("extdata","badUCSCTracks","allBadTracks.rda",
                      package = "AnnotationHubData"))    ## allBadTracks
