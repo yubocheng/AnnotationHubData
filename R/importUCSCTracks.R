@@ -101,7 +101,7 @@ UCSCFullTrackImportPreparer <-
     mapply(diff, allTracks, allBadTracks)
 }
 
-.checkAllTracks <- function(){
+.checkAllTracks <- function(allTracks){
     names <- names(allTracks)
     species <- unlist(lapply(names, GenomicFeatures:::UCSCGenomeToOrganism))
     badSpecies <- names[is.na(species)]
@@ -124,12 +124,12 @@ UCSCFullTrackImportPreparer <-
     load(system.file("extdata","badUCSCTracks","allPossibleTracks.rda",
                      package = "AnnotationHubData"))    ## allTracks
     ## check that we can know all species names for all these tracks.
-    .checkAllTracks()
     
     ## get the list of bad tracks. (pre-computed)
     load(system.file("extdata","badUCSCTracks","allBadTracks.rda",
                      package = "AnnotationHubData"))    ## allBadTracks
 
+    .checkAllTracks(allTracks)
     ## Now I just have to merge the results of these two things
     .getGoodTracks(allTracks, allBadTracks)
 }
