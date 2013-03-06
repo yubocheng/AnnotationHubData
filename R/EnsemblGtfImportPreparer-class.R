@@ -1,43 +1,35 @@
 EnsemblGtfImportPreparer <-
     setClass("EnsemblGtfImportPreparer", contains="ImportPreparer")
 
+## retrieve GTF file urls from Ensembl
 .ensemblGtfSourceUrls <-
-    function(url)
-    ## retrieve all possible files from Ensembl
+    function(baseUrl)
 {
-    ## releases
-    lst <- getURL(url=url, dirlistonly=TRUE, followlocation=TRUE)
-    lst <- strsplit(lst, "\n")[[1]]
-    releases <- paste0(url, lst)
-    want <- paste0(grep(".*release-(69|7[[:digit:]])", releases, value=TRUE),
-                   "/gtf/")
+    want <- .ensemblDirUrl(baseUrl, "gtf/")
     ## files in release
-    sapply(want, function(url) {
+    unlist(lapply(want, function(url) {
         listing <- getURL(url=url, followlocation=TRUE, customrequest="LIST -R")
         listing<- strsplit(listing, "\n")[[1]]
         subdir <- sub(".* ", "", listing[grep("^drwx", listing)])
         gtfGz <- sub(".* ", "", listing[grep(".*gtf.gz$", listing)])
         sprintf("%s%s/%s", url, subdir, gtfGz)
-    })
+    }), use.names=FALSE)
 }
 
 .ensemblGtfMetadata <-
     function(baseUrl, sourceUrl)
 {
-    gtf <- sub(baseUrl, "ensembl/", sourceUrl)
-    rdata <- sub(".gz$", ".RData", gtf)
-    regex <- "^([[:alpha:]_]+)\\.([[:alpha:]]+).*"
-    title <- sub(".gz$", "", basename(gtf))
-    species <- gsub("_", " ", sub(regex, "\\1", title), fixed=TRUE)
-    genome <- sub(regex, "\\2", title)
-    description <- paste("Gene Annotation for", species)
+    sourceFile <- .ensemblSourcePathFromUrl(baseUrl, sourceUrl)
+    meta <- .ensemblMetadataFromUrl(sourceUrl)
+    rdata <- sub(".gz$", ".RData", sourceFile)
+    description <- paste("Gene Annotation for", meta$species)
 
-    sourceVersion <- sub(".*(release-[[:digit:]]+).*", "\\1", sourceUrl)
-    
-    Map(AnnotationHubMetadata, AnnotationHubRoot=NA_character_,
-        Description=description, Genome=genome, SourceFile=gtf,
-        SourceUrl=sourceUrl, SourceVersion=sourceVersion,
-        Species=species, Title=title,
+    Map(AnnotationHubMetadata,
+        AnnotationHubRoot=meta$annotationHubRoot,
+        Description=description, Genome=meta$genome,
+        SourceFile=sourceFile, SourceUrl=sourceUrl,
+        SourceVersion=meta$sourceVersion, Species=meta$species,
+        Title=meta$title,
         MoreArgs=list(
           Coordinate_1_based = TRUE,
           DataProvider = "ftp.ensembl.org",
@@ -52,8 +44,7 @@ EnsemblGtfImportPreparer <-
 setMethod(newResources, "EnsemblGtfImportPreparer",
     function(importPreparer, currentMetadata = list(), ...)
 {
-    baseUrl <- "ftp://ftp.ensembl.org/pub/"
-    sourceUrls <- .ensemblGtfSourceUrls(baseUrl)
+    sourceUrls <- .ensemblGtfSourceUrls(.ensemblBaseUrl) # 122,  6 March, 2013
 
     ## filter known
     knownUrls <- sapply(currentMetadata, function(elt) {
@@ -62,5 +53,5 @@ setMethod(newResources, "EnsemblGtfImportPreparer",
     sourceUrls <- sourceUrls[!sourceUrls %in% knownUrls]
 
     ## AnnotationHubMetadata
-    .ensemblGtfMetadata(baseUrl, sourceUrls)
+    .ensemblGtfMetadata(.ensemblBaseUrl, sourceUrls)
 })

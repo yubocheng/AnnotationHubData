@@ -1,16 +1,15 @@
+.ensemblFastaTypes <-
+    c("cdna.all", "dna_rm.toplevel", "dna_sm.toplevel",
+      "dna.toplevel", "ncrna", "pep.all")
+
 EnsemblFastaImportPreparer <- 
     setClass("EnsemblFastaImportPreparer", contains="ImportPreparer")
 
+## retrieve FASTA file urls from Ensembl
 .ensemblFastaSourceUrls <-
-    function(url)
-    ## retrieve all possible files from Ensembl
+    function(baseUrl)
 {
-    ## releases
-    lst <- getURL(url=url, dirlistonly=TRUE, followlocation=TRUE)
-    lst <- strsplit(lst, "\n")[[1]]
-    releases <- paste0(url, lst)
-    want <- paste0(grep(".*release-(69|7[[:digit:]])", releases, value=TRUE),
-                   "/fasta/")
+    want <- .ensemblDirUrl(baseUrl, "fasta/")
     ## files in release
     unlist(lapply(want, function(url) {
         listing <- getURL(url=url, followlocation=TRUE, customrequest="LIST -R")
@@ -19,9 +18,7 @@ EnsemblFastaImportPreparer <-
         subdirIdx <- grepl("\\./.*/.*:", listing)
         subdir <- sub("^\\./(.*):$", "\\1", listing[subdirIdx])
 
-        fileTypes <-
-            paste("cdna.all", "dna_rm.toplevel", "dna_sm.toplevel",
-                  "dna.toplevel", "ncrna", "pep.all", sep="|")
+        fileTypes <- paste(.ensemblFastaTypes, collapse="|")
         pat <- sprintf(".*(%s)\\.fa\\.gz$", fileTypes)
 
         fastaIdx <- grepl(pat, listing)
@@ -37,26 +34,20 @@ EnsemblFastaImportPreparer <-
 .ensemblFastaMetadata <-
     function(baseUrl, sourceUrl)
 {
-    fasta <- sub(baseUrl, "ensembl/", sourceUrl)
-
-    regex <- "^([[:alpha:]_]+)\\.([[:alpha:]]+).*"
-    title <- sub(".gz$", "", basename(fasta))
-    species <- gsub("_", " ", sub(regex, "\\1", title), fixed=TRUE)
-    genome <- sub(regex, "\\2", title)
+    sourceFile <- .ensemblSourcePathFromUrl(baseUrl, sourceUrl)
+    meta <- .ensemblMetadataFromUrl(sourceUrl)
     dnaType <- local({
-        x <- basename(dirname(fasta))
+        x <- basename(dirname(sourceFile))
         sub("(dna|rna)", "\\U\\1", x, perl=TRUE)
     })
-    description <- paste("FASTA", dnaType, "sequence for", species)
+    description <- paste("FASTA", dnaType, "sequence for", meta$species)
 
-    root <- setNames(rep(NA_character_, length(fasta)), title)
-    sourceVersion <- sub(".*(release-[[:digit:]]+).*", "\\1", sourceUrl)
-    
-    Map(AnnotationHubMetadata, AnnotationHubRoot=NA_character_,
-        Description=description, Genome=genome,
-        RDataPath=fasta, SourceFile=fasta,
-        SourceUrl=sourceUrl, SourceVersion=sourceVersion,
-        Species=species, Title=title,
+    Map(AnnotationHubMetadata,
+        AnnotationHubRoot=meta$annotationHubRoot,
+        Description=description, Genome=meta$genome,
+        RDataPath=sourceFile, SourceFile=sourceFile,
+        SourceUrl=sourceUrl, SourceVersion=meta$sourceVersion,
+        Species=meta$species, Title=meta$title,
         MoreArgs=list(
           Coordinate_1_based = TRUE,
           DataProvider = "ftp.ensembl.org",
@@ -71,8 +62,7 @@ EnsemblFastaImportPreparer <-
 setMethod(newResources, "EnsemblFastaImportPreparer",
     function(importPreparer, currentMetadata = list(), ...)
 {
-    baseUrl <- "ftp://ftp.ensembl.org/pub/"
-    sourceUrls <- .ensemblFastaSourceUrls(baseUrl)
+    sourceUrls <- .ensemblFastaSourceUrls(.ensemblBaseUrl) # 732,  6 March, 2013
 
     ## filter known
     knownUrls <- sapply(currentMetadata, function(elt) {
@@ -81,5 +71,5 @@ setMethod(newResources, "EnsemblFastaImportPreparer",
     sourceUrls <- sourceUrls[!sourceUrls %in% knownUrls]
 
     ## AnnotationHubMetadata
-    .ensemblFastaMetadata(baseUrl, sourceUrls)
+    .ensemblFastaMetadata(.ensemblBaseUrl, sourceUrls)
 })
