@@ -69,7 +69,7 @@ EnsemblFastaImportPreparer <-
 }
 
 setMethod(newResources, "EnsemblFastaImportPreparer",
-    function(importPreparer, currentMetadata)
+    function(importPreparer, currentMetadata = list(), ...)
 {
     baseUrl <- "ftp://ftp.ensembl.org/pub/"
     sourceUrls <- .ensemblFastaSourceUrls(baseUrl)

@@ -50,7 +50,7 @@ EnsemblGtfImportPreparer <-
 }
 
 setMethod(newResources, "EnsemblGtfImportPreparer",
-    function(importPreparer, currentMetadata)
+    function(importPreparer, currentMetadata = list(), ...)
 {
     baseUrl <- "ftp://ftp.ensembl.org/pub/"
     sourceUrls <- .ensemblGtfSourceUrls(baseUrl)

@@ -20,7 +20,7 @@
 }
 
 \usage{
-newResources(importPreparer, currentMetadata)
+newResources(importPreparer, currentMetadata = list(), ...)
 }
 
 \arguments{
@@ -32,6 +32,8 @@ newResources(importPreparer, currentMetadata)
     \code{\linkS4class{AnnotationHubMetadata}} instances, representing
     already-curated data from the import preparer indicated by
     \code{importPreparer}.}
+
+  \item{...}{Additional arguments, used by methods.}
 
 }
 

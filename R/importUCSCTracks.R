@@ -205,7 +205,8 @@ UCSCFullTrackImportPreparer <-
 
 ## method for track only recipe
 setMethod(newResources, "UCSCTrackImportPreparer",
-    function(importPreparer, currentMetadata=NULL, numberGenomesToProcess=NULL)
+    function(importPreparer, currentMetadata=list(), numberGenomesToProcess=NULL,
+             ...)
 {
     
     allGoodTracks <- .UCSCTrackSourceTracks()
@@ -228,7 +229,8 @@ setMethod(newResources, "UCSCTrackImportPreparer",
 
 ## For full tracks
 setMethod(newResources, "UCSCFullTrackImportPreparer",
-    function(importPreparer, currentMetadata=NULL, numberGenomesToProcess=NULL)
+    function(importPreparer, currentMetadata=list(), numberGenomesToProcess=NULL,
+             ...)
 {
     
     allGoodTracks <- .UCSCTrackSourceTracks()

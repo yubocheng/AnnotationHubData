@@ -7,6 +7,6 @@ setMethod(show, "ImportPreparer", function(object) {
 })
 
 setGeneric("newResources",
-    function(importPreparer, currentMetadata, ...)
+    function(importPreparer, currentMetadata = list(), ...)
         standardGeneric("newResources")
 )
