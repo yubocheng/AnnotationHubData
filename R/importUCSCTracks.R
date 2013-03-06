@@ -82,10 +82,10 @@ UCSCFullTrackImportPreparer <-
 
 
 ## To store data on each track:
-## ftp://hgdownload.cse.ucsc.edu/goldenPath/<genome name>/database/<track name>
+## ftp://hgdownload.cse.ucsc.edu/goldenpath/<genome name>/database/<track name>
 
 ## SO: hg19, track oreganno looks like this.
-## ftp://hgdownload.cse.ucsc.edu/goldenPath/hg19/database/oreganno
+## ftp://hgdownload.cse.ucsc.edu/goldenpath/hg19/database/oreganno
 ## The reason is that the 1st part (up to oreganno) is actual location
 ## of ftp data the oreganno data will be there in several files dumped
 ## from the DB.
@@ -150,7 +150,7 @@ UCSCFullTrackImportPreparer <-
 
     
 ## To store data on each track:
-## ftp://hgdownload.cse.ucsc.edu/goldenPath/<genome name>/database/<track name>
+## ftp://hgdownload.cse.ucsc.edu/goldenpath/<genome name>/database/<track name>
 
     genome <- rep(names(sourceTracks),unlist(lapply(sourceTracks,length)))
     track <- unlist(sourceTracks)
@@ -158,7 +158,7 @@ UCSCFullTrackImportPreparer <-
     trackName <- unlist(lapply(sourceTracks, names))
     names(trackName) <- NULL
     ## This really has to be the same for both. (parsed later on for trackName)
-    sourceFile <- paste0("goldenPath/", genome, "/database/", track)
+    sourceFile <- paste0("goldenpath/", genome, "/database/", track)
     
     ## customize name and description depending if it's the full track or not
     if(type=="FULL"){
