@@ -71,10 +71,8 @@ setMethod("run", "AnnotationHubRecipe",
            recipeFunction <- get(recipeName(object),
                                  envir=getNamespace("AnnotationHubData"))
        stopifnot(is.function(recipeFunction))
-       result <- recipeFunction(object)
-       m <- metadata(object)
-       metadata(object) <- postProcessMetadata(m)
-       object
+       recipeFunction(object) ## disregard return value
+       postProcessMetadata(metadata(object))
        })
 
 #------------------------------------------------------------------------------
