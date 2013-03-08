@@ -13,8 +13,6 @@ url.exists <- function(url)
 #-------------------------------------------------------------------------------
 paulsTests <- function()
 {
-    options(stringsAsFactors=FALSE)
-
     test_.extractLinksFromHtmlLines()
     test_.extractExperimentDirectoriesFromWebPage()
 
@@ -22,51 +20,30 @@ paulsTests <- function()
        # next test depends upon functions tested by preceeding two tests
     test_.retrieveEncodeDCCMetadataFiles(destinationDir)
     test_.learnAllEncodeMetadataCategories()
-    test_parseMetadataFiles()
-    test_saveAndLoadMetadata()
-    
     test_.assignRecipeAndArgs()
-    test_encodeMetadataToAnnotationHubMetadata()
+    test_.convertSizeStringsToNumeric()
+    test_.parseMetadataFiles()
+    test_.encodeMetadataToAnnotationHubMetadata()
+
+    test_ctor()
+    test_threeEncodeDirectories()
     test_newResources()
+    test_endToEndFourResources()
     
+
 } # runTests
 #-------------------------------------------------------------------------------
 test_ctor <- function()
 {
     print("--- test_ctor")
-
-       # an instance of EncodeImportPreparer is always constructed with
-       # the path to its AnnotationHubRoot ("ahroot" for short), which may
-       # be a test path, a production path, or even a bogus path
-       # 
-       # there are three ways the instance can get its metadata, which is
-       # a data.frame of (currently) 52 columns:
-       #   1) it finds and loads a serialized "tbl.md" from a file
-       #      named "tbl.parsedEncodeMetadata.RData" in the ahroot directory
-       #   2) it is passed a tbl.md by the caller
-       #   3) if no tbl.md is supplied, and no serialized object is found
-       #      it creates an empty data.frame
-
-
-       # test way 1: load ahroot/tbl.parsedEncodeMetadata.RData
-    ahroot <- system.file(package="AnnotationHubData", "unitTests", "cases",
-                          "encodeDCCMetadata")
-    eip <- EncodeImportPreparer(ahroot)
-    checkEquals(dim(metadataTable(eip)), c(2,21))
-
-       # test way 2: explicitly pass in tbl.md
-    variable.name <- load(system.file(package="AnnotationHubData", "unitTests",
-                                      "cases","encodeDCCMetadata",
-                                      "tbl.parsedEncodeMetadata.RData"))
-    checkEquals(variable.name, "tbl.md")
-    eip <- EncodeImportPreparer(ahroot, tbl.md)
-    checkEquals(dim(metadataTable(eip)), c(2,21))
-
-       # test way 3: nothing passed, nothing found, create empty data.frame
-    ahroot <- "/my/bogus/ahrootPath"
-    eip <- EncodeImportPreparer(ahroot)
-    checkEquals(annotationHubRoot(eip), ahroot)
-    checkEquals(dim(metadataTable(eip)), c(0,0))
+    
+    checkTrue(validObject(new("EncodeImportPreparer")))
+    checkTrue(validObject(EncodeImportPreparer(annotationHubRoot=tempdir(),
+                                               maxForTesting=0)))
+    checkException(!validObject(
+          EncodeImportPreparer(annotationHubRoot="/bogus/fake",
+                               maxForTesting=0)),
+          silent=TRUE)
 
 } # test_ctor
 #-------------------------------------------------------------------------------
@@ -96,7 +73,8 @@ test_.extractLinksFromHtmlLines <- function()
 test_.extractExperimentDirectoriesFromWebPage <- function()
 {
     print("--- test_.extractExperimentDirectoriesFromWebPage")
-    subdirs <- AnnotationHubData:::.extractExperimentDirectoriesFromWebPage(EncodeBaseURL())
+   subdirs <- AnnotationHubData:::.extractExperimentDirectoriesFromWebPage(
+                                       EncodeBaseURL())
     checkTrue(length(subdirs) > 50)
     checkTrue("wgEncodeUwTfbs/" %in% subdirs)
 
@@ -109,7 +87,8 @@ test_.downloadFileInfo <- function(verbose=FALSE)
 {
     print('--- test_.downloadFileInfo')
     destinationDir <- tempdir()
-    all.dirs <- AnnotationHubData:::.extractExperimentDirectoriesFromWebPage(EncodeBaseURL())
+    all.dirs <- AnnotationHubData:::.extractExperimentDirectoriesFromWebPage(
+                                         EncodeBaseURL())
        # no files.txt in these directories:  referenceSequences
     postponed <- grep("referenceSequences", all.dirs)
     if(length(postponed) > 0)
@@ -160,10 +139,10 @@ test_.learnAllEncodeMetadataCategories <- function()
 
     checkEquals(length(all.keys), 20)
     checkEquals(sort(all.keys),
-                c("cell", "composite", "dataType", "dataVersion", "dateSubmitted",
-                  "dateUnrestricted", "dccAccession", "grant", "lab", "localization",
-                  "md5sum", "origAssembly", "project", "rnaExtract",  "size", "subId",
-                  "tableName", "treatment", "type", "view"))
+         c("cell", "composite", "dataType", "dataVersion", "dateSubmitted",
+           "dateUnrestricted", "dccAccession", "grant", "lab", "localization",
+           "md5sum", "origAssembly", "project", "rnaExtract",  "size", "subId",
+           "tableName", "treatment", "type", "view"))
 
 
 
@@ -176,24 +155,32 @@ test_.learnAllEncodeMetadataCategories <- function()
 # read one metadata file, make sure it has a sensible number of columns and rows
 # and that three previously observed files are mentioned
 #
-test_parseMetadataFiles <- function()
+test_.parseMetadataFiles <- function()
 {
-    print('--- test_parseMetadataFiles')
+    print('--- test_.parseMetadataFiles')
 
-    ahroot <- system.file(package="AnnotationHubData",
-                         "unitTests", "cases", "encodeDCCMetadata")
-    downloadDir <- ahroot # file.path(ahroot, "downloads")
+        # two truncated metadata files (6 lines only) are stored in the package
+        # for testing: unitTests/cases/encodeDCCMetadata
+        #       wgEncodeAffyRnaChip.info
+        #   wgEncodeAwgDnaseUniform.info
+        # in normal use of the EncodeImportPreparer, files like these are
+        # downloaded from the ucsc encodeDCC web site, then parsed
+        # hence "downloadDir"
 
-    importer <- EncodeImportPreparer(ahroot)
-    data.file.info <- AnnotationHubData:::.learnAllEncodeMetadataCategories(downloadDir, verbose=FALSE)
+    downloadDir <- system.file(package="AnnotationHubData",
+                               "unitTests", "cases", "encodeDCCMetadata")
+    dataFile.summary <-
+         AnnotationHubData:::.learnAllEncodeMetadataCategories(downloadDir,
+                                                               verbose=FALSE)
        # only files which end in .info:
     downloaded.metadata.files <- grep("\\.info$", dir(downloadDir), value=TRUE)
     checkEquals(length(downloaded.metadata.files), 2)
 
     full.paths <- file.path(downloadDir, downloaded.metadata.files)
     checkTrue(all(sapply(full.paths, file.exists)))
-    tbl <- parseMetadataFiles(importer, full.paths, data.file.info)
-    checkEquals(dim(tbl), c(12,21))
+    tbl.md <- AnnotationHubData:::.parseMetadataFiles(full.paths,
+                                                      dataFile.summary)
+    checkEquals(dim(tbl.md), c(12,21))
 
         # "remoteDirectory" is a column we add explicitly
         # (in EncodeImportPreparer-class, parseMetadataFiles)
@@ -201,36 +188,14 @@ test_parseMetadataFiles <- function()
         # were renamed when downloaded, from files.txt to
         # <remoteDirectory>.info.   make sure this is a column
         # in the data.frame
-    checkTrue("remoteDirectory" %in% colnames(tbl))
-    checkEquals(sort(unique(tbl$composite)), c("wgEncodeAffyRnaChip","wgEncodeAwgDnaseUniPk"))
+    checkTrue("remoteDirectory" %in% colnames(tbl.md))
+    checkEquals(sort(unique(tbl.md$composite)),
+                c("wgEncodeAffyRnaChip","wgEncodeAwgDnaseUniPk"))
+
+    tbl.md   # for possible use by other test functions
     
 
-} # test_parseMetadataFiles
-#-------------------------------------------------------------------------------
-test_saveAndLoadMetadata <- function()
-{
-    print("--- test_saveAndLoadMetadata")
-    ahroot <- system.file(package="AnnotationHubData",
-                          "unitTests", "cases", "encodeDCCMetadata")
-
-    file.info <-
-        AnnotationHubData:::.learnAllEncodeMetadataCategories(ahroot,
-                                                              verbose=FALSE)
-    metadata.files <- grep("\\.info$", dir(ahroot), value=TRUE)
-    checkEquals(length(metadata.files), 2)
-    full.paths <- file.path(ahroot, metadata.files)
-    
-    importer <- EncodeImportPreparer(ahroot)
-    tbl <- parseMetadataFiles(importer, full.paths, file.info)
-
-    path <- tempdir()
-    filename <- "enodeMDTest.RData"
-    saveMetadata(importer, tbl, path, filename)
-    checkTrue(file.exists(file.path(path, filename)))
-    tbl.2 <- loadMetadata(importer, path, filename)
-    checkIdentical(tbl, tbl.2)
-
-} # test_saveAndLoadMetadata
+} # test_.parseMetadataFiles
 #-------------------------------------------------------------------------------
 test_.convertSizeStringsToNumeric <- function()
 {
@@ -262,25 +227,21 @@ test_.assignRecipeAndArgs <- function()
 #-------------------------------------------------------------------------------
 # take the first line of the first metadata file cached with the package
 # (inst/unitTests/casesencodeDCCMetadata/wgEncodeAffyRnaChip.info), and
-# turn it into an AnnotationHubData 
-test_encodeMetadataToAnnotationHubMetadata <- function()
+# turn it into an AnnotationHubData metadata object
+test_.encodeMetadataToAnnotationHubMetadata <- function()
 {
-    print("--- test_encodeMetadataToAnnotationHubMetadata")
+    print("--- test_.encodeMetadataToAnnotationHubMetadata")
 
-    packageTestDataDir <- system.file("unitTests/cases/encodeDCCMetadata", package="AnnotationHubData")
-    full.path <- file.path(packageTestDataDir, "tbl.parsedEncodeMetadata.RData")
-    load(full.path)
-    
-    checkEquals(dim(tbl.md), c(2,21))
-    ahRoot <- tempdir()
-    eip <- EncodeImportPreparer(ahRoot, tbl.md)
+    tbl.md <- test_.parseMetadataFiles()
 
+    checkEquals(dim(tbl.md), c(12,21))
 
         # test with just one entry
-    eip <- encodeMetadataToAnnotationHubMetadata(eip, subset=1, verbose=FALSE)
-    ahmd.list <- eip@ahmd
+    ahRoot <- "/bogus/ahroot"
+    ahmd.list <- AnnotationHubData:::.encodeMetadataToAnnotationHubMetadata(
+                                          tbl.md,  ahRoot, verbose=FALSE)
 
-    checkEquals(length(ahmd.list), 1)
+    checkEquals(length(ahmd.list), 12)
     amd <- ahmd.list[[1]]
 
       ## check the easy fields, avoid the ones not assigned by us, or which may
@@ -291,7 +252,8 @@ test_encodeMetadataToAnnotationHubMetadata <- function()
     checkEquals(amd@Coordinate_1_based, TRUE)
     checkEquals(amd@DataProvider, "EncodeDCC")
       ## checkEquals(amd@DerivedMd5, "")
-    checkEquals(amd@Description, "wgEncodeAffyRnaChipFiltTransfragsGm12878CellTotal")
+    checkEquals(amd@Description,
+                "wgEncodeAffyRnaChipFiltTransfragsGm12878CellTotal")
     checkEquals(amd@Genome, "hg19")
       ## checkEquals(amd@Maintainer, "")
       ## checkEquals(amd@Notes, "")
@@ -318,248 +280,127 @@ test_encodeMetadataToAnnotationHubMetadata <- function()
 
 
     checkTrue(url.exists(amd@SourceUrl))
+    
+} # test_.encodeMetadataToAnnotationHubMetadata
+#-------------------------------------------------------------------------------
+test_threeEncodeDirectories <- function()
+{
+    print("--- test_threeEncodeDirectories")
+    ahroot <- tempdir()
 
-    eip <- encodeMetadataToAnnotationHubMetadata(eip, subset=1:2, verbose=TRUE)
-    ahmd.2 <- eip@ahmd
-    checkEquals(length(ahmd.2), 2)
-    checkEquals(ahmd.2[[1]]@Title, "wgEncodeAffyRnaChipFiltTransfragsGm12878CellTotal")
-    checkEquals(ahmd.2[[2]]@Title, "wgEncodeAwgDnaseDuke8988tUniPk")
+    count <- 3
+    eic <- EncodeImportPreparer(ahroot, verbose=FALSE, maxForTesting=count)
+    checkTrue(length(metadataList(eic)) > count)
+    checkEquals(nrow(metadataTable(eic)), length(metadataList(eic)))
 
-} # test_encodeMetadataToAnnotationHubMetadata
+        # "composite" is supplied by encodeDCC, and is usually the
+        # name of the directory from which the files.txt was
+        # was obtained.  but not always.  so we add
+        # "remoteDirectory".  the counts of these two should be
+        # the same
+    checkEquals(length(unique(metadataTable(eic)$composite)), count)
+    checkEquals(length(unique(metadataTable(eic)$remoteDirectory)), count)
+
+    urls <- sapply(metadataList(eic), function(elt) metadata(elt)$SourceUrl)
+    checkTrue(length(urls) > 10)   # 457 on (7 mar 2013)
+        # pick 5 urls at random
+    urls <- urls[sample(1:length(urls), 5)]
+    checkTrue(all(sapply(urls, function(url) url.exists(url))))
+
+} # test_threeEncodeDirectories
 #-------------------------------------------------------------------------------
 test_newResources <- function()
 {
     print("--- test_newResources")
 
-    packageTestDataDir <- system.file("unitTests/cases/encodeDCCMetadata", package="AnnotationHubData")
-    full.path <- file.path(packageTestDataDir, "tbl.parsedEncodeMetadata.RData")
-    load(full.path)
+    eip1 <- EncodeImportPreparer(tempdir(), maxForTesting=1)
+    eip2 <- EncodeImportPreparer(tempdir(), maxForTesting=2)
+    delta <- length(sourceUrls(eip2)) - length(sourceUrls(eip1))
     
-    checkEquals(dim(tbl.md), c(2,21))
-    ahRoot <- tempdir()
-    eip <- EncodeImportPreparer(ahRoot, tbl.md)
-    eip <- encodeMetadataToAnnotationHubMetadata(eip,
-                                                 subset=NA,
-                                                 verbose=FALSE)
-    checkEquals(length(newResources(eip, currentMetadata=eip@ahmd[1])), 1)
-    checkEquals(length(newResources(eip)),2)
-    checkEquals(length(newResources(eip, eip@ahmd)), 0)
+    ahmd.delta <- newResources(eip2, metadataList(eip1))
+    checkEquals(delta, length(ahmd.delta))
+    
 
 } # test_newResources
 #-------------------------------------------------------------------------------
-# a utility method for the package maintainter, to create a 2-row instance
-# of our slighly augmented data.frame version of downloaded EncodeDCC metadata
-# this describes data files in two different EncodeDCC directories
-admin_createTinyMetadataTableForTesting <- function()
+# takes about 2 minutes elapsed time
+test_endToEndFourResources <- function()
 {
-    tbl.mdTest <- test_parseMetadataFiles.2()[c(1,7),]
-    checkEquals(dim(tbl.mdTest), c(2, 21))
-    checkEquals(rownames(tbl.mdTest),
-                c("wgEncodeAffyRnaChipFiltTransfragsGm12878CellTotal.broadPeak.gz",
-                  "wgEncodeAwgDnaseDuke8988tUniPk.narrowPeak.gz"))
-    checkEquals(tbl.mdTest$remoteDirectory,
-                c("wgEncodeAffyRnaChip", "wgEncodeAwgDnaseUniform"))
-       # here is the problem that the new column "remoteDirectory" solves:
-       # in this one case, the composite field holds a value which differs
-       # from the remoteDirectory:
-       # AwgDnaseUniPk != AwgDnaseUniform
-    checkEquals(tbl.mdTest$composite,
-                c("wgEncodeAffyRnaChip", "wgEncodeAwgDnaseUniPk"))
-    
-       # ensure the working directory is what we need to write this package
-       # into its proper home in the built package, from which it is
-       # read by test_encodeMetadataToAnnotationHubMetadata, below.
-    checkEquals(basename(getwd()), "unitTests")
-    save(tbl.mdTest, file="cases/encodeDCCMetadata/tbl.mdTest.RData")
-    browser("ctmdt")
+    print("--- test_endToEndFourResources")
+    unlink(file.path(tempdir(), dir(tempdir())))
+    eip4 <- EncodeImportPreparer(tempdir(), verbose=FALSE, maxForTesting=6)
 
-} # admin_createTinyMetadataTableForTesting
-#-------------------------------------------------------------------------------
-# 0.6 seconds for this test
-admin_speedupMetadataCreation <- function()
-{
-    print("-- admin_speedupMetadataCreation")
-    downloadDir <- "downloadTmp/tfbs" # system.file("unitTests/cases/encodeDCCMetadata", package="AnnotationHubData")
+         # two directories dropped because they contain only files
+         # for which we have no recipes
+    tbl.md <- metadataTable(eip4)
+    checkEquals(length(unique(tbl.md$remoteDirectory)), 4)
 
-    print(system.time({
-        data.file.info <- AnnotationHubData:::.learnAllEncodeMetadataCategories(downloadDir, verbose=TRUE)
-        importer <- EncodeImportPreparer()
-           # only files which end in .info:
-        metadata.files <- grep("\\.info$", dir(downloadDir), value=TRUE)
-           #    52442 Mar  4 10:29 wgEncodeUchicagoTfbs.info
-           #   536582 Mar  4 10:29 wgEncodeUwTfbs.info
-           #  1859779 Mar  4 10:29 wgEncodeSydhTfbs.info
-        metadata.files <- c("wgEncodeUchicagoTfbs.info",
-                            "wgEncodeUwTfbs.info") #,
-                            #"wgEncodeSydhTfbs.info")
-        full.path <- file.path(downloadDir, metadata.files)
-        tbl <- parseMetadataFiles(importer, full.path, data.file.info)
-        #browser("post-fast")
-        checkEquals(dim(tbl), c (1044,30))
-        }))
-         
+    indices <- match(unique(tbl.md$remoteDirectory), tbl.md$remoteDirectory)
+    tbl.md[indices, c("remoteDirectory", "size")]
 
-} # admin_speedupMetadataCreation
-#-------------------------------------------------------------------------------
-# 88 seconds to download all 55 files
-# 17 seconds to translate into one big 
-admin_downloadAndTranslateteAllMetadata <- function(download=FALSE, verbose=FALSE)
-{
-    print("-- admin_downloadAndTranslateAllMetadata")
+    ahmds <- metadataList(eip4)[indices]
+    ahRoot <- annotationHubRoot(eip4)
 
-    downloadDir <- "cases/encodeDCCMetadata/downloads"
-    if(!download)
-        stopifnot(file.exists(downloadDir))
-    
-    if(download) {
-        downloadDir <- tempdir()
-         print(system.time({
-              AnnotationHubData:::.retrieveEncodeDCCMetadataFiles(downloadDir, max=NA,
-                                                                   verbose=verbose)
-           }))
-        printf("downloaded %d files from encodeDCC to %s", length(list.files(downloadDir)),
-               downloadDir)
-        }# if download
-    
-    print(system.time({
-        dataFile.summary <- AnnotationHubData:::.learnAllEncodeMetadataCategories(
-                downloadDir, verbose=verbose)
-        importer <- EncodeImportPreparer(downloadDir)
-           # only files which end in .info:
-        metadata.files <- grep("\\.info$", dir(downloadDir), value=TRUE)
-        full.path <- file.path(downloadDir, metadata.files)
-        tbl.md <- parseMetadataFiles(importer, full.path, dataFile.summary,
-                                      verbose=verbose)
-        save(tbl.md, file="./tbl.parsedEncodeMetadata.RData")
-        }))
-
-    # save(tbl, file="cases/encodeDCCMetadata/tbl.mdFull.RData")
-    # save(tbl, file="/Users/pshannon/s/data/public/encode/tbl.encode.metadata.RData")
-    invisible(tbl)
-
-} # admin_downloadAndTranslateAllMetadata
-#-------------------------------------------------------------------------------
-admin_createAllAHMetadata <- function()
-{
-    print("--- admin_createAllAHMetadata")
-    file <- "/Users/pshannon/s/data/public/encode/tbl.encode.metadata.RData"
-    load(file)
-    checkEquals(dim(tbl.md), c (24521, 52))
-    supported.formats <- c("narrowPeak", "broadPeak", "gtf", "bedRnaElements")
-    tbl.md <- subset(tbl.md, type %in% supported.formats)
-    record.count <- 4581
-    checkEquals(dim(tbl.md), c (record.count, 52))
-    importPrep <- EncodeImportPreparer(tbl.md)
-    ahRoot <- tempdir()
-    #ahmd <- encodeMetadataToAnnotationHubMetadata(importPrep, ahRoot, subset=1:200, verbose=TRUE)
-    ahmd <- encodeMetadataToAnnotationHubMetadata(importPrep, subset=1:200, verbose=TRUE)
-    browser("ahmd")
-    #checkEquals(length(ahmd), record.count)
-    for(i in 1:record.count){
-        link <- ahmd[[i]]@SourceUrl
-        printf("%4d: %20s: %s %60s", i, tbl.md$composite[i], url.exists(link), link)
-        }
-      # ahmd.2[[125]]
-      #  wgEncodeAwgDnaseUniform/
-      # url.exists("http://hgdownload.cse.ucsc.edu/goldenpath/hg19/encodeDCC//wgEncodeAwgDnaseUniPk/wgEncodeAwgDnaseUwHl60UniPk.narrowPeak.gz")
-    
-    browser("bulk")
-
-} # bulkTest_createAllAHMetadata
-#-------------------------------------------------------------------------------
-admin_findSmallSampleFiles <- function()
-{
-    print("--- admin_findSmallSampleFiles")
-
-    file <- "/Users/pshannon/s/data/public/encode/tbl.encode.metadata.RData"
-    load(file)
-
-    supported.formats <- c("narrowPeak", "broadPeak", "gtf", "bedRnaElements")
-    for(format in supported.formats){
-        tbl.sub <- subset(tbl.md, type==format)
-        tbl.sub <- tbl.sub[order(tbl.sub$size),]
-        printf("%30s: %s", rownames(tbl.sub)[1], tbl.sub$size[1])
-        } # for format
-
-} # admin_findSmallSampleFiles
-#-------------------------------------------------------------------------------
-admin_runSmallSampleFiles <- function()
-{
-    file <- "/Users/pshannon/s/data/public/encode/tbl.encode.metadata.RData"
-    load(file)
-
-    print("---admin_runSmallSampleFiles") # 536, 204, 156k & 260k bytes respectively
-        # the result of admin_findSmallSampleFiles above
-    small.files <- list(narrowPeak="wgEncodeSydhTfbsK562Xrcc4StdPk.narrowPeak.gz",
-                        broadPeak="wgEncodeSunySwitchgearHt1080Elavl1RbpAssocRna.broadPeak.gz",
-                        gtf="wgEncodeCshlLongRnaSeqHmecCellPamGeneDeNovo.gtf.gz",
-                        bedRna="wgEncodeCshlShortRnaSeqHepg2NucleusShorttotalTapContigs.bedRnaElements.gz")
-
-        # where are they in the big table?
-    sample.indices <- match(as.character(small.files), rownames(tbl.md))
-
-    importPrep <- EncodeImportPreparer(tbl.md)
-    ahRoot <- tempdir()
-    ahmd <- encodeMetadataToAnnotationHubMetadata(importPrep, ahRoot,
-                                                  subset=sample.indices,
-                                                  verbose=TRUE)
-    for(i in 1:length(small.files)) {
-        remote.file <- ahmd[[i]]@SourceUrl
+    for(ahmd in ahmds) {
+        remote.file <- ahmd@SourceUrl
         checkTrue(url.exists(remote.file))
-        directory.path <- file.path (ahRoot, dirname(ahmd[[i]]@SourceFile))
+        directory.path <- file.path (ahRoot, dirname(ahmd@SourceFile))
         if(!file.exists(directory.path))
             dir.create(directory.path, recursive=TRUE)
-        local.file <- file.path(directory.path, basename(ahmd[[i]]@SourceFile))
+        local.file <- file.path(directory.path, basename(ahmd@SourceFile))
         download.file(remote.file, local.file, quiet=TRUE)
         checkTrue(file.exists(local.file))
-        recipe <- AnnotationHubRecipe(ahmd[[i]])
+        recipe <- AnnotationHubRecipe(ahmd)
         zz <- run(recipe)
-        #browser("runRecipe")
-        print(load(zz))
+        load(zz)
+        #printf("%s: as gr: %d  as gzipped table: %d",
+        #       basename(local.file), length(gr),
+        #       nrow(read.table(local.file, sep="\t", header=FALSE)))
+        #printf("mcols: %s", paste(colnames(mcols(gr)), collapse=" "))
+        checkEquals(length(gr), nrow(read.table(local.file, sep="\t",
+                                                header=FALSE)))
+        } # for ahmd
+    
+} # test_endToEndFourResources 
+#-------------------------------------------------------------------------------
+test_runLargerSelection <- function()
+{
+    print("--- test_runLargerSelection")
+
+    unlink(file.path(tempdir(), dir(tempdir())))
+
+        # takes about 40 seconds elapsed time
+    eip <- EncodeImportPreparer(tempdir(), verbose=FALSE, maxForTesting=NA)
+    ahRoot <- annotationHubRoot(eip)
+    ahmds <- metadataList(eip)
+    tbl.md <- metadataTable(eip)
+    indices <- which(tbl.md$size<50000)
+    ahmds <- ahmds[indices]
+
+    printf("total resources: %d", length(ahmds))
+    max <- length(ahmds)
+    
+    for(i in 1:max) {
+        ahmd <- ahmds[[i]]
+        printf("%s: %d", rownames(tbl.md)[i], tbl.md$size[i])
+        remote.file <- ahmd@SourceUrl
+        checkTrue(url.exists(remote.file))
+        directory.path <- file.path (ahRoot, dirname(ahmd@SourceFile))
+        if(!file.exists(directory.path))
+            dir.create(directory.path, recursive=TRUE)
+        local.file <- file.path(directory.path, basename(ahmd@SourceFile))
+        download.file(remote.file, local.file, quiet=TRUE)
+        checkTrue(file.exists(local.file))
+        recipe <- AnnotationHubRecipe(ahmd)
+        zz <- run(recipe)
+        load(zz)
         printf("%s: as gr: %d  as gzipped table: %d",
                basename(local.file), length(gr),
                nrow(read.table(local.file, sep="\t", header=FALSE)))
-        printf("mcols: %s", list.to.string(colnames(mcols(gr))))
-        checkEquals(length(gr), nrow(read.table(local.file, sep="\t", header=FALSE)))
+        printf("mcols: %s", paste(colnames(mcols(gr)), collapse=" "))
+        checkEquals(length(gr), nrow(read.table(local.file, sep="\t",
+                                                header=FALSE)))
         } # for i
 
-} # admin_runSmallSampleFiles
-#-------------------------------------------------------------------------------
-import.md <- function(verbose=FALSE)
-{
-    ahroot <- "~/s/data/public/encode";
-    eip <- EncodeImportPreparer(ahroot)
-    checkEquals(nrow(metadataTable(eip)), 0)
-
-    downloadDir <- file.path(ahroot, "downloads")
-    if(!file.exists(downloadDir))
-         dir.create(downloadDir)
-    
-    AnnotationHubData:::.retrieveEncodeDCCMetadataFiles(downloadDir, max=NA,
-                                                        verbose=verbose)
-    printf("downloaded %d files from encodeDCC to %s", length(list.files(downloadDir)),
-               downloadDir)
-    
-   dataFile.summary <- AnnotationHubData:::.learnAllEncodeMetadataCategories(downloadDir, verbose=verbose)
-   metadata.files <- grep("\\.info$", dir(downloadDir), value=TRUE)
-   full.path <- file.path(downloadDir, metadata.files)
-   tbl.md <- parseMetadataFiles(eip, full.path, dataFile.summary,verbose=verbose)
-
-   serializedFileName <- file.path(ahroot, "tbl.parsedEncodeMetadata.RData")
-
-   save(tbl.md, file=serializedFileName)
-   invisible(tbl.md)
-
-    
-} # import.md
-#-------------------------------------------------------------------------------
-# 7 minutes
-to.ahmd <- function()
-{
-    ahroot <- "~/s/data/public/encode";
-    eip <- EncodeImportPreparer(ahroot)
-    zz <- encodeMetadataToAnnotationHubMetadata(eip, subset=NA, verbose=FALSE)
-    zz
-    
-} # to.ahmd
+} # test_runLargerSelection
 #-------------------------------------------------------------------------------
