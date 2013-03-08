@@ -99,6 +99,7 @@ setClass("AnnotationHubMetadata",
 {
     if (!exists("speciesMap"))
         data(speciesMap, package="AnnotationHubData")
+    species <- gsub(" {2,}", " ", species)
     idx <- match(species, speciesMap$species)
     if (any(is.na(idx)))
         stop(sum(is.na(idx)), " unknown species: ",
