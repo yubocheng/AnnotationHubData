@@ -1,6 +1,3 @@
-#destinationDir <- "~/tmp/encodeDCC"
-destinationDir <- tempdir()
-
 library(AnnotationHubData)
 library(RUnit)
 library(RCurl)
@@ -18,7 +15,7 @@ paulsTests <- function()
 
     test_.downloadFileInfo()
        # next test depends upon functions tested by preceeding two tests
-    test_.retrieveEncodeDCCMetadataFiles(destinationDir)
+    test_.retrieveEncodeDCCMetadataFiles()
     test_.learnAllEncodeMetadataCategories()
     test_.assignRecipeAndArgs()
     test_.convertSizeStringsToNumeric()
@@ -111,7 +108,7 @@ test_.downloadFileInfo <- function(verbose=FALSE)
 # make sure we can get each files.txt (encodeDCC metadata file, one per
 # project directory).  each file has 1 or more (and as many as 4000) lines, each
 # describing a file in the project directory
-test_.retrieveEncodeDCCMetadataFiles <- function(destinationDir)
+test_.retrieveEncodeDCCMetadataFiles <- function()
 {
     print("--- test_.retrieveEncodeDCCMetadataFiles")
 
@@ -351,8 +348,10 @@ test_endToEndFourResources <- function()
         download.file(remote.file, local.file, quiet=TRUE)
         checkTrue(file.exists(local.file))
         recipe <- AnnotationHubRecipe(ahmd)
-        zz <- run(recipe)
-        load(zz)
+        md <- run(recipe)
+        serializedDataFileName <- file.path(md@AnnotationHubRoot, md@RDataPath)
+        checkTrue(file.exists(serializedDataFileName))
+        load(serializedDataFileName)
         #printf("%s: as gr: %d  as gzipped table: %d",
         #       basename(local.file), length(gr),
         #       nrow(read.table(local.file, sep="\t", header=FALSE)))
@@ -377,12 +376,12 @@ test_runLargerSelection <- function()
     indices <- which(tbl.md$size<50000)
     ahmds <- ahmds[indices]
 
-    printf("total resources: %d", length(ahmds))
+    #printf("total resources: %d", length(ahmds))
     max <- length(ahmds)
     
     for(i in 1:max) {
         ahmd <- ahmds[[i]]
-        printf("%s: %d", rownames(tbl.md)[i], tbl.md$size[i])
+        #printf("%s: %d", rownames(tbl.md)[i], tbl.md$size[i])
         remote.file <- ahmd@SourceUrl
         checkTrue(url.exists(remote.file))
         directory.path <- file.path (ahRoot, dirname(ahmd@SourceFile))
@@ -392,12 +391,14 @@ test_runLargerSelection <- function()
         download.file(remote.file, local.file, quiet=TRUE)
         checkTrue(file.exists(local.file))
         recipe <- AnnotationHubRecipe(ahmd)
-        zz <- run(recipe)
-        load(zz)
-        printf("%s: as gr: %d  as gzipped table: %d",
-               basename(local.file), length(gr),
-               nrow(read.table(local.file, sep="\t", header=FALSE)))
-        printf("mcols: %s", paste(colnames(mcols(gr)), collapse=" "))
+        md <- run(recipe)
+        serializedDataFileName <- file.path(md@AnnotationHubRoot, md@RDataPath)
+        checkTrue(file.exists(serializedDataFileName))
+        load(serializedDataFileName)
+        #printf("%s: as gr: %d  as gzipped table: %d",
+        #       basename(local.file), length(gr),
+        #       nrow(read.table(local.file, sep="\t", header=FALSE)))
+        #printf("mcols: %s", paste(colnames(mcols(gr)), collapse=" "))
         checkEquals(length(gr), nrow(read.table(local.file, sep="\t",
                                                 header=FALSE)))
         } # for i

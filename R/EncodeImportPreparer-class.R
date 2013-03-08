@@ -357,6 +357,7 @@ setMethod("newResources", "EncodeImportPreparer",
     k.units <- which(grepl("K", sizeStrings))
     if (length(k.units) > 0){
         k.strings <- sizeStrings[k.units]
+        #printf("k.strings: %s", paste(k.strings, collapse=","))
         k.values <- 1000 * as.numeric(substring(k.strings, 1,
                                                 nchar(k.strings)-1))
         result[k.units] <- k.values
