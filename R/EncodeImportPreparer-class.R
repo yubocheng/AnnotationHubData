@@ -514,7 +514,7 @@ setMethod("newResources", "EncodeImportPreparer",
             }# for i
         } # for filename
     rownames(tbl) <- all.data.filenames
-    tbl <- as.data.frame(tbl)
+    tbl <- as.data.frame(tbl, stringsAsFactors=FALSE)
     tbl$size <- .convertSizeStringsToNumeric(tbl$size)
     invisible(tbl)
     } # .parseMetadataFiles
