@@ -136,14 +136,12 @@ test_post_processing <- function()
 
     ## create GRanges from the extended bed file, save as RData where
     ## instructed by the recipe
-    pathToRDataFile <- run(recipe)
-
-    ## reload the metadata
-    md2 <- AnnotationHubMetadataFromJson(path)
+    postProcessedMd <- run(recipe)
+    pathToRDataFile <- metadata(postProcessedMd)$RDataPath
 
     info <- file.info(pathToRDataFile)
-    checkEquals(info$size, metadata(md2)$RDataSize)
+    checkEquals(info$size, metadata(postProcessedMd)$RDataSize)
 
-    difft <- info$mtime - metadata(md2)$RDataLastModifiedDate
+    difft <- info$mtime - metadata(postProcessedMd)$RDataLastModifiedDate
     checkEqualsNumeric(0, difft, tolerance=1) # rouding to 1s diff
 }
