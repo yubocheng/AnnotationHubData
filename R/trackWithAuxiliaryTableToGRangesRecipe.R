@@ -220,7 +220,7 @@ trackandTablesToGRangesRecipe <- function(recipe)
 trackToGRangesRecipe <- function(recipe)
 {
     destfile <- file.path(metadata(recipe)$AnnotationHubRoot,
-        metadata(recipe)$RDataPath))
+        metadata(recipe)$RDataPath)
     if (file.exists(destfile))
     {
         .printf("%s exists, skipping...", destfile)
