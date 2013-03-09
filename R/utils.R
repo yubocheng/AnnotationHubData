@@ -10,3 +10,9 @@ URL_parts <- function(x)
     colnames(parts) <- c("protocol","host","port","path")
     parts
 }
+
+
+url.exists <- function(url)
+{
+   HEAD(url)$headers$status == "200"
+}

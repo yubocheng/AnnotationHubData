@@ -22,6 +22,8 @@ importFrom(Rsamtools, indexFa)
 
 importFrom(rtracklayer, import)
 
+importFrom(httr, HEAD)
+
 export(AnnotationHubMetadataFromJson,
        jsonPath,
        fromJSON,
