@@ -173,6 +173,8 @@ setMethod("newResources", "EncodeImportPreparer",
                                    filename)
            sourceUrl <- paste(EncodeBaseURL(), remoteDirectory, filename,
                               sep="/")
+           if (!url.exists(sourceUrl))
+               return(NA)
            tags <- as.character(encode.metadata.list)
                # remove empty fields
            tags <- tags[nchar(tags) > 0]
@@ -201,7 +203,7 @@ setMethod("newResources", "EncodeImportPreparer",
     ahmd.list <- lapply(seq_len(nrow(tbl.md)),
            function(index) xlate(annotationHubRoot, rownames(tbl.md)[index],
                                  as.list(tbl.md[index,])))
-    ahmd.list
+    Filter(Negate(is.na), ahmd.list)
 
 } # encodeMetadataToAnnotationHubMetadata
 #-------------------------------------------------------------------------------
