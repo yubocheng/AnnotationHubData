@@ -85,6 +85,12 @@ test_nullRecipe <- function()
 # demonstrate and test the use of a locally defined function, one which does
 # no transformation of data, just reports the number of characters in the
 # name of the recipe's input data file
+
+outfile <- function(ahroot, ahm)
+{
+    file.path(ahroot, metadata(ahm)$RDataPath)
+}
+
 test_adhocRecipe <- function()
 {
     print ("--- test_adhocRecipe")
@@ -110,7 +116,8 @@ test_adhocRecipe <- function()
        # adhoc  does character count on the input file specified
        # in the json file.  will change on each run due to the
        # random tmp directory name.  check for identical counts
-    checkEquals(run(recipe, adhoc), nchar(inputFiles(recipe)[1]))
+    checkEquals(outfile(annotationHubRoot,
+        run(recipe, adhoc)), inputFiles(recipe))
        # every recipe should save its results to the specified 
        # output file.  check this
     if(exists('result')) rm(result)
@@ -173,7 +180,7 @@ test_extendedBedToGRanges <- function()
 
         # create GRanges from the extended bed file, save as RData where
         # instructed by the recipe
-    pathToRDataFile <- run(recipe)
+    pathToRDataFile <- outfile(annotationHubRoot, run(recipe))
 
         # check the result
     load(pathToRDataFile)
@@ -411,7 +418,7 @@ test_ensemblGtfToGRanges <- function()
         # create a metadata object from this file
     md <- constructMetadataFromJsonPath(annotationHubRoot, jsonPath)
     recipe <- AnnotationHubRecipe(md)
-    RDataFilename <- run(recipe)
+    RDataFilename <- outfile(annotationHubRoot, run(recipe))
     checkEquals(RDataFilename, outputFile(recipe))
     checkTrue(file.exists(RDataFilename))
     loadedDataName <- load(RDataFilename)
@@ -473,7 +480,7 @@ test_broadPeakToGRanges <- function()
 
         # create GRanges from the extended bed file, save as RData where
         # instructed by the recipe
-    pathToRDataFile <- run(recipe)
+    pathToRDataFile <- outfile(annotationHubRoot, run(recipe))
 
 
         # check the result
@@ -513,7 +520,7 @@ test_narrowPeakToGRanges <- function()
 
         # create GRanges from the extended bed file, save as RData where
         # instructed by the recipe
-    pathToRDataFile <- run(recipe)
+    pathToRDataFile <- outfile(annotationHubRoot, run(recipe))
 
 
         # check the result
@@ -553,7 +560,7 @@ test_rtracklayerGenericImportOfEncodeGtf <- function ()
 
         # create GRanges from the extended bed file, save as RData where
         # instructed by the recipe
-    pathToRDataFile <- run(recipe)
+    pathToRDataFile <- outfile(annotationHubRoot, run(recipe))
 
         # check the result
     load(pathToRDataFile)
@@ -593,7 +600,7 @@ test_bedRnaElementsToGRanges <- function()
 
         # create GRanges from the extended bed file, save as RData where
         # instructed by the recipe
-    pathToRDataFile <- run(recipe)
+    pathToRDataFile <- outfile(annotationHubRoot, run(recipe))
 
         # check the result
     load(pathToRDataFile)
