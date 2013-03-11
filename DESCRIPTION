@@ -21,7 +21,7 @@ Imports:
     IRanges,
     Rsamtools,
     httr,
-    futile.logger
+    futile.logger (>= 1.3.0)
 Description: These recipes convert a wide variety and a growing number of
     public bioinformatic data sets into easily-used standard Bioconductor data
     structures.
