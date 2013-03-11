@@ -18,7 +18,7 @@ url.exists <- function(url)
 }
 
 ## log messages to console AND to a file
-flog <- function(level, msg)
+flog <- function(level, ...)
 {
     loggerFunction <- switch(level,
         "flog.fatal",
@@ -31,6 +31,8 @@ flog <- function(level, msg)
         "flog.debug",
         "flog.trace"
         )
-    do.call(loggerFunction, list(msg=msg))
-    do.call(loggerFunction, list(msg=msg, name="file"))
+    dots <- list(...)
+    do.call(loggerFunction, dots)
+    dots$name <- "file"
+    do.call(loggerFunction, dots)
 }
