@@ -39,7 +39,10 @@ ucscEncodePath <- function() return("goldenpath/hg19/encodeDCC/")
 ucscEncodeTop <- function() return(paste(ucscHome(),
                                          ucscEncodePath(), sep=""))
 EncodeBaseURL <- function () return (ucscEncodeTop())
-printf <- function(...) print(noquote(sprintf(...)))
+#------------------------------------------------------------------------------
+# general utility functions not yet generally available:
+.printf <- function(...) print(noquote(sprintf(...)))
+.url.exists <- function(url){HEAD(url)$headers$status == "200"}
 #------------------------------------------------------------------------------
 EncodeImportPreparer <- function(annotationHubRoot, tbl.md=NULL, verbose=FALSE,
                                  maxForTesting=NA)
@@ -55,7 +58,7 @@ EncodeImportPreparer <- function(annotationHubRoot, tbl.md=NULL, verbose=FALSE,
         # a clean slate, to delete these downloaded files if found
     
     if(length(currentContents) > 0){
-        if(verbose) printf("removing %d files from tempdir %s",
+        if(verbose) .printf("removing %d files from tempdir %s",
                            length(currentContents),
                            downloadDir)
     
@@ -167,14 +170,16 @@ setMethod("newResources", "EncodeImportPreparer",
     xlate <- function(annotationHubRoot, filename, encode.metadata.list){
         with(encode.metadata.list, {
            if(verbose)
-               printf("%s: %s", filename, type)
+               .printf("%s: %s", filename, type)
            recipe.info <- AnnotationHubData:::.assignRecipeAndArgs(type)
            sourceFile <- file.path("goldenpath/hg19/encodeDCC", remoteDirectory,
                                    filename)
            sourceUrl <- paste(EncodeBaseURL(), remoteDirectory, filename,
                               sep="/")
-           if (!url.exists(sourceUrl))
+           if (!url.exists(sourceUrl)) {
+               #browser("exists")
                return(NA)
+               }
            tags <- as.character(encode.metadata.list)
                # remove empty fields
            tags <- tags[nchar(tags) > 0]
@@ -203,9 +208,12 @@ setMethod("newResources", "EncodeImportPreparer",
     ahmd.list <- lapply(seq_len(nrow(tbl.md)),
            function(index) xlate(annotationHubRoot, rownames(tbl.md)[index],
                                  as.list(tbl.md[index,])))
-    Filter(Negate(is.na), ahmd.list)
+    #not.legit <- function (x) is.logical(x) && is.na(x)
+    #Filter(Negate(not.legit), ahmd.list)
+    Filter(function(x) is(x, "AnnotationHubMetadata"), ahmd.list) # or use NULL & is.null instead of NA
 
-} # encodeMetadataToAnnotationHubMetadata
+
+} # .encodeMetadataToAnnotationHubMetadata
 #-------------------------------------------------------------------------------
 .assignRecipeAndArgs <- function(dataFormat)
 {
@@ -274,12 +282,12 @@ setMethod("newResources", "EncodeImportPreparer",
 {
   for(subdir in subdirs){
      if(verbose)
-         printf("downloading from %s: %s", baseUrl, subdir)
+         .printf("downloading from %s: %s", baseUrl, subdir)
      url <- file.path(baseUrl, subdir, "files.txt")
      subdir.stripped <- gsub("/", "", subdir)
      destination <- file.path(downloadDir, sprintf("%s.info", subdir.stripped))
      if(verbose)
-         printf ("%s -> %s", url, destination)
+         .printf ("%s -> %s", url, destination)
      download.file(url, destination, quiet=!verbose)
      }
 
@@ -359,7 +367,7 @@ setMethod("newResources", "EncodeImportPreparer",
     k.units <- which(grepl("K", sizeStrings))
     if (length(k.units) > 0){
         k.strings <- as.character(sizeStrings[k.units])
-        #printf("k.strings: %s", paste(k.strings, collapse=","))
+        #.printf("k.strings: %s", paste(k.strings, collapse=","))
         k.values <- 1000 * as.numeric(substring(k.strings, 1,
                                                 nchar(k.strings)-1))
         result[k.units] <- k.values
@@ -419,12 +427,12 @@ setMethod("newResources", "EncodeImportPreparer",
            new.unique.keys <- setdiff(keys, all.keys)
            if(verbose)
                if (length(new.unique.keys) > 0)
-                   printf("%30s, new.unique.keys: %d", file,
+                   .printf("%30s, new.unique.keys: %d", file,
                           length(new.unique.keys))
            all.keys <- unique(c(all.keys, keys))
            } # for i
        if(verbose)
-            printf("%30s  new keys %d  currentTotal: %d", file,
+            .printf("%30s  new keys %d  currentTotal: %d", file,
                    length(keys), length(all.keys))
         } # file
 

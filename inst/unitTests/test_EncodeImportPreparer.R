@@ -3,11 +3,6 @@ library(RUnit)
 library(RCurl)
 library(httr)
 #-------------------------------------------------------------------------------
-url.exists <- function(url)
-{
-   HEAD(url)$headers$status == "200"
-}
-#-------------------------------------------------------------------------------
 paulsTests <- function()
 {
     test_.extractLinksFromHtmlLines()
@@ -58,7 +53,7 @@ test_.extractLinksFromHtmlLines <- function()
     
     removers <- grep ("Parent Directory", lines, ignore.case=TRUE)
     if(length(removers) > 0)
-      lines <- lines[-removers]
+        lines <- lines[-removers]
 
     checkTrue(length(lines) > 50)  # 55 on (8 jan 2013)
     links <- AnnotationHubData:::.extractLinksFromHtmlLines(lines)
@@ -70,7 +65,7 @@ test_.extractLinksFromHtmlLines <- function()
 test_.extractExperimentDirectoriesFromWebPage <- function()
 {
     print("--- test_.extractExperimentDirectoriesFromWebPage")
-   subdirs <- AnnotationHubData:::.extractExperimentDirectoriesFromWebPage(
+    subdirs <- AnnotationHubData:::.extractExperimentDirectoriesFromWebPage(
                                        EncodeBaseURL())
     checkTrue(length(subdirs) > 50)
     checkTrue("wgEncodeUwTfbs/" %in% subdirs)
@@ -222,9 +217,10 @@ test_.assignRecipeAndArgs <- function()
 
 } # test_.assignRecipeAndArgs
 #-------------------------------------------------------------------------------
-# take the first line of the first metadata file cached with the package
-# (inst/unitTests/casesencodeDCCMetadata/wgEncodeAffyRnaChip.info), and
-# turn it into an AnnotationHubData metadata object
+# ask for a list of AnnotationHubMetadata items for 12 files, then check details of
+# one of them.
+# perturb filename #2 so that it names a file (a url) which does not exist.
+# this should cause a list of 11 ahmd items to be returned
 test_.encodeMetadataToAnnotationHubMetadata <- function()
 {
     print("--- test_.encodeMetadataToAnnotationHubMetadata")
@@ -232,13 +228,16 @@ test_.encodeMetadataToAnnotationHubMetadata <- function()
     tbl.md <- test_.parseMetadataFiles()
 
     checkEquals(dim(tbl.md), c(12,21))
-
         # test with just one entry
     ahRoot <- "/bogus/ahroot"
+    rownames(tbl.md)[2] <- "bogusDoesNotExist.broadpeak.gz"
+
+    #browser("ataToAnno")
+
     ahmd.list <- AnnotationHubData:::.encodeMetadataToAnnotationHubMetadata(
                                           tbl.md,  ahRoot, verbose=FALSE)
 
-    checkEquals(length(ahmd.list), 12)
+    checkEquals(length(ahmd.list), 11)
     amd <- ahmd.list[[1]]
 
       ## check the easy fields, avoid the ones not assigned by us, or which may
@@ -287,8 +286,15 @@ test_threeEncodeDirectories <- function()
 
     count <- 3
     eic <- EncodeImportPreparer(ahroot, verbose=FALSE, maxForTesting=count)
-    checkTrue(length(metadataList(eic)) > count)
-    checkEquals(nrow(metadataTable(eic)), length(metadataList(eic)))
+    checkTrue(length(metadataList(eic)) > count)   # 456 elements (mar 2013)
+       # any non-existent urls, such as
+       #    http://hgdownload.cse.ucsc.edu/goldenpath/hg19/encodeDCC/\
+       #  /wgEncodeAwgDnaseUniform/wgEncodeAwgDnaseDukeHuh7.5UniPk.narrowPeak.gz
+       # cause the metadataList to be shorter than the metdataTable
+       # allow for this, but check to make sure that it is relatively
+       # rare
+    checkTrue(nrow(metadataTable(eic))>= length(metadataList(eic)))
+    checkTrue(length(metadataList(eic))/nrow(metadataTable(eic)) > 0.95)
 
         # "composite" is supplied by encodeDCC, and is usually the
         # name of the directory from which the files.txt was
@@ -299,7 +305,7 @@ test_threeEncodeDirectories <- function()
     checkEquals(length(unique(metadataTable(eic)$remoteDirectory)), count)
 
     urls <- sapply(metadataList(eic), function(elt) metadata(elt)$SourceUrl)
-    checkTrue(length(urls) > 10)   # 457 on (7 mar 2013)
+    checkTrue(length(urls) > 10)   # 456 on (7 mar 2013)
         # pick 5 urls at random
     urls <- urls[sample(1:length(urls), 5)]
     checkTrue(all(sapply(urls, function(url) url.exists(url))))
