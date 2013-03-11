@@ -198,14 +198,14 @@ trackandTablesToGRangesRecipe <- function(recipe)
     }
     
     
-    ## add seqlength & chromosome circularity information
-    newSeqInfo <- constructSeqInfo(metadata(recipe)@Species,
-                                    metadata(recipe)@Genome)
-    ## if gr only has a subset of all possible chromosomes,
-    ## then update those only
-    seqinfo(gr) <- newSeqInfo[names(seqinfo(gr))]
+##     ## add seqlength & chromosome circularity information
+##     newSeqInfo <- constructSeqInfo(metadata(recipe)@Species,
+##                                     metadata(recipe)@Genome)
+##     ## if gr only has a subset of all possible chromosomes,
+##     ## then update those only
+##     seqinfo(gr) <- newSeqInfo[names(seqinfo(gr))]
     save(gr, file=outputFile(recipe))  
-    outputFile(recipe)
+##     outputFile(recipe)
 
 } # trackandTablesToGRangesRecipe
 #-------------------------------------------------------------------------------
@@ -236,14 +236,14 @@ trackToGRangesRecipe <- function(recipe)
     ## then get the object
     gr <- track(query, asRangedData = FALSE)
         
-    ## add seqlength & chromosome circularity information
-    newSeqInfo <- constructSeqInfo(metadata(recipe@metadata)$Species,
-                                    metadata(recipe@metadata)$Genome)
-    ## if gr only has a subset of all possible chromosomes,
-    ## then update those only
-    seqinfo(gr) <- newSeqInfo[names(seqinfo(gr))]
+##     ## add seqlength & chromosome circularity information
+##     newSeqInfo <- constructSeqInfo(metadata(recipe@metadata)$Species,
+##                                     metadata(recipe@metadata)$Genome)
+##     ## if gr only has a subset of all possible chromosomes,
+##     ## then update those only
+##     seqinfo(gr) <- newSeqInfo[names(seqinfo(gr))]
     save(gr, file=outputFile(recipe))
-    outputFile(recipe)
+##     outputFile(recipe)
 
 } # trackToGRangesRecipe
 #-------------------------------------------------------------------------------
