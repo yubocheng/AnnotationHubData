@@ -137,7 +137,7 @@ test_post_processing <- function()
     ## create GRanges from the extended bed file, save as RData where
     ## instructed by the recipe
     postProcessedMd <- run(recipe)
-    pathToRDataFile <- metadata(postProcessedMd)$RDataPath
+    pathToRDataFile <- file.path(ahroot, metadata(postProcessedMd)$RDataPath)
 
     info <- file.info(pathToRDataFile)
     checkEquals(info$size, metadata(postProcessedMd)$RDataSize)
