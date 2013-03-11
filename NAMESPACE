@@ -12,6 +12,8 @@ export(newResources,
 
 import(rjson)
 
+import(futile.logger)
+
 importFrom(RCurl, getURL)
 
 importFrom(BiocInstaller, biocVersion)

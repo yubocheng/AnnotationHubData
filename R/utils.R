@@ -16,3 +16,21 @@ url.exists <- function(url)
 {
    HEAD(url)$headers$status == "200"
 }
+
+## log messages to console AND to a file
+flog <- function(level, msg)
+{
+    loggerFunction <- switch(level,
+        "flog.fatal",
+        "flog.error",
+        "noop",
+        "flog.warn",
+        "noop",
+        "flog.info",
+        "noop",
+        "flog.debug",
+        "flog.trace"
+        )
+    do.call(loggerFunction, list(msg=msg))
+    do.call(loggerFunction, list(msg=msg, name="file"))
+}

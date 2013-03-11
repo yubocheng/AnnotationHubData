@@ -20,7 +20,8 @@ Imports:
     rtracklayer (>= 1.19.10),
     IRanges,
     Rsamtools,
-    httr
+    httr,
+    futile.logger
 Description: These recipes convert a wide variety and a growing number of
     public bioinformatic data sets into easily-used standard Bioconductor data
     structures.
