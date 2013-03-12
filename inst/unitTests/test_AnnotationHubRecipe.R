@@ -3,6 +3,24 @@ library(rjson)
 library(rtracklayer)
 library(RUnit)
 #-------------------------------------------------------------------------------
+paulsTests <- function()
+{
+    test_.createWorkingDirectory()
+    test_simpleConstructor()
+    test_nullRecipe()
+    test_adhocRecipe()
+    test_constructSeqInfo()
+    test_extendedBedToGRanges()
+    test_extendedBedWithAuxiliaryTableToGRanges()
+    test_trackToGRangesRecipe()
+    test_ensemblGtfToGRanges()
+    test_broadPeakToGRanges()
+    test_narrowPeakToGRanges()
+    test_rtracklayerGenericImportOfEncodeGtf()
+    test_bedRnaElementsToGRanges()
+
+} # paulsTests
+#-------------------------------------------------------------------------------
 test_.createWorkingDirectory <- function()
 {
     print ("--- test_.createWorkingDirectory")
@@ -117,7 +135,7 @@ test_adhocRecipe <- function()
        # in the json file.  will change on each run due to the
        # random tmp directory name.  check for identical counts
     checkEquals(outfile(annotationHubRoot,
-        run(recipe, adhoc)), inputFiles(recipe))
+        run(recipe, adhoc)), outputFile(recipe))
        # every recipe should save its results to the specified 
        # output file.  check this
     if(exists('result')) rm(result)
@@ -214,7 +232,9 @@ test_extendedBedWithAuxiliaryTableToGRanges <- function()
         # create a metadata object from this file
     md <- constructMetadataFromJsonPath(annotationHubRoot, jsonPath)
     recipe <- AnnotationHubRecipe(md)
-    RDataFilename <- run(recipe)
+    result <- run(recipe)
+    #browser("result")
+    RDataFilename <- outfile(annotationHubRoot, run(recipe))
     checkEquals(RDataFilename, outputFile(recipe))
     loadedDataName <- load(RDataFilename)
     checkEquals(loadedDataName, 'gr')
