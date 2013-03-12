@@ -18,9 +18,10 @@ paulsTests <- function()
     test_.encodeMetadataToAnnotationHubMetadata()
 
     test_ctor()
-    test_threeEncodeDirectories()
     test_newResources()
-    test_endToEndFourResources()
+
+    admin_test_threeEncodeDirectories()
+    admin_test_endToEndFourResources()
     
 
 } # runTests
@@ -279,9 +280,9 @@ test_.encodeMetadataToAnnotationHubMetadata <- function()
     
 } # test_.encodeMetadataToAnnotationHubMetadata
 #-------------------------------------------------------------------------------
-test_threeEncodeDirectories <- function()
+admin_test_threeEncodeDirectories <- function()
 {
-    print("--- test_threeEncodeDirectories")
+    print("--- admin_test_threeEncodeDirectories")
     ahroot <- tempdir()
 
     count <- 3
@@ -310,7 +311,7 @@ test_threeEncodeDirectories <- function()
     urls <- urls[sample(1:length(urls), 5)]
     checkTrue(all(sapply(urls, function(url) url.exists(url))))
 
-} # test_threeEncodeDirectories
+} # admin_test_threeEncodeDirectories
 #-------------------------------------------------------------------------------
 test_newResources <- function()
 {
@@ -327,7 +328,7 @@ test_newResources <- function()
 } # test_newResources
 #-------------------------------------------------------------------------------
 # takes about 2 minutes elapsed time
-test_endToEndFourResources <- function()
+admin_test_endToEndFourResources <- function()
 {
     print("--- test_endToEndFourResources")
     unlink(file.path(tempdir(), dir(tempdir())))
@@ -366,11 +367,11 @@ test_endToEndFourResources <- function()
                                                 header=FALSE)))
         } # for ahmd
     
-} # test_endToEndFourResources 
+} # admin_test_endToEndFourResources 
 #-------------------------------------------------------------------------------
-test_runLargerSelection <- function()
+admin_test_runLargerSelection <- function()
 {
-    print("--- test_runLargerSelection")
+    print("--- admin_test_runLargerSelection")
 
     unlink(file.path(tempdir(), dir(tempdir())))
 
@@ -409,5 +410,5 @@ test_runLargerSelection <- function()
                                                 header=FALSE)))
         } # for i
 
-} # test_runLargerSelection
+} # admin_test_runLargerSelection
 #-------------------------------------------------------------------------------
