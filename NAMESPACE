@@ -8,7 +8,7 @@ export(AnnotationHubMetadata, AnnotationHubRecipe,
 export(newResources,
   constructAnnotationHubMetadataFromSourceFilePath,
   postProcessMetadata,
-  constructMetadataFromJsonPath)
+  constructMetadataFromJsonPath, flog)
 
 import(rjson)
 
