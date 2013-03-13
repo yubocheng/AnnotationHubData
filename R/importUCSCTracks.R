@@ -120,15 +120,16 @@ UCSCFullTrackImportPreparer <-
     ## retrieve all possible tracks from UCSC
     genomes <- ucscGenomes()$db
     session <- browserSession()
-    ## get the tracks for each genome. (pre-computed)
-    load(system.file("extdata","badUCSCTracks","allPossibleTracks.rda",
-                     package = "AnnotationHubData"))    ## allTracks
-    ## check that we can know all species names for all these tracks.
-    
-    ## get the list of bad tracks. (pre-computed)
-    load(system.file("extdata","badUCSCTracks","allBadTracks.rda",
-                     package = "AnnotationHubData"))    ## allBadTracks
 
+    ## get the tracks for each genome. (pre-computed)
+    loadFile <- system.file("extdata","badUCSCTracks","allPossibleTracks.rda",
+                              package = "AnnotationHubData")
+    allTracks <- local({x = load (loadFile); get(x)})
+    loadFile <- system.file("extdata","badUCSCTracks","allBadTracks.rda",
+                            package = "AnnotationHubData")
+    allBadTracks <- local({x = load (loadFile); get(x)})
+
+    ## check that we can know all species names for all these tracks.
     .checkAllTracks(allTracks)
     ## Now I just have to merge the results of these two things
     .getGoodTracks(allTracks, allBadTracks)
