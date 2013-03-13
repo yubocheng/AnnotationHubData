@@ -57,7 +57,7 @@ AnnotationHubMetadataFromJson(path, ahroot=NA_character_)
     \item{Title}{\code{character(1)} Title for this resource}
     \item{Description}{\code{character(1)} Description of the resource}
     \item{Species}{\code{character(1)} Species name}
-    \item{TaxonomyId}{\code{character(1)  NCBI code}
+    \item{TaxonomyId}{\code{character(1)}  NCBI code}
     \item{Genome}{\code{character(1)} Name of genome build}
     \item{Tags}{\code{character()} Free-form tags}
 
