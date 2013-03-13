@@ -1,4 +1,4 @@
-globalVariables("speciesMap")
+globalVariables(c("speciesMap" "futile.logger"))
 
 .onLoad <-
     function(libname, pkgname)
