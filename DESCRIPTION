@@ -10,6 +10,8 @@ Depends:
     IRanges,
     GenomicRanges,
     GenomicFeatures (>= 1.11.16),
+    rtracklayer,
+    Rsamtools
 Suggests:
     RUnit,
 Imports:
