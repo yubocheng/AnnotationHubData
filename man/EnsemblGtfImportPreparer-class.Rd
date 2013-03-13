@@ -20,7 +20,8 @@
 \usage{
 EnsemblGtfImportPreparer(...)
 
-\S4method{newResources}{EnsemblGtfImportPreparer}(importPreparer, currentMetadata)
+\S4method{newResources}{EnsemblGtfImportPreparer}(importPreparer,
+            currentMetadata=list(), ...)
 }
 
 \arguments{
