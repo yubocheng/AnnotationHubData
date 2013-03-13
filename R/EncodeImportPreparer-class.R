@@ -79,9 +79,14 @@ EncodeImportPreparer <- function(annotationHubRoot, tbl.md=NULL, verbose=FALSE,
     metadata.files <- grep("\\.info$", dir(downloadDir), value=TRUE)
     full.paths <- file.path(downloadDir, metadata.files)
     tbl.md <- .parseMetadataFiles(full.paths, dataFile.summary, verbose=verbose)
-    tbl.md <- subset(tbl.md, type %in%
-                      c("narrowPeak", "broadPeak", "bedRnaElements", "gtf"))
-    tbl.md <- subset(tbl.md, size < 100000000)
+
+       # winnow the metadata down to the formats we support,
+       # and sizes which seem manageable
+    supported.formats <- c("narrowPeak", "broadPeak", "bedRnaElements", "gtf")
+    tbl.md <- tbl.md[tbl.md$type %in% supported.formats, ]
+    max.size <- 100000000
+    tbl.md <- tbl.md[tbl.md$size < max.size,]
+
     ahmd.list <- .encodeMetadataToAnnotationHubMetadata(tbl.md,
                                                         annotationHubRoot,
                                                         verbose)
