@@ -133,6 +133,10 @@ AnnotationHubMetadata <-
         RDataPath <- file.path(resourceDir, resourceFiles)
     }
 
+    RDataDateAdded <-
+        as.POSIXct(strsplit(
+            as.character(RDataDateAdded), " ")[[1]][1], tz="GMT")
+
     new("AnnotationHubMetadata",
         AnnotationHubRoot=AnnotationHubRoot,
         BiocVersion=biocVersion(),
