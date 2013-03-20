@@ -48,7 +48,6 @@ Collate:
     fakedata.R
     importBedFiles.R
     importFastaFiles.R
-    importUCSCTracks.R
     genericRtracklayer.R
     nullRecipe.R
     testutils.R
