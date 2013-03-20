@@ -1,9 +1,11 @@
 exportClasses(AnnotationHubMetadata, AnnotationHubRecipe,
     ImportPreparer, EnsemblFastaImportPreparer,
-    EnsemblGtfImportPreparer, EncodeImportPreparer)
+    EnsemblGtfImportPreparer, EncodeImportPreparer,
+    UCSCTrackImportPreparer)
 
 export(AnnotationHubMetadata, AnnotationHubRecipe,
-    EnsemblFastaImportPreparer, EnsemblGtfImportPreparer)
+    EnsemblFastaImportPreparer, EnsemblGtfImportPreparer,
+    UCSCTrackImportPreparer)
 
 export(newResources,
   constructAnnotationHubMetadataFromSourceFilePath,

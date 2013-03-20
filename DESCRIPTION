@@ -36,6 +36,7 @@ Collate:
     EnsemblImportPreparer-utils.R
     EnsemblFastaImportPreparer-class.R
     EnsemblGtfImportPreparer-class.R
+    UCSCTrackImportPreparer-class.R
     AnnotationHubMetadata-class.R
     AnnotationHubRecipe-class.R
     ensemblFastaToFaFile.R

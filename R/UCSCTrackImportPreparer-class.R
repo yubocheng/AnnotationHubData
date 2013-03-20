@@ -2,6 +2,17 @@
 ## Pre-Processing code to allow saving of "bad" tracks that will not load...
 ## Run these helper functions ahead of time and save output objects
 
+## global session to avoid unnecessary calls
+.ucscSession <- local({
+    session <- NULL
+    function() {
+        if (is.null(session)) {
+            session <<- browserSession()
+        }
+        session
+    }
+})
+
 ## This function takes about 20 + minutes to run.  The next two (for
 ## finding bad tracks) take overnight.
 .getTracksForGenomes <- function(genomes, session){
@@ -10,7 +21,7 @@
     ## Temp only look at a couple genomes
     ## genomes <- genomes[1:3]
     ## This step alone takes a very long time.
-    for(i in seq_along(genomes)){
+    for (i in seq_along(genomes)){
         genome(session) <- genomes[[i]]
         res[[i]] <- trackNames(session)
     }
@@ -27,7 +38,7 @@
 
 ## Need a helper to find "bad tracks" for a genome.
 .findBadTracks <- function(tracks, genome){
-    session <- browserSession()
+    session <- .ucscSession()
     genome(session) <- genome    
     errors <- list()
     for(i in seq_along(tracks)){
@@ -61,13 +72,6 @@
 ## badTracks = .getBadTracksForGenomes(genomes, tracks)
 
 
-
-
-
-
-
-
-
 ##############################################################################
 ##############################################################################
 ##############################################################################
@@ -90,119 +94,91 @@ UCSCFullTrackImportPreparer <-
 ## of ftp data the oreganno data will be there in several files dumped
 ## from the DB.
 
-
-## This helper lets me keep the named of the tracks as I subset them
-## Otherwise I could just mapply(setdiff, arg1, arg2)
-.getGoodTracks <- function(allTracks, allBadTracks){
-    diff <- function(trxa, trxb){
-        trxa[!(trxa %in% trxb)]
+.checkAllTracks <- function(allTracks) {
+    species <- GenomicFeatures:::UCSCGenomeToOrganism(names(allTracks))
+    if (any(idx <- is.na(species))) {
+        badSpecies <- names(species)[idx]
+        stop("update GenomicFeatures:::UCSCGenomeToOrganism",
+             " to support ", paste(sQuote(badSpecies), collapse=","))
     }
-    ## mapply
-    mapply(diff, allTracks, allBadTracks)
-}
-
-.checkAllTracks <- function(allTracks){
-    names <- names(allTracks)
-    species <- unlist(lapply(names, GenomicFeatures:::UCSCGenomeToOrganism))
-    badSpecies <- names[is.na(species)]
-    if(any(is.na(species))){
-        stop(paste0("You need to update the UCSCGenomeToOrganism function",
-                    " in the GenomicFeatures package to support the ",
-                    "following new tracks: ",
-                paste(badSpecies, collapse=",")))
-    }else{
-        message("Genome names are OK.  Species found for all genome names.")
-    }
+    TRUE
 }
 
 .UCSCTrackSourceTracks <- function(){
-    require(rtracklayer)
     ## retrieve all possible tracks from UCSC
     genomes <- ucscGenomes()$db
-    session <- browserSession()
 
     ## get the tracks for each genome. (pre-computed)
-    loadFile <- system.file("extdata","badUCSCTracks","allPossibleTracks.rda",
-                              package = "AnnotationHubData")
-    allTracks <- local({x = load (loadFile); get(x)})
-    loadFile <- system.file("extdata","badUCSCTracks","allBadTracks.rda",
-                            package = "AnnotationHubData")
-    allBadTracks <- local({x = load (loadFile); get(x)})
+    .cachedTracks <- function(filename) {
+        loadFile <- system.file("extdata","badUCSCTracks", filename,
+                                package = "AnnotationHubData")
+        x <- load(loadFile)
+        get(x)
+    }
+    allTracks <- .cachedTracks("allPossibleTracks.rda")
+    badTracks <- .cachedTracks("allBadTracks.rda")
 
     ## check that we can know all species names for all these tracks.
     .checkAllTracks(allTracks)
     ## Now I just have to merge the results of these two things
-    .getGoodTracks(allTracks, allBadTracks)
+    Map(function(a, b) a[!(a %in% b)], allTracks, badTracks)
 }
 
 
 
 
 .UCSCTrackMetadata <-
-    function(sourceTracks, type)
+    function(sourceTracks, type = c("FULL", "TRACKONLY"))
 {
-    if(type=="FULL"){
-        recipe = "trackandTablesToGRangesRecipe"
-    }else if(type=="TRACKONLY"){
-        recipe = "trackToGRangesRecipe"
-    }else{
-        stop("No valid type argument")
-    }
-
+    type <- match.arg(type)
+    recipe <- switch(type, FULL="trackandTablesToGRangesRecipe",
+                     TRACKONLY="trackToGRangesRecipe",
+                     stop("No valid type argument"))
     
-## To store data on each track:
-## ftp://hgdownload.cse.ucsc.edu/goldenpath/<genome name>/database/<track name>
+    ## To store data on each track:
+    ## ftp://hgdownload.cse.ucsc.edu/goldenpath/<genome>/database/<track>
 
-    genome <- rep(names(sourceTracks),unlist(lapply(sourceTracks,length)))
-    track <- unlist(sourceTracks)
+    genome <- rep(names(sourceTracks), sapply(sourceTracks,length))
+    track <- unlist(sourceTracks, use.names=FALSE)
     names(track) <- genome    
-    trackName <- unlist(lapply(sourceTracks, names))
-    names(trackName) <- NULL
+    trackName <- unlist(lapply(sourceTracks, names), use.names=FALSE)
+
     ## This really has to be the same for both. (parsed later on for trackName)
     sourceFile <- paste0("goldenpath/", genome, "/database/", track)
     
     ## customize name and description depending if it's the full track or not
-    if(type=="FULL"){
-        description <- paste0("This is a GRanges object based on UCSC track ",
-                              trackName,
-                              ", along with any of it's extra tables ")
-    }else if(type=="TRACKONLY"){
-        description <- paste0("This is a GRanges object based on UCSC track ",
-                          trackName)
-    }
+    description <-
+        paste0("GRanges object from on UCSC track ", sQuote(trackName))
+    if (type=="FULL")
+        description <- paste0(description, ", with additional tables")
+
     sourceUrl <- paste0("rtracklayer://hgdownload.cse.ucsc.edu/", sourceFile)
     title <- trackName
-    require(GenomicFeatures)
-    ## GenomicFeatures:::UCSCGenomeToOrganism("hg19")
-    species <-  unlist(lapply(genome,GenomicFeatures:::UCSCGenomeToOrganism))
-
+    species <-  unname(GenomicFeatures:::UCSCGenomeToOrganism(genome))
 
     sourceVersion <- genome
     stockTags <- c("UCSC", "track", "Gene", "Transcript", "Annotation")
-    allTags <- lapply(track, c, stockTags)
+    tags <- lapply(track, c, stockTags)
+
+    uspecies <- unique(species)
+    taxonomyId <- .taxonomyId(uspecies)[match(species, uspecies)]
 
     ## use Map to make all these from vectors
-    Map(AnnotationHubMetadata, AnnotationHubRoot=NA_character_,
-        Description=description,
-        Genome=genome, SourceFile=sourceFile,
-        SourceUrl=sourceUrl, SourceVersion=sourceVersion,
-        Species=species, Title=title,
-        Tags = allTags,
+
+    Map(AnnotationHubMetadata, Description=description, Genome=genome,
+        SourceFile=sourceFile, SourceUrl=sourceUrl,
+        SourceVersion=sourceVersion, Species=species,
+        TaxonomyId=taxonomyId, Title=title, Tags=tags,
         MoreArgs=list(
-          Coordinate_1_based = TRUE,
+          AnnotationHubRoot=NA_character_, Coordinate_1_based = TRUE,
           DataProvider = "hgdownload.cse.ucsc.edu",
           Maintainer = "Marc Carlson <mcarlson@fhcrc.org>",
           RDataClass = "GRanges",
           RDataDateAdded = format(Sys.time(), "%Y-%m-%d GMT"),
           RDataVersion = "0.0.1",
-          Recipe = c(recipe,
-            package="AnnotationHubData")))
-
-    
+          Recipe = c(recipe, package="AnnotationHubData"),
+          SourceMd5=NA_character_, SourceSize=NA_real_))
 }
-
-
-
 
 ## method for track only recipe
 setMethod(newResources, "UCSCTrackImportPreparer",
