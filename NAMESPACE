@@ -30,7 +30,6 @@ importFrom(httr, HEAD)
 
 export(AnnotationHubMetadataFromJson,
        jsonPath,
-       fromJSON,
        toJson,
        constructSeqInfo,
        extendedBedToGRanges,

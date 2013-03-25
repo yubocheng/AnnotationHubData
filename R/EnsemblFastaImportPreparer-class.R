@@ -4,7 +4,6 @@
 
 EnsemblFastaImportPreparer <- 
     setClass("EnsemblFastaImportPreparer", contains="ImportPreparer")
-
 ## retrieve FASTA file urls from Ensembl
 .ensemblFastaSourceUrls <-
     function(baseUrl)
@@ -60,7 +59,7 @@ EnsemblFastaImportPreparer <-
           Tags = c("FASTA", "ensembl", "sequence")))
 }
 
-setMethod(newResources, "EnsemblFastaImportPreparer",
+setMethod(newResources, signature="EnsemblFastaImportPreparer",
     function(importPreparer, currentMetadata = list(), ...)
 {
     sourceUrls <- .ensemblFastaSourceUrls(.ensemblBaseUrl) # 732,  6 March, 2013

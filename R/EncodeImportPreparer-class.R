@@ -141,10 +141,9 @@ setMethod("sourceUrls", "EncodeImportPreparer",
         })
 
 #------------------------------------------------------------------------------
-setMethod("newResources", "EncodeImportPreparer",
+setMethod("newResources", signature="EncodeImportPreparer",
 
     function(importPreparer, currentMetadata=list(), ...) {
-
 
         ahmd.list <- .encodeMetadataToAnnotationHubMetadata(
                           metadataTable(importPreparer),
