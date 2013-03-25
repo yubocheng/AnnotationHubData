@@ -1,12 +1,17 @@
 \name{speciesMap}
 \alias{speciesMap}
 \docType{data}
-\title{
+
+\author{
+  Marc Carlson
+  }
+
+  \title{
 Species Mapper object
 }
 \description{
-A data frame containing a mapping between NCBI Taxonomy IDs and 
-species names.
+A data frame containing a mapping between NCBI Taxonomy IDs and species
+names, for instance, from "H
 }
 \usage{data(speciesMap)}
 \format{
@@ -18,5 +23,8 @@ species names.
 }
 \examples{
 data(speciesMap)
+sapply(speciesMap, class)   #       taxon     species 
+                            #    "integer" "character" 
+subset(speciesMap, species=="Homo sapiens")$taxon # [1] 9606
 }
 \keyword{datasets}
