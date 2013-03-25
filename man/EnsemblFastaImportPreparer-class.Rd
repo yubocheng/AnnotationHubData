@@ -17,7 +17,7 @@
 }
 
 \usage{
-EnsemblFastaImportPreparer(...)
+   EnsemblFastaImportPreparer(...)
 
 \S4method{newResources}{EnsemblFastaImportPreparer}(importPreparer,
           currentMetadata=list(), ...)

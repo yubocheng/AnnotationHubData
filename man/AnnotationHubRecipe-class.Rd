@@ -6,7 +6,7 @@
 \alias{inputFiles}
 \alias{inputFiles,AnnotationHubRecipe-method}
 
-\alias{metadata}
+%% generic alias defined in AnnotationHubMetadata-class.Rd
 \alias{metadata,AnnotationHubRecipe-method}
 
 \alias{outputFile}
@@ -27,9 +27,15 @@
 \title{Class \code{"AnnotationHubRecipe"}}
 
 \description{
-Instances of this class perform data-driven transformation of public annotation data into
-standard Bioconductor data types (e.g., GRanges).  Each is constructed from an AnnotationHubMetadata
-object, which specifies where to find, how to transform, and where to write the data.
+  
+Instances of this class perform data-driven transformation of public
+annotation data into standard Bioconductor data types (e.g., GRanges).
+Each is constructed from an AnnotationHubMetadata object, which
+specifies where to find, how to transform, and where to write the data.
+Note that objects of this class are not really recipes: they \emph{use}
+recipes to cook raw data into cooked (that is, Bioc-ready) objects.  A
+better name might be "AnnotationHubChef".
+
 }
 
 \usage{
@@ -66,14 +72,17 @@ Objects can be created by calls to the class constructor \code{AnnotationHubReci
     \item{recipeName}{\code{signature(object = "AnnotationHubRecipe")}: ... }
     \item{run}{\code{signature(object = "AnnotationHubRecipe")}: ... }
     \item{show}{\code{signature(object = "AnnotationHubRecipe")}: ... }
-	 }
+  }
 }
 \author{
 Paul Shannon
 }
 
 \seealso{
-   \code{\linkS4class{AnnotationHubMetadata}} 
+   \code{\linkS4class{AnnotationHubMetadata}},
+   ensemblGtfToGRanges,
+   extendedBedWithAuxiliaryTableToGRanges,
+   extendedBedToGRanges
 }
 
 \examples{

@@ -31,4 +31,11 @@ ensemblGtfToGRanges(recipe)
 
 \author{Martin Morgan}
 
+\seealso{
+   extendedBedWithAuxiliaryTableToGRanges,
+   extendedBedToGRanges,
+   AnnotationHubRecipe
+}
+
+
 \keyword{classes}

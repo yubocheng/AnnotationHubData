@@ -3,7 +3,15 @@
 \alias{ImportPreparer-class}
 \alias{show,ImportPreparer-method}
 
+\alias{UCSCTrackImportPreparer-class}
+\alias{UCSCTrackImportPreparer}
+
+\alias{newResources,UCSCTrackImportPreparer-method}
+\alias{newResources,UCSCFullTrackImportPreparer-method}
+
 \alias{newResources}
+\alias{newResources,ImportPreparer-method}
+
 
 \title{Class \code{ImportPreparer} and generic \code{newResources}}
 
@@ -19,34 +27,6 @@
 
 }
 
-\usage{
-newResources(importPreparer, currentMetadata = list(), ...)
-}
-
-\arguments{
-
-  \item{importPreparer}{An instance of \code{ImportPreparer}, used for
-    method dispatch.}
-
-  \item{currentMetadata}{A list of
-    \code{\linkS4class{AnnotationHubMetadata}} instances, representing
-    already-curated data from the import preparer indicated by
-    \code{importPreparer}.}
-
-  \item{...}{Additional arguments, used by methods.}
-
-}
-
-\value{
-
-  \code{ImportPreparer} is a virtual class; derived classes return an
-  instance of the corresponding class.
-
-  \code{newResources} returns a list of
-  \code{\linkS4class{AnnotationHubMetadata}} objects representing
-  resources that are not in \code{currentMetadata}.
-
-}
 
 \author{Martin Morgan \url{mtmorgan@fhcrc.org}}
 

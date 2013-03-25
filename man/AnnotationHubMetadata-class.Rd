@@ -5,6 +5,15 @@
 \alias{jsonPath}
 \alias{AnnotationHubMetadataFromJson}
 \alias{toJson}
+\alias{constructAnnotationHubMetadataFromSourceFilePath}
+\alias{constructMetadataFromJsonPath}
+\alias{postProcessMetadata}
+\alias{metadata}
+\alias{metadata,AnnotationHubMetadata-method}
+\alias{metadata,AnnotationHubMetadata,list-method}
+\alias{metadata<-}
+\alias{metadata<-,AnnotationHubMetadata-method}
+\alias{metadata<-,AnnotationHubMetadata,list-method}
 
 \alias{show,AnnotationHubMetadata-method}
 
@@ -35,7 +44,10 @@ AnnotationHubMetadata(AnnotationHubRoot, SourceFile, SourceUrl,
                  TRUE, Notes = NA_character_)
 jsonPath(x)
 toJson(x)
-AnnotationHubMetadataFromJson(path, ahroot=NA_character_)
+constructAnnotationHubMetadataFromSourceFilePath(ahroot,
+    RDataVersion, originalFile)
+constructMetadataFromJsonPath(ahroot, jsonpath)
+postProcessMetadata(ahm)
 }
 
 \arguments{
@@ -80,11 +92,13 @@ AnnotationHubMetadataFromJson(path, ahroot=NA_character_)
     \item{Notes}{\code{character()} Notes about the resource.}
 
 
+    \item{ahm}{An instance of class \code{AnnotationHubMetadata}.}
     \item{x}{An instance of class \code{AnnotationHubMetadata}.}
-    \item{path}{\code{character(1)} full path to a JSON representation
+    \item{jsonpath}{\code{character(1)} full path to a JSON representation
         of \code{AnnotationHubMetadata}-class.}
     \item{ahroot}{A \code{character(1)} representing the value of
-        \code{AnnotationHubRoot} to be added to the returned instance.}
+      \code{AnnotationHubRoot} to be added to the returned instance.}
+    \item{originalFile}{A\code{character(1)}}
 }
 
 \value{

@@ -2,11 +2,18 @@
 \docType{class}
 \alias{EncodeImportPreparer-class}
 \alias{EncodeImportPreparer}
+\alias{annotationHubRoot}
 \alias{annotationHubRoot,EncodeImportPreparer-method}
+\alias{metadataList}
 \alias{metadataList,EncodeImportPreparer-method}
+\alias{metadataTable}
 \alias{metadataTable,EncodeImportPreparer-method}
-\alias{newResources,ImportPreparer,list-method}
+\alias{sourceUrls}
+\alias{sourceUrls,EncodeImportPreparer-method}
 
+\alias{newResources,EncodeImportPreparer-method}
+
+\alias{show,EncodeImportPreparer-method}
 
 \title{Class \code{EncodeImportPreparer}}
 
@@ -21,31 +28,40 @@
 }
 
 \usage{
-   EncodeImportPreparer(annotationHubRoot, tbl.md=NULL, verbose=FALSE,
+EncodeImportPreparer(annotationHubRoot, tbl.md=NULL, verbose=FALSE,
                         maxForTesting=NA)
-   newResources(importPreparer, currentMetadata=list(), ...)
+\S4method{newResources}{EncodeImportPreparer}(importPreparer,
+            currentMetadata=list(), ...)
 }
 
 \arguments{
 
-   \item{importPreparer}{An instance of \code{EncodeImportPreparer},
-         used for method dispatch.}
+  \item{annotationHubRoot}{a path}
    \item{tbl.md}{A data.frame with previously obtained and parsed
          EncodeDCC metadata.}
 
+  \item{verbose}{logical}
+  \item{importPreparer}{An instance of \code{ImportPreparer}, used for
+    method dispatch.}
    \item{maxForTesting}{An \code{integer} variable which can be used to
           limit the number of metadata files retrieved from Encode.  Note that
           each metadata file can describe any number -- from a few to thousands
             -- of data files.}
-
-  \item{verbose}{a \code{logical} variable.}
-    
   \item{currentMetadata}{A list of
     \code{\linkS4class{AnnotationHubMetadata}} instances, representing
-    already-curated data from the data provider indicated by
-    \code{object}.}
-  
-  \item{\ldots}{Further arguments to the constructor; ignored.}
+    already-curated data from the import preparer indicated by
+    \code{importPreparer}.}
+  \item{\dots}{Additional arguments, used by methods.}
+
+}
+
+\value{
+
+  \code{EncodeImportPreparer} is the constructor; an object of the class
+  is returned.
+  \code{newResources} returns a list of
+  \code{\linkS4class{AnnotationHubMetadata}} objects representing
+  resources that are not in \code{currentMetadata}.
 
 }
 
@@ -60,20 +76,16 @@
   A resource is \sQuote{new} if its URL is not present in the
   \code{SourceUrl} field of \code{ahmeta}.
 
-  \code{annotationHubRoot}, \code{metadataTable} and \code{metadataList}
-  are all \emph{getters} on an instance of this class.
+  \code{annotationHubRoot}, \code{metadataTable}, \code{metadataList}
+  and \code{sourceUrls} are all \emph{getters} on an instance of this class.
 }
 
-\value{
-
-  \code{EncodeImportPreparer} returns an instance of the class.
-
-  \code{newResources} returns a list of
-  \code{\linkS4class{AnnotationHubMetadata}} objects representing
-  resources that are not currently in the data base, or \code{list()} if
-  there are no new resources.
-
-}
+%%\value{
+%%  \code{EncodeImportPreparer} returns an instance of the class.
+%%  \code{\linkS4class{AnnotationHubMetadata}} objects representing
+%%  resources that are not currently in the data base, or \code{list()} if
+%%  there are no new resources.
+%%}
 
 \author{Paul Shannon \url{pshannon@fhcrc.org}}
 
@@ -83,6 +95,7 @@
 \examples{
 EncodeImportPreparer("/tmp", maxForTesting=1)
 }
+
 \keyword{classes}
 
 

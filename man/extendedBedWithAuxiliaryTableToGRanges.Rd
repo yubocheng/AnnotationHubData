@@ -13,12 +13,15 @@ extendedBedWithAuxiliaryTableToGRanges(recipe)
 }
 
 \value{
-None.
+   "File path of the created RData file."
 }
 \author{Paul Shannon}
 
 \seealso{
-  extendedBedWithAuxiliaryTableToGRanges,
+   extendedBedToGRanges,
+   ensemblGtfToGRanges,
+   AnnotationHubRecipe
+
 }
 
 
