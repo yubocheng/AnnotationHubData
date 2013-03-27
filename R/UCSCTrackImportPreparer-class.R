@@ -2,17 +2,6 @@
 ## Pre-Processing code to allow saving of "bad" tracks that will not load...
 ## Run these helper functions ahead of time and save output objects
 
-## global session to avoid unnecessary calls
-.ucscSession <- local({
-    session <- NULL
-    function() {
-        if (is.null(session)) {
-            session <<- browserSession()
-        }
-        session
-    }
-})
-
 ## This function takes about 20 + minutes to run.  The next two (for
 ## finding bad tracks) take overnight.
 .getTracksForGenomes <- function(genomes, session){
@@ -148,7 +137,7 @@ UCSCFullTrackImportPreparer <-
     
     ## customize name and description depending if it's the full track or not
     description <-
-        paste0("GRanges object from on UCSC track ", sQuote(trackName))
+        paste0("GRanges object from UCSC track ", sQuote(trackName))
     if (type=="FULL")
         description <- paste0(description, ", with additional tables")
 

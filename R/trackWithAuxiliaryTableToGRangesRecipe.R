@@ -210,40 +210,4 @@ trackandTablesToGRangesRecipe <- function(recipe)
 } # trackandTablesToGRangesRecipe
 #-------------------------------------------------------------------------------
 
-
-
-
-
-
-
-## make ONLY a simple track
-trackToGRangesRecipe <- function(recipe)
-{
-    destfile <- file.path(metadata(recipe)@AnnotationHubRoot,
-        metadata(recipe)@RDataPath)
-    if (file.exists(destfile))
-    {
-        .printf("%s exists, skipping...", destfile)
-        return()
-    }
-    session <- browserSession()
-    genome <- metadata(recipe)@Genome
-    genome(session) <- genome
-    sourceFile <- metadata(recipe)@SourceFile
-    track <- sub("^.+/database/","",sourceFile)
-    query <- ucscTableQuery(session, track)
-
-    ## then get the object
-    gr <- track(query, asRangedData = FALSE)
-        
-##     ## add seqlength & chromosome circularity information
-##     newSeqInfo <- constructSeqInfo(metadata(recipe@metadata)$Species,
-##                                     metadata(recipe@metadata)$Genome)
-##     ## if gr only has a subset of all possible chromosomes,
-##     ## then update those only
-##     seqinfo(gr) <- newSeqInfo[names(seqinfo(gr))]
-    save(gr, file=outputFile(recipe))
-##     outputFile(recipe)
-
-} # trackToGRangesRecipe
 #-------------------------------------------------------------------------------
