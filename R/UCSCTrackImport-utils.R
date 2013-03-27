@@ -15,7 +15,7 @@
 .GRangesForUSCSGenome <- local({
     env <- new.env(parent=emptyenv())
     function(genome) {
-        if (!exists(genome, env))
+        if (!exists(genome, envir=env))
             env[[genome]] <- GRangesForUCSCGenome(genome)
         env[[genome]]
     }
@@ -24,7 +24,7 @@
 .ucscTableQuery <- local({
     env <- new.env(parent=emptyenv())
     function(genome, trackName) {
-        if (!exists(genome, env)) {
+        if (!exists(genome, envir=env)) {
             range <- .GRangesForUSCSGenome(genome)
             env[[genome]] <- ucscTableQuery(.ucscSession(), trackName, range)
         } else {
