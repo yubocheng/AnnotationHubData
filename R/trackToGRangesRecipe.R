@@ -7,8 +7,9 @@ trackToGRangesRecipe <- function(recipe)
     outputFile <- outputFile(recipe)
     if (!file.exists(outputFile)) {
         trackName <- basename(metadata(metadata(recipe))$SourceFile)
-        genome <- metadata(metadata(recipe))$Genome
-        query <- .ucscTableQuery(genome, trackName)
+        session <- browserSession()
+        genome(session) <- metadata(metadata(recipe))$Genome
+        query <- ucscTableQuery(session, trackName)
         gr <- track(query, asRangedData = FALSE)
         save(gr, file=outputFile)
     }
