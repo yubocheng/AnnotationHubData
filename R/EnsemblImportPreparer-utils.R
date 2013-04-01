@@ -23,14 +23,16 @@
 .ensemblMetadataFromUrl <-
     function(sourceUrl)
 {
-    sgRegex <- "^([[:alpha:]_]+)\\.([[:alpha:]]+).*"
+    sgRegex <- "^([[:alpha:]_]+)\\.(.*)\\.[[:digit:]]+\\.[[:alpha:]]+"
     releaseRegex <- ".*(release-[[:digit:]]+).*"
     title <- sub(".gz$", "", basename(sourceUrl))
     root <- setNames(rep(NA_character_, length(sourceUrl)), title)
     species <- gsub("_", " ", sub(sgRegex, "\\1", title), fixed=TRUE)
-
+    taxonomyId <- local({
+        uspecies <- unique(species)
+        .taxonomyId(uspecies)[match(species, uspecies)]
+    })
     list(annotationHubRoot = root, title=title, species = species,
-         taxonomyId = .taxonomyId(species),
-         genome = sub(sgRegex, "\\2", title),
+         taxonomyId = taxonomyId, genome = sub(sgRegex, "\\2", title),
          sourceVersion = sub(releaseRegex, "\\1", sourceUrl))
 }
