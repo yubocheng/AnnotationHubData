@@ -104,7 +104,7 @@ setClass("AnnotationHubMetadata",
     idx <- match(species, speciesMap$species)
     if (any(is.na(idx)))
         stop(sum(is.na(idx)), " unknown species: ",
-             paste(sQuote(species[head(is.na(idx))]), collapse=" "))
+             paste(sQuote(head(species[is.na(idx)])), collapse=" "))
     as.character(speciesMap$taxon[idx])
 }
 
