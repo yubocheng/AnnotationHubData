@@ -3,8 +3,9 @@ ensemblFastaToFaFile <- function(recipe)
     require(Rsamtools)
     faIn <- normalizePath(inputFiles(recipe))
     faOut <- normalizePath(outputFile(recipe))
-    if (!identical(faIn, faOut))
-        file.copy(faIn, faOut)
+
+    tmp <- tempfile()
+    system2("zcat", sprintf("%s > %s", faIn, tmp))
+    razip(tmp, faOut)
     indexFa(faOut)
-    faOut
 }

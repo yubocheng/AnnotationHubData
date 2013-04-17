@@ -34,7 +34,9 @@ EnsemblFastaImportPreparer <-
     function(baseUrl, sourceUrl)
 {
     sourceFile <- .ensemblSourcePathFromUrl(baseUrl, sourceUrl)
-    meta <- .ensemblMetadataFromUrl(sourceUrl)
+    meta <- .ensemblMetadataFromUrl(
+        sourceUrl,
+        "^([[:alpha:]_]+)\\.(.*)\\.[[:digit:]]+(\\.[[:alpha:]_]+){2,3}")
     dnaType <- local({
         x <- basename(dirname(sourceFile))
         sub("(dna|rna)", "\\U\\1", x, perl=TRUE)
@@ -44,7 +46,7 @@ EnsemblFastaImportPreparer <-
     Map(AnnotationHubMetadata,
         AnnotationHubRoot=meta$annotationHubRoot,
         Description=description, Genome=meta$genome,
-        RDataPath=sourceFile, SourceFile=sourceFile,
+        RDataPath=sub(".gz$", ".rz", sourceFile), SourceFile=sourceFile,
         SourceUrl=sourceUrl, SourceVersion=meta$sourceVersion,
         Species=meta$species, TaxonomyId=meta$taxonomyId,
         Title=meta$title,
