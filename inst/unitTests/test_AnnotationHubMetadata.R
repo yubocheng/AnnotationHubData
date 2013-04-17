@@ -19,7 +19,8 @@
         Coordinate_1_based=TRUE,
         Maintainer="Paul Shannon <pshannon@fhcrc.org>",
         DataProvider="hgdownload.cse.ucsc.edu",
-        Notes="9 total columns...", RDataDateAdded=as.POSIXct("2013-01-01"))
+        Notes="9 total columns...",
+        RDataDateAdded=as.POSIXct("2013-01-01", tz="GMT"))
 })
 
 .AnnotationHubMetadata <- 

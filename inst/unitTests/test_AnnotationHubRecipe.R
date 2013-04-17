@@ -1,10 +1,12 @@
-library(AnnotationHubData)
-library(rjson)
-library(rtracklayer)
-library(RUnit)
-#-------------------------------------------------------------------------------
+
+## utilities
+##------------------------------------------------------------------------------
 paulsTests <- function()
 {
+    library(AnnotationHubData)
+    library(rjson)
+    library(rtracklayer)
+    library(RUnit)
     test_.createWorkingDirectory()
     test_simpleConstructor()
     test_nullRecipe()
@@ -20,7 +22,27 @@ paulsTests <- function()
     test_bedRnaElementsToGRanges()
 
 } # paulsTests
-#-------------------------------------------------------------------------------
+
+outfile <- function(ahroot, ahm)
+{
+    file.path(ahroot, metadata(ahm)$RDataPath)
+}
+
+checkSeqInfo <- function(gr)
+{
+       # a spot check to insure that seqinfo has been properly assigned
+       # hg19 (21 jan 2013):       seqLengths  isCircular   genome
+       #                 chr1      249250621        FALSE     hg19
+
+    chr1.length <- seqlengths(seqinfo(gr)["chr1"])
+    checkTrue(!is.na(chr1.length))
+    return(checkTrue(chr1.length > 200000000))
+
+
+} # checkSeqInfo
+
+## tests
+##------------------------------------------------------------------------------
 test_.createWorkingDirectory <- function()
 {
     print ("--- test_.createWorkingDirectory")
@@ -29,17 +51,18 @@ test_.createWorkingDirectory <- function()
     
     originalFiles <- sort(list.files(sourceDirectory, recursive=TRUE))
   
-       # recursive list.files ends up at the bottom of the extdata/goldenpath/hg19/...
-       # path, returning only the 3 (or more) files found there
+       # recursive list.files ends up at the bottom of the
+       # extdata/goldenpath/hg19/...  path, returning only the 3 (or
+       # more) files found there
        # PKG-ROOT/extdata/goldenpath/hg19/encodeDCC/wgEncodeRikenCage/
     checkTrue(length(originalFiles) >= 3)
     
     newDirectory <- AnnotationHubData:::.createWorkingDirectory(sourceDirectory)
     movedFiles <- sort(list.files(newDirectory, recursive=TRUE))
-    checkTrue(length(match(originalFiles, movedFiles)) == length (originalFiles))
-
+    checkTrue(length(match(originalFiles, movedFiles)) ==
+              length (originalFiles))
 } # test_.createWorkingDirectory
-#-------------------------------------------------------------------------------
+##------------------------------------------------------------------------------
 test_simpleConstructor <- function()
 {
     print ("--- test_simpleConstructor")
@@ -70,7 +93,7 @@ test_simpleConstructor <- function()
     TRUE
 
 } # test_simpleConstructor
-#-------------------------------------------------------------------------------
+##------------------------------------------------------------------------------
 # the 'nullRecipe' simply copies the specified input file to the specified
 # output file with no transformations on the contents.
 test_nullRecipe <- function()
@@ -82,7 +105,8 @@ test_nullRecipe <- function()
     jsonPath <- file.path(resourcePath, jsonFile)
     
     sourceDirectory <- system.file('extdata', package='AnnotationHubData')
-    workingDirectory <- AnnotationHubData:::.createWorkingDirectory(sourceDirectory)
+    workingDirectory <-
+        AnnotationHubData:::.createWorkingDirectory(sourceDirectory)
     annotationHubRoot <- workingDirectory
 
     md <- constructMetadataFromJsonPath(annotationHubRoot, jsonPath)
@@ -99,15 +123,10 @@ test_nullRecipe <- function()
     #runWild(recipe)
 
 } # test_nullRecipe
-#-------------------------------------------------------------------------------
+##------------------------------------------------------------------------------
 # demonstrate and test the use of a locally defined function, one which does
 # no transformation of data, just reports the number of characters in the
 # name of the recipe's input data file
-
-outfile <- function(ahroot, ahm)
-{
-    file.path(ahroot, metadata(ahm)$RDataPath)
-}
 
 test_adhocRecipe <- function()
 {
@@ -118,7 +137,8 @@ test_adhocRecipe <- function()
     jsonPath <- file.path(resourcePath, jsonFile)
     
     sourceDirectory <- system.file('extdata', package='AnnotationHubData')
-    workingDirectory <- AnnotationHubData:::.createWorkingDirectory(sourceDirectory)
+    workingDirectory <-
+        AnnotationHubData:::.createWorkingDirectory(sourceDirectory)
     annotationHubRoot <- workingDirectory
 
     md <- constructMetadataFromJsonPath(annotationHubRoot, jsonPath)
@@ -143,7 +163,7 @@ test_adhocRecipe <- function()
     checkEquals(result, nchar(inputFiles(recipe)[1]))
 
 } # test_adhocRecipe
-#-------------------------------------------------------------------------------
+##------------------------------------------------------------------------------
 test_constructSeqInfo <- function()
 {
     species <- "Homo sapiens"
@@ -166,9 +186,8 @@ test_constructSeqInfo <- function()
         # make sure we can subset the seqinfo when the GRanges for which it
         # is intended has fewer chromosomes than 25
 
-    
 } # test_constructSeqInfo
-#-------------------------------------------------------------------------------
+##------------------------------------------------------------------------------
 test_extendedBedToGRanges <- function()
 {
     print ("--- test_extendedBedToGRanges")
@@ -176,8 +195,8 @@ test_extendedBedToGRanges <- function()
         # copy the source data to a writable temporary directory
 
     sourceDirectory <- system.file("extdata", package="AnnotationHubData")
-
-    workingDirectory <- AnnotationHubData:::.createWorkingDirectory(sourceDirectory)
+    workingDirectory <-
+        AnnotationHubData:::.createWorkingDirectory(sourceDirectory)
     annotationHubRoot <- workingDirectory
 
         # locate the json metadata file
@@ -212,7 +231,7 @@ test_extendedBedToGRanges <- function()
     checkSeqInfo(gr)
 
 } # test_extendedBedToGRanges
-#-------------------------------------------------------------------------------
+##------------------------------------------------------------------------------
 test_extendedBedWithAuxiliaryTableToGRanges <- function()
 {
     print ("--- test_extendedBedWithAuxiliaryTableToGRanges")
@@ -240,8 +259,10 @@ test_extendedBedWithAuxiliaryTableToGRanges <- function()
     checkEquals(loadedDataName, 'gr')
     checkEquals(length(gr), 100)
     checkEquals(dim(mcols(gr)), c(100,8))
-    checkEquals(colnames(mcols(gr)), c("experimentID", "score", "track", "cellType",
-                                       "treatment", "replicate", "source", "date"))
+    checkEquals(colnames(mcols(gr)),
+                c("experimentID", "score", "track", "cellType",
+                  "treatment", "replicate", "source", "date"))
+
       # hand-check one range, extracted from our sample data
       # --- from the bed file
       #    seqname     start       end experimentID score
@@ -266,7 +287,7 @@ test_extendedBedWithAuxiliaryTableToGRanges <- function()
     checkSeqInfo(gr)
 
 } # test_extendedBedWithAuxiliaryTableToGRanges
-#-------------------------------------------------------------------------------
+##------------------------------------------------------------------------------
 ## test_trackWithAuxiliaryTablesToGRanges <- function()
 ## {
 ##     DEACTIVATED()
@@ -316,7 +337,7 @@ test_extendedBedWithAuxiliaryTableToGRanges <- function()
 ##     checkSeqInfo(gr)
 
 ## } # test_extendedBedWithAuxiliaryTableToGRanges
-## #-------------------------------------------------------------------------------
+##------------------------------------------------------------------------------
 ## test_trackandTablesToGRangesRecipe <- function()
 ## {
 ##     DEACTIVATED()
@@ -471,7 +492,7 @@ test_ensemblGtfToGRanges <- function()
 
 
 } # test_ensemblGtfToGRanges
-#-------------------------------------------------------------------------------
+##------------------------------------------------------------------------------
 test_broadPeakToGRanges <- function()
 {
     print ("--- test_broadPeakToGRanges")
@@ -479,8 +500,8 @@ test_broadPeakToGRanges <- function()
         # copy the source data to a writable temporary directory
 
     sourceDirectory <- system.file("extdata", package="AnnotationHubData")
-
-    workingDirectory <- AnnotationHubData:::.createWorkingDirectory(sourceDirectory)
+    workingDirectory <-
+        AnnotationHubData:::.createWorkingDirectory(sourceDirectory)
     annotationHubRoot <- workingDirectory
 
         # locate the json metadata file
@@ -512,7 +533,7 @@ test_broadPeakToGRanges <- function()
     checkSeqInfo(gr)
 
 } # test_broadPeakToGRanges
-#-------------------------------------------------------------------------------
+##------------------------------------------------------------------------------
 test_narrowPeakToGRanges <- function()
 {
     print ("--- test_narrowPeakToGRanges")
@@ -520,8 +541,8 @@ test_narrowPeakToGRanges <- function()
         # copy the source data to a writable temporary directory
 
     sourceDirectory <- system.file("extdata", package="AnnotationHubData")
-
-    workingDirectory <- AnnotationHubData:::.createWorkingDirectory(sourceDirectory)
+    workingDirectory <-
+        AnnotationHubData:::.createWorkingDirectory(sourceDirectory)
     annotationHubRoot <- workingDirectory
 
         # locate the json metadata file
@@ -553,15 +574,15 @@ test_narrowPeakToGRanges <- function()
 
 
 } # test_narrowPeakToGRanges
-#-------------------------------------------------------------------------------
+##------------------------------------------------------------------------------
 test_rtracklayerGenericImportOfEncodeGtf <- function ()
 {
 
     print ("--- test_rtracklayerGenericImportOfEncodeGtf")
         # copy the source data to a writable temporary directory
     sourceDirectory <- system.file("extdata", package="AnnotationHubData")
-
-    workingDirectory <- AnnotationHubData:::.createWorkingDirectory(sourceDirectory)
+    workingDirectory <-
+        AnnotationHubData:::.createWorkingDirectory(sourceDirectory)
     annotationHubRoot <- workingDirectory
 
         # locate the json metadata file
@@ -593,15 +614,15 @@ test_rtracklayerGenericImportOfEncodeGtf <- function ()
     TRUE
 
 } # test_rtracklayerGenericImportOfEncodeGtf 
-#-------------------------------------------------------------------------------
+##------------------------------------------------------------------------------
 test_bedRnaElementsToGRanges <- function()
 {
     print("--- test_bedRnaElementsToGRanges")
 
         # copy the source data to a writable temporary directory
     sourceDirectory <- system.file("extdata", package="AnnotationHubData")
-
-    workingDirectory <- AnnotationHubData:::.createWorkingDirectory(sourceDirectory)
+    workingDirectory <-
+        AnnotationHubData:::.createWorkingDirectory(sourceDirectory)
     annotationHubRoot <- workingDirectory
 
         # locate the json metadata file
@@ -625,21 +646,9 @@ test_bedRnaElementsToGRanges <- function()
         # check the result
     load(pathToRDataFile)
     checkEquals(length(gr), 11342)
-    checkEquals(names(mcols(gr)), c("name", "score", "level", "signif", "score2"))
+    checkEquals(names(mcols(gr)),
+                c("name", "score", "level", "signif", "score2"))
     checkSeqInfo(gr)
 
 } # test_bedRnaElementsToGRanges
-#-------------------------------------------------------------------------------
-checkSeqInfo <- function(gr)
-{
-       # a spot check to insure that seqinfo has been properly assigned
-       # hg19 (21 jan 2013):       seqLengths  isCircular   genome
-       #                 chr1      249250621        FALSE     hg19
 
-    chr1.length <- seqlengths(seqinfo(gr)["chr1"])
-    checkTrue(!is.na(chr1.length))
-    return(checkTrue(chr1.length > 200000000))
-
-
-} # checkSeqInfo
-#-------------------------------------------------------------------------------

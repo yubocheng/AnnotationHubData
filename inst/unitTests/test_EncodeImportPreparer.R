@@ -1,10 +1,10 @@
-library(AnnotationHubData)
-library(RUnit)
-library(RCurl)
-library(httr)
 #-------------------------------------------------------------------------------
 paulsTests <- function()
 {
+    library(AnnotationHubData)
+    library(RUnit)
+    library(RCurl)
+    library(httr)
     test_.extractLinksFromHtmlLines()
     test_.extractExperimentDirectoriesFromWebPage()
 
@@ -48,7 +48,7 @@ test_.extractLinksFromHtmlLines <- function()
 {
     print("--- test_.extractLinksFromHtmlLines")
 
-    lines <- strsplit(getURL(EncodeBaseURL()), "\n")[[1]]
+    lines <- strsplit(RCurl::getURL(EncodeBaseURL()), "\n")[[1]]
     lines <- lines[grep("href", lines, ignore.case=TRUE)]
     checkEquals(length(grep ("wgEncodeAffyRnaChip", lines)), 1)
     
@@ -276,7 +276,7 @@ test_.encodeMetadataToAnnotationHubMetadata <- function()
     checkEquals(amd@Title, "wgEncodeAffyRnaChipFiltTransfragsGm12878CellTotal")
 
 
-    checkTrue(url.exists(amd@SourceUrl))
+    checkTrue(RCurl::url.exists(amd@SourceUrl))
     
 } # test_.encodeMetadataToAnnotationHubMetadata
 #-------------------------------------------------------------------------------
@@ -309,7 +309,7 @@ admin_test_threeEncodeDirectories <- function()
     checkTrue(length(urls) > 10)   # 456 on (7 mar 2013)
         # pick 5 urls at random
     urls <- urls[sample(1:length(urls), 5)]
-    checkTrue(all(sapply(urls, function(url) url.exists(url))))
+    checkTrue(all(sapply(urls, function(url) RCurl::url.exists(url))))
 
 } # admin_test_threeEncodeDirectories
 #-------------------------------------------------------------------------------
@@ -347,7 +347,7 @@ admin_test_endToEndFourResources <- function()
 
     for(ahmd in ahmds) {
         remote.file <- ahmd@SourceUrl
-        checkTrue(url.exists(remote.file))
+        checkTrue(RCurl::url.exists(remote.file))
         directory.path <- file.path (ahRoot, dirname(ahmd@SourceFile))
         if(!file.exists(directory.path))
             dir.create(directory.path, recursive=TRUE)
@@ -390,7 +390,7 @@ admin_test_runLargerSelection <- function()
         ahmd <- ahmds[[i]]
         #printf("%s: %d", rownames(tbl.md)[i], tbl.md$size[i])
         remote.file <- ahmd@SourceUrl
-        checkTrue(url.exists(remote.file))
+        checkTrue(RCurl::url.exists(remote.file))
         directory.path <- file.path (ahRoot, dirname(ahmd@SourceFile))
         if(!file.exists(directory.path))
             dir.create(directory.path, recursive=TRUE)
