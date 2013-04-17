@@ -21,9 +21,9 @@
 
 ## mangle url to metadata where possible
 .ensemblMetadataFromUrl <-
-    function(sourceUrl)
+    function(sourceUrl,
+             sgRegex="^([[:alpha:]_]+)\\.(.*)\\.[[:digit:]]+\\.[[:alpha:]]+")
 {
-    sgRegex <- "^([[:alpha:]_]+)\\.(.*)\\.[[:digit:]]+\\.[[:alpha:]]+"
     releaseRegex <- ".*(release-[[:digit:]]+).*"
     title <- sub(".gz$", "", basename(sourceUrl))
     root <- setNames(rep(NA_character_, length(sourceUrl)), title)
