@@ -217,6 +217,8 @@ getTableDates <- function(genome, listing, subsIdx, genDbIdx){
 
 ## Now lets get all the table dates for each genome
 tables <- lapply(genomes2, getTableDates, listing, subsIdx, genDbIdx)
+names(tables) <- genomes
+
 ## ## to find problem ones:
 ## tables = list()
 ## for(i in 1:145){print(i); tables[[i]] <- getTableDates(genome=genomes2[[i]],listing, subsIdx, genDbIdx)}
@@ -247,4 +249,68 @@ grep( "Sex", res)
 
 ## So 1st I need to get all the track/table associations (for the good
 ## tracks).  I can do this in rtracklayer.
+
+
+
+## So next up: I need to get all the tablenames for all the tracks.
+## Have I done this already??? - sadly it appears I have not...
+
+## BUT this is a piece of info that I could save for later and reuse...
+## I need to modify the functions that I used before to accomplish this.
+
+
+## get a list of tables for a genome and track
+.findTrackTables <- function(track, session){
+    query <- ucscTableQuery(session, track)
+    tableNames(query)
+}
+## session <- browserSession()
+## genome(session) <- "hg19"
+## res <- .findTrackTables("cytoBand", session)
+
+
+## get all tables for a genome based on tracks
+.getTrackTablesForGenome <- function(genome, tracks){
+    ## iterate through the list to get all the tableNames for each track
+    session <- browserSession()
+    genome(session) <- genome
+    tables <- lapply(tracks, .findTrackTables, session)
+    names(tables) <- tracks
+    tables
+}
+## tracks <- goodTracks[[1]][1:3] ## reduce to a simple vector o track names
+## genome <- "hg19"
+## res <- .getTrackTablesForGenome(genome, tracks)
+
+
+
+## And when that works...
+## .getTrackTablesForAllGenomes <- function(genomes, trackLists){
+##     mapply(.getTrackTablesForGenome, genomes, trackLists)
+## }
+## trx = goodTracks[c(1,15)]
+## genomes <- names(trx)
+## trx[[1]] <- trx[[1]][1:2]
+## trx[[2]] <- trx[[2]][1:3]
+## res <- .getTrackTablesForAllGenomes(genomes, trx)
+
+
+
+## Actual code to make and save this will be done as a loop instead of
+## the more elegant mapply just so that I can save as I go...
+.getTrackTablesForAllGenomes <- function(genomes, trackLists){
+    if(length(genomes) != length(trackLists)) stop("The number of genomes must equal the number of track lists.")
+    genomeTrackTable <- list()
+    for(i in seq_along(genomes)){
+        message("Now processing: ",genomes[i])
+        genomeTrackTable[[i]] <- .getTrackTablesForGenome(genomes[i],
+                                                          trackLists[[i]])
+        names(genomeTrackTable)[i] <- genomes[i]
+        save(genomeTrackTable,file="genomeTrackTable.Rda") 
+    }
+    genomeTrackTable
+}
+
+res <- .getTrackTablesForAllGenomes(genomes, goodTracks)
+
 
