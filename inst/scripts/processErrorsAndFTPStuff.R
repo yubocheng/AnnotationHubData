@@ -314,3 +314,12 @@ grep( "Sex", res)
 res <- .getTrackTablesForAllGenomes(genomes, goodTracks)
 
 
+##########################################################################
+## Now I just have to compare the two objects and the metadata from the DB
+## the simplest way is to get the newest date from the tables
+## associated with a particular track so that I have the most recent
+## possible data for a track.
+
+## So I probably want to iterate through all the tables for each track, and get the dates, then make them into POSIXct dates, and then get the newest one and associate THAT date stamp with the track then return THAT to Dan.
+
+## So max(dates)
