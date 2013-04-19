@@ -216,8 +216,8 @@ getTableDates <- function(genome, listing, subsIdx, genDbIdx){
 
 
 ## Now lets get all the table dates for each genome
-tables <- lapply(genomes2, getTableDates, listing, subsIdx, genDbIdx)
-names(tables) <- genomes
+curTables <- lapply(genomes2, getTableDates, listing, subsIdx, genDbIdx)
+names(curTables) <- genomes
 
 ## ## to find problem ones:
 ## tables = list()
@@ -343,7 +343,7 @@ res <- .getTrackTablesForAllGenomes(genomes, goodTracks)
 
 ## And then I have to process my data to reflect just the dates per track.
 
-
+load("curTables.Rda")
 load("genomeTrackTable.Rda")
 
 ## helper takes genome and track and finds the latest date based on
@@ -372,3 +372,4 @@ for(i in seq_along(names(genomeTrackTable))){
 }
 
 names(trackDates) <- names(genomeTrackTable)
+
