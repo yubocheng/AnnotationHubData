@@ -323,3 +323,11 @@ res <- .getTrackTablesForAllGenomes(genomes, goodTracks)
 ## So I probably want to iterate through all the tables for each track, and get the dates, then make them into POSIXct dates, and then get the newest one and associate THAT date stamp with the track then return THAT to Dan.
 
 ## So max(dates)
+
+## ALSO: I may have a bug in the code that processes the year stamps
+
+## foo = as.POSIXct("14-02-12",tz = "GMT")
+## bar = as.POSIXct("15-02-12",tz = "GMT")
+## sna = as.POSIXct("18-01-12",tz = "GMT")
+## max(c(foo, sna, bar))
+
