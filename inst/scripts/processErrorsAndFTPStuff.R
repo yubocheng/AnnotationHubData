@@ -252,6 +252,10 @@ grep( "Sex", res)
 
 
 
+
+
+
+
 ## So next up: I need to get all the tablenames for all the tracks.
 ## Have I done this already??? - sadly it appears I have not...
 
@@ -326,8 +330,45 @@ res <- .getTrackTablesForAllGenomes(genomes, goodTracks)
 
 ## ALSO: I may have a bug in the code that processes the year stamps
 
-## foo = as.POSIXct("14-02-12",tz = "GMT")
-## bar = as.POSIXct("15-02-12",tz = "GMT")
-## sna = as.POSIXct("18-01-12",tz = "GMT")
+## foo = as.POSIXct("12-02-14",tz = "GMT")
+## bar = as.POSIXct("12-02-14",tz = "GMT")
+## sna = as.POSIXct("12-01-17",tz = "GMT")
 ## max(c(foo, sna, bar))
 
+
+
+
+## So my tables/tracks object is saved.  And my dates can be processed
+## (re-running and temp saving those too).
+
+## And then I have to process my data to reflect just the dates per track.
+
+
+load("genomeTrackTable.Rda")
+
+## helper takes genome and track and finds the latest date based on
+## values in curTables (curTables is what we get from getTableDates()
+## above)
+
+.getLatestTrackDate <- function(track, genome, genomeTrackTable, curTables){
+    tables <- genomeTrackTable[[genome]][[track]]
+    dates <- curTables[[genome]][curTables[[genome]] %in% tables]
+    maxDate <- max(as.POSIXct(names(dates)))
+    as.character(maxDate) ## cast because there were issues storing this data.
+}
+## genome <- "hg19"
+## track <- "stsMap"
+## res <- .getLatestTrackDate(track, genome, genomeTrackTable, curTables)
+
+
+## rough sketch (for now)
+trackDates <- list()
+for(i in seq_along(names(genomeTrackTable))){
+    genome <- names(genomeTrackTable[i])
+    tracks <- names(genomeTrackTable[[i]])
+    trackDates[[i]] <- unlist(lapply(tracks, .getLatestTrackDate,
+                           genome,  genomeTrackTable, curTables))
+    names(trackDates[[i]]) <- tracks
+}
+
+names(trackDates) <- names(genomeTrackTable)
