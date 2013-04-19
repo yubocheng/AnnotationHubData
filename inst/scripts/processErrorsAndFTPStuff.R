@@ -343,8 +343,8 @@ res <- .getTrackTablesForAllGenomes(genomes, goodTracks)
 
 ## And then I have to process my data to reflect just the dates per track.
 
-load("curTables.Rda")
-load("genomeTrackTable.Rda")
+load("curTables.Rda") ## generate each time
+load("genomeTrackTable.Rda") ## load from extdata/badUCSCTracks/genomeTrackTable.Rda
 
 ## helper takes genome and track and finds the latest date based on
 ## values in curTables (curTables is what we get from getTableDates()
