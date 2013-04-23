@@ -1,48 +1,7 @@
-
-## Code to parse error log
-
-## lines = readLines("error.log")
-
-## ## 1st lets get a list of the tracks that failed
-## bt1 = sub("^.+hgdownload.cse.ucsc.edu\\/goldenpath\\/.+\\/database\\/","",lines, perl=TRUE)
-## bt = sub(":.+$","",bt1, perl=TRUE)
-
-## ## and the genomes
-## bg1 = sub("^.+hgdownload.cse.ucsc.edu\\/goldenpath\\/","",lines, perl=TRUE)
-## bg = sub("/.+$","",bg1, perl=TRUE)
-
-## ## now lets start categorizing the errors.
-## er <- sub("^.+hgdownload.cse.ucsc.edu\\/goldenpath\\/.+\\/database\\/.+?: ","",lines, perl=TRUE)
-
-## ## So now we could make a data.frame
-## df = data.frame(genome=bg, track=bt, error=er, stringsAsFactors=FALSE)
-## ## but probably we want to get rid of redundant genome/track info.
-## dupIdx = !duplicated(df[,c(1,2)])
-## erTab = df[dupIdx,] ## throws out 2nd+ occurrences of genome/track
-
-## save(erTab,file="errorTable.Rda")
-
-
-
-
-#############################################################
-#############################################################
-#############################################################
-
 #############################################################
 ### Code to get the dir list and then filter it etc.
 
 
-library(AnnotationHubData)
-## get the tracks for each genome. (pre-computed)
-## .cachedTracks <- function(filename) {
-##     loadFile <- system.file("extdata","badUCSCTracks", filename,
-##                             package = "AnnotationHubData")
-##     x <- load(loadFile)
-##     get(x)
-## }
-## allTracks <- .cachedTracks("allPossibleTracks.rda") 
-## badTracks <- .cachedTracks("allBadTracks.rda")
 
 ## helper to filter for each
 .filter <- function(allTracks, badTracks){
@@ -50,21 +9,8 @@ library(AnnotationHubData)
 }
 ## goodTracks <- mapply(.filter, allTracks, badTracks)
 
-## ## all the genomes we want:
-## genomes <- names(goodTracks)
-
-
-## use the existing whitelist from the prepare code for UCSC
-## use this:
-
-## getURL("ftp://hgdownload.cse.ucsc.edu/goldenPath/hg19/database/",
-## opts=list(dirlistonly=TRUE))
-
-## filter out stuff we don't need and then trap key information.
-
 
 ## Try a new strategy for getting ALL the dir listings at ONCE.
-require(RCurl)
 
 ###############################################
 ## make this into a function and call it
@@ -82,7 +28,6 @@ require(RCurl)
 ###############################################
 ## need to get symlinks
 .getGenomeAbbrevs <- function(genomes){
-
     baseList <- getURL(url="ftp://hgdownload.cse.ucsc.edu/goldenPath/")
     baseList <- strsplit(baseList,"\n")[[1]]
     ## baseList[grep('cb1',baseList)]
@@ -134,13 +79,6 @@ require(RCurl)
 
 ## PROCESSES LATEST DATE AND TABLE NAME INFO FOR A GENOME
 .getTableDates <- function(genome, listing, subsIdx, genDbIdx){
-
-##     require(RCurl)
-##     url <- paste("ftp://hgdownload.cse.ucsc.edu/goldenPath/",
-##                  genome,"/database/",sep="")
-##     dir <- getURL(url) ## do dirListOnly=TRUE just makes it not get dates...
-##     dirs <- strsplit(dir,"\n")[[1]]
-
 
     ## helper takes all subsIdx and one genDbIdx
     getRange <- function(genIdx, subsIdx, listing){
@@ -194,14 +132,13 @@ require(RCurl)
     names(tables) <- dates
     tables
 }
-
 ## example of how you can use this for a particular genome.
 ## res <- .getTableDates(genome="hg19", listing, subsIdx, genDbIdx)
 
 
 
 ## Wrapper function to do all the work of getting and processing the
-## date information.
+## latest date information from the FTP site.
 getLatestTableDates <- function(){
     listing <- .getListing()
     allTracks <- AnnotationHubData:::.cachedTracks("allPossibleTracks.rda") 
@@ -220,65 +157,8 @@ getLatestTableDates <- function(){
 
 
 
-
-### TODO: 1) return a data frame with cols: genome, track, date. 
-### 2) date needs to be a date object as.POSIXct("2012-01-15",tz = "GMT")
-### 3) track needs to be track name (not file name)
-### 5) everything with a 2013 date has been given a time stamp instead of a
-## year, I need to update these and also convert months to numbers.
-
-## 4) filter the track names with the whitelist... (filter at the end?
-## or as we go?) - use proj/mcarlson/UCSC_Download/processFiles.R to
-## get whiteList and process as we go...
-
-
-## ## Now lets get all the table dates for each genome
-## curTables <- lapply(genomes2, .getTableDates, listing, subsIdx, genDbIdx)
-## names(curTables) <- genomes
-
-## ## to find problem ones:
-## tables = list()
-## for(i in 1:145){print(i); tables[[i]] <- getTableDates(genome=genomes2[[i]],listing, subsIdx, genDbIdx)}
-
-##for(i in 1:145){print(i); tables[[i]] <- getTableDates(genome=genomes[[i]])}
-
-## This is a PROBLEM.  They won't let me scan their dirs...
-## save(tables,file="curTables.Rda")
-
-
-
-## table(res %in% goodTracks[[1]])
-## table(goodTracks[[1]] %in% res)
-## ##Hmmm apparently some things are missing if I just scan for track names
-
-## grep( "decodeRmap", res)
-## ## it happens because sometimes tracks have names that are not
-## ## repeated in any tables...  So for decodeRmap some tables are found
-## ## this way..
-## grep( "Sex", res)
-## ## So to do this right, I need to translate from track -> table and
-## ## then check the dates...
-
-## ## AND since these are tables that can (in theory be updates
-## ## independently of each other, I need to check ALL the tables
-## ## associated with a track.
-
-
-## ## So 1st I need to get all the track/table associations (for the good
-## ## tracks).  I can do this in rtracklayer.
-
-
-
-
-
-
-
-## So next up: I need to get all the tablenames for all the tracks.
-## Have I done this already??? - sadly it appears I have not...
-
-## BUT this is a piece of info that I could save for later and reuse...
-## I need to modify the functions that I used before to accomplish this.
-
+############################################################################
+## I also need the association between a table and it's tracks
 
 ## get a list of tables for a genome and track
 .findTrackTables <- function(track, session){
@@ -304,19 +184,6 @@ getLatestTableDates <- function(){
 ## res <- .getTrackTablesForGenome(genome, tracks)
 
 
-
-## And when that works...
-## .getTrackTablesForAllGenomes <- function(genomes, trackLists){
-##     mapply(.getTrackTablesForGenome, genomes, trackLists)
-## }
-## trx = goodTracks[c(1,15)]
-## genomes <- names(trx)
-## trx[[1]] <- trx[[1]][1:2]
-## trx[[2]] <- trx[[2]][1:3]
-## res <- .getTrackTablesForAllGenomes(genomes, trx)
-
-
-
 ## Actual code to make and save this will be done as a loop instead of
 ## the more elegant mapply just so that I can save as I go...
 .getTrackTablesForAllGenomes <- function(genomes, trackLists){
@@ -331,43 +198,14 @@ getLatestTableDates <- function(){
     }
     genomeTrackTable
 }
-
 ## res <- .getTrackTablesForAllGenomes(genomes, goodTracks)
-
-
-##########################################################################
-## Now I just have to compare the two objects and the metadata from the DB
-## the simplest way is to get the newest date from the tables
-## associated with a particular track so that I have the most recent
-## possible data for a track.
-
-## So I probably want to iterate through all the tables for each track, and get the dates, then make them into POSIXct dates, and then get the newest one and associate THAT date stamp with the track then return THAT to Dan.
-
-## So max(dates)
-
-## ALSO: I may have a bug in the code that processes the year stamps
-
-## foo = as.POSIXct("12-02-14",tz = "GMT")
-## bar = as.POSIXct("12-02-14",tz = "GMT")
-## sna = as.POSIXct("12-01-17",tz = "GMT")
-## max(c(foo, sna, bar))
+## Can also load this with load("genomeTrackTable.Rda")  ## it will be saved
 
 
 
 
-## So my tables/tracks object is saved.  And my dates can be processed
-## (re-running and temp saving those too).
-
-## And then I have to process my data to reflect just the dates per track.
-
-## ## load("curTables.Rda") ## generate each time by calling getLatestTableDates()
-## curTables <- getLatestTableDates()
-## load("genomeTrackTable.Rda") ## load from extdata/badUCSCTracks/genomeTrackTable.Rda
-
-## helper takes genome and track and finds the latest date based on
-## values in curTables (curTables is what we get from getTableDates()
-## above)
-
+##############################################################################
+## Helpers for translating table dates to track dates.
 .getLatestTrackDate <- function(track, genome, genomeTrackTable, curTables){
     tables <- genomeTrackTable[[genome]][[track]]
     dates <- curTables[[genome]][curTables[[genome]] %in% tables]
@@ -395,16 +233,18 @@ getLatestTrackDates <- function(){
     names(trackDates) <- names(genomeTrackTable)
     trackDates
 }
+## This runs
 ## trackDates <- getLatestTrackDates()
 
 
-## Strange warnings!
+## BUT there are strange warnings!
 ##  1: In max.default(structure(numeric(0), class = c("POSIXct",  ... :
 ##  no non-missing arguments to max; returning -Inf
 
-
-## I have some NA values for some of the dates...
-
+## It causes me to have some NA values for some of the dates...
+## This in turn is caused by a small percentage of the tracks
+## (134/3573) that are misnamed in the FS presented by UCSC (named
+## differently from the tracks).
 
 
 
@@ -413,21 +253,83 @@ getLatestTrackDates <- function(){
 ## metadata
 
 ## So get the metadata
-require(AnnotationHub)
+getAHTrackDates <- function(){
+    ah = AnnotationHub()
+    m = AnnotationHub:::.metadata(snapshotUrl(ah),
+      filters = list(DataProvider="hgdownload.cse.ucsc.edu"),
+      cols = c("SourceFile","RDataDateAdded","DataProvider"))
 
-ah = AnnotationHub()
+    ## SourceFile is easier to clean up than sourceUrl...
+    data <- strsplit(m$SourceFile,"/")
+    trackNames <- unlist(lapply(data, function(x){x[4]}))
+    genNames <- unlist(lapply(data, function(x){x[2]}))
+    if(length(trackNames) == length(genNames) &&
+       dim(m)[1] == length(trackNames)){
+        m <- cbind(as.data.frame(m), trackNames, genNames)
+    }
 
-m = AnnotationHub:::.metadata(snapshotUrl(ah),
-  filters = list(DataProvider="hgdownload.cse.ucsc.edu"),
-  cols = c("SourceFile","RDataDateAdded","DataProvider"))
-
-## SourceFile is easier to clean up than sourceUrl...
-data <- strsplit(m$SourceFile,"/")
-trackNames <- unlist(lapply(data, function(x){x[4]}))
-genNames <- unlist(lapply(data, function(x){x[2]}))
-if(length(trackNames) == length(genNames) && dim(m)[1] == length(trackNames)){
-    m <- cbind(as.data.frame(m), trackNames, genNames)
+    ## Now make m into a similar structure to trackDates
+    trx <- as.character(m$RDataDateAdded)
+    names(trx) <- trackNames
+    ## then split it
+    split(trx, f=m$genNames)
 }
+## ahTrackDates <-  getAHTrackDates()
 
-## And now we can use this to filter
+
+
+############################################################################
+## And now we can use this to write code that compares and just lists
+## tracks that are out of date.
+tracksToUpdate <- function(){
+    trackDates <- getLatestTrackDates()
+    ahTrackDates <-  getAHTrackDates()
+    
+    ## go along and for each list element in ahTrackDates we will need
+    ## to look at the equivalent element from trackDates and then
+    ## compare the dates.  Dates will be not OK (TRUE for update
+    ## this), OK, or NA.
+    ## This requires a helper to test indiv, elements of a vector
+    .testDate <- function(x, other){
+        if(is.na(x)){
+            return(NA)
+        }else if(is.na(other[names(x)])){
+            return(NA)
+        }else{
+            if(as.POSIXct(x) > as.POSIXct(other[names(x)])){
+                return(FALSE)
+            }else{ ## this means it needs an update 
+                return(TRUE)
+            }
+        }
+    }
+    ## And another helper to lets us loop across genomes
+    .compareDates <- function(genomeDateSet,trackDates){
+        ah <- genomeDateSet[[1]]
+        other <- trackDates[names(genomeDateSet)][[1]]
+        ## res <- lapply(ah, .testDate, other=other) ## rips names from vector
+        res <- vector()
+        for(i in seq_along(ah)){
+            res[i] <- .testDate(ah[i], other)
+        }
+        names(res) <- names(ah)
+        res
+    }
+    
+
+    ## I have to loop along the ahTrackDates object. I can use lapply
+    ## (but not mapply), and have to pass in all of trackDates every
+    ## time.
+
+    ## And again I am burned because lapply() jetisons the names...
+    res <- list()
+    for(i in seq_along(ahTrackDates)){
+        res[[i]] <- .compareDates(ahTrackDates[i], trackDates)
+    }
+    names(res) <- names(ahTrackDates)
+
+    ## return list of vectors.
+    res
+}
+## res <- tracksToUpdate()
 

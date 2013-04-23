@@ -57,7 +57,7 @@
     allBadTracks
 }
 ## just gets the bad tracks for all the genomes (should take ages to run)
-## Usage: (after calling:  tracks <- .getTracksForGenomes(genomes, session) )
+## Usage: (after calling:  tracks <- .getTracksForGenomes(genomes, session))
 ## badTracks = .getBadTracksForGenomes(genomes, tracks)
 
 
@@ -93,22 +93,25 @@ UCSCFullTrackImportPreparer <-
     TRUE
 }
 
+## Helper for loading tracks
+.cachedTracks <- function(filename) {
+    loadFile <- system.file("extdata","badUCSCTracks", filename,
+                            package = "AnnotationHubData")
+    x <- load(loadFile)
+    get(x)
+}
+
 .UCSCTrackSourceTracks <- function(){
     ## retrieve all possible tracks from UCSC
     genomes <- ucscGenomes()$db
 
     ## get the tracks for each genome. (pre-computed)
-    .cachedTracks <- function(filename) {
-        loadFile <- system.file("extdata","badUCSCTracks", filename,
-                                package = "AnnotationHubData")
-        x <- load(loadFile)
-        get(x)
-    }
     allTracks <- .cachedTracks("allPossibleTracks.rda")
     badTracks <- .cachedTracks("allBadTracks.rda")
 
     ## check that we can know all species names for all these tracks.
     .checkAllTracks(allTracks)
+    
     ## Now I just have to merge the results of these two things
     Map(function(a, b) a[!(a %in% b)], allTracks, badTracks)
 }

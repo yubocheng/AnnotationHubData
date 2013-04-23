@@ -38,7 +38,8 @@ export(AnnotationHubMetadataFromJson,
        ensemblGtfToGRanges,
        rtrackLayerImport,
        EncodeImportPreparer,
-       EncodeBaseURL)
+       EncodeBaseURL,
+       tracksToUpdate)
 
 exportMethods(
     show,
