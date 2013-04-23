@@ -1,63 +1,64 @@
 
 ## Code to parse error log
 
-lines = readLines("error.log")
+## lines = readLines("error.log")
 
-## 1st lets get a list of the tracks that failed
-bt1 = sub("^.+hgdownload.cse.ucsc.edu\\/goldenpath\\/.+\\/database\\/","",lines, perl=TRUE)
-bt = sub(":.+$","",bt1, perl=TRUE)
+## ## 1st lets get a list of the tracks that failed
+## bt1 = sub("^.+hgdownload.cse.ucsc.edu\\/goldenpath\\/.+\\/database\\/","",lines, perl=TRUE)
+## bt = sub(":.+$","",bt1, perl=TRUE)
 
-## and the genomes
-bg1 = sub("^.+hgdownload.cse.ucsc.edu\\/goldenpath\\/","",lines, perl=TRUE)
-bg = sub("/.+$","",bg1, perl=TRUE)
+## ## and the genomes
+## bg1 = sub("^.+hgdownload.cse.ucsc.edu\\/goldenpath\\/","",lines, perl=TRUE)
+## bg = sub("/.+$","",bg1, perl=TRUE)
 
-## now lets start categorizing the errors.
-er <- sub("^.+hgdownload.cse.ucsc.edu\\/goldenpath\\/.+\\/database\\/.+?: ","",lines, perl=TRUE)
+## ## now lets start categorizing the errors.
+## er <- sub("^.+hgdownload.cse.ucsc.edu\\/goldenpath\\/.+\\/database\\/.+?: ","",lines, perl=TRUE)
 
-## So now we could make a data.frame
-df = data.frame(genome=bg, track=bt, error=er, stringsAsFactors=FALSE)
-## but probably we want to get rid of redundant genome/track info.
-dupIdx = !duplicated(df[,c(1,2)])
-erTab = df[dupIdx,] ## throws out 2nd+ occurrences of genome/track
+## ## So now we could make a data.frame
+## df = data.frame(genome=bg, track=bt, error=er, stringsAsFactors=FALSE)
+## ## but probably we want to get rid of redundant genome/track info.
+## dupIdx = !duplicated(df[,c(1,2)])
+## erTab = df[dupIdx,] ## throws out 2nd+ occurrences of genome/track
 
-save(erTab,file="errorTable.Rda")
-
-
+## save(erTab,file="errorTable.Rda")
 
 
-#############################################################3
-#############################################################3
-#############################################################3
 
-#############################################################3
+
+#############################################################
+#############################################################
+#############################################################
+
+#############################################################
 ### Code to get the dir list and then filter it etc.
 
 
 library(AnnotationHubData)
 ## get the tracks for each genome. (pre-computed)
-.cachedTracks <- function(filename) {
-    loadFile <- system.file("extdata","badUCSCTracks", filename,
-                            package = "AnnotationHubData")
-    x <- load(loadFile)
-    get(x)
-}
-allTracks <- .cachedTracks("allPossibleTracks.rda") 
-badTracks <- .cachedTracks("allBadTracks.rda")
+## .cachedTracks <- function(filename) {
+##     loadFile <- system.file("extdata","badUCSCTracks", filename,
+##                             package = "AnnotationHubData")
+##     x <- load(loadFile)
+##     get(x)
+## }
+## allTracks <- .cachedTracks("allPossibleTracks.rda") 
+## badTracks <- .cachedTracks("allBadTracks.rda")
 
 ## helper to filter for each
-filter <- function(allTracks, badTracks){
+.filter <- function(allTracks, badTracks){
     allTracks[!(allTracks %in% badTracks)]
 }
-goodTracks <- mapply(filter, allTracks, badTracks)
+## goodTracks <- mapply(.filter, allTracks, badTracks)
 
-## all the genomes we want:
-genomes <- names(goodTracks)
+## ## all the genomes we want:
+## genomes <- names(goodTracks)
 
 
 ## use the existing whitelist from the prepare code for UCSC
 ## use this:
 
-#getURL("ftp://hgdownload.cse.ucsc.edu/goldenPath/hg19/database/", opts=list(dirlistonly=TRUE))
+## getURL("ftp://hgdownload.cse.ucsc.edu/goldenPath/hg19/database/",
+## opts=list(dirlistonly=TRUE))
 
 ## filter out stuff we don't need and then trap key information.
 
@@ -67,19 +68,20 @@ require(RCurl)
 
 ###############################################
 ## make this into a function and call it
-getListing <- function(){
+.getListing <- function(){
     ## I did this once and then saved it (it takes a few minutes)
     listing <- getURL(url="ftp://hgdownload.cse.ucsc.edu/goldenPath/",
                       followlocation=TRUE, customrequest="LIST -R")
-    save(listing, file="listing.Rda")
     ## then bust that into single rows.
-    strsplit(listing,"\n")[[1]]
+    listing <- strsplit(listing,"\n")[[1]]
+    save(listing, file="listing.Rda")
+    listing
 }
-listing <- getListing()
+## listing <- .getListing()
 
 ###############################################
 ## need to get symlinks
-getGenomeAbbrevs <- function(genomes){
+.getGenomeAbbrevs <- function(genomes){
 
     baseList <- getURL(url="ftp://hgdownload.cse.ucsc.edu/goldenPath/")
     baseList <- strsplit(baseList,"\n")[[1]]
@@ -101,7 +103,7 @@ getGenomeAbbrevs <- function(genomes){
     }    
     unlist(lapply(genomes, checkForAndRetrieveSymLinks))
 }
-genomes2 <- getGenomeAbbrevs(genomes)
+## genomes2 <- .getGenomeAbbrevs(genomes)
 
 
 
@@ -109,16 +111,16 @@ genomes2 <- getGenomeAbbrevs(genomes)
 ## make this into a couple of functions and call
 ## Now I need to split that up based on subdirs of interest.
 ## there are empty rows whenever we switch dirs.
-getAllBreakPoints <- function(listing){
+.getAllBreakPoints <- function(listing){
     grep('^$',listing) ## index of ALL split points
 }
-subsIdx <- getAllBreakPoints(listing)
+## subsIdx <- .getAllBreakPoints(listing)
 
 
 ## SECOND function
 ## There are a subset of other dirs that I want after some of those...
 ## To get these 1st make a set of strings based on genomes
-getNamedGenomeBreakPoints <- function(genomes, listing){
+.getNamedGenomeBreakPoints <- function(genomes, listing){
     genStrs1 <- paste(genomes, "/database:",sep="")
     genStrs2 <- paste("^", genomes, "/database:",sep="")
     ## and then grep to get these indices
@@ -126,12 +128,12 @@ getNamedGenomeBreakPoints <- function(genomes, listing){
     names(genDbIdx) <- sub("/database:","",listing[genDbIdx])
     genDbIdx
 }
-genDbIdx <- getNamedGenomeBreakPoints(genomes2, listing)
+## genDbIdx <- .getNamedGenomeBreakPoints(genomes2, listing)
 
 
 
 ## PROCESSES LATEST DATE AND TABLE NAME INFO FOR A GENOME
-getTableDates <- function(genome, listing, subsIdx, genDbIdx){
+.getTableDates <- function(genome, listing, subsIdx, genDbIdx){
 
 ##     require(RCurl)
 ##     url <- paste("ftp://hgdownload.cse.ucsc.edu/goldenPath/",
@@ -194,11 +196,26 @@ getTableDates <- function(genome, listing, subsIdx, genDbIdx){
 }
 
 ## example of how you can use this for a particular genome.
-## res <- getTableDates(genome="hg19", listing, subsIdx, genDbIdx)
+## res <- .getTableDates(genome="hg19", listing, subsIdx, genDbIdx)
 
 
 
-
+## Wrapper function to do all the work of getting and processing the
+## date information.
+getLatestTableDates <- function(){
+    listing <- .getListing()
+    allTracks <- AnnotationHubData:::.cachedTracks("allPossibleTracks.rda") 
+    badTracks <- AnnotationHubData:::.cachedTracks("allBadTracks.rda")
+    goodTracks <- mapply(.filter, allTracks, badTracks)
+    genomes <- names(goodTracks)
+    genomes2 <- .getGenomeAbbrevs(genomes)
+    subsIdx <- .getAllBreakPoints(listing)
+    genDbIdx <- .getNamedGenomeBreakPoints(genomes2, listing)
+    curTables <- lapply(genomes2, .getTableDates, listing, subsIdx, genDbIdx)
+    names(curTables) <- genomes
+    curTables
+}
+## curTables <- getLatestTableDates()
 
 
 
@@ -215,9 +232,9 @@ getTableDates <- function(genome, listing, subsIdx, genDbIdx){
 ## get whiteList and process as we go...
 
 
-## Now lets get all the table dates for each genome
-curTables <- lapply(genomes2, getTableDates, listing, subsIdx, genDbIdx)
-names(curTables) <- genomes
+## ## Now lets get all the table dates for each genome
+## curTables <- lapply(genomes2, .getTableDates, listing, subsIdx, genDbIdx)
+## names(curTables) <- genomes
 
 ## ## to find problem ones:
 ## tables = list()
@@ -230,25 +247,25 @@ names(curTables) <- genomes
 
 
 
-table(res %in% goodTracks[[1]])
-table(goodTracks[[1]] %in% res)
-##Hmmm apparently some things are missing if I just scan for track names
+## table(res %in% goodTracks[[1]])
+## table(goodTracks[[1]] %in% res)
+## ##Hmmm apparently some things are missing if I just scan for track names
 
-grep( "decodeRmap", res)
-## it happens because sometimes tracks have names that are not
-## repeated in any tables...  So for decodeRmap some tables are found
-## this way..
-grep( "Sex", res)
-## So to do this right, I need to translate from track -> table and
-## then check the dates...
+## grep( "decodeRmap", res)
+## ## it happens because sometimes tracks have names that are not
+## ## repeated in any tables...  So for decodeRmap some tables are found
+## ## this way..
+## grep( "Sex", res)
+## ## So to do this right, I need to translate from track -> table and
+## ## then check the dates...
 
-## AND since these are tables that can (in theory be updates
-## independently of each other, I need to check ALL the tables
-## associated with a track.
+## ## AND since these are tables that can (in theory be updates
+## ## independently of each other, I need to check ALL the tables
+## ## associated with a track.
 
 
-## So 1st I need to get all the track/table associations (for the good
-## tracks).  I can do this in rtracklayer.
+## ## So 1st I need to get all the track/table associations (for the good
+## ## tracks).  I can do this in rtracklayer.
 
 
 
@@ -315,7 +332,7 @@ grep( "Sex", res)
     genomeTrackTable
 }
 
-res <- .getTrackTablesForAllGenomes(genomes, goodTracks)
+## res <- .getTrackTablesForAllGenomes(genomes, goodTracks)
 
 
 ##########################################################################
@@ -343,8 +360,9 @@ res <- .getTrackTablesForAllGenomes(genomes, goodTracks)
 
 ## And then I have to process my data to reflect just the dates per track.
 
-load("curTables.Rda") ## generate each time
-load("genomeTrackTable.Rda") ## load from extdata/badUCSCTracks/genomeTrackTable.Rda
+## ## load("curTables.Rda") ## generate each time by calling getLatestTableDates()
+## curTables <- getLatestTableDates()
+## load("genomeTrackTable.Rda") ## load from extdata/badUCSCTracks/genomeTrackTable.Rda
 
 ## helper takes genome and track and finds the latest date based on
 ## values in curTables (curTables is what we get from getTableDates()
@@ -361,15 +379,55 @@ load("genomeTrackTable.Rda") ## load from extdata/badUCSCTracks/genomeTrackTable
 ## res <- .getLatestTrackDate(track, genome, genomeTrackTable, curTables)
 
 
-## rough sketch (for now)
-trackDates <- list()
-for(i in seq_along(names(genomeTrackTable))){
-    genome <- names(genomeTrackTable[i])
-    tracks <- names(genomeTrackTable[[i]])
-    trackDates[[i]] <- unlist(lapply(tracks, .getLatestTrackDate,
-                           genome,  genomeTrackTable, curTables))
-    names(trackDates[[i]]) <- tracks
+getLatestTrackDates <- function(){
+    curTables <- getLatestTableDates()
+    genomeTrackTable <-
+        AnnotationHubData:::.cachedTracks("genomeTrackTable.Rda") 
+    ## rough sketch (for now)
+    trackDates <- list()
+    for(i in seq_along(names(genomeTrackTable))){
+        genome <- names(genomeTrackTable[i])
+        tracks <- names(genomeTrackTable[[i]])
+        trackDates[[i]] <- unlist(lapply(tracks, .getLatestTrackDate,
+                                         genome,  genomeTrackTable, curTables))
+        names(trackDates[[i]]) <- tracks
+    }
+    names(trackDates) <- names(genomeTrackTable)
+    trackDates
+}
+## trackDates <- getLatestTrackDates()
+
+
+## Strange warnings!
+##  1: In max.default(structure(numeric(0), class = c("POSIXct",  ... :
+##  no non-missing arguments to max; returning -Inf
+
+
+## I have some NA values for some of the dates...
+
+
+
+
+############################################################################
+## Now I just need some code to compare this data with what is in the
+## metadata
+
+## So get the metadata
+require(AnnotationHub)
+
+ah = AnnotationHub()
+
+m = AnnotationHub:::.metadata(snapshotUrl(ah),
+  filters = list(DataProvider="hgdownload.cse.ucsc.edu"),
+  cols = c("SourceFile","RDataDateAdded","DataProvider"))
+
+## SourceFile is easier to clean up than sourceUrl...
+data <- strsplit(m$SourceFile,"/")
+trackNames <- unlist(lapply(data, function(x){x[4]}))
+genNames <- unlist(lapply(data, function(x){x[2]}))
+if(length(trackNames) == length(genNames) && dim(m)[1] == length(trackNames)){
+    m <- cbind(as.data.frame(m), trackNames, genNames)
 }
 
-names(trackDates) <- names(genomeTrackTable)
+## And now we can use this to filter
 
