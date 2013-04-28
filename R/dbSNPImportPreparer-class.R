@@ -29,8 +29,24 @@ dbSNPVCFImportPreparer <-
 
     sourceFile <- .dbSNPVCFSourcePathFromUrl(baseUrl, sourceUrl)
     ## expand to include .tbi
-    sourceUrl <- Map(c, sourceUrl, sprintf("%s.tbi", sourceUrl))
-    sourceFile <- Map(c, sourceFile, sprintf("%s.tbi", sourceFile))
+    withTbi <-
+        grepl("^(00-All|common_all|common_no_known_medical_impact_).*",
+              title)
+    sourceUrl[withTbi] <-
+        Map(c, sourceUrl[withTbi], sprintf("%s.tbi", sourceUrl[withTbi]))
+    sourceFile[withTbi] <-
+        Map(c, sourceFile[withTbi], sprintf("%s.tbi", sourceFile[withTbi]))
+
+    recipe <-
+        rep(list(c("dbSNPVCFToVCF", package="AnnotationHubData")), n)
+    recipe[withTbi] <-
+        list(c("dbSNPVCFToTabixFile", package="AnnotationHubData"))
+
+    rDataClass <- rep("VCF", n)
+    rDataClass[withTbi] <- "TabixFile"
+
+    rDataPath <- sourceFile
+    rDataPath[!withTbi] <- sub(".vcf.gz$", ".RData", rDataPath[!withTbi])
 
     ## description
     description <- character(n)
@@ -43,7 +59,7 @@ dbSNPVCFImportPreparer <-
     isNA <- is.na(idx)
     description[!isNA] <- sprintf("dbSNP build %s %s", sourceVersion,
                                   unname(map[idx[!isNA]]))
-    regex <- "^([[:digit:]XY(MT)]+)-([[:digit:]]+)-([A-Z]{3})$"
+    regex <- "^([[:digit:]XY(MT)]+)-([[:digit:]]+)-([A-Z]{3}).vcf$"
     description[isNA] <-
         sprintf("dbSNP build %s VCF with genotypes and genotype freqencies listed by chromosome and population ID. Chromosome %s population %s (%s)",
                 sourceVersion, sQuote(sub(regex, "\\1", title[isNA])),
@@ -56,8 +72,9 @@ dbSNPVCFImportPreparer <-
                       PopulationCode=sub(regex, "\\3", title[isNA]))
 
     unname(Map(AnnotationHubMetadata,
-        Description=description, RDataPath=sourceFile, SourceFile=sourceFile,
-        SourceUrl=sourceUrl, Title=title, Tags=tags,
+        Description=description, RDataPath=rDataPath,
+        RDataClass = rDataClass, SourceFile=sourceFile,
+        SourceUrl=sourceUrl, Title=title, Tags=tags, Recipe=recipe,
         MoreArgs=list(
           AnnotationHubRoot = NA_character_,
           Genome = "GRCh37",
@@ -67,10 +84,8 @@ dbSNPVCFImportPreparer <-
           Coordinate_1_based = TRUE,
           DataProvider = "ftp://ftp.ncbi.nih.gov/snp",
           Maintainer = "Martin Morgan <mtmorgan@fhcrc.org>",
-          RDataClass = "TabixFile",
           RDataDateAdded = Sys.time(),
-          RDataVersion = "0.0.1",
-          Recipe = c("dbSNPVCFToTabixFile", package="AnnotationHubData"))))
+          RDataVersion = "0.0.1")))
 }
 
 setMethod(newResources, signature="dbSNPVCFImportPreparer",
@@ -82,7 +97,18 @@ setMethod(newResources, signature="dbSNPVCFImportPreparer",
     .dbSNPVCFMetadata(.dbSNPBaseUrl, sourceUrls)
 })
 
-dbSNPVCFToTabixFile <- function(recipe)
+dbSNPVCFToVCF <-
+    function(recipe)
+{
+    inp <- inputFiles(recipe)
+    genome <- metadata(recipe)$Genome
+    vcf <- VariantAnnotation::readVcf(inp, genome)
+    save(vcf, file=outputFile(recipe))
+    outputFile(recipe)
+}
+
+dbSNPVCFToTabixFile <-
+    function(recipe)
 {
     outputFile(recipe)
 }
