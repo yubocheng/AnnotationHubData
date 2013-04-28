@@ -24,6 +24,8 @@ importFrom(IRanges, metadata, "metadata<-")
 
 importFrom(Rsamtools, indexFa)
 
+importFrom(VariantAnnotation, readVcf)
+
 importFrom(rtracklayer, import)
 
 importFrom(httr, HEAD)
