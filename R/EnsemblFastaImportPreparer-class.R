@@ -4,6 +4,7 @@
 
 EnsemblFastaImportPreparer <- 
     setClass("EnsemblFastaImportPreparer", contains="ImportPreparer")
+
 ## retrieve FASTA file urls from Ensembl
 .ensemblFastaSourceUrls <-
     function(baseUrl)

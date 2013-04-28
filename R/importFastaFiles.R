@@ -125,6 +125,5 @@ createMetadata <- function(ahroot, subtree="pub/release-70/fasta",
             AnnotationHubData:::.getModificationTime(fullIndex)
         metadata(md)$RDataSize <- as.integer(file.info(fullIndex)$size)
         AnnotationHubData:::writeJSON(ahroot, md)
-        
     }
 }
