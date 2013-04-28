@@ -385,6 +385,7 @@ setMethod(show, "AnnotationHubMetadata",
     cat("class: ", class(object), '\n', sep='')
     for (slt in sort(slotNames(object))) {
         value <- slot(object, slt)
-        cat(slt, ": ", as.character(value), "\n", sep="")
+        txt <- paste0(slt, ": ", paste0(as.character(value), collapse=" "))
+        cat(strwrap(txt), sep="\n  ")
     }
 })
