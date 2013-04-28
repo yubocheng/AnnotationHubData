@@ -1,11 +1,11 @@
 exportClasses(AnnotationHubMetadata, AnnotationHubRecipe,
-    ImportPreparer, EnsemblFastaImportPreparer,
-    EnsemblGtfImportPreparer, EncodeImportPreparer,
-    UCSCTrackImportPreparer)
+    ImportPreparer, dbSNPVCFImportPreparer,
+    EnsemblFastaImportPreparer, EnsemblGtfImportPreparer,
+    EncodeImportPreparer, UCSCTrackImportPreparer)
 
 export(AnnotationHubMetadata, AnnotationHubRecipe,
-    EnsemblFastaImportPreparer, EnsemblGtfImportPreparer,
-    UCSCTrackImportPreparer)
+    dbSNPVCFImportPreparer, EnsemblFastaImportPreparer,
+    EnsemblGtfImportPreparer, UCSCTrackImportPreparer)
 
 export(newResources,
   constructAnnotationHubMetadataFromSourceFilePath,
@@ -34,6 +34,7 @@ export(AnnotationHubMetadataFromJson,
        constructSeqInfo,
        extendedBedToGRanges,
        extendedBedWithAuxiliaryTableToGRanges,
+       dbSNPVCFToTabixFile,
        ensemblFastaToFaFile,
        ensemblGtfToGRanges,
        rtrackLayerImport,
