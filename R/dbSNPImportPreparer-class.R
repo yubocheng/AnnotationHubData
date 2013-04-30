@@ -101,7 +101,7 @@ dbSNPVCFToVCF <-
     function(recipe)
 {
     inp <- inputFiles(recipe)
-    genome <- metadata(recipe)$Genome
+    genome <- metadata(metadata(recipe))$Genome
     vcf <- VariantAnnotation::readVcf(inp, genome)
     save(vcf, file=outputFile(recipe))
     outputFile(recipe)
