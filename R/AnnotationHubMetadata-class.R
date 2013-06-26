@@ -283,7 +283,7 @@ AnnotationHubMetadataFromJson <-
 
     ## coerce types
     lst[["RDataVersion"]] <- .as.numeric_version(lst[["RDataVersion"]])
-    lst[["BiocVersion"]] <- package_version(lst[["BiocVersion"]])
+    lst[["BiocVersion"]] <- lapply(lst$BiocVersion, package_version)
     idx <- grep("Date", names(lst))
     lst[idx] <- rapply(lst[idx], function(x) {
         x[!nzchar(x)] <- NA_character_
