@@ -181,12 +181,21 @@ setMethod("newResources", signature="EncodeImportPreparer",
            sourceUrl <- paste(EncodeBaseURL(), remoteDirectory, filename,
                               sep="/")
            if (!url.exists(sourceUrl)) {
-               #browser("exists")
+               if(verbose)
+                   .printf("url %s does not exist, skipping", sourceUrl)
                return(NA)
                }
            tags <- as.character(encode.metadata.list)
                # remove empty fields
            tags <- tags[nchar(tags) > 0]
+           description <- tableName
+                # some ucsc encode metadata files.txt leaves this empty.
+                # if so, we can extract a fair replacement from the filename.
+                # this will, in any case, be quite similar to a typical
+                # encode tableName
+           if(!nzchar(description))
+               description <- strsplit(filename, "\\.")[[1]][1]
+           stopifnot(nzchar(description))
            AnnotationHubMetadata(AnnotationHubRoot=annotationHubRoot,
                                  SourceFile=sourceFile,
                                  SourceSize=size,
@@ -194,7 +203,7 @@ setMethod("newResources", signature="EncodeImportPreparer",
                                  SourceVersion=dataVersion,
                                  DataProvider="EncodeDCC",
                                  Title=tableName,
-                                 Description=tableName,
+                                 Description=description,
                                  Species="Homo sapiens",
                                  TaxonomyId="9606",
                                  Genome="hg19",
@@ -526,6 +535,7 @@ setMethod("newResources", signature="EncodeImportPreparer",
             tbl[data.file.count,names(new.row.full)] <- new.row.full
             all.data.filenames[data.file.count] <- data.filenames[i]
             }# for i
+
         } # for filename
     rownames(tbl) <- all.data.filenames
     tbl <- as.data.frame(tbl, stringsAsFactors=FALSE)
