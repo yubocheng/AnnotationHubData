@@ -1,3 +1,8 @@
+    library(AnnotationHubData)
+    library(RUnit)
+    library(RCurl)
+    library(httr)
+
 #-------------------------------------------------------------------------------
 paulsTests <- function()
 {
@@ -17,6 +22,8 @@ paulsTests <- function()
     test_.parseMetadataFiles()
     test_.encodeMetadataToAnnotationHubMetadata()
 
+    test_missingTableNameInProvidedMetadata()
+    
     test_ctor()
     test_newResources()
 
@@ -233,8 +240,6 @@ test_.encodeMetadataToAnnotationHubMetadata <- function()
     ahRoot <- "/bogus/ahroot"
     rownames(tbl.md)[2] <- "bogusDoesNotExist.broadpeak.gz"
 
-    #browser("ataToAnno")
-
     ahmd.list <- AnnotationHubData:::.encodeMetadataToAnnotationHubMetadata(
                                           tbl.md,  ahRoot, verbose=FALSE)
 
@@ -302,8 +307,21 @@ admin_test_threeEncodeDirectories <- function()
         # was obtained.  but not always.  so we add
         # "remoteDirectory".  the counts of these two should be
         # the same
-    checkEquals(length(unique(metadataTable(eic)$composite)), count)
-    checkEquals(length(unique(metadataTable(eic)$remoteDirectory)), count)
+
+    composite <- unique(metadataTable(eic)$composite)
+        # sometimes the encode directory and the files.txt are out
+        # of sync, leading to a largely blank entry.  root those out
+    chaff <- which(!nzchar(composite))
+    if(length(chaff) > 0)
+        composite <- composite[-chaff]
+    
+    checkEquals(length(composite), count)
+    remoteDirectory <- unique(metadataTable(eic)$remoteDirectory)
+    chaff <- which(!nzchar(remoteDirectory))
+    if(length(chaff) > 0)
+        remoteDirectory <- remoteDirectory[-chaff]
+
+    checkEquals(length(remoteDirectory), count)
 
     urls <- sapply(metadataList(eic), function(elt) metadata(elt)$SourceUrl)
     checkTrue(length(urls) > 10)   # 456 on (7 mar 2013)
@@ -411,4 +429,35 @@ admin_test_runLargerSelection <- function()
         } # for i
 
 } # admin_test_runLargerSelection
+#-------------------------------------------------------------------------------
+test_missingTableNameInProvidedMetadata <- function()
+{
+    print("--- test_missingTableNameInProvidedMetadata")
+    full.path.dir <- system.file(package="AnnotationHubData", "extdata",
+                                 "parseEncodeMetadataBug")
+    stopifnot(file.exists(full.path.dir))
+    full.path.file <- file.path(full.path.dir, "wgEncodeHaibRnaSeq.info")
+    stopifnot(file.exists(full.path.file))
+    dataFile.summary <-
+       AnnotationHubData:::.learnAllEncodeMetadataCategories(full.path.dir,
+                                                             verbose=FALSE)
+    tbl.md <- AnnotationHubData:::.parseMetadataFiles(full.path.file,
+                                                      dataFile.summary)
+
+       # bam file metadata lines should be removed
+       # todo: make this filtering part of .parseMetadataFiles
+    
+    supported.formats <- c("narrowPeak", "broadPeak", "bedRnaElements", "gtf")
+    tbl.md <- tbl.md[tbl.md$type %in% supported.formats, ]
+    checkTrue(!all(nzchar(tbl.md$tableName)))
+    checkEquals(nrow(tbl.md), 2)
+    ahmd.list <-
+      AnnotationHubData:::.encodeMetadataToAnnotationHubMetadata(tbl.md,
+                                                                "/bogus/ahroot",
+                                                                 verbose=FALSE)
+
+       # all (that is, both) entries should have a valid Description field
+    checkTrue(all(nzchar(sapply(ahmd.list, function(ahmd) ahmd@Description))))
+
+} # test_missingTableNameInProvidedMetadata
 #-------------------------------------------------------------------------------
