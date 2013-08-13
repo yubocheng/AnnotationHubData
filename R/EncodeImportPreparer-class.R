@@ -194,7 +194,7 @@ setMethod("newResources", signature="EncodeImportPreparer",
                 # this will, in any case, be quite similar to a typical
                 # encode tableName
            if(!nzchar(description))
-               description <- strsplit(filename, "\\.")[[1]][1]
+               description <- strsplit(filename, ".", fixed=TRUE)[[1]][1]
            stopifnot(nzchar(description))
            AnnotationHubMetadata(AnnotationHubRoot=annotationHubRoot,
                                  SourceFile=sourceFile,
@@ -202,7 +202,7 @@ setMethod("newResources", signature="EncodeImportPreparer",
                                  SourceUrl=sourceUrl,
                                  SourceVersion=dataVersion,
                                  DataProvider="EncodeDCC",
-                                 Title=tableName,
+                                 Title=description,
                                  Description=description,
                                  Species="Homo sapiens",
                                  TaxonomyId="9606",
