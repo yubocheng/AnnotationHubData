@@ -105,20 +105,24 @@ setMethod("outputFile", "AnnotationHubRecipe",
 #------------------------------------------------------------------------------
 # the GRanges that we assemble here need SeqInfo (which is a generalized name
 # for what is typically chromosome info:  chromosome name, chromosome length
-# and circularity (common among prokaryotic organisms)
+# and circularity (common among prokaryotic organisms, but also found in
+# metazoan mitochondrial chromosomes)
 constructSeqInfo <- function(species, genome)
 {
   stopifnot(species=="Homo sapiens" & genome %in% c("hg18", "hg19"))
   suppressMessages({
        # chroms 1-22, X, Y, M are assumed to be the first 25 rows of the
        # data.frame
-     tbl.chromInfo = GenomicFeatures:::.makeUCSCChrominfo (genome,
-                                        circ_seqs=character(0)) [1:25,]
-                   })
+     tbl.chromInfo =
+         GenomicFeatures:::.makeUCSCChrominfo (genome,
+                                               circ_seqs="chrM") [1:25,]
+     })
 
-   Seqinfo (as.character(tbl.chromInfo$chrom), 
-            seqlengths=tbl.chromInfo$length, 
-            isCircular=rep(FALSE, nrow (tbl.chromInfo)), genome=genome)
+   Seqinfo(as.character(tbl.chromInfo$chrom), 
+           seqlengths=tbl.chromInfo$length, 
+           isCircular=tbl.chromInfo$is_circular,
+           genome=genome)
+
 
 } # constructSeqInfo
 #------------------------------------------------------------------------------
