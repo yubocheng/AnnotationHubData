@@ -1,4 +1,3 @@
-
 ## utilities
 ##------------------------------------------------------------------------------
 paulsTests <- function()
@@ -14,7 +13,7 @@ paulsTests <- function()
     test_constructSeqInfo()
     test_extendedBedToGRanges()
     test_extendedBedWithAuxiliaryTableToGRanges()
-    test_trackToGRangesRecipe()
+    #test_trackToGRangesRecipe()
     test_ensemblGtfToGRanges()
     test_broadPeakToGRanges()
     test_narrowPeakToGRanges()
@@ -22,12 +21,12 @@ paulsTests <- function()
     test_bedRnaElementsToGRanges()
 
 } # paulsTests
-
+##------------------------------------------------------------------------------
 outfile <- function(ahroot, ahm)
 {
     file.path(ahroot, metadata(ahm)$RDataPath)
 }
-
+##------------------------------------------------------------------------------
 checkSeqInfo <- function(gr)
 {
        # a spot check to insure that seqinfo has been properly assigned
@@ -36,9 +35,13 @@ checkSeqInfo <- function(gr)
 
     chr1.length <- seqlengths(seqinfo(gr)["chr1"])
     checkTrue(!is.na(chr1.length))
-    return(checkTrue(chr1.length > 200000000))
+    checkTrue(chr1.length > 200000000)
 
+    if("chrM" %in% names(seqinfo(gr)))
+        checkTrue(isCircular(seqinfo(gr)["chrM"]))
 
+    return(TRUE)
+    
 } # checkSeqInfo
 
 ## tests
@@ -166,6 +169,7 @@ test_adhocRecipe <- function()
 ##------------------------------------------------------------------------------
 test_constructSeqInfo <- function()
 {
+    print("--- test_constructSeqInfo")
     species <- "Homo sapiens"
     genome <- "hg19"
   
@@ -252,7 +256,6 @@ test_extendedBedWithAuxiliaryTableToGRanges <- function()
     md <- constructMetadataFromJsonPath(annotationHubRoot, jsonPath)
     recipe <- AnnotationHubRecipe(md)
     result <- run(recipe)
-    #browser("result")
     RDataFilename <- outfile(annotationHubRoot, run(recipe))
     checkEquals(RDataFilename, outputFile(recipe))
     loadedDataName <- load(RDataFilename)
@@ -399,7 +402,7 @@ test_extendedBedWithAuxiliaryTableToGRanges <- function()
 #-------------------------------------------------------------------------------
 test_trackToGRangesRecipe <- function()
 {
-    print ("--- test_trackToGRanges")
+    print ("--- test_trackToGRangesRecipe")
     ##   require(AnnotationHubData);library(RUnit)
 
     ##   debug(AnnotationHubData:::.UCSCTrackMetadata)
@@ -651,4 +654,4 @@ test_bedRnaElementsToGRanges <- function()
     checkSeqInfo(gr)
 
 } # test_bedRnaElementsToGRanges
-
+##------------------------------------------------------------------------------
