@@ -106,6 +106,8 @@ test_json_prerequisites <- function()
     checkIdentical(nas, decode(encode(nas)))
 }
 
+## FIXME - should also test a file containing more than one record,
+## since this tests a different code path (which seems broken!).
 test_AnnotationHubMetadataFromJson <- function()
 {
     ahroot <- system.file('extdata', package='AnnotationHubData')
