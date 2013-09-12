@@ -293,6 +293,8 @@ AnnotationHubMetadataFromJson <-
     idx <- sapply(lst, is, "AsIs")
     lst[idx] <- lapply(lst[idx], unclass)
 
+    lst[["Recipe"]] <- lapply(lst$Recipe, function(x) setNames(as.character(x),
+        names(x)))
     idx <- grep("Size", names(lst))
     lst[idx] <- rapply(lst[idx], as.numeric, how="list")
 
