@@ -139,7 +139,7 @@ AnnotationHubMetadata <-
 
     new("AnnotationHubMetadata",
         AnnotationHubRoot=AnnotationHubRoot,
-        BiocVersion=biocVersion(),
+        BiocVersion=BiocVersion,
         Coordinate_1_based=Coordinate_1_based,
         DataProvider=DataProvider,
         Description=Description,
