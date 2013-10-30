@@ -18,7 +18,7 @@ EnsemblFastaImportPreparer <-
         listing<- strsplit(listing, "\n")[[1]]
 
         subdirIdx <- grepl("\\.*/.*:", listing)  
-        subdir <- sub("^\\./(.*):$", "\\1", listing[subdirIdx])
+        subdir <- sub("^(.*):$", "\\1", listing[subdirIdx])
 
         fileTypes <- paste(.ensemblFastaTypes, collapse="|")
         pat <- sprintf(".*(%s)\\.fa\\.gz$", fileTypes)
