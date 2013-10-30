@@ -6,16 +6,18 @@ EnsemblFastaImportPreparer <-
     setClass("EnsemblFastaImportPreparer", contains="ImportPreparer")
 
 ## retrieve FASTA file urls from Ensembl
+## these should look "like" sourcUrls in the existing DB 
 .ensemblFastaSourceUrls <-
     function(baseUrl)
 {
     want <- .ensemblDirUrl(baseUrl, "fasta/")
-    ## files in release
-    unlist(lapply(want, function(url) {
+    ## files in release ## BOOM
+
+    .processUrl <- function(url) {
         listing <- getURL(url=url, followlocation=TRUE, customrequest="LIST -R")
         listing<- strsplit(listing, "\n")[[1]]
 
-        subdirIdx <- grepl("\\./.*/.*:", listing)
+        subdirIdx <- grepl("\\.*/.*:", listing)  
         subdir <- sub("^\\./(.*):$", "\\1", listing[subdirIdx])
 
         fileTypes <- paste(.ensemblFastaTypes, collapse="|")
@@ -28,7 +30,9 @@ EnsemblFastaImportPreparer <-
         subdir <- subdir[cumsum(subdirIdx)[fastaIdx]]
 
         sprintf("%s%s/%s", url, subdir, fasta)
-    }), use.names=FALSE)
+    }
+    
+    unlist(lapply(want, .processUrl), use.names=FALSE)
 }
 
 .ensemblFastaMetadata <-
