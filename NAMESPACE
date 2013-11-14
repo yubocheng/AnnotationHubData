@@ -5,7 +5,8 @@ exportClasses(AnnotationHubMetadata, AnnotationHubRecipe,
 
 export(AnnotationHubMetadata, AnnotationHubRecipe,
     dbSNPVCFImportPreparer, EnsemblFastaImportPreparer,
-    EnsemblGtfImportPreparer, UCSCTrackImportPreparer)
+    EnsemblGtfImportPreparer, UCSCTrackImportPreparer,
+    HaemCodeImportPreparer)
 
 export(newResources,
   constructAnnotationHubMetadataFromSourceFilePath,
@@ -40,6 +41,7 @@ export(AnnotationHubMetadataFromJson,
        ensemblFastaToFaFile,
        ensemblGtfToGRanges,
        rtrackLayerImport,
+       importTable,
        EncodeImportPreparer,
        EncodeBaseURL,
        tracksToUpdate)
