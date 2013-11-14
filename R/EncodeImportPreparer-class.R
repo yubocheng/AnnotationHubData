@@ -97,22 +97,6 @@ EncodeImportPreparer <- function(annotationHubRoot, tbl.md=NULL, verbose=FALSE,
    
 } # constructor
 #------------------------------------------------------------------------------
-setGeneric("metadataList", signature="object",
-           function(object)
-           standardGeneric ("metadataList"))
-
-setGeneric("metadataTable", signature="object",
-           function(object)
-           standardGeneric ("metadataTable"))
-
-setGeneric("annotationHubRoot", signature="object",
-           function(object)
-           standardGeneric("annotationHubRoot"))
-
-setGeneric("sourceUrls", signature="object",
-           function(object)
-           standardGeneric("sourceUrls"))
-#------------------------------------------------------------------------------
 setMethod("annotationHubRoot", "EncodeImportPreparer",
 
     function(object) {
