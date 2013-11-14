@@ -10,3 +10,20 @@ setGeneric("newResources", signature="importPreparer",
     function(importPreparer, currentMetadata = list(), ...)
         standardGeneric("newResources")
 )
+
+setGeneric("annotationHubRoot", signature="object",
+           function(object)
+           standardGeneric("annotationHubRoot"))
+
+setGeneric("metadataList", signature="object",
+           function(object)
+           standardGeneric ("metadataList"))
+
+setGeneric("metadataTable", signature="object",
+           function(object)
+           standardGeneric ("metadataTable"))
+
+setGeneric("sourceUrls", signature="object",
+           function(object)
+           standardGeneric("sourceUrls"))
+
