@@ -111,6 +111,22 @@ test_allExperimentsMetadataExtractAndParse <- function()
 
 } # test_allExperimentsMetadataExtractAndParse
 #-------------------------------------------------------------------------------
+test_newResoruces <- function()
+{
+         # the HaemCode data is specified statically: we were given
+         # a text file containing filenames, accompanied by another
+         # file supplying metadata.  these are found in extdata:
+         #    annotation_haemcode.tsv (38k)
+         #    haemCodeFileList.txt (10k)
+         # new resources will be accompanied by new versions of these
+         # two files, so the currently tested method is a nop
+
+     hip <- HaemCodeImportPreparer(tempdir())
+     checkEquals(newResources(hip), list())
+     
+
+} # test_newResources
+#------------------------------------------------------------------------------------------------------------------------
 # takes about 2 minutes elapsed time
 admin_test_endToEndProcessing <- function()
 {
