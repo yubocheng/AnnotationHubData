@@ -111,19 +111,35 @@ test_allExperimentsMetadataExtractAndParse <- function()
 
 } # test_allExperimentsMetadataExtractAndParse
 #-------------------------------------------------------------------------------
-test_newResoruces <- function()
+test_newResources <- function()
 {
+    print("--- test_newResources")
+    
          # the HaemCode data is specified statically: we were given
          # a text file containing filenames, accompanied by another
          # file supplying metadata.  these are found in extdata:
          #    annotation_haemcode.tsv (38k)
          #    haemCodeFileList.txt (10k)
-         # new resources will be accompanied by new versions of these
-         # two files, so the currently tested method is a nop
+         # the AnnotationHub loader does its loading by calling newResources
+         # on each importPreparer, passing in a list of its current
+         # holdings (as metadata). an empty list is passed at first load.
 
      hip <- HaemCodeImportPreparer(tempdir())
-     checkEquals(newResources(hip), list())
-     
+     existing.resources <- metadataList(hip)
+
+         # simulate initial loading
+     checkEquals(length(newResources(hip, list())), length(existing.resources))
+
+         # simulate the state in which all resources are already loaded
+     checkEquals(length(newResources(hip, existing.resources)), 0)
+
+        # pretend that there are only five existing resources
+     md <- newResources(hip, existing.resources[1:5])
+     checkEquals(length(md), length(existing.resources) - 5)
+
+     first.new.url <- md[[1]]@SourceUrl
+     sixth.old.url <- existing.resources[[6]]@SourceUrl
+     checkEquals(first.new.url, sixth.old.url)
 
 } # test_newResources
 #------------------------------------------------------------------------------------------------------------------------

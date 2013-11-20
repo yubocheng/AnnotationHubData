@@ -33,6 +33,23 @@ setMethod("show", "HaemCodeImportPreparer",
         })
 
 #------------------------------------------------------------------------------
+.newHaemCodeResources <- function(self, currentMetadata=list())
+{
+    hip <- HaemCodeImportPreparer(annotationHubRoot=tempdir())
+    md.list <- metadataList(hip)
+    available.urls <- sapply(md.list, function(elt) metadata(elt)$SourceUrl)
+    current.urls <- sapply(currentMetadata,
+                           function(elt) metadata(elt)$SourceUrl)
+    new.urls <- setdiff(available.urls, current.urls)
+    indices <- match(new.urls, available.urls)
+    
+    if(length(indices) > 0)
+      return(md.list[indices])
+
+    return(list())
+
+} # .newHaemCodeResources
+#------------------------------------------------------------------------------
   # the HaemCode data is specified statically: we were given
   # a text file containing filenames, accompanied by another
   # file supplying metadata.  these are found in extdata:
@@ -44,8 +61,8 @@ setMethod("show", "HaemCodeImportPreparer",
 setMethod("newResources", signature="HaemCodeImportPreparer",
 
     function(importPreparer, currentMetadata=list(), ...) {
-        list()
-    })
+       return(.newHaemCodeResources(importPreparer, currentMetadata))
+       })
 
 #------------------------------------------------------------------------------
 # general utility functions not yet generally available:
@@ -73,7 +90,6 @@ HaemCodeImportPreparer <- function(annotationHubRoot, verbose=FALSE,
                                                           tbl.md,
                                                           annotationHubRoot,
                                                           verbose)
-    #browser()
     self <- new("HaemCodeImportPreparer", annotationHubRoot=annotationHubRoot,
                 ahmd.list=ahmd.list)
    
@@ -101,33 +117,6 @@ setMethod("sourceUrls", "HaemCodeImportPreparer",
         sapply(object@ahmd.list, function(elt) metadata(elt)$SourceUrl)
         })
 
-#------------------------------------------------------------------------------
-# setMethod("newResources", signature="HaemCodeImportPreparer",
-# 
-#     function(importPreparer, currentMetadata=list(), ...) {
-# 
-#         ahmd.list <- .haemCodeMetadataToAnnotationHubMetadata(
-#                           metadataTable(importPreparer),
-#                           annotationHubRoot(importPreparer),
-#                           verbose=FALSE)
-#         previous.urls  <- sapply(currentMetadata,
-#                                  function(elt) metadata(elt)$SourceUrl)
-#         all.known.urls <- sapply(importPreparer@ahmd.list,
-#                                  function(elt) metadata(elt)$SourceUrl)
-#         new.urls <- setdiff(all.known.urls, previous.urls)
-#         
-#         if(length(new.urls) == 0)
-#             return(list())
-# 
-#         if(length(new.urls) == 1)
-#             if (is.na(new.urls))
-#                 return(list())
-#         
-#         indices <- match(new.urls, all.known.urls)
-#         importPreparer@ahmd.list[indices]
-#         })
-# 
-# 
 #------------------------------------------------------------------------------
 .haemCodeMetadataToAnnotationHubMetadata <- function (file.list, tbl.md,
                                                       annotationHubRoot,
