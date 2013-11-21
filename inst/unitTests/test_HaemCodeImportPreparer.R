@@ -155,7 +155,7 @@ admin_test_endToEndProcessing <- function()
     checkEquals(length(md.list), 3 * max.experiments)
     ahRoot <- annotationHubRoot(hip)
 
-    for(md in md.list) {
+    for(md in md.list[3]) {
         remote.file <- md@SourceUrl
         printf("downloading %s", remote.file)
         checkTrue(RCurl::url.exists(remote.file))

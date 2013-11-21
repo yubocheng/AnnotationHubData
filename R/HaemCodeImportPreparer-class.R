@@ -132,6 +132,14 @@ setMethod("sourceUrls", "HaemCodeImportPreparer",
     max <- length(file.list)
     result <- vector("list", max * 3)
     entry <- 0
+
+    geneList.read.table.colClasses <- c(rep("character", 6),
+                                        rep("integer",   3),
+                                        rep("character", 2),
+                                        rep("integer",   2),
+                                        rep("character", 1),
+                                        rep("integer",   2),
+                                        rep("character", 1))
     
     for(i in 1:max){
        filename <- file.list[i]
@@ -148,6 +156,12 @@ setMethod("sourceUrls", "HaemCodeImportPreparer",
                                  bigWig="rtrackLayerImport",
                                  peaks="rtrackLayerImport",
                                  geneList="importTable")
+           recipe.args <- switch(file.type,
+                                 bigWig=list(),
+                                 peaks=list(),
+                                 geneList=list(header=TRUE, sep=",",
+                                               colClasses=geneList.read.table.colClasses))
+
            file.extension <- switch(file.type,
                                  bigWig="bw",
                                  peaks="bed",
@@ -160,7 +174,7 @@ setMethod("sourceUrls", "HaemCodeImportPreparer",
                                  bigWig="aligned reads",
                                  peaks="called TF binding peaks",
                                  geneList="nearby genes")
-           recipe.args <- c()
+
            sourceFile <- file.path(directory, filename)
            sourceUrl <- paste("http://haemcode.stemcells.cam.ac.uk",
                               directory,
@@ -201,7 +215,7 @@ setMethod("sourceUrls", "HaemCodeImportPreparer",
                                      Genome="mm10",
                                      Tags=tags,
                                      Recipe=recipe.name,
-                                     RecipeArgs=list(),
+                                     RecipeArgs=recipe.args,
                                      RDataClass=data.class,
                                      RDataVersion=numeric_version("0.0.1"),
                                      RDataDateAdded=as.Date(Sys.Date(), "%Y"),
