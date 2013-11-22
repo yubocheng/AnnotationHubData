@@ -134,11 +134,11 @@ setMethod("sourceUrls", "HaemCodeImportPreparer",
     entry <- 0
 
     geneList.read.table.colClasses <- c(rep("character", 6),
-                                        rep("integer",   3),
+                                        rep("numeric",   3),
                                         rep("character", 2),
-                                        rep("integer",   2),
+                                        rep("numeric",   2),
                                         rep("character", 1),
-                                        rep("integer",   2),
+                                        rep("numeric",   2),
                                         rep("character", 1))
     
     for(i in 1:max){

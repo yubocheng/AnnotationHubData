@@ -1,6 +1,10 @@
 # test_HaemCodeImportPreparer.R
 #-------------------------------------------------------------------------------
 .printf <- function(...) noquote(print(sprintf(...)))
+library(httr)
+url.exists <- function(url) {
+    HEAD(url)$headers$status == "200"
+    }
 #-------------------------------------------------------------------------------
 paulsTests <- function()
 {
@@ -13,6 +17,7 @@ paulsTests <- function()
 
     test_newResources()
 
+    admin_test_readTableArgs()
     admin_test_endToEndProcessing()
 
 } # paulsTests
@@ -188,4 +193,74 @@ admin_test_endToEndProcessing <- function()
     
 } # admin_test_endToEndProcessing
 #-------------------------------------------------------------------------------
+# read -all- of the csv files provided by HaemCode to make sure the
+# colClasses argument (in particular) is suitable
+#
+# predictable form of a geneList url:
+#
+#    http://haemcode.stemcells.cam.ac.uk/blood/geneList/FoxO1_GSM546525_Pro-B-Cells.csv
+#
+admin_test_readTableArgs <- function()
+{
+   print("--- admin_test_readTableArgs")
+   filename <- system.file(package="AnnotationHubData", "extdata",
+                           "haemCodeFileList.txt")
+   tbl.md <- read.table(filename, sep="\t", header=TRUE, as.is=TRUE)
+   experimentNames <- scan(filename, sep="\n", what=character(0))
 
+   base.url <- "http://haemcode.stemcells.cam.ac.uk"
+   directory <- "blood/geneList"
+   extension <- "csv"
+
+    col.classes <- c(rep("character", 6),
+                     rep("numeric",   3),
+                     rep("character", 2),
+                     rep("numeric",   2),
+                     rep("character", 1),
+                     rep("numeric",   1),
+                     rep("numeric",   1),
+                     rep("character", 1))
+                     
+
+
+   for(experimentName in experimentNames){
+      filename <- sprintf("%s.%s", experimentName, extension)
+      url <- file.path(base.url, directory, filename)
+      print(url)
+      printf("%s exists? %s", experimentName, url.exists(url))
+      x <- read.table(url, header=TRUE, sep=",", colClasses=col.classes)
+      checkEquals(ncol(x), 17)
+      checkTrue(nrow(x) > 0)
+      }
+
+} # admin_test_readTableArgs
+#-------------------------------------------------------------------------------
+admin_test_allUrlsExist <- function()
+{
+   filename <- system.file(package="AnnotationHubData", "extdata",
+                           "haemCodeFileList.txt")
+   experiments <- scan(filename, sep="\n", what=character(0))
+
+   for(experiment in experiments){
+      for(file.type in c("bigWig", "peaks", "geneList")){
+         file.extension <- switch(file.type,
+                                  bigWig="bw",
+                                  peaks="bed",
+                                  geneList="csv")
+         directory <- switch(file.type,
+                             bigWig="blood/BigWig/mm10",
+                             peaks="blood/Peaks/mm10",
+                             geneList="blood/geneList")
+         filename <- sprintf("%s.%s", experiment, file.extension)
+         url <- paste("http://haemcode.stemcells.cam.ac.uk",
+                      directory,
+                      filename,
+                      sep="/")
+         printf("%s: %s", url.exists(url), url)
+         } # for file.type
+     } # for experiment
+    
+
+} # admin_test_allUrlsExist
+#-------------------------------------------------------------------------------
+    

@@ -48,6 +48,7 @@ test_csv <- function()
 
     recipe <- AnnotationHubRecipe(md)
     updated.metadata <- run(recipe)
+    browser()
     checkTrue(file.exists(outputFile(recipe)))
     load(outputFile(recipe))
     checkEquals(dim(tbl), c(2,3))
