@@ -1,3 +1,6 @@
+# test_HaemCodeImportPreparer.R
+#-------------------------------------------------------------------------------
+.printf <- function(...) noquote(print(sprintf(...)))
 #-------------------------------------------------------------------------------
 paulsTests <- function()
 {
@@ -10,7 +13,7 @@ paulsTests <- function()
 
     test_newResources()
 
-    # admin_test_endToEndProcessing()
+    admin_test_endToEndProcessing()
 
 } # paulsTests
 #-------------------------------------------------------------------------------
@@ -155,9 +158,9 @@ admin_test_endToEndProcessing <- function()
     checkEquals(length(md.list), 3 * max.experiments)
     ahRoot <- annotationHubRoot(hip)
 
-    for(md in md.list[3]) {
+    for(md in md.list[3]) {   # just do the 3rd file, the csv-delimited table
         remote.file <- md@SourceUrl
-        printf("downloading %s", remote.file)
+        .printf("downloading %s", remote.file)
         checkTrue(RCurl::url.exists(remote.file))
         directory.path <- file.path (ahRoot, dirname(md@SourceFile))
         if(!file.exists(directory.path))
@@ -165,20 +168,20 @@ admin_test_endToEndProcessing <- function()
         local.file <- file.path(directory.path, basename(md@SourceFile))
         download.file(remote.file, local.file, quiet=TRUE)
         checkTrue(file.exists(local.file))
-        printf("local: %s", local.file)
+        .printf("local: %s", local.file)
         recipe <- AnnotationHubRecipe(md)
-        printf("--- running recipe for %s", md@SourceFile)
+        .printf("--- running recipe for %s", md@SourceFile)
         md2 <- run(recipe)
         serializedDataFileName <- file.path(md2@AnnotationHubRoot, md2@RDataPath)
         checkTrue(file.exists(serializedDataFileName))
-        printf("loading %s", serializedDataFileName)
+        .printf("loading %s", serializedDataFileName)
         load(serializedDataFileName)
         if(md@Recipe == "rtrackLayerImport"){
-            printf(" gr size: %d", length(gr))
+            .printf(" gr size: %d", length(gr))
             checkTrue(length(gr) > 100)
             }
         if(md@Recipe == "importTable"){
-            printf("tbl size: %d", nrow(tbl))
+            .printf("tbl size: %d", nrow(tbl))
             checkTrue(nrow(tbl) > 100)
             }
         } # for md
