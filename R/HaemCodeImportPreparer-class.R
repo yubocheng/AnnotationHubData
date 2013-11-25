@@ -176,6 +176,17 @@ setMethod("sourceUrls", "HaemCodeImportPreparer",
                                  geneList="nearby genes")
 
            sourceFile <- file.path(directory, filename)
+
+              # most web resources (eg, encode at UCSC) have directory
+              # names within the URL which identify the
+              # resource.  haemcode does not, probably because
+              # it is a one-source web site.  the directory
+              # name begins  with "blood" which as a sourceFile
+              # presented to the eventual AnnotationHub user,
+              # is not very helpful. stick "haemcode" in front of that
+           
+           sourceFile <- sprintf("haemcode/%s", sourceFile)
+           
            sourceUrl <- paste("http://haemcode.stemcells.cam.ac.uk",
                               directory,
                               filename,

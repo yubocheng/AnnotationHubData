@@ -52,9 +52,9 @@ test_oneExperimentMetadataExtractAndParse <- function()
       # spot check some of the metadata fields
 
     checkEquals(sapply(md.list, function(el) el@SourceFile),
-                c("blood/BigWig/mm10/CTCF_GSM546526_Pro-B-Cells.bw",
-                  "blood/Peaks/mm10/CTCF_GSM546526_Pro-B-Cells.bed",
-                  "blood/geneList/CTCF_GSM546526_Pro-B-Cells.csv"))
+                c("haemcode/blood/BigWig/mm10/CTCF_GSM546526_Pro-B-Cells.bw",
+                  "haemcode/blood/Peaks/mm10/CTCF_GSM546526_Pro-B-Cells.bed",
+                  "haemcode/blood/geneList/CTCF_GSM546526_Pro-B-Cells.csv"))
 
     checkEquals(sapply(md.list, function(el) el@SourceUrl),
       c("http://haemcode.stemcells.cam.ac.uk/blood/BigWig/mm10/CTCF_GSM546526_Pro-B-Cells.bw",
