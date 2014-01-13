@@ -71,7 +71,7 @@ trackWithAuxiliaryTablesToGRanges <- function(recipe)
     seqinfo(gr) <- newSeqInfo[names(seqinfo(gr))]
 
     save(gr, file=outputFile(recipe))
-
+    # copy to S3
     outputFile(recipe)
 
 } # trackWithAuxiliaryTableToGRanges

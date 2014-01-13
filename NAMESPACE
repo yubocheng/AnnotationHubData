@@ -11,7 +11,7 @@ export(AnnotationHubMetadata, AnnotationHubRecipe,
 export(newResources,
   constructAnnotationHubMetadataFromSourceFilePath,
   postProcessMetadata,
-  constructMetadataFromJsonPath, flog)
+  constructMetadataFromJsonPath, flog, upload_to_S3)
 
 import(rjson)
 

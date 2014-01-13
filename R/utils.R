@@ -36,3 +36,32 @@ flog <- function(level, ...)
     dots$name <- "file"
     do.call(loggerFunction, dots)
 }
+
+## Uploading to S3 usually happens in AnnotationHubServer, but 
+## when running the track*Recipe recipes, it happens in
+## AnnotationHubData. There is an RAmazonS3 R package but 
+## it does not work well for uploading files. Therefore this
+## function expects the AWS CLI to be installed. 
+## See: https://aws.amazon.com/cli/
+## It should be configured with a user who can write to 
+## the appropriate bucket. 
+upload_to_S3 <- function(file, remotename,
+    bucket=getOption("ANNOTATION_HUB_BUCKET_NAME", "annotationhub"),
+    profile, acl="public-read")
+{
+    #aws --profile ahs_content_uploader s3 cp --acl public-read test s3://annotationhub/loquat/vato/manichean/test
+    profileStr <- " "
+    if (!missing(profile))
+    {
+        profileStr <- paste("--profile ", profile)
+    }
+    cmd <- "aws"
+    args <- sprintf("%s s3 cp --acl %s %s s3://%s/%s",
+        profileStr, acl, file, bucket, remotename)
+    res <- system2(cmd, args)
+    if (res != 0)
+    {
+        stop(sprintf("Failed to upload %s to S3! Result was %s.", file, res))
+    }
+    TRUE
+}

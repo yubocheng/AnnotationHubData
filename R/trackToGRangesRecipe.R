@@ -12,6 +12,7 @@ trackToGRangesRecipe <- function(recipe)
         query <- ucscTableQuery(session, trackName)
         gr <- track(query, asRangedData = FALSE)
         save(gr, file=outputFile)
+        # copy to S3
     }
     outputFile
 }
