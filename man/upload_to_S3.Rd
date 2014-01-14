@@ -22,7 +22,8 @@ The file to upload.
   \item{remotename}{
 The name this file should have in S3, including any "keys"
 that are part of the name. This should not start with 
-a slash, but can contain forward slashes.
+a slash (if it does, the leading slash will be removed),
+but can contain forward slashes.
 }
   \item{bucket}{
 Name of the S3 bucket to copy to.

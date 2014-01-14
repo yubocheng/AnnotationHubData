@@ -49,6 +49,7 @@ upload_to_S3 <- function(file, remotename,
     bucket=getOption("ANNOTATION_HUB_BUCKET_NAME", "annotationhub"),
     profile, acl="public-read")
 {
+    remotename <- sub("^\\/", "", remotename)
     #aws --profile ahs_content_uploader s3 cp --acl public-read test s3://annotationhub/loquat/vato/manichean/test
     profileStr <- " "
     if (!missing(profile))

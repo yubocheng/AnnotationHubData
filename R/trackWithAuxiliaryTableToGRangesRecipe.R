@@ -71,7 +71,10 @@ trackWithAuxiliaryTablesToGRanges <- function(recipe)
     seqinfo(gr) <- newSeqInfo[names(seqinfo(gr))]
 
     save(gr, file=outputFile(recipe))
-    # copy to S3
+    if (!getOption("AnnotationHub_Use_Disk", FALSE)) {
+        upload_to_S3(outputfile(recipe), metadata(recipe)$RDataPath)
+    }
+
     outputFile(recipe)
 
 } # trackWithAuxiliaryTableToGRanges

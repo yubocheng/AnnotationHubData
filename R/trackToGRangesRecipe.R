@@ -12,7 +12,9 @@ trackToGRangesRecipe <- function(recipe)
         query <- ucscTableQuery(session, trackName)
         gr <- track(query, asRangedData = FALSE)
         save(gr, file=outputFile)
-        # copy to S3
+        if (!getOption("AnnotationHub_Use_Disk", FALSE)) {
+            upload_to_S3(outputFile, metadata(recipe)$RDataPath)
+        }
     }
     outputFile
 }
