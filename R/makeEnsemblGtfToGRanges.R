@@ -52,8 +52,6 @@ makeEnsemblAHMsFromGTFs <- function(){
           Tags = c("GTF", "ensembl", "Gene", "Transcript", "Annotation")))
 }
 
-## TODO: modify recipe above to not do the Recipe? OR make
-## newResources so that it stops worrying about recipes?  CHOOSE...
 
 
 ## STEP 3:  Make a recipe that takes an AnnotationHubRecipe object.
@@ -74,12 +72,10 @@ ensemblGTFToGRangesRecipe <- function(recipe){
 
 ## STEP 4:  Call the helper to set up the newResources() method
 ## makeAnnotationHubResource("EnsemblGtfImportPreparer",
-##                           makeEnsemblAHMsFromGTFs,
-##                           ensemblGTFToGRangesRecipe)
+##                           makeEnsemblAHMsFromGTFs)
 
 
 
-## TODO: choose whether to have separate arg for recipe or to have it be referenced by the other function (leaning towards the 2nd option right now)...
 
 
 

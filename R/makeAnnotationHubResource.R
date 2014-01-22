@@ -63,12 +63,10 @@
 
 makeAnnotationHubResource <-
     function(objName,
-             makeAnnotationHubMetadataFunction)#,
-             ## recipeFunction)
+             makeAnnotationHubMetadataFunction)
 {
-    ## make the object
-    obj <- setClass(objName, contains="ImportPreparer")
-
+    ## declare the object
+    setClass(objName, contains="ImportPreparer")
     
     ## Create a newResources Method for the object type passed in.
     ## The job of this method is to only get resources that are "new"
@@ -77,21 +75,8 @@ makeAnnotationHubResource <-
     ## toss out any currentMetadata() AHMs that are already present.
     setMethod(newResources, objName, 
        function(importPreparer, currentMetadata = list(), ...){
-           
-           ## ## Get the recipe name and the package its defined in
-           ## recipeName <- as.character(substitute(recipeFunction))
-           ## recipePackage <- packageName(environment(recipeFunction))
-           ## if (recipePackage == ".GlobalEnv")
-           ##     stop("'recipeFunction' must be defined in a package")
-           
            ## The 1st function can take no args and must return AHMs
            ahms <- makeAnnotationHubMetadataFunction()
-           
-           ## ## set up the recipes here (*IF* they are not
-           ## ## required to be set up BEFOREHAND)
-           ## for (ahm in ahms)
-           ##     recipe(ahm) <- c(recipeName, package=recipePackage)
-
            ## And only return ones we don't have.
            setdiff(ahms, currentMetadata)
        })
