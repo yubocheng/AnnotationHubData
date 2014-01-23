@@ -3,11 +3,8 @@
 ## GTF files into GRanges objects.
 
 
-## STEP 1: come up with a name for the new ImportPreparer class and
-## define the class (this step cannot be done INSIDE the helper
-## function)
-EnsemblGtfImportPreparer <-
-    setClass("EnsemblGtfImportPreparer", contains="ImportPreparer")
+## STEP 1: come up with a name for the new ImportPreparer class
+## "EnsemblGtfImportPreparer"
 
 
 ## STEP 2: make function to process metadata into AHMs
