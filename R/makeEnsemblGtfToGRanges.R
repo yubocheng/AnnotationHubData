@@ -10,21 +10,6 @@
 
 ## STEP 2: make function to process metadata into AHMs
 
-## This helper is verbatim from Martin and returns ALL the potential sourceUrls.
-## .ensemblGtfSourceUrls <-
-##     function(baseUrl)
-## {
-##     want <- .ensemblDirUrl(baseUrl, "gtf/")
-##     ## files in release
-##     unlist(lapply(want, function(url) {
-##         listing <- getURL(url=url, followlocation=TRUE, customrequest="LIST -R")
-##         listing<- strsplit(listing, "\n")[[1]]
-##         subdir <- sub(".* ", "", listing[grep("^drwx", listing)])
-##         gtfGz <- sub(".* ", "", listing[grep(".*gtf.gz$", listing)])
-##         sprintf("%s%s/%s", url, subdir, gtfGz)
-##     }), use.names=FALSE)
-## }
-
 ## This function will return the AHMs and takes no args...
 makeEnsemblAHMsFromGTFs <- function(){
     baseUrl <- .ensemblBaseUrl
