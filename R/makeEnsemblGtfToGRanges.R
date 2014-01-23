@@ -3,9 +3,11 @@
 ## GTF files into GRanges objects.
 
 
-## STEP 1: come up with a name for the new ImportPreparer class
-## "EnsemblGtfImportPreparer"
-
+## STEP 1: come up with a name for the new ImportPreparer class and
+## define the class (this step cannot be done INSIDE the helper
+## function)
+EnsemblGtfImportPreparer <-
+    setClass("EnsemblGtfImportPreparer", contains="ImportPreparer")
 
 
 ## STEP 2: make function to process metadata into AHMs
@@ -56,13 +58,16 @@ ensemblGTFToGRangesRecipe <- function(recipe){
 
 
 ## STEP 4:  Call the helper to set up the newResources() method
-## makeAnnotationHubResource("EnsemblGtfImportPreparer",
-##                           makeEnsemblAHMsFromGTFs)
+makeAnnotationHubResource("EnsemblGtfImportPreparer",
+                          makeEnsemblAHMsFromGTFs)
 
 
 
 
 
+## test that this worked is whether the method is available after
+## loading package (it is)
+## getMethod(f='newResources' ,signature='EnsemblGtfImportPreparer')
 
 
 ##############################################################################
@@ -72,13 +77,38 @@ ensemblGTFToGRangesRecipe <- function(recipe){
 ## know about AHMs
 
 ## makeAnnotationHubResourceFromParams("EnsemblGtfImportPreparer",
-##                                     ensemblGTFToGRangesRecipe,
-##                                     meta1,
-##                                     meta2,
-##                                     meta3)
+##                                     AnnotationHubRoot,
+##                                     BiocVersion,
+##                                     Coordinate_1_based,
+##                                     DataProvider,
+##                                     DerivedMd5,
+##                                     Description,
+##                                     Genome,
+##                                     Maintainer,
+##                                     Notes,
+##                                     RDataClass,
+##                                     RDataDateAdded,
+##                                     RDataLastModifiedDate,
+##                                     RDataPath,
+##                                     RDataSize,
+##                                     RDataVersion,
+##                                   Recipe,
+##                                     RecipeArgs,
+##                                     SourceFile,
+##                                     SourceLastModifiedDate,
+##                                     SourceMd5,
+##                                     SourceSize,
+##                                     SourceUrl,
+##                                     SourceVersion,
+##                                     Species,
+##                                     Tags,
+##                                     TaxonomyId,
+##                                     Title)
 
 
-
+## TODO:
+## put metadata args above into a more sensible order
+## look at match.call() and formals() for ways to get the arguments
 
 
 
@@ -106,4 +136,4 @@ ensemblGTFToGRangesRecipe <- function(recipe){
 ## object that has methods they can call to get inputFile, recipeName
 ## and outputFile
 
-## So maybe I will just explain it...  NOT an easy decision for me.
+## So maybe I will just explain it...  This is NOT an easy decision for me.

@@ -64,10 +64,7 @@
 makeAnnotationHubResource <-
     function(objName,
              makeAnnotationHubMetadataFunction)
-{
-    ## declare the object
-    setClass(objName, contains="ImportPreparer")
-    
+{    
     ## Create a newResources Method for the object type passed in.
     ## The job of this method is to only get resources that are "new"
     ## It takes an arg of "old" AHMs that can be used for filtering.    
@@ -100,62 +97,64 @@ makeAnnotationHubResource <-
 ## can be missing list: SourceMd5, SourceSize, TaxonomyId, RDataPath,
 ## RDataDateAdded
 
-## genericAnnotationHubMetadataMapper <- function(AnnotationHubRoot,
-##                                                BiocVersion,
-##                                                Coordinate_1_based,
-##                                                DataProvider,
-##                                                DerivedMd5,
-##                                                Description,
-##                                                Genome,
-##                                                Maintainer,
-##                                                Notes,
-##                                                RDataClass,
-##                                                RDataDateAdded,
-##                                                RDataLastModifiedDate,
-##                                                RDataPath,
-##                                                RDataSize,
-##                                                RDataVersion,
-##                                                Recipe,
-##                                                RecipeArgs,
-##                                                SourceFile,
-##                                                SourceLastModifiedDate,
-##                                                SourceMd5,
-##                                                SourceSize,
-##                                                SourceUrl,
-##                                                SourceVersion,
-##                                                Species,
-##                                                Tags,
-##                                                TaxonomyId,
-##                                                Title){
+genericAnnotationHubMetadataMapper <- function(AnnotationHubRoot,
+                                               BiocVersion,
+                                               Coordinate_1_based,
+                                               DataProvider,
+                                               DerivedMd5,
+                                               Description,
+                                               Genome,
+                                               Maintainer,
+                                               Notes,
+                                               RDataClass,
+                                               RDataDateAdded,
+                                               RDataLastModifiedDate,
+                                               RDataPath,
+                                               RDataSize,
+                                               RDataVersion,
+                                               Recipe,
+                                               RecipeArgs,
+                                               SourceFile,
+                                               SourceLastModifiedDate,
+                                               SourceMd5,
+                                               SourceSize,
+                                               SourceUrl,
+                                               SourceVersion,
+                                               Species,
+                                               Tags,
+                                               TaxonomyId,
+                                               Title){
     
-##     ## 1st we have to look at each metadata argument
-##     ## each argument must be either length(arg)==1 OR length(arg)==n
-##     ## where all the args that are not ==1 are the same value of n.
-
-
+    ## 1st we have to look at each metadata argument
+    ## each argument must be either length(arg)==1 OR length(arg)==n
+    ## where all the args that are not ==1 are the same value of n.
     
-##     ## Then I can do something similar to below, where all the n==1
-##     ## arguments get passed to MoreArgs and the others are passed in
-##     ## at the front in a generic way.
-        
-##     ## ## generic Map call to replace most AHM construction operations.
-##     ## Map(AnnotationHubMetadata,
-##     ##     AnnotationHubRoot=meta$annotationHubRoot,
-##     ##     Description=description, Genome=meta$genome,
-##     ##     SourceFile=sourceFile, SourceUrl=sourceUrl,
-##     ##     SourceVersion=meta$sourceVersion, Species=meta$species,
-##     ##     TaxonomyId=meta$taxonomyId, Title=meta$title,
-##     ##     MoreArgs=list(
-##     ##       Coordinate_1_based = TRUE,
-##     ##       DataProvider = "ftp.ensembl.org",
-##     ##       Maintainer = "Martin Morgan <mtmorgan@fhcrc.org>",
-##     ##       RDataClass = "GRanges",
-##     ##       RDataDateAdded = Sys.time(),
-##     ##       RDataVersion = "0.0.1",
-##     ##     Recipe = c("ensemblGtfToGRangesRecipe", package="AnnotationHubData"),
-##     ##       Tags = c("GTF", "ensembl", "Gene", "Transcript", "Annotation")))
     
-## }
+    ## Then I can do something similar to below, where all the n==1
+    ## arguments get passed to MoreArgs and the others are passed in
+    ## at the front in a generic way.
+    
+    ## OR just loop through the args and use rep to make them all the
+    ## correct length...    
+    
+    ## ## generic Map call to replace most AHM construction operations.
+    ## Map(AnnotationHubMetadata,
+    ##     AnnotationHubRoot=meta$annotationHubRoot,
+    ##     Description=description, Genome=meta$genome,
+    ##     SourceFile=sourceFile, SourceUrl=sourceUrl,
+    ##     SourceVersion=meta$sourceVersion, Species=meta$species,
+    ##     TaxonomyId=meta$taxonomyId, Title=meta$title,
+    ##     MoreArgs=list(
+    ##       Coordinate_1_based = TRUE,
+    ##       DataProvider = "ftp.ensembl.org",
+    ##       Maintainer = "Martin Morgan <mtmorgan@fhcrc.org>",
+    ##       RDataClass = "GRanges",
+    ##       RDataDateAdded = Sys.time(),
+    ##       RDataVersion = "0.0.1",
+    ##     Recipe = c("ensemblGtfToGRangesRecipe", package="AnnotationHubData"),
+    ##       Tags = c("GTF", "ensembl", "Gene", "Transcript", "Annotation")))
+    
+}
 
 
 
@@ -164,66 +163,66 @@ makeAnnotationHubResource <-
 
 
 
-## makeAnnotationHubResourceFromParams <- function(objName,
-##                                                 AnnotationHubRoot,
-##                                                 BiocVersion,
-##                                                 Coordinate_1_based,
-##                                                 DataProvider,
-##                                                 DerivedMd5,
-##                                                 Description,
-##                                                 Genome,
-##                                                 Maintainer,
-##                                                 Notes,
-##                                                 RDataClass,
-##                                                 RDataDateAdded,
-##                                                 RDataLastModifiedDate,
-##                                                 RDataPath,
-##                                                 RDataSize,
-##                                                 RDataVersion,
-##                                                 Recipe,
-##                                                 RecipeArgs,
-##                                                 SourceFile,
-##                                                 SourceLastModifiedDate,
-##                                                 SourceMd5,
-##                                                 SourceSize,
-##                                                 SourceUrl,
-##                                                 SourceVersion,
-##                                                 Species,
-##                                                 Tags,
-##                                                 TaxonomyId,
-##                                                 Title){
-##     ## get metadata as AHMs
-##     AHMs <- genericAnnotationHubMetadataFunction(AnnotationHubRoot,
-##                                                  BiocVersion,
-##                                                  Coordinate_1_based,
-##                                                  DataProvider,
-##                                                  DerivedMd5,
-##                                                  Description,
-##                                                  Genome,
-##                                                  Maintainer,
-##                                                  Notes,
-##                                                  RDataClass,
-##                                                  RDataDateAdded,
-##                                                  RDataLastModifiedDate,
-##                                                  RDataPath,
-##                                                  RDataSize,
-##                                                  RDataVersion,
-##                                                  Recipe,
-##                                                  RecipeArgs,
-##                                                  SourceFile,
-##                                                  SourceLastModifiedDate,
-##                                                  SourceMd5,
-##                                                  SourceSize,
-##                                                  SourceUrl,
-##                                                  SourceVersion,
-##                                                  Species,
-##                                                  Tags,
-##                                                  TaxonomyId,
-##                                                  Title)    
-##     ## convert metadata arguments with a generic utility function
-##     makeAnnotationHubResource(objName,
-##                               AHMs)
-## }
+makeAnnotationHubResourceFromParams <- function(objName,
+                                                AnnotationHubRoot,
+                                                BiocVersion,
+                                                Coordinate_1_based,
+                                                DataProvider,
+                                                DerivedMd5,
+                                                Description,
+                                                Genome,
+                                                Maintainer,
+                                                Notes,
+                                                RDataClass,
+                                                RDataDateAdded,
+                                                RDataLastModifiedDate,
+                                                RDataPath,
+                                                RDataSize,
+                                                RDataVersion,
+                                                Recipe,
+                                                RecipeArgs,
+                                                SourceFile,
+                                                SourceLastModifiedDate,
+                                                SourceMd5,
+                                                SourceSize,
+                                                SourceUrl,
+                                                SourceVersion,
+                                                Species,
+                                                Tags,
+                                                TaxonomyId,
+                                                Title){
+    ## get metadata as AHMs
+    AHMs <- genericAnnotationHubMetadataFunction(AnnotationHubRoot,
+                                                 BiocVersion,
+                                                 Coordinate_1_based,
+                                                 DataProvider,
+                                                 DerivedMd5,
+                                                 Description,
+                                                 Genome,
+                                                 Maintainer,
+                                                 Notes,
+                                                 RDataClass,
+                                                 RDataDateAdded,
+                                                 RDataLastModifiedDate,
+                                                 RDataPath,
+                                                 RDataSize,
+                                                 RDataVersion,
+                                                 Recipe,
+                                                 RecipeArgs,
+                                                 SourceFile,
+                                                 SourceLastModifiedDate,
+                                                 SourceMd5,
+                                                 SourceSize,
+                                                 SourceUrl,
+                                                 SourceVersion,
+                                                 Species,
+                                                 Tags,
+                                                 TaxonomyId,
+                                                 Title)    
+    ## convert metadata arguments with a generic utility function
+    makeAnnotationHubResource(objName,
+                              AHMs)
+}
 
 
 ## Seeing this eventual abstraction, I see that I really want my base

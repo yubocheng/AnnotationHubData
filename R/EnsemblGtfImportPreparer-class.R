@@ -1,5 +1,5 @@
-EnsemblGtfImportPreparer <-
-    setClass("EnsemblGtfImportPreparer", contains="ImportPreparer")
+## EnsemblGtfImportPreparer <-
+##     setClass("EnsemblGtfImportPreparer", contains="ImportPreparer")
 
 ## retrieve GTF file urls from Ensembl
 .ensemblGtfSourceUrls <-
@@ -41,17 +41,17 @@ EnsemblGtfImportPreparer <-
           Tags = c("GTF", "ensembl", "Gene", "Transcript", "Annotation")))
 }
 
-setMethod(newResources, "EnsemblGtfImportPreparer",
-    function(importPreparer, currentMetadata = list(), ...)
-{
-    sourceUrls <- .ensemblGtfSourceUrls(.ensemblBaseUrl) # 122,  6 March, 2013
+## setMethod(newResources, "EnsemblGtfImportPreparer",
+##     function(importPreparer, currentMetadata = list(), ...)
+## {
+##     sourceUrls <- .ensemblGtfSourceUrls(.ensemblBaseUrl) # 122,  6 March, 2013
 
-    ## filter known
-    knownUrls <- sapply(currentMetadata, function(elt) {
-        metadata(elt)$SourceUrl
-    })
-    sourceUrls <- sourceUrls[!sourceUrls %in% knownUrls]
+##     ## filter known
+##     knownUrls <- sapply(currentMetadata, function(elt) {
+##         metadata(elt)$SourceUrl
+##     })
+##     sourceUrls <- sourceUrls[!sourceUrls %in% knownUrls]
 
-    ## AnnotationHubMetadata
-    .ensemblGtfMetadata(.ensemblBaseUrl, sourceUrls)
-})
+##     ## AnnotationHubMetadata
+##     .ensemblGtfMetadata(.ensemblBaseUrl, sourceUrls)
+## })
