@@ -80,6 +80,20 @@ makeAnnotationHubResource <-
 }
 
 
+## This can't work because there is not a function???  That is, I have
+## no way to generate the AHMs on the fly here...
+makeAnnotationHubResourceFromAHMs<-
+    function(objName,
+             ahms)
+{    
+    setMethod(newResources, objName, 
+       function(importPreparer, currentMetadata = list(), ...){
+           ## And only return ones we don't have.
+           setdiff(ahms, currentMetadata)
+       })
+}
+## Dan wonders if maybe we can just stop using S4 for newResources?  Or maybe I can just use the generic function I was thinking about to make it easier for them to make their AHM generating function.
+
 
 
 ################################################################################
@@ -96,6 +110,11 @@ makeAnnotationHubResource <-
 
 ## can be missing list: SourceMd5, SourceSize, TaxonomyId, RDataPath,
 ## RDataDateAdded
+
+.getArgLength <- function(argName){
+    argVal <- eval(parse(text=argName))
+    length(argVal)
+}
 
 genericAnnotationHubMetadataMapper <- function(AnnotationHubRoot,
                                                BiocVersion,
@@ -128,7 +147,13 @@ genericAnnotationHubMetadataMapper <- function(AnnotationHubRoot,
     ## 1st we have to look at each metadata argument
     ## each argument must be either length(arg)==1 OR length(arg)==n
     ## where all the args that are not ==1 are the same value of n.
-    
+
+    metaArgNames <- names(formals())[-1]
+    mArgLengths <- sapply(metaArgNames, .getArgLength)
+    uArgLens <- unique(mArgLengths)
+    if ((!(1 %in% uArgLens) || length(uArgLens) > 2){
+        stop("All the metadata argument lengths need to be either length 1 OR another length.  If they are another length, then they must all be the same length")
+    }
     
     ## Then I can do something similar to below, where all the n==1
     ## arguments get passed to MoreArgs and the others are passed in
@@ -156,7 +181,8 @@ genericAnnotationHubMetadataMapper <- function(AnnotationHubRoot,
     
 }
 
-
+## I need to do something like this to get my names out...
+## eval(parse(text= names(formals())[1] ))
 
 
 
@@ -220,7 +246,7 @@ makeAnnotationHubResourceFromParams <- function(objName,
                                                  TaxonomyId,
                                                  Title)    
     ## convert metadata arguments with a generic utility function
-    makeAnnotationHubResource(objName,
+    makeAnnotationHubResourceFromAHMs(objName,
                               AHMs)
 }
 
