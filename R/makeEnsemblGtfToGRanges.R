@@ -3,14 +3,10 @@
 ## GTF files into GRanges objects.
 
 
-## STEP 1: come up with a name for the new ImportPreparer class
-## "EnsemblGtfImportPreparer"
-
-
-## STEP 2: make function to process metadata into AHMs
-
-## This function will return the AHMs and takes no args...
-makeEnsemblAHMsFromGTFs <- function(){
+## STEP 1: make function to process metadata into AHMs
+## This function will return the AHMs and takes no args.
+## It also must specify a recipe function.
+makeEnsemblGTFsToAHMs <- function(){
     baseUrl <- .ensemblBaseUrl
     sourceUrl <- .ensemblGtfSourceUrls(.ensemblBaseUrl)
     
@@ -38,10 +34,8 @@ makeEnsemblAHMsFromGTFs <- function(){
 
 
 
-## STEP 3:  Make a recipe that takes an AnnotationHubRecipe object.
-## Yes I am keeping things so that users have to learn about
-## AnnotationHubRecipe objects BECAUSE I plan to remove from users the
-## need to know about the more complicated AMH objects.
+## STEP 2: Make a recipe function that takes an AnnotationHubRecipe
+## object.
 ensemblGTFToGRangesRecipe <- function(recipe){
     require(rtracklayer)
     gz.inputFile <- inputFiles(recipe)[1]
@@ -54,9 +48,42 @@ ensemblGTFToGRangesRecipe <- function(recipe){
 
 
 
-## STEP 4:  Call the helper to set up the newResources() method
+## STEP 3:  Call the helper to set up the newResources() method
 makeAnnotationHubResource("EnsemblGtfImportPreparer",
-                          makeEnsemblAHMsFromGTFs)
+                          makeEnsemblGTFsToAHMs)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#######################################################################
+## Next:
+## 1) Beef up the constructor for AnnotationHub objects
+## 2) Create a vignette explaining this stuff.
+#######################################################################
+
+
+
 
 
 
@@ -64,7 +91,9 @@ makeAnnotationHubResource("EnsemblGtfImportPreparer",
 
 ## test that this worked is whether the method is available after
 ## loading package (it is)
-## getMethod(f='newResources' ,signature='EnsemblGtfImportPreparer')
+## library(AnnotationHubData);getMethod(f='newResources' ,signature='EnsemblGtfImportPreparer'); getClass('EnsemblGtfImportPreparer')
+## BUT it may not 'actually' work since the class is not exported from
+## the NAMESPACE in this case...
 
 
 ##############################################################################
