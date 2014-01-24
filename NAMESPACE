@@ -1,6 +1,6 @@
 exportClasses(AnnotationHubMetadata, AnnotationHubRecipe,
     ImportPreparer, dbSNPVCFImportPreparer,
-    EnsemblFastaImportPreparer, #EnsemblGtfImportPreparer,
+    EnsemblFastaImportPreparer, EnsemblGtfImportPreparer,
     EncodeImportPreparer, UCSCTrackImportPreparer)
 
 export(AnnotationHubMetadata, AnnotationHubRecipe,
