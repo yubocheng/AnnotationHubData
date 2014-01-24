@@ -85,15 +85,17 @@ makeAnnotationHubResource("EnsemblGtfImportPreparer",
 
 
 
-
-
-
-
+#######################################################################
 ## test that this worked is whether the method is available after
 ## loading package (it is)
 ## library(AnnotationHubData);getMethod(f='newResources' ,signature='EnsemblGtfImportPreparer'); getClass('EnsemblGtfImportPreparer')
 ## BUT it may not 'actually' work since the class is not exported from
 ## the NAMESPACE in this case...
+## more tests
+## foo <- new('EnsemblGtfImportPreparer')
+## BiocVersion <- c("2.12", "2.13", "2.14")
+## cm <- AnnotationHubServer:::getExistingResources(BiocVersion)
+## res <- newResources(foo, currentMetadata=cm)
 
 
 ##############################################################################
