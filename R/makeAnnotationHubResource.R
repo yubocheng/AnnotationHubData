@@ -4,7 +4,8 @@
 
 makeAnnotationHubResource <-
     function(objName,
-             makeAnnotationHubMetadataFunction)
+             makeAnnotationHubMetadataFunction,
+             ...)
 {
     setClass(objName,
              contains="ImportPreparer",
@@ -18,11 +19,25 @@ makeAnnotationHubResource <-
     setMethod(newResources, objName, 
        function(importPreparer, currentMetadata = list(), ...){
            ## The 1st function can take no args and must return AHMs
-           ahms <- makeAnnotationHubMetadataFunction()
+           ahms <- makeAnnotationHubMetadataFunction(...)
            ## And only return ones we don't have.
            setdiff(ahms, currentMetadata)
        })
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

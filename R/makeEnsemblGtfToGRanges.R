@@ -96,7 +96,7 @@ makeAnnotationHubResource("EnsemblGtfImportPreparer",
 ## BiocVersion <- c("2.12", "2.13", "2.14")
 ## cm <- AnnotationHubServer:::getExistingResources(BiocVersion)
 ## res <- newResources(foo, currentMetadata=cm)
-
+## This works!
 
 ##############################################################################
 ## NEXT: make a long-form call and skip the AHM function helper
