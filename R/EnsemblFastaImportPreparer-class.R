@@ -17,7 +17,7 @@ EnsemblFastaImportPreparer <-
         listing <- getURL(url=url, followlocation=TRUE, customrequest="LIST -R")
         listing<- strsplit(listing, "\n")[[1]]
 
-        subdirIdx <- grepl("\\.*/.*:", listing)  
+        subdirIdx <- grepl(".*/.*:", listing)  
         subdir <- sub("^(.*):$", "\\1", listing[subdirIdx])
 
         fileTypes <- paste(.ensemblFastaTypes, collapse="|")
@@ -32,7 +32,13 @@ EnsemblFastaImportPreparer <-
         sprintf("%s%s/%s", url, subdir, fasta)
     }
     
-    unlist(lapply(want, .processUrl), use.names=FALSE)
+    res <- unlist(lapply(want, .processUrl), use.names=FALSE)
+    if (length(res) == 0) {
+        txt <- sprintf("no fasta files at %s",
+                       paste(sQuote(want), collapse=", "))
+        stop(paste(strwrap(txt, exdent=2), collapse="\n"))
+    }
+    res
 }
 
 .ensemblFastaMetadata <-
