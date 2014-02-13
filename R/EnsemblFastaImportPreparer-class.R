@@ -76,6 +76,7 @@ setMethod(newResources, signature="EnsemblFastaImportPreparer",
         metadata(elt)$SourceUrl
     })
     sourceUrls <- sourceUrls[!sourceUrls %in% knownUrls]
+    if (length(sourceUrls) == 0) return(list())
 
     ## AnnotationHubMetadata
     .ensemblFastaMetadata(.ensemblBaseUrl, sourceUrls)
