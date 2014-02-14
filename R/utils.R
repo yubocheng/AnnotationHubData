@@ -57,12 +57,20 @@ upload_to_S3 <- function(file, remotename,
         profileStr <- paste("--profile ", profile)
     }
     cmd <- "aws"
-    args <- sprintf("%s s3 cp --acl %s %s s3://%s/%s",
-        profileStr, acl, file, bucket, remotename)
-    res <- system2(cmd, args)
-    if (res != 0)
+    if (length(file) != length(remotename))
+        stop("Length of file does not match length of remotename!")
+
+    for (i in 1:length(file))
     {
-        stop(sprintf("Failed to upload %s to S3! Result was %s.", file, res))
+        thisFile <- file[i]
+        thisRemoteName <- remotename[i]
+        args <- sprintf("%s s3 cp --acl %s %s s3://%s/%s",
+            profileStr, acl, thisFile, bucket, thisRemoteName)
+        res <- system2(cmd, args)
+        if (res != 0)
+        {
+            stop(sprintf("Failed to upload %s to S3! Result was %s.", file, res))
+        }
     }
     TRUE
 }
