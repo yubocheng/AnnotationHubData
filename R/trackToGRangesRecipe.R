@@ -13,7 +13,7 @@ trackToGRangesRecipe <- function(recipe)
         gr <- track(query, asRangedData = FALSE)
         save(gr, file=outputFile)
         if (!getOption("AnnotationHub_Use_Disk", FALSE)) {
-            upload_to_S3(outputFile, metadata(recipe)$RDataPath)
+            upload_to_S3(outputFile, metadata(recipe)@RDataPath)
         }
     }
     outputFile

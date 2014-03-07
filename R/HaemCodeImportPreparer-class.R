@@ -238,7 +238,7 @@ setMethod("sourceUrls", "HaemCodeImportPreparer",
       } # for max
 
     if(verbose)
-        printf("--- leaving .haemCodeMetadataToAHMD, count: %d", length(result))
+        .printf("--- leaving .haemCodeMetadataToAHMD, count: %d", length(result))
     #browser()
     #xyzzz <- 91231
     result

@@ -72,7 +72,7 @@ trackWithAuxiliaryTablesToGRanges <- function(recipe)
 
     save(gr, file=outputFile(recipe))
     if (!getOption("AnnotationHub_Use_Disk", FALSE)) {
-        upload_to_S3(outputfile(recipe), metadata(recipe)$RDataPath)
+        upload_to_S3(outputfile(recipe), metadata(recipe)@RDataPath)
     }
 
     outputFile(recipe)

@@ -1,7 +1,7 @@
 Package: AnnotationHubData
 Type: Package
 Title: Transform public data resources into Bioconductor Data Structures
-Version: 0.0.54
+Version: 0.0.55
 Author: Paul Shannon<pshannon@fhcrc.org>
 Maintainer: Bioconductor Package Maintainer <maintainer@bioconductor.org>
 Depends:
@@ -10,8 +10,9 @@ Depends:
     IRanges,
     GenomicRanges,
     GenomicFeatures (>= 1.11.16),
-    rtracklayer,
-    Rsamtools
+    rtracklayer (>= 1.19.10),
+    Rsamtools,
+    AnnotationHub
 Suggests:
     RUnit
 Imports:
@@ -19,11 +20,7 @@ Imports:
     BiocGenerics,
     rjson,
     BiocInstaller,
-    rtracklayer (>= 1.19.10),
-    IRanges,
-    Rsamtools,
     VariantAnnotation,
-    AnnotationHub,
     httr,
     futile.logger (>= 1.3.0)
 Description: These recipes convert a wide variety and a growing number of
@@ -42,6 +39,7 @@ Collate:
     UCSCTrackImport-utils.R
     UCSCTrackImportPreparer-class.R
     HaemCodeImportPreparer-class.R
+    RefNetImportPreparer-class.R
     importTable.R
     AnnotationHubMetadata-class.R
     AnnotationHubRecipe-class.R
@@ -59,6 +57,7 @@ Collate:
     UCSCTrackUpdateChecker.R
     nullRecipe.R
     testutils.R
+    tsvToRefnet.R
     utils.R
     makeAnnotationHubResource.R
     makeEnsemblGtfToGRanges.R

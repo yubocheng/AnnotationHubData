@@ -283,7 +283,10 @@ AnnotationHubMetadataFromJson <-
 
     ## coerce types
     lst[["RDataVersion"]] <- .as.numeric_version(lst[["RDataVersion"]])
-    lst[["BiocVersion"]] <- lapply(lst$BiocVersion, package_version)
+
+    lst[["BiocVersion"]] <- package_version(lst$BiocVersion)
+     # lst[["BiocVersion"]] <- lapply(lst$BiocVersion, package_version)
+
     idx <- grep("Date", names(lst))
     lst[idx] <- rapply(lst[idx], function(x) {
         x[!nzchar(x)] <- NA_character_
@@ -293,8 +296,14 @@ AnnotationHubMetadataFromJson <-
     idx <- sapply(lst, is, "AsIs")
     lst[idx] <- lapply(lst[idx], unclass)
 
-    lst[["Recipe"]] <- lapply(lst$Recipe, function(x) setNames(as.character(x),
-        names(x)))
+    x <- lst[["Recipe"]];
+    setNames(as.character(x), names(x))
+      # lapply produces a list.   but one character string is the only valid value
+      # replace old lapply
+      # lst[["Recipe"]] <- lapply(lst$Recipe, function(x) setNames(as.character(x),
+      #                           names(x)))
+
+
     idx <- grep("Size", names(lst))
     lst[idx] <- rapply(lst[idx], as.numeric, how="list")
 
