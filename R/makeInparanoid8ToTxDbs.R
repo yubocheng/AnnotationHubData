@@ -17,18 +17,17 @@
     matches <- match(species, meta$inparanoidSpecies)
     fullSpecies <- meta$GenusAndSpecies[matches]
     taxonomyId <- as.character(meta$taxID[matches])
-    title <- paste0('Inparanoid8_',species,'.sqlite')
+    ## get the name for the DB
+    title <- paste0("hom.",
+                     sub(" ","_",fullSpecies),
+                     ".inp8",
+                     ".sqlite")    
     root <- setNames(rep(NA_character_, length(allDirs)), title)
     genome <- setNames(rep(NA_character_, length(allDirs)), title)
     sourceVersion <- rep('Inparanoid version 8',length(allDirs))
     description <- paste("Inparanoid 8 annotations about", fullSpecies)
     sourceUrl <- paste0(baseUrl,"/", species)
-    ## get the name for the DB
-    dbname <- paste0("hom.",
-                     sub(" ","_",fullSpecies),
-                     ".inp8",
-                     ".sqlite")    
-    sourceFile <- paste0("inparanoid8/Orthologs/",dbname)
+    sourceFile <- paste0("inparanoid8/Orthologs/",title)
     ## return as a list
     list(annotationHubRoot = root, title=title, species = fullSpecies,
          taxonomyId = taxonomyId, genome = genome, sourceUrl=sourceUrl,
