@@ -23,7 +23,6 @@ paulsTests <- function()
 #    test_oneExperimentMetadataExtractAndParse()
 #    test_allExperimentsMetadataExtractAndParse()
 
-#    test_newResources()
 
 #    admin_test_readTableArgs()
 #    admin_test_endToEndProcessing()
@@ -103,7 +102,9 @@ test_newResources <- function()
     
     rnip <- RefNetImportPreparer(tempdir())
     existing.resources <- metadataList(rnip)
-    new.resources <- newResources(rnip, existing.resources)
+    new.resources <- newResources(rnip, existing.resources[1])
+    checkEquals(length(new.resources), 1)
+    checkTrue(is(new.resources[[1]],"AnnotationHubMetadata"))
 
 } # test_newResources
 #------------------------------------------------------------------------------------------------------------------------

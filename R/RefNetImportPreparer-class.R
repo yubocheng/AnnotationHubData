@@ -4,6 +4,7 @@ setClass("RefNetImportPreparer",
                                        ahmd.list="list"),
          contains="ImportPreparer")
 
+
 #------------------------------------------------------------------------------
 setValidity("RefNetImportPreparer", function(object) {
 
@@ -56,17 +57,27 @@ setMethod("show", "RefNetImportPreparer",
 #------------------------------------------------------------------------------
 .newRefNetResources <- function(importPreparer, currentMetadata)
 {
-
     knownURIs <- sapply(currentMetadata, function(elt) {
         metadata(elt)$SourceUrl
-    })
+        })
 
     currentURIs.raw <- .getRefNetFileURIs()
     currentURIs <- file.path(currentURIs.raw$repo.base.url,
                              currentURIs.raw$filenames)
 
-    currentURIs[!currentURIs %in% knownURIs]
+    new.uris <- currentURIs[!currentURIs %in% knownURIs]
+    if(length(new.uris) == 0)
+        return(list())
 
+    ah.root <- annotationHubRoot(importPreparer)
+    repo <- unique(.getRefNetFileURIs()$repo.base.url)
+    filenames <- basename(new.uris)
+    ahmd.list <- AnnotationHubData:::.ahMetadataFromRefNetFiles(ah.root,
+                                                                repo,
+                                                                filenames,
+                                                                verbose=FALSE)
+    ahmd.list
+    
 } # .newRefNetResources
 #------------------------------------------------------------------------------
 setMethod("newResources", signature="RefNetImportPreparer",
@@ -79,6 +90,7 @@ setMethod("newResources", signature="RefNetImportPreparer",
 .getRefNetFileURIs <- function()
 {
     base.url <- "http://s3.amazonaws.com/refnet-networks"
+
        # everything is embedded in the second line of xml
     raw.text <- scan(base.url, what=character(0), sep="\n", quiet=TRUE)[2]
     raw.tokens <- strsplit(raw.text, "<")[[1]]
