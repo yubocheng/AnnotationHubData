@@ -1,14 +1,14 @@
 exportClasses(AnnotationHubMetadata, AnnotationHubRecipe,
-    ImportPreparer, dbSNPVCFImportPreparer,
-    EnsemblFastaImportPreparer, EnsemblGtfImportPreparer,
-    EncodeImportPreparer, UCSCTrackImportPreparer)
+              ImportPreparer, dbSNPVCFImportPreparer,
+              EnsemblFastaImportPreparer, EnsemblGtfImportPreparer,
+              EncodeImportPreparer, UCSCTrackImportPreparer,
+              Inparanoid8ImportPreparer)
 
 export(AnnotationHubMetadata, AnnotationHubRecipe,
-    dbSNPVCFImportPreparer, EnsemblFastaImportPreparer,
-    #EnsemblGtfImportPreparer,
+       dbSNPVCFImportPreparer, EnsemblFastaImportPreparer,
        UCSCTrackImportPreparer,
-    HaemCodeImportPreparer,
-    RefNetImportPreparer)
+       HaemCodeImportPreparer,
+       RefNetImportPreparer)
 
 export(newResources,
   constructAnnotationHubMetadataFromSourceFilePath,
@@ -30,6 +30,8 @@ importFrom(Rsamtools, indexFa)
 importFrom(VariantAnnotation, readVcf)
 
 importFrom(rtracklayer, import)
+
+importFrom(AnnotationForge, makeInpDb)
 
 importFrom(httr, HEAD)
 
