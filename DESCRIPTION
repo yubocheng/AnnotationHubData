@@ -62,5 +62,6 @@ Collate:
     utils.R
     makeAnnotationHubResource.R
     makeEnsemblGtfToGRanges.R
+    makeInparanoid8ToTxDbs.R
     zzz.R
     
