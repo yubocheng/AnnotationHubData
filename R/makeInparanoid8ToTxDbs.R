@@ -63,7 +63,7 @@ makeinparanoid8ToAHMs <- function(){
           RDataDateAdded = Sys.time(),
           RDataVersion = "0.0.1",
           Recipe = c("inparanoid8ToTxDbsRecipe", package="AnnotationHubData"),
-          Tags = c("Inparanoid", , "Gene", "Homology", "Annotation")))
+          Tags = c("Inparanoid", "Gene", "Homology", "Annotation")))
 }
 
 
