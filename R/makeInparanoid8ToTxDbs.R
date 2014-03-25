@@ -16,7 +16,7 @@
                        sep="\t", header=TRUE, stringsAsFactors=FALSE)
     matches <- match(species, meta$inparanoidSpecies)
     fullSpecies <- meta$GenusAndSpecies[matches]
-    taxonomyId <- meta$taxID[matches]
+    taxonomyId <- as.character(meta$taxID[matches])
     title <- paste0('Inparanoid8_',species,'.sqlite')
     root <- setNames(rep(NA_character_, length(allDirs)), title)
     genome <- setNames(rep(NA_character_, length(allDirs)), title)
@@ -56,7 +56,7 @@ makeinparanoid8ToAHMs <- function(){
         TaxonomyId=meta$taxonomyId,
         Title=meta$title,
         MoreArgs=list(
-          Coordinate_1_based = NA_character_,
+          Coordinate_1_based = TRUE, ## TRUE unless it "needs" to be FALSE
           DataProvider = baseUrl,
           Maintainer = "Marc Carlson <mcarlson@fhcrc.org>",
           RDataClass = "SQLite",
