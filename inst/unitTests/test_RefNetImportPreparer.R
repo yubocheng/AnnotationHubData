@@ -17,15 +17,7 @@ paulsTests <- function()
     test_.ahMetadataFromRefNetFiles()
     test_RefNetImportPreparer()
     test_newResources()
-    
     test_recipe()
-    
-#    test_oneExperimentMetadataExtractAndParse()
-#    test_allExperimentsMetadataExtractAndParse()
-
-
-#    admin_test_readTableArgs()
-#    admin_test_endToEndProcessing()
 
 } # paulsTests
 #-------------------------------------------------------------------------------
@@ -74,6 +66,7 @@ test_.ahMetadataFromRefNetFiles <- function()
     checkEquals(ahmd@SourceFile,  "hypoxiaSignaling-2006.tsv")
     checkEquals(ahmd@SourceUrl, file.path(repo, test.file))
     checkEquals(ahmd@DataProvider, "RefNet")
+    checkEquals(ahmd@RDataPath,   "refnet/hypoxiaSignaling-2006.tsv_0.0.1.RData")
 
 } # test_.ahMetadataFromRefNetFiles 
 #-------------------------------------------------------------------------------
@@ -111,27 +104,29 @@ test_newResources <- function()
 test_recipe <- function()
 {
     print("--- test_recipe")
-    temp.dir <-  "/Users/pshannon/tmp/refnet"
+    test.directory <-  tempdir()
 
        # create a clean slate
-    unlink(file.path(temp.dir, dir(temp.dir)))
-
-    rnip <- RefNetImportPreparer(annotationHubRoot=temp.dir,
+    unlink(file.path(test.directory, dir(test.directory)))
+    destination.directory <- file.path(test.directory, "refnet")
+    if(!file.exists(destination.directory)){
+       dir.create(destination.directory)
+       stopifnot(file.exists(destination.directory))
+       }
+    
+    rnip <- RefNetImportPreparer(annotationHubRoot=test.directory,
                                  verbose=FALSE,
                                  maxForTesting=1)
     md.list <- metadataList(rnip)
     checkEquals(length(md.list), 1)
     ahRoot <- annotationHubRoot(rnip)
-    checkEquals(ahRoot, temp.dir)
+    checkEquals(ahRoot, test.directory)
 
     md <- md.list[[1]]
     remote.file <- md@SourceUrl
     checkTrue(url.exists(remote.file))
     .printf("downloading %s", remote.file)
-    directory.path <- file.path (ahRoot, dirname(md@SourceFile))
-    if(!file.exists(directory.path))
-           dir.create(directory.path, recursive=TRUE)
-    local.file <- file.path(directory.path, basename(md@SourceFile))
+    local.file <- file.path(ahRoot, basename(md@SourceFile))
     download.file(remote.file, local.file, quiet=TRUE)
     checkTrue(file.exists(local.file))
     .printf("local: %s", local.file)

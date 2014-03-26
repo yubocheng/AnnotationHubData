@@ -101,7 +101,8 @@ setMethod("newResources", signature="RefNetImportPreparer",
 
 } # .getRefNetFileURIs
 #------------------------------------------------------------------------------
-.ahMetadataFromRefNetFiles <- function(annotationHubRoot, repo.base.url, filenames, verbose=FALSE)
+.ahMetadataFromRefNetFiles <- function(annotationHubRoot, repo.base.url,
+                                       filenames, verbose=FALSE)
 {
     max <- length(filenames)
     entry <- 0
@@ -118,14 +119,15 @@ setMethod("newResources", signature="RefNetImportPreparer",
        file.extension <- "tsv"
        data.class <- "data.frame"
        data.type <- "interactions"
-       sourceFile <- filename
+       sourceFile <- basename(filename)
        sourceUrl <- file.path(repo.base.url, filename)
        size <- 0
        description <- filename
        dataVersion <- "0.0.1"
          # this test is not appropriate for aws s3, the amazon web service/cloud 
          #     stopifnot(url.exists(sourceUrl))
-       top.lines.in.file <- scan(sourceUrl, sep="\n", what=character(0), n=20, quiet=TRUE)
+       top.lines.in.file <- scan(sourceUrl, sep="\n", what=character(0), n=20,
+                                 quiet=TRUE)
        unlink(sourceUrl)
        comment.lines <- grep("^# ", top.lines.in.file, value=TRUE)
        comment.lines <- sub("# ", "", comment.lines)
@@ -177,6 +179,13 @@ setMethod("newResources", signature="RefNetImportPreparer",
 
        tags <- c("interactions", title, description)
 
+       current.version = "0.0.1"
+       expected.RDataPath <- file.path("refnet",
+                                       sprintf("%s_%s.%s",
+                                               basename(sourceFile),
+                                               current.version,
+                                               "RData"));
+                                               
        result[[entry]] <- AnnotationHubMetadata(
                                  AnnotationHubRoot=annotationHubRoot,
                                  SourceFile=sourceFile,
@@ -192,6 +201,7 @@ setMethod("newResources", signature="RefNetImportPreparer",
                                  Tags=tags,
                                  Recipe="tsvToRefnet",
                                  RecipeArgs=list(),
+                                 RDataPath=expected.RDataPath,
                                  RDataClass="data.frame",
                                  RDataVersion=numeric_version("0.0.1"),
                                  RDataDateAdded=as.Date(Sys.Date(), "%Y"),
@@ -225,109 +235,3 @@ RefNetImportPreparer <- function(annotationHubRoot, verbose=FALSE,
    
 } # constructor
 #------------------------------------------------------------------------------
-#refnetTSVtoAnnotationHubMetadata <- function(annotationHubRoot,
-#                                             tsvFileRepo,
-#                                             verbose=FALSE)
-#{
-#    file.list <- list.files(tsvFileRepo, pattern="*.tsv$")
-#    max <- length(file.list)
-#    entry <- 0
-#
-#    result <- vector("list", max)
-#    
-#    for(i in 1:max){
-#       filename <- file.list[i]
-#       if(verbose) .printf("--- %d: %s", i, filename)
-#       entry <- entry + 1
-#       directory <- tsvFileRepo
-#       recipe.name <- "refnetImporter"
-#       recipe.args <- list()
-#       file.extension <- "tsv"
-#       data.class <- "data.frame"
-#       data.type <- "interactions"
-#       sourceFile <- file.path(tsvFileRepo, filename)
-#       sourceUrl <- "http://bioconductor.org/networks"
-#       size <- 0
-#       description <- filename
-#       dataVersion <- "0.0.1"
-#       stopifnot(file.exists(sourceFile))
-#       top.lines.in.file <- scan(filename, sep="\n", what=character(0), n=20,
-#                                 quiet=TRUE)
-#       comment.lines <- grep("^# ", top.lines.in.file, value=TRUE)
-#       comment.lines <- sub("# ", "", comment.lines)
-#       comment.tokens <- strsplit(comment.lines, ": ")
-#       keywords <- unlist(lapply(comment.tokens, "[", 2))
-#       names(keywords) <- unlist(lapply(comment.tokens, "[", 1))
-#
-#       filename.stem <- sub(".tsv", "", filename)
-#       title <- sprintf("interactions from %s", filename.stem)
-#       if("TITLE" %in% names (keywords))
-#           title <- keywords[["TITLE"]]
-#       
-#       data.provider <- "manual curation"
-#       if("DATA.PROVIDER" %in% names (keywords))
-#           data.provider <- keywords[["DATA.PROVIDER"]]
-#        
-#       description <- sprintf("interactions from %s", filename.stem)
-#       if("DESCRIPTION" %in% names (keywords))
-#           description <- keywords[["DESCRIPTION"]]
-#        
-#         
-#       tbl <- read.table(sourceFile, sep="\t", header=TRUE, as.is=TRUE)
-#       expected.colnames <- c("a.canonical",
-#                              "a.canonicalIdType",
-#                              "a.cellularComponent",
-#                              "a.common",
-#                              "a.modification",
-#                              "a.organism",
-#                              "b.canonical",
-#                              "b.canonicalIdType",
-#                              "b.cellularComponent",
-#                              "b.common",
-#                              "b.modification",
-#                              "b.organism",
-#                              "cellType",
-#                              "comment",
-#                              "detectionMethod",
-#                              "pmid",
-#                              "relation")
-#       
-#       stopifnot(length(intersect(colnames(tbl), expected.colnames)) == ncol(tbl))
-#       organisms <- as.character(unique(c(tbl$a.organism, tbl$b.organism)))
-#
-#       organism.name <- organisms
-#
-#       if("ORGANISM.NAME" %in% names (keywords))
-#           organism.name <- as.character(keywords[["ORGANISM.NAME"]])
-#
-#       tags <- c("interactions", title, description)
-#
-#       result[[entry]] <- AnnotationHubMetadata(
-#                                 AnnotationHubRoot=annotationHubRoot,
-#                                 SourceFile=sourceFile,
-#                                 SourceSize=size,
-#                                 SourceUrl=sourceUrl,
-#                                 SourceVersion=dataVersion,
-#                                 DataProvider=data.provider,
-#                                 Title=title,
-#                                 Description=description,
-#                                 Species=organism.name,
-#                                 TaxonomyId=organisms,
-#                                 Genome=NA_character_,
-#                                 Tags=tags,
-#                                 Recipe="tsvToRefnet",
-#                                 RecipeArgs=list(),
-#                                 RDataClass="data.frame",
-#                                 RDataVersion=numeric_version("0.0.1"),
-#                                 RDataDateAdded=as.Date(Sys.Date(), "%Y"),
-#                                 Maintainer="Paul Shannon <pshannon@fhcrc.org>",
-#                                 Coordinate_1_based=TRUE,
-#                                 Notes=NA_character_)
-#      } # for max
-#
-#    result
-#
-#
-#
-#} # refnetTSVtoAnnotationHubMetadata
-#-------------------------------------------------------------------------------
