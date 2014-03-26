@@ -2,6 +2,15 @@
 ## class and method for end users (to automate those parts of adding
 ## recipe code that are always the same.
 
+.generalNewResources <- function(importPreparer, currentMetadata,
+                                 makeAnnotationHubMetadataFunction, ...){
+    ## The 1st function can take no args and must return AHMs
+    ahms <- makeAnnotationHubMetadataFunction(...)
+    ## And only return ones we don't have.
+    setdiff(ahms, currentMetadata)
+}
+
+
 makeAnnotationHubResource <-
     function(objName,
              makeAnnotationHubMetadataFunction,
@@ -16,13 +25,10 @@ makeAnnotationHubResource <-
     ## It takes an arg of "old" AHMs that can be used for filtering.    
     ## So it will call the makeAnnotationHubMetadataFunction, and then
     ## toss out any currentMetadata() AHMs that are already present.
-    setMethod(newResources, objName, 
-       function(importPreparer, currentMetadata = list(), ...){
-           ## The 1st function can take no args and must return AHMs
-           ahms <- makeAnnotationHubMetadataFunction(...)
-           ## And only return ones we don't have.
-           setdiff(ahms, currentMetadata)
-       })
+    setMethod(newResources, objName,
+              function(importPreparer, currentMetadata=list(), ...){
+         .generalNewResources(importPreparer, currentMetadata,
+                              makeAnnotationHubMetadataFunction, ...)})
 }
 
 

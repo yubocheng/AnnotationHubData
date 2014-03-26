@@ -87,8 +87,10 @@ makeAnnotationHubResource("Inparanoid8ImportPreparer",
 
 
 
-
-
+## This is not working for some reason
+## Where: preparerInstance is a class of Inparanoid8ImportPreparer
+## And existingResources is a list of existing AHMs.
+## newResources(preparerInstance, existingResources)
 
 
 
