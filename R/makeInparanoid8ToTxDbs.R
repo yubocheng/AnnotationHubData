@@ -58,7 +58,7 @@ makeinparanoid8ToAHMs <- function(){
           Coordinate_1_based = TRUE, ## TRUE unless it "needs" to be FALSE
           DataProvider = baseUrl,
           Maintainer = "Marc Carlson <mcarlson@fhcrc.org>",
-          RDataClass = "SQLite",
+          RDataClass = "SQLiteFile",
           RDataDateAdded = Sys.time(),
           RDataVersion = "0.0.1",
           Recipe = c("inparanoid8ToTxDbsRecipe", package="AnnotationHubData"),
@@ -74,8 +74,9 @@ makeinparanoid8ToAHMs <- function(){
 ## and outputFile will be file.path(AnnotationHubRoot,RDataPath)
 inparanoid8ToTxDbsRecipe <- function(recipe){
     require(AnnotationForge)
-    db <- makeInpDb(dir=inputFiles(recipe)[1], dataDir=tempdir())
-    save(db, file=outputFile(recipe))
+    dbname <- makeInpDb(dir=inputFiles(recipe)[1], dataDir=tempdir())
+    db <- loadDb(file=dbname)
+    saveDb(db, file=outputFile(recipe))
     outputFile(recipe)
 }
 
