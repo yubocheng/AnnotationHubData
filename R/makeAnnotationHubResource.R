@@ -2,12 +2,44 @@
 ## class and method for end users (to automate those parts of adding
 ## recipe code that are always the same.
 
+.getSrcUrl <- function(ahm){ahm@SourceUrl}
+.getSrcUrls <- function(ahms){
+    res <- unlist(lapply(ahms, .getSrcUrl))
+    names(res) <- NULL
+    res
+}
+
+.getRDataVersion <- function(ahm){as.character(ahm@RDataVersion)}
+.getRDataVersions <- function(ahms){
+    res <- unlist(lapply(ahms, .getRDataVersion))
+    names(res) <- NULL
+    res
+}
+
+## return only AHMs in list that are in the new list, but NOT the old one.
+.compareAHMs <- function(new, old){
+    ## get values from AHMs
+    oldSrc <- .getSrcUrls(old)
+    newSrc <- .getSrcUrls(new)
+    oldVer <- .getRDataVersions(old)
+    newVer <- .getRDataVersions(new)
+    ## I want to keep them if either the url OR if the version was different
+    keepNewIdx <- !(newSrc %in% oldSrc) |  !(newVer %in% oldVer)
+    ## then filter
+    new[keepNewIdx]
+}
+
+
 .generalNewResources <- function(importPreparer, currentMetadata,
                                  makeAnnotationHubMetadataFunction, ...){
     ## The 1st function can take no args and must return AHMs
     ahms <- makeAnnotationHubMetadataFunction(...)
     ## And only return ones we don't have.
-    setdiff(ahms, currentMetadata)
+    ##    setdiff(ahms, currentMetadata)
+
+    ## I CANNOT just setdiff on two lists of random s4 objs.  So lets
+    ## compare: SourceUrl and RDataVersion
+    .compareAHMs(ahms, currentMetadata)
 }
 
 
