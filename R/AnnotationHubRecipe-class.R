@@ -12,7 +12,7 @@ setGeneric("recipeName", signature="object",
            standardGeneric ("recipeName"))
 
 setGeneric("inputFiles", signature="object",
-           function(object)
+           function(object, useRoot)
            standardGeneric ("inputFiles"))
 
 setGeneric("outputFile", signature="object",
@@ -49,8 +49,10 @@ AnnotationHubRecipe <- function(metadata)
     x@metadata <- metadata
     x@recipeName <- metadata(metadata)$Recipe
 
-    x@inputFiles <- file.path(metadata(metadata)$AnnotationHubRoot,
-                              metadata(metadata)$SourceFile)
+    ## x@inputFiles <- file.path(metadata(metadata)$AnnotationHubRoot,
+    ##                           metadata(metadata)$SourceFile)
+    x@inputFiles <- metadata(metadata)$SourceFile
+    
     x@outputFile <- file.path(metadata(metadata)$AnnotationHubRoot,
                               metadata(metadata)$RDataPath)
     x
@@ -91,10 +93,15 @@ setMethod("metadata", "AnnotationHubRecipe",
 
 #------------------------------------------------------------------------------
 setMethod("inputFiles", "AnnotationHubRecipe",
-
-    function(object) {
-        object@inputFiles
-        })
+    function(object, useRoot=TRUE) {
+        if(useRoot==TRUE){
+            res <- file.path(metadata(object)$AnnotationHubRoot,
+                             object@inputFiles)            
+        }else{
+            res <- object@inputFiles
+        }
+        res
+    })
 #------------------------------------------------------------------------------
 setMethod("outputFile", "AnnotationHubRecipe",
 

@@ -76,7 +76,9 @@ makeinparanoid8ToAHMs <- function(){
 ## and outputFile will be file.path(AnnotationHubRoot,RDataPath)
 inparanoid8ToTxDbsRecipe <- function(recipe){
     require(AnnotationForge)
-    dbname <- makeInpDb(dir=inputFiles(recipe)[1], dataDir=tempdir())
+    ## make use of file.path to put on a trailing slash of the appropriate kind
+    dbname <- makeInpDb(dir=file.path(inputFiles(recipe, useRoot=FALSE),""),
+                        dataDir=tempdir())
     db <- loadDb(file=dbname)
     saveDb(db, file=outputFile(recipe))
     outputFile(recipe)
