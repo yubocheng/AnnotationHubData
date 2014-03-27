@@ -27,12 +27,13 @@
     sourceVersion <- rep('Inparanoid version 8',length(allDirs))
     description <- paste("Inparanoid 8 annotations about", fullSpecies)
     sourceUrl <- paste0(baseUrl,"/", species)
-    sourceFile <- paste0("inparanoid8/Orthologs/",title)
+    sourceFile <- allDirs
+    rDataPath <- paste0("inparanoid8/Orthologs/",title)
     ## return as a list
     list(annotationHubRoot = root, title=title, species = fullSpecies,
          taxonomyId = taxonomyId, genome = genome, sourceUrl=sourceUrl,
          sourceFile = sourceFile, sourceVersion = sourceVersion,
-         description=description)
+         description=description, rDataPath=rDataPath)
 }
 
 
@@ -54,6 +55,7 @@ makeinparanoid8ToAHMs <- function(){
         Species=meta$species,
         TaxonomyId=meta$taxonomyId,
         Title=meta$title,
+        RDataPath=meta$rDataPath,
         MoreArgs=list(
           Coordinate_1_based = TRUE, ## TRUE unless it "needs" to be FALSE
           DataProvider = baseUrl,
