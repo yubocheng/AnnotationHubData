@@ -119,7 +119,7 @@ setMethod("newResources", signature="RefNetImportPreparer",
        file.extension <- "tsv"
        data.class <- "data.frame"
        data.type <- "interactions"
-       sourceFile <- basename(filename)
+       sourceFile <- file.path("refnet", basename(filename))
        sourceUrl <- file.path(repo.base.url, filename)
        size <- 0
        description <- filename
@@ -197,7 +197,7 @@ setMethod("newResources", signature="RefNetImportPreparer",
                                  Description=description,
                                  Species=organism.name,
                                  TaxonomyId=organisms,
-                                 Genome=NA_character_,
+                                 Genome="RefNet Genome",
                                  Tags=tags,
                                  Recipe="tsvToRefnet",
                                  RecipeArgs=list(),
