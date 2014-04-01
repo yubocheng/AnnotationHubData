@@ -23,7 +23,7 @@
                      ".inp8",
                      ".sqlite")    
     root <- setNames(rep(NA_character_, length(allDirs)), title)
-    genome <- setNames(rep(NA_character_, length(allDirs)), title)
+    genome <- setNames(rep("inparanoid8 genomes", length(allDirs)), title)
     sourceVersion <- rep('Inparanoid version 8',length(allDirs))
     description <- paste("Inparanoid 8 annotations about", fullSpecies)
     sourceUrl <- paste0(baseUrl,"/", species)
