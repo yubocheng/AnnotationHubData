@@ -23,7 +23,7 @@ importFrom(RCurl, getURL)
 
 importFrom(BiocInstaller, biocVersion)
 
-importFrom(IRanges, metadata, "metadata<-")
+importFrom(S4Vectors, metadata, "metadata<-")
 
 importFrom(Rsamtools, indexFa)
 
