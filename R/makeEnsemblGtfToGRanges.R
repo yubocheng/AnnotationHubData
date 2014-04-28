@@ -28,7 +28,7 @@ makeEnsemblGTFsToAHMs <- function(){
           RDataClass = "GRanges",
           RDataDateAdded = Sys.time(),
           RDataVersion = "0.0.1",
-          Recipe = c("ensemblGtfToGRangesRecipe", package="AnnotationHubData"),
+          Recipe = c("ensemblGTFToGRangesRecipe", package="AnnotationHubData"),
           Tags = c("GTF", "ensembl", "Gene", "Transcript", "Annotation")))
 }
 
