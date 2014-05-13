@@ -80,7 +80,7 @@ dbSNPVCFImportPreparer(annotationHubRoot, verbose=FALSE,
   \code{\linkS4class{AnnotationHubMetadata}}.
 }
 \examples{
-dbSNPVCFImportPreparer("/tmp", maxForTesting=1)
+% dbSNPVCFImportPreparer("/tmp", maxForTesting=1)
 }
 
 \keyword{classes}

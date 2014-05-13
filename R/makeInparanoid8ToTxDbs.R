@@ -74,22 +74,37 @@ makeinparanoid8ToAHMs <- function(){
 ## REMEMBER: inputFiles will be file.path(AnnotationHubRoot,SourceFile)
 ## (from the AHM)
 ## and outputFile will be file.path(AnnotationHubRoot,RDataPath)
-inparanoid8ToTxDbsRecipe <- function(recipe){
+## inparanoid8ToTxDbsRecipe <- function(recipe){
+##     require(AnnotationForge)
+##     ## make use of file.path to put on a trailing slash of the appropriate kind
+##     dbname <- makeInpDb(dir=file.path(inputFiles(recipe, useRoot=FALSE),""),
+##                         dataDir=tempdir())
+##     db <- loadDb(file=dbname)
+##     saveDb(db, file=outputFile(recipe))
+##     outputFile(recipe)
+## }
+
+
+inparanoid8ToTxDbsRecipe <- function(ahm){
     require(AnnotationForge)
     ## make use of file.path to put on a trailing slash of the appropriate kind
-    dbname <- makeInpDb(dir=file.path(inputFiles(recipe, useRoot=FALSE),""),
+    dbname <- makeInpDb(dir=file.path(inputFiles(ahm, useRoot=FALSE),""),
                         dataDir=tempdir())
     db <- loadDb(file=dbname)
-    saveDb(db, file=outputFile(recipe))
-    outputFile(recipe)
+    saveDb(db, file=outputFile(ahm))
+    outputFile(ahm)
 }
 
 
 
+
+
+## TODO: modify the docs to reflect new changes
+## TODO: remake all the recipe functions to work with the new system...
+
 ## STEP 3:  Call the helper to set up the newResources() method
 makeAnnotationHubResource("Inparanoid8ImportPreparer",
                           makeinparanoid8ToAHMs)
-
 
 
 ## This is not working for some reason

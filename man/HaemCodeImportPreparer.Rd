@@ -80,7 +80,7 @@ HaemCodeImportPreparer(annotationHubRoot, verbose=FALSE,
   \code{\linkS4class{AnnotationHubMetadata}}.
 }
 \examples{
-HaemCodeImportPreparer("/tmp", maxForTesting=1)
+% HaemCodeImportPreparer("/tmp", maxForTesting=1)
 }
 
 \keyword{classes}

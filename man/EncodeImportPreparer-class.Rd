@@ -93,7 +93,7 @@ EncodeImportPreparer(annotationHubRoot, tbl.md=NULL, verbose=FALSE,
   \code{\linkS4class{AnnotationHubMetadata}}.
 }
 \examples{
-EncodeImportPreparer("/tmp", maxForTesting=1)
+% EncodeImportPreparer("/tmp", maxForTesting=1)
 }
 
 \keyword{classes}

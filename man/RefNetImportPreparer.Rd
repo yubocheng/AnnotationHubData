@@ -82,7 +82,7 @@ RefNetImportPreparer(annotationHubRoot, verbose=FALSE,
   \code{\linkS4class{AnnotationHubMetadata}}.
 }
 \examples{
-RefNetImportPreparer("/tmp", maxForTesting=1)
+% RefNetImportPreparer("/tmp", maxForTesting=1)
 }
 
 \keyword{classes}

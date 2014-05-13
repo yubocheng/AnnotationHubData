@@ -71,7 +71,7 @@
   \code{\linkS4class{AnnotationHubMetadata}}.
 }
 \examples{
-EnsemblFastaImportPreparer()
+% EnsemblFastaImportPreparer()
 }
 \keyword{classes}
 

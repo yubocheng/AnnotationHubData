@@ -72,7 +72,7 @@ EnsemblGtfImportPreparer(...)
   \code{\linkS4class{AnnotationHubMetadata}}.
 }
 \examples{
-EnsemblGtfImportPreparer()
+% EnsemblGtfImportPreparer()
 }
 \keyword{classes}
 
