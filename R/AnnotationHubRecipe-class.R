@@ -74,7 +74,7 @@ setMethod("run", "AnnotationHubMetadata",
                                  envir=getNamespace("AnnotationHubData"))
        stopifnot(is.function(recipeFunction))
        recipeFunction(object) ## disregard return value
-       postProcessMetadata(metadata(object))
+       postProcessMetadata(object)
        })
 
 #------------------------------------------------------------------------------
