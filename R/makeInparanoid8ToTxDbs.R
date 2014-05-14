@@ -19,7 +19,7 @@
     taxonomyId <- as.character(meta$taxID[matches])
     ## get the name for the DB
     title <- paste0("hom.",
-                     sub(" ","_",fullSpecies),
+                     gsub(" ","_",fullSpecies),
                      ".inp8",
                      ".sqlite")    
     root <- setNames(rep(NA_character_, length(allDirs)), title)

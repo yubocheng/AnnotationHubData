@@ -197,6 +197,17 @@ AnnotationHubMetadata <-
     rc$isComplete()
 }
 
+
+
+setValidity("AnnotationHubMetadata",function(object) {
+    msg = NULL
+    ## no spaces are allowed int he RDataPath field
+    if(grepl(" ", object@RDataPath)){
+        msg <- c(msg, "the string for RDataPath cannot contain spaces.")
+    }
+    if (is.null(msg)) TRUE else msg
+})
+
 ## ------------------------------------------------------------------------------
 ## getters and setters
 ## 
