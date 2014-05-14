@@ -1,7 +1,7 @@
-nullRecipe <- function(recipe)
+nullRecipe <- function(ahm)
 {
-    inputFile <- inputFiles(recipe)[1]
-    outputFile <- outputFile(recipe)
+    inputFile <- inputFiles(ahm)[1]
+    outputFile <- outputFile(ahm)
     file.copy(inputFile, outputFile)
     outputFile
 }

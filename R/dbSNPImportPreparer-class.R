@@ -98,17 +98,17 @@ setMethod(newResources, signature="dbSNPVCFImportPreparer",
 })
 
 dbSNPVCFToVCF <-
-    function(recipe)
+    function(ahm)
 {
-    inp <- inputFiles(recipe)
-    genome <- metadata(metadata(recipe))$Genome
+    inp <- inputFiles(ahm)
+    genome <- metadata(ahm)$Genome
     vcf <- VariantAnnotation::readVcf(inp, genome)
-    save(vcf, file=outputFile(recipe))
-    outputFile(recipe)
+    save(vcf, file=outputFile(ahm))
+    outputFile(ahm)
 }
 
 dbSNPVCFToTabixFile <-
-    function(recipe)
+    function(ahm)
 {
-    outputFile(recipe)
+    outputFile(ahm)
 }

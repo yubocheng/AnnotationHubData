@@ -1,20 +1,20 @@
-extendedBedWithAuxiliaryTableToGRanges <- function(recipe)
+extendedBedWithAuxiliaryTableToGRanges <- function(ahm)
 {
-     bedFile <- grep(".bed.gz$", inputFiles(recipe), value=TRUE)
-     auxFile <- grep(".tab$", inputFiles(recipe), value=TRUE)
+     bedFile <- grep(".bed.gz$", inputFiles(ahm), value=TRUE)
+     auxFile <- grep(".tab$", inputFiles(ahm), value=TRUE)
      stopifnot(length(bedFile) == 1)
      stopifnot(length(auxFile) == 1)
 
-     colClasses <- metadata(recipe@metadata)$RecipeArgs$bedColClasses
+     colClasses <- metadata(ahm)$RecipeArgs$bedColClasses
      tbl.bed <- read.table(gzfile(bedFile), sep="\t", header=FALSE,
                            colClasses=colClasses)
      colnames(tbl.bed) <- names(colClasses)
      
-     colClasses <- metadata(recipe@metadata)$RecipeArgs$auxColClasses
+     colClasses <- metadata(ahm)$RecipeArgs$auxColClasses
      tbl.aux <- read.table(auxFile, sep="\t", colClasses=colClasses)
      colnames(tbl.aux) <- names(colClasses)
 
-     mergeArgs <- metadata(recipe@metadata)$RecipeArgs$merge
+     mergeArgs <- metadata(ahm)$RecipeArgs$merge
 
         # TODO:  special knowledge inserted here, adding a column
         # TODO:  to tbl.aux (rowIndex) so that tables can be linked.
@@ -35,15 +35,15 @@ extendedBedWithAuxiliaryTableToGRanges <- function(recipe)
      mcols(gr) <- DataFrame(tbl[, otherColnames])
 
         # add seqlength & chromosome circularity information
-    newSeqInfo <- constructSeqInfo(metadata(recipe@metadata)$Species,
-                                    metadata(recipe@metadata)$Genome)
+    newSeqInfo <- constructSeqInfo(metadata(ahm)$Species,
+                                    metadata(ahm)$Genome)
         # if gr only has a subset of all possible chromosomes,
         # then update those only
     seqinfo(gr) <- newSeqInfo[names(seqinfo(gr))]
 
-    save(gr, file=outputFile(recipe))
+    save(gr, file=outputFile(ahm))
 
-    outputFile(recipe)
+    outputFile(ahm)
 
 } # extendedBedWithAuxiliaryTableToGRanges
 #-------------------------------------------------------------------------------

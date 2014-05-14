@@ -1,10 +1,10 @@
-tsvToRefnet <- function(recipe)
+tsvToRefnet <- function(ahm)
 {
-    inputFile <- inputFiles(recipe)[1]
-    outputFile <- outputFile(recipe)
+    inputFile <- inputFiles(ahm)[1]
+    outputFile <- outputFile(ahm)
 
     tbl.orig <- read.table(inputFile, header=TRUE, as.is=TRUE, sep="\t")
-    provider <- metadata(recipe)@Title
+    provider <- metadata(ahm)$Title
     tbl <- .refnetTSVtoPSICQUIC(tbl.orig, provider)
 
     save(tbl, file=outputFile)

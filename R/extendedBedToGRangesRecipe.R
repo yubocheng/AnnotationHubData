@@ -1,10 +1,10 @@
-extendedBedToGRanges <- function(recipe)
+extendedBedToGRanges <- function(ahm)
 {
-    colClasses <- metadata(recipe@metadata)$RecipeArgs$colClasses
+    colClasses <- metadata(ahm)$RecipeArgs$colClasses
     if(colClasses[1] == 'implicit') {
            # TODO: if a strand column can be deduced, it SHOULD be deduced.
            # TODO: pshannon (10 jan 2013)
-        tbl <- read.table(inputFiles(recipe)[1], sep="\t", header=FALSE)
+        tbl <- read.table(inputFiles(ahm)[1], sep="\t", header=FALSE)
         columnCount <- ncol(tbl)
         mandatory.colnames <- c("seqnames", "start", "end")
         if (columnCount > 3) {
@@ -26,7 +26,7 @@ extendedBedToGRanges <- function(recipe)
         required.colnames <- c("seqnames", "start", "end", "strand")
         stopifnot(all(required.colnames %in% colnames))
         other.colnames <- setdiff(colnames, required.colnames)
-        tbl <- read.table(inputFiles(recipe)[1], sep="\t", header=FALSE, colClasses=colClasses)
+        tbl <- read.table(inputFiles(ahm)[1], sep="\t", header=FALSE, colClasses=colClasses)
         colnames(tbl) <- colnames
         new.strand <- sub(".", "*", tbl$strand, fixed=TRUE)
         gr <- with(tbl, GRanges(seqnames, IRanges(start, end), new.strand))
@@ -34,14 +34,14 @@ extendedBedToGRanges <- function(recipe)
         }
 
         # add seqlength & chromosome circularity information
-    newSeqInfo <- constructSeqInfo(metadata(recipe@metadata)$Species,
-                                    metadata(recipe@metadata)$Genome) 
+    newSeqInfo <- constructSeqInfo(metadata(ahm)$Species,
+                                    metadata(ahm)$Genome) 
         # if gr only has a subset of all possible chromosomes, then update those only
     seqinfo(gr) <- newSeqInfo[names(seqinfo(gr))]
 
-    save(gr, file=outputFile(recipe))
+    save(gr, file=outputFile(ahm))
 
-    outputFile(recipe)
+    outputFile(ahm)
 
 } # extendedBedToGRanges
 #-------------------------------------------------------------------------------

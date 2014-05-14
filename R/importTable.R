@@ -1,8 +1,8 @@
-importTable <- function(recipe)
+importTable <- function(ahm)
 {
-    md <- metadata(recipe)
-    input.filename <- inputFiles(recipe)[1]
-    output.filename <- outputFile(recipe)
+    md <- metadata(ahm)
+    input.filename <- inputFiles(ahm)[1]
+    output.filename <- outputFile(ahm)
 
     args <- md@RecipeArgs
     stopifnot(sort(names(args)) == c("colClasses", "header", "sep"))

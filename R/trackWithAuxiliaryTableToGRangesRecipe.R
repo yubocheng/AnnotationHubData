@@ -1,26 +1,26 @@
-.makeAuxTable <- function(n, auxFiles, recipe){
+.makeAuxTable <- function(n, auxFiles, ahm){
     
-     colClasses <- metadata(recipe@metadata)$RecipeArgs$auxColClasses[n][[1]]$cols
+     colClasses <- metadata(ahm)$RecipeArgs$auxColClasses[n][[1]]$cols
      auxFile <- auxFiles[n]
      tbl.aux <- read.table(auxFile, sep="\t", colClasses=colClasses)
      colnames(tbl.aux) <- names(colClasses)
      tbl.aux
 }
 
-.getMergeArgs <- function(n, recipe){
-    metadata(recipe@metadata)$RecipeArgs$auxColClasses[n][[1]]$merge
+.getMergeArgs <- function(n, ahm){
+    metadata(ahm)$RecipeArgs$auxColClasses[n][[1]]$merge
 }
 
 
 ## from FILES (with json)
-trackWithAuxiliaryTablesToGRanges <- function(recipe)
+trackWithAuxiliaryTablesToGRanges <- function(ahm)
 {
-     mainFile <- inputFiles(recipe)[1] ## always the 1st one? - discuss with Dan and Paul
-     auxFiles <- inputFiles(recipe)[-1]
+     mainFile <- inputFiles(ahm)[1] ## always the 1st one? - discuss with Dan and Paul
+     auxFiles <- inputFiles(ahm)[-1]
      if(!(length(mainFile) == 1)) stop("No files present in input json.") 
      if(!(length(auxFiles) >= 1)) stop("No auxiliary files listed in input json.  Wrong recipe?")
 
-     colClasses <- metadata(recipe@metadata)$RecipeArgs$mainColClasses
+     colClasses <- metadata(ahm)$RecipeArgs$mainColClasses
      tbl.main <- read.table(gzfile(mainFile), sep="\t", header=FALSE,
                            colClasses=colClasses)
      colnames(tbl.main) <- names(colClasses)
@@ -29,11 +29,11 @@ trackWithAuxiliaryTablesToGRanges <- function(recipe)
      ## a couple for loops because we need to know 'n'...
      auxTabs <- list()
      for(i in seq_len(auxLen)){
-         auxTabs[[i]] <- .makeAuxTable(i, auxFiles, recipe)
+         auxTabs[[i]] <- .makeAuxTable(i, auxFiles, ahm)
      } 
      mergeArgs <- list()
      for(i in seq_len(auxLen)){
-         mergeArgs[[i]] <- .getMergeArgs(i, recipe)
+         mergeArgs[[i]] <- .getMergeArgs(i, ahm)
      } 
      
      ## merge together uses for loop again (to concentrate result down to one thing)
@@ -64,18 +64,18 @@ trackWithAuxiliaryTablesToGRanges <- function(recipe)
      mcols(gr) <- DataFrame(tbl[, otherColnames])
 
         # add seqlength & chromosome circularity information
-    newSeqInfo <- constructSeqInfo(metadata(recipe@metadata)$Species,
-                                    metadata(recipe@metadata)$Genome)
+    newSeqInfo <- constructSeqInfo(metadata(ahm)$Species,
+                                    metadata(ahm)$Genome)
         # if gr only has a subset of all possible chromosomes,
         # then update those only
     seqinfo(gr) <- newSeqInfo[names(seqinfo(gr))]
 
-    save(gr, file=outputFile(recipe))
+    save(gr, file=outputFile(ahm))
     if (!getOption("AnnotationHub_Use_Disk", FALSE)) {
-        upload_to_S3(outputfile(recipe), metadata(recipe)@RDataPath)
+        upload_to_S3(outputfile(ahm), metadata(ahm)$RDataPath)
     }
 
-    outputFile(recipe)
+    outputFile(ahm)
 
 } # trackWithAuxiliaryTableToGRanges
 #-------------------------------------------------------------------------------
@@ -154,12 +154,12 @@ trackWithAuxiliaryTablesToGRanges <- function(recipe)
 ## This means that in the future I will have to use ucscSchema etc. to
 ## get the addional information so that I can properly assemble them.
 ## For now, we will check for "id" and only proceed if all tables have this.
-trackandTablesToGRangesRecipe <- function(recipe)
+trackandTablesToGRangesRecipe <- function(ahm)
 {
     session <- browserSession()
-    genome <- metadata(recipe)@Genome
+    genome <- metadata(ahm)$Genome
     genome(session) <- genome
-    sourceFile <- metadata(recipe)@SourceFile
+    sourceFile <- metadata(ahm)$SourceFile
     track <- sub("^.+/database/","",sourceFile)
     query <- ucscTableQuery(session, track)
     tableNames <- tableNames(query)
@@ -202,13 +202,13 @@ trackandTablesToGRangesRecipe <- function(recipe)
     
     
 ##     ## add seqlength & chromosome circularity information
-##     newSeqInfo <- constructSeqInfo(metadata(recipe)@Species,
-##                                     metadata(recipe)@Genome)
+##     newSeqInfo <- constructSeqInfo(metadata(ahm)$Species,
+##                                     metadata(ahm)$Genome)
 ##     ## if gr only has a subset of all possible chromosomes,
 ##     ## then update those only
 ##     seqinfo(gr) <- newSeqInfo[names(seqinfo(gr))]
-    save(gr, file=outputFile(recipe))  
-##     outputFile(recipe)
+    save(gr, file=outputFile(ahm))  
+##     outputFile(ahm)
 
 } # trackandTablesToGRangesRecipe
 #-------------------------------------------------------------------------------

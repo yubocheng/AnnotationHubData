@@ -34,16 +34,16 @@ makeEnsemblGTFsToAHMs <- function(){
 
 
 
-## STEP 2: Make a recipe function that takes an AnnotationHubRecipe
+## STEP 2: Make a recipe function that takes an AnnotationHubMetadata
 ## object.
-ensemblGTFToGRangesRecipe <- function(recipe){
+ensemblGTFToGRangesRecipe <- function(ahm){
     require(rtracklayer)
-    gz.inputFile <- inputFiles(recipe)[1]
+    gz.inputFile <- inputFiles(ahm)[1]
     con <- gzfile(gz.inputFile)
     on.exit(close(con))
     gr <- import(con, "gtf", asRangedData=FALSE)
-    save(gr, file=outputFile(recipe))
-    outputFile(recipe)
+    save(gr, file=outputFile(ahm))
+    outputFile(ahm)
 }
 
 
