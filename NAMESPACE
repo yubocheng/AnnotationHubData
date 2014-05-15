@@ -17,7 +17,6 @@ export(newResources,
        flog,
        convertVersionToCharacter,
        upload_to_S3,
-       getLatestSnapshotDate,
        updateAllResources,
        getImportPreparerClasses,
        getExistingResources)

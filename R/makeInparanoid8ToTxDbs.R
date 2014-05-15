@@ -97,12 +97,11 @@ inparanoid8ToTxDbsRecipe <- function(ahm){
 
 
 
-## TODO: move methods from AnnotationHubServer to here
 
 ## TODO: modify the docs to reflect new changes (man pages and that
 ## vignette which currently lives in AnnotationHub)
-## TODO: move methods from old AnnotationHubRecipe file to file for
-## AnnotationHubMetadata
+
+
 ## TODO: clean up the examples and unit tests (this may be best done
 ## after we switch the back end over to the new system.
 
@@ -126,97 +125,3 @@ makeAnnotationHubResource("Inparanoid8ImportPreparer",
 
 
 
-
-
-
-
-
-#######################################################################
-## Next:
-## 1) Beef up the constructor for AnnotationHub objects
-## 2) Create a vignette explaining this stuff.
-#######################################################################
-
-
-
-
-#######################################################################
-## test that this worked is whether the method is available after
-## loading package (it is)
-## library(AnnotationHubData);getMethod(f='newResources' ,signature='EnsemblGtfImportPreparer'); getClass('EnsemblGtfImportPreparer')
-## BUT it may not 'actually' work since the class is not exported from
-## the NAMESPACE in this case...
-## more tests
-## foo <- new('EnsemblGtfImportPreparer')
-## BiocVersion <- c("2.12", "2.13", "2.14")
-## cm <- AnnotationHubServer:::getExistingResources(BiocVersion)
-## res <- newResources(foo, currentMetadata=cm)
-## This works!
-
-##############################################################################
-## NEXT: make a long-form call and skip the AHM function helper
-## function (step 2) entirely.
-## RESULT: a THREE step process that eliminates the need for users to
-## know about AHMs
-
-## makeAnnotationHubResourceFromParams("EnsemblGtfImportPreparer",
-##                                     AnnotationHubRoot,
-##                                     BiocVersion,
-##                                     Coordinate_1_based,
-##                                     DataProvider,
-##                                     DerivedMd5,
-##                                     Description,
-##                                     Genome,
-##                                     Maintainer,
-##                                     Notes,
-##                                     RDataClass,
-##                                     RDataDateAdded,
-##                                     RDataLastModifiedDate,
-##                                     RDataPath,
-##                                     RDataSize,
-##                                     RDataVersion,
-##                                   Recipe,
-##                                     RecipeArgs,
-##                                     SourceFile,
-##                                     SourceLastModifiedDate,
-##                                     SourceMd5,
-##                                     SourceSize,
-##                                     SourceUrl,
-##                                     SourceVersion,
-##                                     Species,
-##                                     Tags,
-##                                     TaxonomyId,
-##                                     Title)
-
-
-## TODO:
-## put metadata args above into a more sensible order
-## look at match.call() and formals() for ways to get the arguments
-
-
-
-
-
-
-
-##############################################################################
-## 'NEXT' NEXT: Factor out the need for the user to know about
-## AnnotationHubRecipe objects by making a wrapper for creating
-## recipes? OR just explain what an AnnotationHubRecipe is...
-
-## Right now I am leaning towards factoring it out.  Because I would
-## rather just describe 4 arguments than explain this new class to
-## users...  And this class contains no info that is not already
-## derived from an AHM (along with an AHM).
-
-## BUT LURKING in the code the recipes are all expecting an AHMR, so I
-## will have to change all that to get rid of it?  Nope.  I can leave
-## it and just not require it here.  But I will have to enable AHMs
-## that can point to recipes that require 4 args instead of this
-## object...
-
-## OR if I explain it, users have to understand that there is this
-## object that has methods they can call to get inputFile, recipeName
-## and outputFile
-
-## So maybe I will just explain it...  This is NOT an easy decision for me.
