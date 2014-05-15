@@ -7,4 +7,4 @@
 ## So 1st I need an exemplar AHM (will save one for now in inst/extdata
 
 ## So for testing: 
-## load(system.file('extData','inpDrosPsuedo.rda', package='AnnotationHubData'))
+## load(system.file('extdata','inpDrosPsuedo.rda', package='AnnotationHubData'))
