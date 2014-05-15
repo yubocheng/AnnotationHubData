@@ -64,5 +64,6 @@ Collate:
     makeEnsemblGtfToGRanges.R
     makeInparanoid8ToTxDbs.R
     downloadAndUpdate.R
+    sqliteToJson.R
     zzz.R
     
