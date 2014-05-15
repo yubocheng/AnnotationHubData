@@ -8,3 +8,54 @@
 
 ## So for testing: 
 ## load(system.file('extdata','inpDrosPsuedo.rda', package='AnnotationHubData'))
+## ahm
+
+
+## try to make to JSON using rjson
+## library(rjson)
+## foo <- metadata(ahm)  ## makes a list
+## toJSON(foo)           ## close? - makes something that at least looks ok-ish.
+
+
+## Dan suggests jsonlite
+## library(jsonlite)
+## toJSON(foo)
+## Has problems with some of the types...
+
+ahmToJson <- function(ahm){
+    lst <- metadata(ahm)
+    require('jsonlite')
+    ## casting on elements that toJSON can't handle
+    lst[[2]] <- as.character(lst[[2]])
+    lst[[15]] <- as.character(lst[[15]])
+    ## lower case all the names
+    names(lst) <- tolower(names(lst))
+    
+    ## Now just need to re-arrange things a bit
+    base <- list(title=lst[['title']],
+                 dataprovider=lst[['dataprovider']],
+                 species=lst[['species']],
+                 taxonomyid=lst[['taxonomyid']],
+                 genome=lst[['genome']],
+                 description=lst[['description']],
+                 coordinate_1_based=lst[['coordinate_1_based']],
+                 maintainer=lst[['maintainer']],
+                 status=lst[['status']],
+                 location_prefix=lst[['location_prefix']])
+    ## is not quite right (too many []'s)
+    ## BUT if I do this (vector)
+    base <- c(title=lst[['title']],
+              dataprovider=lst[['dataprovider']],
+              species=lst[['species']],
+              taxonomyid=lst[['taxonomyid']],
+              genome=lst[['genome']],
+              description=lst[['description']],
+              coordinate_1_based=lst[['coordinate_1_based']],
+              maintainer=lst[['maintainer']],
+              status=lst[['status']],
+              location_prefix=lst[['location_prefix']])
+    ## THEN I lose the names...
+    
+    ## then make JSON
+    toJSON(base)
+}
