@@ -11,9 +11,16 @@ export(AnnotationHubMetadata,
        RefNetImportPreparer)
 
 export(newResources,
-  constructAnnotationHubMetadataFromSourceFilePath,
-  postProcessMetadata,
-  constructMetadataFromJsonPath, flog, upload_to_S3)
+       constructAnnotationHubMetadataFromSourceFilePath,
+       postProcessMetadata,
+       constructMetadataFromJsonPath,
+       flog,
+       convertVersionToCharacter,
+       upload_to_S3,
+       getLatestSnapshotDate,
+       updateAllResources,
+       getImportPreparerClasses,
+       getExistingResources)
 
 import(rjson)
 
@@ -64,4 +71,3 @@ exportMethods(
     annotationHubRoot,
     sourceUrls
     )
-

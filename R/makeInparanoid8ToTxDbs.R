@@ -91,26 +91,26 @@ inparanoid8ToTxDbsRecipe <- function(ahm){
     dbname <- makeInpDb(dir=file.path(inputFiles(ahm, useRoot=FALSE),""),
                         dataDir=tempdir())
     db <- loadDb(file=dbname)
-    saveDb(db, file=outputFile(ahm))
+    saveDb(db, file=outputFile(ahm)) ## this here is the problem.
     outputFile(ahm)
 }
 
 
 
+## TODO: move methods from AnnotationHubServer to here
 
-
-## TODO: modify the docs to reflect new changes
-## TODO: remake all the recipe functions to work with the new system...
+## TODO: modify the docs to reflect new changes (man pages and that
+## vignette which currently lives in AnnotationHub)
+## TODO: move methods from old AnnotationHubRecipe file to file for
+## AnnotationHubMetadata
+## TODO: clean up the examples and unit tests (this may be best done
+## after we switch the back end over to the new system.
 
 ## STEP 3:  Call the helper to set up the newResources() method
 makeAnnotationHubResource("Inparanoid8ImportPreparer",
                           makeinparanoid8ToAHMs)
 
 
-## This is not working for some reason
-## Where: preparerInstance is a class of Inparanoid8ImportPreparer
-## And existingResources is a list of existing AHMs.
-## newResources(preparerInstance, existingResources)
 
 
 

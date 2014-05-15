@@ -1,7 +1,7 @@
 Package: AnnotationHubData
 Type: Package
 Title: Transform public data resources into Bioconductor Data Structures
-Version: 0.0.69
+Version: 0.0.70
 Author: Paul Shannon<pshannon@fhcrc.org>
 Maintainer: Bioconductor Package Maintainer <maintainer@bioconductor.org>
 Depends:
@@ -64,5 +64,6 @@ Collate:
     makeAnnotationHubResource.R
     makeEnsemblGtfToGRanges.R
     makeInparanoid8ToTxDbs.R
+    downloadAndUpdate.R
     zzz.R
     
