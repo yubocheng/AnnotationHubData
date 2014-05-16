@@ -30,6 +30,12 @@ ahmToJson <- function(ahm){
     lst[[15]] <- as.character(lst[[15]])
     ## lower case all the names
     names(lst) <- tolower(names(lst))
+
+    tagList <- as.list(lst[['tags']])
+    names(tagList) <- rep('tag', length(tagList))
+    versList <- as.list(lst[['biocversion']])
+    names(versList) <- rep('biocversion', length(versList))
+
     
     ## Now just need to re-arrange things a bit
     base <- list(title=lst[['title']],
@@ -42,11 +48,35 @@ ahmToJson <- function(ahm){
                  maintainer=lst[['maintainer']],
                  status=lst[['status']],
                  location_prefix=lst[['location_prefix']],
-                 list(
+                 versions=list(
                       rdataversion=lst[['rdataversion']],
                       rdatadateadded=lst[['rdatadateadded']]
-                      ))
+                      ),
+                 rdatapaths=list(
+                      rdatapath=lst[['rdatapath']],
+                      rdataclass=lst[['rdataclass']],
+                      rdatasize=lst[['rdatasize']]
+                      ),
+                 input_sources=list(
+                      sourcefile=lst[['sourcefile']],
+                      sourcesize=lst[['sourcesize']],
+                      sourceurl=lst[['sourceurl']],
+                      sourceversion=lst[['sourceversion']]
+                      ),
+                 tags=tagList,
+                 biocversions=versList,
+                 recipes=list(
+                      recipe=lst[['recipe']][1],
+                      package=lst[['recipe']][[2]] ##,
+##                      recipeargs=lst[['recipeargs']] ## remove this from class
+                      )
+                 )
     
     ## then make JSON
     toJSON(base, auto_unbox=TRUE)
+    ## STILL: some issues here with no boxing where we want it (around
+    ## sub-sets like 'versions'
+    ## AND: some name-mangling in the tags...
+    
 }
+
