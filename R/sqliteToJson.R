@@ -41,21 +41,12 @@ ahmToJson <- function(ahm){
                  coordinate_1_based=lst[['coordinate_1_based']],
                  maintainer=lst[['maintainer']],
                  status=lst[['status']],
-                 location_prefix=lst[['location_prefix']])
-    ## is not quite right (too many []'s)
-    ## BUT if I do this (vector)
-    base <- c(title=lst[['title']],
-              dataprovider=lst[['dataprovider']],
-              species=lst[['species']],
-              taxonomyid=lst[['taxonomyid']],
-              genome=lst[['genome']],
-              description=lst[['description']],
-              coordinate_1_based=lst[['coordinate_1_based']],
-              maintainer=lst[['maintainer']],
-              status=lst[['status']],
-              location_prefix=lst[['location_prefix']])
-    ## THEN I lose the names...
+                 location_prefix=lst[['location_prefix']],
+                 list(
+                      rdataversion=lst[['rdataversion']],
+                      rdatadateadded=lst[['rdatadateadded']]
+                      ))
     
     ## then make JSON
-    toJSON(base)
+    toJSON(base, auto_unbox=TRUE)
 }
