@@ -1,6 +1,46 @@
-extendedBedToGRanges <- function(ahm)
+## define Three kinds of recipes to indicate three different kinds of input.
+broadpeakBedToGRanges <- function(ahm){
+    colClasses <- list(seqnames="character",
+                       start="integer",
+                       end="integer",
+                       name="character",
+                       score="integer",
+                       strand="character",
+                       signalValue="numeric",
+                       pValue="numeric",
+                       qValue="numeric")
+    extendedBedToGRanges(ahm, colClasses)
+}
+narrowpeakBedToGRanges <- function(ahm){
+    colClasses <- list(seqnames="character",
+                       start="integer",
+                       end="integer",
+                       name="character",
+                       score="integer",
+                       strand="character",
+                       signalValue="numeric",
+                       pValue="numeric",
+                       qValue="numeric",
+                       peak="integer")
+    extendedBedToGRanges(ahm, colClasses)
+}
+bedrnaelementsToGRanges <- function(ahm){
+    colClasses <- list(seqnames="character",
+                       start="integer",
+                       end="integer",
+                       name="character",
+                       score="integer",
+                       strand="character",
+                       level="numeric",
+                       signif="numeric",
+                       score2="integer")
+    extendedBedToGRanges(ahm, colClasses)
+}
+
+## The above all just need to do what is in here:
+extendedBedToGRanges <- function(ahm, colClasses)
 {
-    colClasses <- metadata(ahm)$RecipeArgs$colClasses
+    ## colClasses <- metadata(ahm)$RecipeArgs$colClasses
     if(colClasses[1] == 'implicit') {
            # TODO: if a strand column can be deduced, it SHOULD be deduced.
            # TODO: pshannon (10 jan 2013)

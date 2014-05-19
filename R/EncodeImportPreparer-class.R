@@ -192,8 +192,9 @@ setMethod("newResources", signature="EncodeImportPreparer",
                                  TaxonomyId="9606",
                                  Genome="hg19",
                                  Tags=tags,
-                                 Recipe=recipe.info$recipe,
-                                 RecipeArgs=recipe.info$recipeArgs,
+                                 Recipe=recipe.info,
+                                 ## Recipe=recipe.info$recipe,
+                                 ## RecipeArgs=recipe.info$recipeArgs,
                                  RDataClass="GRanges",
                                  RDataVersion=numeric_version("0.0.1"),
                                  RDataDateAdded=as.Date(Sys.Date(), "%Y"),
@@ -215,53 +216,56 @@ setMethod("newResources", signature="EncodeImportPreparer",
 .assignRecipeAndArgs <- function(dataFormat)
 {
     recipe <- NULL
-    recipeArgs <- list()
+    ## recipeArgs <- list()
   
     dataFormat <- tolower(dataFormat)
     if(dataFormat == "gtf")
         recipe = "rtrackLayerImport"
   
     if(dataFormat == "broadpeak") {
-        recipe <- "extendedBedToGRanges"
-        recipeArgs <- list(colClasses=list(seqnames="character",
-                                                  start="integer",
-                                                  end="integer",
-                                                  name="character",
-                                                  score="integer",
-                                                  strand="character",
-                                                  signalValue="numeric",
-                                                  pValue="numeric",
-                                                  qValue="numeric"))
+        recipe <- "broadpeakBedToGRanges"
+        ## recipe <- "extendedBedToGRanges"
+        ## recipeArgs <- list(colClasses=list(seqnames="character",
+        ##                                           start="integer",
+        ##                                           end="integer",
+        ##                                           name="character",
+        ##                                           score="integer",
+        ##                                           strand="character",
+        ##                                           signalValue="numeric",
+        ##                                           pValue="numeric",
+        ##                                           qValue="numeric"))
         } # if broadPeak
     if(dataFormat == "narrowpeak") {
-        recipe <- "extendedBedToGRanges"
-        recipeArgs <- list(colClasses=list(seqnames="character",
-                                                  start="integer",
-                                                  end="integer",
-                                                  name="character",
-                                                  score="integer",
-                                                  strand="character",
-                                                  signalValue="numeric",
-                                                  pValue="numeric",
-                                                  qValue="numeric",
-                                                  peak="integer"))
+        recipe <- "narrowpeakBedToGRanges"
+        ## recipe <- "extendedBedToGRanges"
+        ## recipeArgs <- list(colClasses=list(seqnames="character",
+        ##                                           start="integer",
+        ##                                           end="integer",
+        ##                                           name="character",
+        ##                                           score="integer",
+        ##                                           strand="character",
+        ##                                           signalValue="numeric",
+        ##                                           pValue="numeric",
+        ##                                           qValue="numeric",
+        ##                                           peak="integer"))
         } # if narrowPeak
   
     if(dataFormat == "bedrnaelements") {
-        recipe <- "extendedBedToGRanges"
-        recipeArgs <- list(colClasses=list(seqnames="character",
-                                                  start="integer",
-                                                  end="integer",
-                                                  name="character",
-                                                  score="integer",
-                                                  strand="character",
-                                                  level="numeric",
-                                                  signif="numeric",
-                                                  score2="integer"))
+        recipe <- "bedrnaelementsToGRanges"
+        ## recipe <- "extendedBedToGRanges"
+        ## recipeArgs <- list(colClasses=list(seqnames="character",
+        ##                                           start="integer",
+        ##                                           end="integer",
+        ##                                           name="character",
+        ##                                           score="integer",
+        ##                                           strand="character",
+        ##                                           level="numeric",
+        ##                                           signif="numeric",
+        ##                                           score2="integer"))
         } # if bedRnaElements
   
-   list(recipe=recipe, recipeArgs=recipeArgs)
-
+   ## list(recipe=recipe, recipeArgs=recipeArgs)
+recipe
 } # .assignRecipeAndArgs
 #-------------------------------------------------------------------------------
 .mapCompositeFieldToDirectory <- function(composite)
