@@ -31,12 +31,6 @@ ahmToJson <- function(ahm){
     ## lower case all the names
     names(lst) <- tolower(names(lst))
 
-    tagList <- as.list(lst[['tags']])
-    names(tagList) <- rep('tag', length(tagList))
-    versList <- as.list(lst[['biocversion']])
-    names(versList) <- rep('biocversion', length(versList))
-
-    
     ## Now just need to re-arrange things a bit
     base <- list(title=lst[['title']],
                  dataprovider=lst[['dataprovider']],
@@ -48,28 +42,23 @@ ahmToJson <- function(ahm){
                  maintainer=lst[['maintainer']],
                  status=lst[['status']],
                  location_prefix=lst[['location_prefix']],
-                 versions=list(
-                      rdataversion=lst[['rdataversion']],
-                      rdatadateadded=lst[['rdatadateadded']]
-                      ),
-                 rdatapaths=list(
+                 rdataversion=lst[['rdataversion']],
+                 rdatadateadded=lst[['rdatadateadded']],
+                 recipe=lst[['recipe']][1],
+                 recipe_package=lst[['recipe']][[2]],
+                 rdatapaths=list(list(
                       rdatapath=lst[['rdatapath']],
                       rdataclass=lst[['rdataclass']],
                       rdatasize=lst[['rdatasize']]
-                      ),
-                 input_sources=list(
+                      )),
+                 input_sources=list(list(
                       sourcefile=lst[['sourcefile']],
                       sourcesize=lst[['sourcesize']],
                       sourceurl=lst[['sourceurl']],
                       sourceversion=lst[['sourceversion']]
-                      ),
-                 tags=tagList,
-                 biocversions=versList,
-                 recipes=list(
-                      recipe=lst[['recipe']][1],
-                      package=lst[['recipe']][[2]] ##,
-##                      recipeargs=lst[['recipeargs']] ## remove this from class
-                      )
+                      )),
+                 tags=lst[['tags']],
+                 biocversions=lst[['biocversion']]
                  )
     
     ## then make JSON
