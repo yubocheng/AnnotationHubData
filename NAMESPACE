@@ -21,7 +21,7 @@ export(newResources,
        getImportPreparerClasses,
        getExistingResources)
 
-import(rjson)
+import(jsonlite)
 
 import(futile.logger)
 
@@ -55,7 +55,8 @@ export(AnnotationHubMetadataFromJson,
        importTable,
        EncodeImportPreparer,
        EncodeBaseURL,
-       tracksToUpdate)
+       tracksToUpdate,
+       ahmToJson)
 
 exportMethods(
     show,

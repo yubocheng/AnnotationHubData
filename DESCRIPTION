@@ -19,7 +19,7 @@ Suggests:
 Imports:
     RCurl,
     BiocGenerics,
-    rjson,
+    jsonlite,
     BiocInstaller,
     VariantAnnotation,
     httr,
