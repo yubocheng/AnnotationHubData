@@ -11,26 +11,30 @@
 ## ahm
 
 
-## try to make to JSON using rjson
-## library(rjson)
-## foo <- metadata(ahm)  ## makes a list
-## toJSON(foo)           ## close? - makes something that at least looks ok-ish.
+## helper to do cleanup and make sure things are present:
+cleanupLst <- function(lst){
+    if(length(lst[["recipe"]])==1){
+        lst[["recipe"]][[2]] <- "AnnotationHubData"
+    }
+    ## Unfortunately, I have no recipe args (so I can't fix that field)
+    lst
+}
+
 
 
 ## Dan suggests jsonlite
-## library(jsonlite)
-## toJSON(foo)
-## Has problems with some of the types...
-
 ahmToJson <- function(ahm){
-    lst <- metadata(ahm)
+    lst <- metadata(ahm)    
     require('jsonlite')
     ## casting on elements that toJSON can't handle
     lst[[2]] <- as.character(lst[[2]])
     lst[[15]] <- as.character(lst[[15]])
     ## lower case all the names
     names(lst) <- tolower(names(lst))
-
+    
+    ##TEMP cleanup the ahm (in future we want to stop using this!)
+    lst <- cleanupLst(lst)
+    
     rdatapaths <- Map(list,
                       rdatapath=lst[['rdatapath']],
                       rdataclass=lst[['rdataclass']],
