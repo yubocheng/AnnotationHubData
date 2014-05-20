@@ -31,6 +31,27 @@ ahmToJson <- function(ahm){
     ## lower case all the names
     names(lst) <- tolower(names(lst))
 
+    rdatapaths <- Map(list,
+                      rdatapath=lst[['rdatapath']],
+                      rdataclass=lst[['rdataclass']],
+                      rdatasize=lst[['rdatasize']]
+                      )
+    ## using Map puts unwanted labels on things...
+    names(rdatapaths) <- NULL 
+
+    input_sources <- Map(list,
+                         sourcefile=lst[['sourcefile']],
+                         sourcesize=lst[['sourcesize']],
+                         sourceurl=lst[['sourceurl']],
+                         sourceversion=lst[['sourceversion']]
+                         )
+    ## using Map puts unwanted labels on things...
+    names(input_sources) <- NULL 
+    
+    ## TODO: I need to have Map make lists but not have them be named horribly.
+    ## So multiplexed like Map on rdatapaths below, but with result
+    ## that looks like input_sources
+    
     ## Now just need to re-arrange things a bit
     base <- list(title=lst[['title']],
                  dataprovider=lst[['dataprovider']],
@@ -46,17 +67,8 @@ ahmToJson <- function(ahm){
                  rdatadateadded=lst[['rdatadateadded']],
                  recipe=lst[['recipe']][1],
                  recipe_package=lst[['recipe']][[2]],
-                 rdatapaths=list(list(
-                      rdatapath=lst[['rdatapath']],
-                      rdataclass=lst[['rdataclass']],
-                      rdatasize=lst[['rdatasize']]
-                      )),
-                 input_sources=list(list(
-                      sourcefile=lst[['sourcefile']],
-                      sourcesize=lst[['sourcesize']],
-                      sourceurl=lst[['sourceurl']],
-                      sourceversion=lst[['sourceversion']]
-                      )),
+                 rdatapaths=rdatapaths,                 
+                 input_sources=input_sources,
                  tags=lst[['tags']],
                  biocversions=lst[['biocversion']]
                  )
