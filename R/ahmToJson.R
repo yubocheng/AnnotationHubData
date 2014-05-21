@@ -65,8 +65,9 @@ ahmToJson <- function(ahm){
                  description=lst[['description']],
                  coordinate_1_based=lst[['coordinate_1_based']],
                  maintainer=lst[['maintainer']],
-                 status=lst[['status']],
-                 location_prefix=lst[['location_prefix']],
+                 ## status=lst[['status']],
+                 ## location_prefix=lst[['location_prefix']],
+                 location_prefix="http://s3.amazonaws.com/annotationhub/",
                  rdataversion=lst[['rdataversion']],
                  rdatadateadded=lst[['rdatadateadded']],
                  recipe=lst[['recipe']][1],
@@ -78,7 +79,7 @@ ahmToJson <- function(ahm){
                  )
     
     ## then make JSON
-    toJSON(base, auto_unbox=TRUE)
+    toJSON(base, auto_unbox=TRUE, pretty=TRUE)
     ## STILL: some issues here with no boxing where we want it (around
     ## sub-sets like 'versions'
     ## AND: some name-mangling in the tags...
