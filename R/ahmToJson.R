@@ -105,3 +105,25 @@ ahmToJson <- function(ahm){
 
 ## Testing
 ## numExtends <- unlist(lapply(resources, function(x){x@Recipe[1]=='extendedBedToGRanges'}))
+
+## check on rdatasize and sourcesize (should not be NA)
+
+## use ALL of the biocversions
+
+## add sourceMd5, derivedMD5, sourceLastModifiedDate to the json (soon)
+
+## export : makeAnnotationHubResource
+
+## recipe should use require() to minimize dependencies for Annotations and suggests for things that are only needed by specific recipes.
+
+## Make sure that we can put a recipe in another package. - untested.
+
+## look into weird requirement for adding importPreparer subclasses to the NAMESPACE.
+
+## allow currentMetadata to be passed in to the helper functions (add this to .generalNewResources::makeAnnotationHubMetadataFunction(currentMEtadata,...)
+
+## recipes and AHM generator should not have to define a root???
+
+## modernize recipes so that they use the new system.
+
+

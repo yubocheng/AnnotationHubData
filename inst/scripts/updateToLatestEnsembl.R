@@ -6,7 +6,7 @@
 library(AnnotationHubData)
 ahroot <- "/var/FastRWeb/web"
 ## BiocVersion <- c("2.14")  ## is this right?
-BiocVersion <- c("2.12", "2.13", "2.14")  ## Dan says it should work with this
+BiocVersion <- c("2.12", "2.13", "2.14", "3.0")  ## Dan says it should work with this
 ## (it does)  :)
 
 ## list the importPreparerClasses I might want: 
