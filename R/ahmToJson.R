@@ -17,6 +17,20 @@ cleanupLst <- function(lst){
         lst[["recipe"]][[2]] <- "AnnotationHubData"
     }
     ## Unfortunately, I have no recipe args (so I can't fix that field)
+    ## But I DO have this translation file Dan made me...
+    ## looks like there are some issues with the data..
+    if(lst[["recipe"]][1]=='extendedBedToGRanges'){
+        file <- system.file('extdata','titlesToRecipes.txt',
+                            package='AnnotationHubData')
+        trns <- read.delim(file, header=FALSE, stringsAsFactors=FALSE)
+        idx <- trns[[2]] %in% lst[["sourceurl"]]
+        value <- trns[idx,][[1]]
+        if(length(value)==1){
+            lst[["recipe"]][1] <- value
+        }else{
+           warning("no matching value for recipe called 'extendedBedToGRanges'")
+        }
+    }
     lst
 }
 
@@ -86,3 +100,8 @@ ahmToJson <- function(ahm){
     
 }
 
+
+
+
+## Testing
+## numExtends <- unlist(lapply(resources, function(x){x@Recipe[1]=='extendedBedToGRanges'}))
