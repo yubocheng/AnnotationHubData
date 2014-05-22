@@ -75,17 +75,6 @@ makeinparanoid8ToAHMs <- function(currentMetadata){
 ## REMEMBER: inputFiles will be file.path(AnnotationHubRoot,SourceFile)
 ## (from the AHM)
 ## and outputFile will be file.path(AnnotationHubRoot,RDataPath)
-## inparanoid8ToTxDbsRecipe <- function(recipe){
-##     require(AnnotationForge)
-##     ## make use of file.path to put on a trailing slash of the appropriate kind
-##     dbname <- makeInpDb(dir=file.path(inputFiles(recipe, useRoot=FALSE),""),
-##                         dataDir=tempdir())
-##     db <- loadDb(file=dbname)
-##     saveDb(db, file=outputFile(recipe))
-##     outputFile(recipe)
-## }
-
-
 inparanoid8ToTxDbsRecipe <- function(ahm){
     require(AnnotationForge)
     ## make use of file.path to put on a trailing slash of the appropriate kind
@@ -98,13 +87,6 @@ inparanoid8ToTxDbsRecipe <- function(ahm){
 
 
 
-
-## TODO: modify the docs to reflect new changes (man pages and that
-## vignette which currently lives in AnnotationHub)
-
-
-## TODO: clean up the examples and unit tests (this may be best done
-## after we switch the back end over to the new system.
 
 ## STEP 3:  Call the helper to set up the newResources() method
 makeAnnotationHubResource("Inparanoid8ImportPreparer",

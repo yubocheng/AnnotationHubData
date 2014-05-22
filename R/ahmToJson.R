@@ -129,18 +129,18 @@ ahmToJson <- function(ahm){
 ## specific recipes. Or they could maybe just get away with importing.
 ## recipes and AHM generator should not have to define an AHMRoot
 ## (since this is alway put in after the fact. - Just use a default
-## value for this. - (And actually we now need to stop doing this in
-## the recipes.  (it is no longer necessary)
-
+## value for this. 
 
 
 ## modernize all of the recipes so that they use the new system (the
 ## new simplified system).
 
+
+## And actually we now need to also stop defining the AHMRoot this in
+## the recipes.  (it is no longer necessary)
+
+
 ## Make sure that we can put a recipe into another package. - untested.
-
-
-
 
 
 ## look into the weird requirement for adding importPreparer subclasses to
@@ -148,5 +148,6 @@ ahmToJson <- function(ahm){
 
 
 ## Document makeAnnotationHubResource
+
 
 ## Fix the unit tests

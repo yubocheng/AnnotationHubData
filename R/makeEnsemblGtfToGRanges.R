@@ -2,23 +2,44 @@
 ## simpler and also provides a test case for how we can parse ensembl
 ## GTF files into GRanges objects.
 
+## Helper to retrieve GTF file urls from Ensembl
+.ensemblGtfSourceUrls <-
+    function(baseUrl)
+{
+    want <- .ensemblDirUrl(baseUrl, "gtf/")
+    ## files in release
+    unlist(lapply(want, function(url) {
+        listing <- getURL(url=url, followlocation=TRUE, customrequest="LIST -R")
+        listing<- strsplit(listing, "\n")[[1]]
+        subdir <- sub(".* ", "", listing[grep("^drwx", listing)])
+        gtfGz <- sub(".* ", "", listing[grep(".*gtf.gz$", listing)])
+        sprintf("%s%s/%s", url, subdir, gtfGz)
+    }), use.names=FALSE)
+}
 
 ## STEP 1: make function to process metadata into AHMs
 ## This function will return the AHMs and takes no args.
 ## It also must specify a recipe function.
-makeEnsemblGTFsToAHMs <- function(){
-    baseUrl <- .ensemblBaseUrl
-    sourceUrl <- .ensemblGtfSourceUrls(.ensemblBaseUrl)
-    
-    sourceFile <- .ensemblSourcePathFromUrl(baseUrl, sourceUrl)
-    meta <- .ensemblMetadataFromUrl(sourceUrl)
+makeEnsemblGTFsToAHMs <- function(currentMetadata){
+    ## get possible sources
+    sourceUrls <- .ensemblGtfSourceUrls(.ensemblBaseUrl)
+
+    ## pre-filter known
+    knownUrls <- sapply(currentMetadata, function(elt) {
+        metadata(elt)$SourceUrl
+    })
+    sourceUrls <- sourceUrls[!(sourceUrls %in% knownUrls)]
+    if(length(sourceUrls)==0){return(list())} ## nothing to update
+
+    ## otherwise assemble AHMs from these
+    sourceFile <- .ensemblSourcePathFromUrl(.ensemblBaseUrl, sourceUrls)
+    meta <- .ensemblMetadataFromUrl(sourceUrls)
     rdata <- sub(".gz$", ".RData", sourceFile)
     description <- paste("Gene Annotation for", meta$species)
 
     Map(AnnotationHubMetadata,
-        AnnotationHubRoot=meta$annotationHubRoot,
         Description=description, Genome=meta$genome,
-        SourceFile=sourceFile, SourceUrl=sourceUrl,
+        SourceFile=sourceFile, SourceUrl=sourceUrls,
         SourceVersion=meta$sourceVersion, Species=meta$species,
         TaxonomyId=meta$taxonomyId, Title=meta$title,
         MoreArgs=list(
