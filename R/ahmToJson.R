@@ -52,7 +52,9 @@ ahmToJson <- function(ahm){
     rdatapaths <- Map(list,
                       rdatapath=lst[['rdatapath']],
                       rdataclass=lst[['rdataclass']],
-                      rdatasize=lst[['rdatasize']]
+                      rdatasize=lst[['rdatasize']],
+                      derivedmd5=lst[['derivedmd5']],
+                      rdatalastmodifieddate=lst[['rdatalastmodifieddate']]
                       )
     ## using Map puts unwanted labels on things...
     names(rdatapaths) <- NULL 
@@ -61,7 +63,9 @@ ahmToJson <- function(ahm){
                          sourcefile=lst[['sourcefile']],
                          sourcesize=lst[['sourcesize']],
                          sourceurl=lst[['sourceurl']],
-                         sourceversion=lst[['sourceversion']]
+                         sourceversion=lst[['sourceversion']],
+                         sourcemd5=lst[['sourcemd5']],
+                         sourcelastmodifieddate=lst[['sourcelastmodifieddate']]
                          )
     ## using Map puts unwanted labels on things...
     names(input_sources) <- NULL 
@@ -79,11 +83,9 @@ ahmToJson <- function(ahm){
                  description=lst[['description']],
                  coordinate_1_based=lst[['coordinate_1_based']],
                  maintainer=lst[['maintainer']],
-                 ## status=lst[['status']],
-                 ## location_prefix=lst[['location_prefix']],
-                 location_prefix="http://s3.amazonaws.com/annotationhub/",
                  rdataversion=lst[['rdataversion']],
                  rdatadateadded=lst[['rdatadateadded']],
+                 location_prefix="http://s3.amazonaws.com/annotationhub/",
                  recipe=lst[['recipe']][1],
                  recipe_package=lst[['recipe']][[2]],
                  rdatapaths=rdatapaths,                 
@@ -93,7 +95,7 @@ ahmToJson <- function(ahm){
                  )
     
     ## then make JSON
-    toJSON(base, auto_unbox=TRUE, pretty=TRUE)
+    paste0(toJSON(base, auto_unbox=TRUE,na='null', pretty=TRUE), "\n")
     ## STILL: some issues here with no boxing where we want it (around
     ## sub-sets like 'versions'
     ## AND: some name-mangling in the tags...
@@ -106,24 +108,45 @@ ahmToJson <- function(ahm){
 ## Testing
 ## numExtends <- unlist(lapply(resources, function(x){x@Recipe[1]=='extendedBedToGRanges'}))
 
-## check on rdatasize and sourcesize (should not be NA)
 
-## use ALL of the biocversions
+## NOTES from 4/21/14
+## check on rdatasize and sourcesize (should not be NA?) - I think
+## they are NA though- but double check this. - DONE
 
-## add sourceMd5, derivedMD5, sourceLastModifiedDate to the json (soon)
+## values that are NA in the JSON should be set to null - DONE
 
-## export : makeAnnotationHubResource
+## use ALL of the biocversions - DONE
 
-## recipe should use require() to minimize dependencies for Annotations and suggests for things that are only needed by specific recipes.
+
+## add sourceMd5, derivedMD5, sourceLastModifiedDate to the json
+## (soon) - manually add these to the AHMs? - DONE
+
+
+
+
+
+## export : makeAnnotationHubResource (so it can be used externally)
+
+
+## recipe should use require() to minimize dependencies for
+## Annotations and suggests for things that are only needed by
+## specific recipes.
+
 
 ## Make sure that we can put a recipe in another package. - untested.
 
-## look into weird requirement for adding importPreparer subclasses to the NAMESPACE.
+## look into weird requirement for adding importPreparer subclasses to
+## the NAMESPACE. - can we make this go away?
 
-## allow currentMetadata to be passed in to the helper functions (add this to .generalNewResources::makeAnnotationHubMetadataFunction(currentMEtadata,...)
+## allow currentMetadata to be passed in to the helper functions (add
+## this to
+## .generalNewResources::makeAnnotationHubMetadataFunction(currentMEtadata,...)
 
-## recipes and AHM generator should not have to define a root???
+## recipes and AHM generator should not have to define an AHMRoot
+## (since this is alway put in after the fact. - Just use a default
+## value for this.
 
-## modernize recipes so that they use the new system.
+## modernize all of the recipes so that they use the new system (the
+## new simplified system).
 
 

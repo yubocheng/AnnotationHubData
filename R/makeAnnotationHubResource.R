@@ -33,7 +33,7 @@
 .generalNewResources <- function(importPreparer, currentMetadata,
                                  makeAnnotationHubMetadataFunction, ...){
     ## The 1st function can take no args and must return AHMs
-    ahms <- makeAnnotationHubMetadataFunction(...)
+    ahms <- makeAnnotationHubMetadataFunction(currentMetadata, ...)
     ## And only return ones we don't have.
     ##    setdiff(ahms, currentMetadata)
 
