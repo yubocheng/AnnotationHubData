@@ -1,27 +1,6 @@
-exportClasses(AnnotationHubMetadata,
-              ImportPreparer, dbSNPVCFImportPreparer,
-              EnsemblFastaImportPreparer, EnsemblGtfImportPreparer,
-              EncodeImportPreparer, UCSCTrackImportPreparer,
-              Inparanoid8ImportPreparer)
-
-export(AnnotationHubMetadata, 
-       dbSNPVCFImportPreparer, EnsemblFastaImportPreparer,
-       UCSCTrackImportPreparer,
-       HaemCodeImportPreparer,
-       RefNetImportPreparer)
-
-export(newResources,
-       constructAnnotationHubMetadataFromSourceFilePath,
-       postProcessMetadata,
-       constructMetadataFromJsonPath,
-       flog,
-       convertVersionToCharacter,
-       upload_to_S3,
-       updateAllResources,
-       getImportPreparerClasses,
-       getExistingResources)
-
 import(jsonlite)
+
+import(GenomicFeatures)
 
 import(futile.logger)
 
@@ -41,7 +20,34 @@ importFrom(AnnotationForge, makeInpDb)
 
 importFrom(httr, HEAD)
 
-export(AnnotationHubMetadataFromJson,
+exportClasses(AnnotationHubMetadata,
+              ImportPreparer,
+              dbSNPVCFImportPreparer,
+              EnsemblFastaImportPreparer,
+              EnsemblGtfImportPreparer,
+              EncodeImportPreparer,
+              UCSCTrackImportPreparer,
+              Inparanoid8ImportPreparer)
+
+export(AnnotationHubMetadata, 
+       dbSNPVCFImportPreparer,
+       EnsemblFastaImportPreparer,
+       UCSCTrackImportPreparer,
+       HaemCodeImportPreparer,
+       RefNetImportPreparer,
+       ##
+       newResources,
+       constructAnnotationHubMetadataFromSourceFilePath,
+       postProcessMetadata,
+       constructMetadataFromJsonPath,
+       flog,
+       convertVersionToCharacter,
+       upload_to_S3,
+       updateAllResources,
+       getImportPreparerClasses,
+       getExistingResources,
+       makeAnnotationHubResource,
+       AnnotationHubMetadataFromJson,
        jsonPath,
        toJson,
        constructSeqInfo,

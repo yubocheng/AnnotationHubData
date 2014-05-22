@@ -10,13 +10,13 @@ Depends:
     S4Vectors (>= 0.0.2),
     IRanges (>= 1.99.2),
     GenomicRanges (>= 1.17.7),
-    Rsamtools (>= 1.17.4),
-    rtracklayer (>= 1.25.2),
-    GenomicFeatures (>= 1.17.3),
     AnnotationHub
 Suggests:
     RUnit
 Imports:
+    GenomicFeatures (>= 1.17.3),
+    Rsamtools (>= 1.17.4),
+    rtracklayer (>= 1.25.2), 
     RCurl,
     BiocGenerics,
     jsonlite,

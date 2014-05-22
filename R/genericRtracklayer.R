@@ -1,5 +1,6 @@
 rtrackLayerImport <- function (ahm)
 {
+    require('rtracklayer')
     gr <- import(inputFiles(ahm)[1], asRangedData=FALSE)
     newSeqInfo <- constructSeqInfo(metadata(ahm)$Species,
                                     metadata(ahm)$Genome) 

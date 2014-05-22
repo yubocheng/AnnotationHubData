@@ -112,41 +112,43 @@ ahmToJson <- function(ahm){
 ## NOTES from 4/21/14
 ## check on rdatasize and sourcesize (should not be NA?) - I think
 ## they are NA though- but double check this. - DONE
-
 ## values that are NA in the JSON should be set to null - DONE
-
 ## use ALL of the biocversions - DONE
-
-
 ## add sourceMd5, derivedMD5, sourceLastModifiedDate to the json
 ## (soon) - manually add these to the AHMs? - DONE
 
+## changes to the process for making Annotations:
+## Export makeAnnotationHubResource (so it can be used externally in
+## other packages) - DONE
+## Allow currentMetadata to be passed in to the helper functions (add
+## this to
+## .generalNewResources::makeAnnotationHubMetadataFunction(currentMEtadata,...)
+## - DONE
 
 
 
-
-## export : makeAnnotationHubResource (so it can be used externally)
-
-
-## recipe should use require() to minimize dependencies for
-## Annotations and suggests for things that are only needed by
+## Recipes should use require() to minimize dependencies for
+## annotations and suggests for things that are only needed by
 ## specific recipes.
 
 
-## Make sure that we can put a recipe in another package. - untested.
 
-## look into weird requirement for adding importPreparer subclasses to
+## look into the weird requirement for adding importPreparer subclasses to
 ## the NAMESPACE. - can we make this go away?
 
-## allow currentMetadata to be passed in to the helper functions (add
-## this to
-## .generalNewResources::makeAnnotationHubMetadataFunction(currentMEtadata,...)
 
 ## recipes and AHM generator should not have to define an AHMRoot
 ## (since this is alway put in after the fact. - Just use a default
 ## value for this.
 
+
+## Make sure that we can put a recipe in another package. - untested.
+
 ## modernize all of the recipes so that they use the new system (the
 ## new simplified system).
 
 
+
+## Document makeAnnotationHubResource
+
+## Fix the unit tests

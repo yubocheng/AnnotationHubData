@@ -32,13 +32,12 @@
 
 .generalNewResources <- function(importPreparer, currentMetadata,
                                  makeAnnotationHubMetadataFunction, ...){
-    ## The 1st function can take no args and must return AHMs
+    ## The 1st function must return AHMs
     ahms <- makeAnnotationHubMetadataFunction(currentMetadata, ...)
-    ## And only return ones we don't have.
-    ##    setdiff(ahms, currentMetadata)
-
-    ## I CANNOT just setdiff on two lists of random s4 objs.  So lets
-    ## compare: SourceUrl and RDataVersion
+    ## Next part just does a poor mans setdiff()
+    ## This is to filter in the event that the users
+    ## makeAnnotationHubMetadataFunction() has not already done that
+    ## job...
     .compareAHMs(ahms, currentMetadata)
 }
 

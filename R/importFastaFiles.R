@@ -87,7 +87,7 @@ commonMetadata <- function(BiocVersion)
 createMetadata <- function(ahroot, subtree="pub/release-70/fasta",
     RDataVersion="0.0.1", BiocVersion="2.12")
 {
-    
+    require('Rsamtools')
     path <- file.path(ahroot, subtree)
     gzfiles <- dir(path, pattern="*.gz$", recursive=TRUE)
     for (gzfile in gzfiles)
