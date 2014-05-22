@@ -132,7 +132,10 @@ AnnotationHubMetadata <-
         resourceFiles <- .derivedFileName(SourceFile,  RDataVersion, "RData")
         RDataPath <- file.path(resourceDir, resourceFiles)
     }
-
+    if (missing(AnnotationHubRoot)){
+        AnnotationHubRoot <- "/var/FastRWeb/web" ## Dans preferred default
+    }
+    
     RDataDateAdded <-
         as.POSIXct(strsplit(
             as.character(RDataDateAdded), " ")[[1]][1], tz="GMT")

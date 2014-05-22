@@ -22,7 +22,7 @@
                      gsub(" ","_",fullSpecies),
                      ".inp8",
                      ".sqlite")    
-    root <- setNames(rep(NA_character_, length(allDirs)), title)
+    ## root <- setNames(rep(NA_character_, length(allDirs)), title)
     genome <- setNames(rep("inparanoid8 genomes", length(allDirs)), title)
     sourceVersion <- rep('Inparanoid version 8',length(allDirs))
     description <- paste("Inparanoid 8 annotations about", fullSpecies)
@@ -30,7 +30,8 @@
     sourceFile <- allDirs
     rDataPath <- paste0("inparanoid8/Orthologs/",title)
     ## return as a list
-    list(annotationHubRoot = root, title=title, species = fullSpecies,
+    list(##annotationHubRoot = root,
+         title=title, species = fullSpecies,
          taxonomyId = taxonomyId, genome = genome, sourceUrl=sourceUrl,
          sourceFile = sourceFile, sourceVersion = sourceVersion,
          description=description, rDataPath=rDataPath)
@@ -40,13 +41,13 @@
 ## STEP 1: make function to process metadata into AHMs
 ## This function will return the AHMs and takes no args.
 ## It also must specify a recipe function.
-makeinparanoid8ToAHMs <- function(){
+makeinparanoid8ToAHMs <- function(currentMetadata){
     baseUrl <- 'http://inparanoid.sbc.su.se/download/current/Orthologs'
     ## Then make the metadata for these
     meta <- .inparanoidMetadataFromUrl(baseUrl)
     ## then make AnnotationHubMetadata objects.
     Map(AnnotationHubMetadata,
-        AnnotationHubRoot=meta$annotationHubRoot,
+        ## AnnotationHubRoot=meta$annotationHubRoot,
         Description=meta$description,
         Genome=meta$genome,
         SourceFile=meta$sourceFile, 
