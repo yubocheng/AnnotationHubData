@@ -24,9 +24,10 @@ exportClasses(AnnotationHubMetadata,
               ImportPreparer,
               dbSNPVCFImportPreparer,
               EnsemblFastaImportPreparer,
-              EnsemblGtfImportPreparer,
               EncodeImportPreparer,
               UCSCTrackImportPreparer,
+              ## 
+              EnsemblGtfImportPreparer,
               Inparanoid8ImportPreparer)
 
 export(AnnotationHubMetadata, 

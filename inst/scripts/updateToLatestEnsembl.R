@@ -19,6 +19,8 @@ resources <- AnnotationHubServer:::getExistingResources(BiocVersion)
 ## how many?
 length(resources) 
 
+ahm=resources[[1]]
+cat(ahmToJson(ahm))
 
 ###########################################################################
 ## debug(AnnotationHubData:::updateAllResources)
@@ -78,10 +80,12 @@ mdinp = AnnotationHubData:::updateAllResources(ahroot, BiocVersion,
 foo = unlist(lapply(resources, .hasInp))
 bar = unlist(lapply(resources, .hasFasta))
 
-
-
-
-
+## test for version 3.0
+.has3 <- function(ahm){
+    v = ahm@BiocVersion
+    if(any(grepl("3.0",v))){ return(TRUE)
+                         }else{ return(FALSE)}}
+threes = unlist(lapply(resources, .has3))
 
 
 
@@ -93,6 +97,8 @@ mdgtf = AnnotationHubData:::updateAllResources(ahroot, BiocVersion,
   insert = FALSE,                                  ## for 1st attempt.
   preparerClasses = "EnsemblGtfImportPreparer",
   metadataOnly=TRUE)                               ## for 1st attempt.
+
+
 save(mdgtf, file="mdgtf.rda")
 
 ## But this one doesn't work...

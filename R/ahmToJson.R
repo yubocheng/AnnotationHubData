@@ -52,7 +52,7 @@ ahmToJson <- function(ahm){
     rdatapaths <- Map(list,
                       rdatapath=lst[['rdatapath']],
                       rdataclass=lst[['rdataclass']],
-                      rdatasize=lst[['rdatasize']],
+                      rdatasize=as.integer(lst[['rdatasize']]),
                       derivedmd5=lst[['derivedmd5']],
                       rdatalastmodifieddate=lst[['rdatalastmodifieddate']]
                       )
@@ -78,7 +78,7 @@ ahmToJson <- function(ahm){
     base <- list(title=lst[['title']],
                  dataprovider=lst[['dataprovider']],
                  species=lst[['species']],
-                 taxonomyid=lst[['taxonomyid']],
+                 taxonomyid=as.integer(lst[['taxonomyid']]),
                  genome=lst[['genome']],
                  description=lst[['description']],
                  coordinate_1_based=lst[['coordinate_1_based']],
