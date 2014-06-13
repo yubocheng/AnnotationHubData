@@ -19,8 +19,42 @@ resources <- AnnotationHubServer:::getExistingResources(BiocVersion)
 ## how many?
 length(resources) 
 
+
+## Code that makes an AHM into json:
 ahm=resources[[1]]
 cat(ahmToJson(ahm))
+## Or just to get the whole thing (as transformed before)
+#load('~/proj/Rpacks/AnnotationHubData/inst/scripts/ahmsAsJson.rda')
+json = lapply(resources,ahmToJson) 
+
+
+## Dans new code for pushing JSON to the back end.
+library(httr)
+h <- handle("http://gamay:9393/new_resource")
+res2 <- lapply(json, function(x) {
+    result <- POST(handle=h, body=list(payload=x))
+    print(result)
+    result
+})
+## AND ThiS (the above), all worked fine.
+
+
+## Now I need to test on my new 'org' resources (which should not be in the 
+## metdata yet)
+## Step #1: make a recipe etc. for my org class
+## Step #2: make a replacement for updateAllResources().
+## Step #3: make a repacement for getExistingResources() (in client)
+
+## But rather than running updateAllResources() like before...  
+## I need a new function that will 1) spawn the AHM, 2) make it into json 
+## and 3) use the function above to send it off to the back end 
+## (while calling the recipe).
+## For this I will start with a fresh function in AHD.
+## Later on I need to replace the getExistingResources() function 
+## with something in the client 
+
+
+
 
 ###########################################################################
 ## debug(AnnotationHubData:::updateAllResources)

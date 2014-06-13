@@ -64,7 +64,7 @@ makeinparanoid8ToAHMs <- function(currentMetadata){
           RDataClass = "SQLiteFile",
           RDataDateAdded = Sys.time(),
           RDataVersion = "0.0.1",
-          Recipe = c("inparanoid8ToTxDbsRecipe", package="AnnotationHubData"),
+          Recipe = c("inparanoid8ToDbsRecipe", package="AnnotationHubData"),
           Tags = c("Inparanoid", "Gene", "Homology", "Annotation")))
 }
 
@@ -75,7 +75,7 @@ makeinparanoid8ToAHMs <- function(currentMetadata){
 ## REMEMBER: inputFiles will be file.path(AnnotationHubRoot,SourceFile)
 ## (from the AHM)
 ## and outputFile will be file.path(AnnotationHubRoot,RDataPath)
-inparanoid8ToTxDbsRecipe <- function(ahm){
+inparanoid8ToDbsRecipe <- function(ahm){
     require(AnnotationForge)
     ## make use of file.path to put on a trailing slash of the appropriate kind
     dbname <- makeInpDb(dir=file.path(inputFiles(ahm, useRoot=FALSE),""),
