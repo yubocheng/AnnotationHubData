@@ -23,12 +23,12 @@
                     ".inp8",
                     ".sqlite")    
     ## root <- setNames(rep(NA_character_, length(allDirs)), title)
-    genome <- setNames(rep("inparanoid8 genomes", length(allDirs)), title)
-    sourceVersion <- rep('Inparanoid version 8',length(allDirs))
-    description <- paste("Inparanoid 8 annotations about", fullSpecies)
+#     genome <- setNames(rep("NCBI genomes", length(allDirs)), title)
+    sourceVersion <- rep('NCBI gene annotations',length(allDirs))
+    description <- paste("NCBI gene ID based annotations about", fullSpecies)
     sourceUrl <- paste0(baseUrl,"/", species)
     sourceFile <- allDirs
-    rDataPath <- paste0("inparanoid8/Orthologs/",title)
+    rDataPath <- paste0("NCBI/OrganismDbs/",title)
     ## return as a list
     list(##annotationHubRoot = root,
         title=title, species = fullSpecies,
@@ -64,8 +64,8 @@ makeNCBIToAHMs <- function(currentMetadata){
             RDataClass = "SQLiteFile",
             RDataDateAdded = Sys.time(),
             RDataVersion = "0.0.1",
-            Recipe = c("inparanoid8ToTxDbsRecipe", package="AnnotationHubData"),
-            Tags = c("Inparanoid", "Gene", "Homology", "Annotation")))
+            Recipe = c("NCBIToOrgDbsRecipe", package="AnnotationHubData"),
+            Tags = c("NCBI", "Gene", "Annotation")))
 }
 
 
@@ -89,8 +89,8 @@ NCBIToOrgDbsRecipe <- function(ahm){
 
 
 ## STEP 3:  Call the helper to set up the newResources() method
-makeAnnotationHubResource("Inparanoid8ImportPreparer",
-                          makeinparanoid8ToAHMs)
+makeAnnotationHubResource("NCBIImportPreparer",
+                          makeNCBIToAHMs)
 
 
 
