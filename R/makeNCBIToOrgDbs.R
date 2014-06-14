@@ -42,7 +42,7 @@
 ## This function will return the AHMs and takes no args.
 ## It also must specify a recipe function.
 makeNCBIToAHMs <- function(currentMetadata){
-    baseUrl <- 'http://inparanoid.sbc.su.se/download/current/Orthologs'
+    baseUrl <- 'ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/'
     ## Then make the metadata for these
     meta <- .NCBIMetadataFromUrl(baseUrl)
     ## then make AnnotationHubMetadata objects.
