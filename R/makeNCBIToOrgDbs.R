@@ -4,34 +4,54 @@
 
 
 ## helper to make metadata list from the data
-.NCBIMetadataFromUrl <- function(baseUrl) {
-    ## get all the subDirs
-    subDirs <- AnnotationForge:::.getSubDirs(baseUrl)
-    subDirs <- subDirs[!(subDirs %in% c('stderr/'))]
-    species <- sub("/","",subDirs)
-    allDirs <- file.path(baseUrl, species)
-    ## We have the tax ID and the full species names in AnnotationForge already
-#     meta <- read.delim(system.file('extdata','inp8_Full_species_mapping',
-#                                    package='AnnotationForge'),
-#                        sep="\t", header=TRUE, stringsAsFactors=FALSE)
-#     matches <- match(species, meta$inparanoidSpecies)
-    fullSpecies <- meta$GenusAndSpecies[matches]
-    taxonomyId <- as.character(meta$taxID[matches])
+.NCBIMetadataFromUrl <- function(baseUrl) {    
+    ## These are the IDs (prescreened) for us to process
+    load(system.file('extdata','viableIDs.rda', package='AnnotationForge'))
+    ids <- names(results)[results]
+    
+    ## old school table of tax Ids
+    load(system.file('extdata','taxNames.rda', package='AnnotationForge'))
+    sd <- specData[!is.na(specData[[3]]),]
+
+    ## need to find offenders
+    lookup <- function(id){
+        message(paste0("looking up value for: ", id))
+        AnnotationForge:::.lookupSpeciesFromTaxId(id)
+    }
+    ## Some taxonomy IDs cannot be looked up at all - so discard
+    ids <- ids[ids %in% sd$tax_id]
+    ## This step takes a minute
+    res <- lapply(ids,lookup)
+    
+    ## get the tax_ids like so (etc.)
+    taxonomyId <- unlist(lapply(res, function(x){x$tax_id}))
+    genus <- unlist(lapply(res, function(x){x$genus}))
+    species <- unlist(lapply(res, function(x){x$species}))  
+    oriSpecies <- paste(genus, species, sep=" ")
+    fullSpecies <- gsub(" ", "_", oriSpecies)
+    fullSpecies <- gsub("/", "|", fullSpecies)
+
     ## get the name for the DB
-    title <- paste0("hom.",
-                    gsub(" ","_",fullSpecies),
-                    ".inp8",
+    title <- paste0("org.",
+                    fullSpecies,
+                    ".eg",
                     ".sqlite")    
     ## root <- setNames(rep(NA_character_, length(allDirs)), title)
-#     genome <- setNames(rep("NCBI genomes", length(allDirs)), title)
-    sourceVersion <- rep('NCBI gene annotations',length(allDirs))
+    genome <- setNames(rep("NCBI genomes", length(fullSpecies)), title)
+    dateMessage <- paste0('NCBI gene annotations as of ', as.character(date()))
+    sourceVersion <- rep(dateMessage, length(fullSpecies))
     description <- paste("NCBI gene ID based annotations about", fullSpecies)
-    sourceUrl <- paste0(baseUrl,"/", species)
-    sourceFile <- allDirs
+#     sourceUrl <- rep(baseUrl,length(fullSpecies))
+    sourceUrls <- c(baseUrl,"http://www.blast2go.de/")
+    sourceUrl <- rep(list(sourceUrls), length(fullSpecies))
+#     sourceFile <- rep("gene_info.gz",length(fullSpecies))
+    sourceFiles <- c("gene_info.gz", "gene2go.gz", "gene2accession.gz", 
+                     "gene2pubmed.gz", "gene2refseq.gz", "gene2unigene") 
+    sourceFile <- rep(list(sourceFiles), length(fullSpecies))
     rDataPath <- paste0("NCBI/OrganismDbs/",title)
     ## return as a list
     list(##annotationHubRoot = root,
-        title=title, species = fullSpecies,
+        title=title, species = oriSpecies,
         taxonomyId = taxonomyId, genome = genome, sourceUrl=sourceUrl,
         sourceFile = sourceFile, sourceVersion = sourceVersion,
         description=description, rDataPath=rDataPath)
