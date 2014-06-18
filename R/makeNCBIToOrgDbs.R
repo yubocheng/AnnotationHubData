@@ -20,11 +20,14 @@
     }
     ## Some taxonomy IDs cannot be looked up at all - so discard
     ids <- ids[ids %in% sd$tax_id]
+    
+    ## TEMP HACK to avoid a 20 minute wait
+   ## ids <- ids[1:3]
     ## This step takes a minute
     res <- lapply(ids,lookup)
     
     ## get the tax_ids like so (etc.)
-    taxonomyId <- unlist(lapply(res, function(x){x$tax_id}))
+    taxonomyId <- as.character(unlist(lapply(res, function(x){x$tax_id})))
     genus <- unlist(lapply(res, function(x){x$genus}))
     species <- unlist(lapply(res, function(x){x$species}))  
     oriSpecies <- paste(genus, species, sep=" ")
