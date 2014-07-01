@@ -20,7 +20,10 @@
     }
     ## Some taxonomy IDs cannot be looked up at all - so discard
     ids <- ids[ids %in% sd$tax_id]
-    
+    ## AND remove this one bad one that we discovered (an overly
+    ## general barley ID)
+    ids <- ids[!(ids %in% '4513')]
+
     ## TEMP HACK to avoid a 20 minute wait
    ## ids <- ids[1:3]
     ## This step takes a minute
@@ -30,9 +33,15 @@
     taxonomyId <- as.character(unlist(lapply(res, function(x){x$tax_id})))
     genus <- unlist(lapply(res, function(x){x$genus}))
     species <- unlist(lapply(res, function(x){x$species}))  
-    oriSpecies <- paste(genus, species, sep=" ")
+    ## cleanup of complex names
+    genus <- gsub(" ", "_", genus)
+    genus <- gsub("/", "|", genus)
+    species <- gsub(" ", "_", species)
+    species <- gsub("/", "|", species)
+    ## then we need the full original genus and species etc.
+    oriSpecies <- paste(genus, species, sep=" ") 
     fullSpecies <- gsub(" ", "_", oriSpecies)
-    fullSpecies <- gsub("/", "|", fullSpecies)
+    ## fullSpecies <- gsub("/", "|", fullSpecies)
 
     ## get the name for the DB
     title <- paste0("org.",
@@ -86,11 +95,10 @@ makeNCBIToAHMs <- function(currentMetadata){
             Maintainer = "Marc Carlson <mcarlson@fhcrc.org>",
             RDataClass = "SQLiteFile",
             RDataDateAdded = Sys.time(),
-            RDataVersion = "0.0.1",
+            RDataVersion = "3.0.0",
             Recipe = c("NCBIToOrgDbsRecipe", package="AnnotationHubData"),
             Tags = c("NCBI", "Gene", "Annotation")))
 }
-
 
 
 ## STEP 2: Make a recipe function that takes an AnnotationHubRecipe
@@ -101,10 +109,22 @@ makeNCBIToAHMs <- function(currentMetadata){
 NCBIToOrgDbsRecipe <- function(ahm){
     require(AnnotationForge)
     ## make use of file.path to put on a trailing slash of the appropriate kind
-    dbname <- makeInpDb(dir=file.path(inputFiles(ahm, useRoot=FALSE),""),
-                        dataDir=tempdir())
+    ## dbname <- makeInpDb(dir=file.path(inputFiles(ahm, useRoot=FALSE),""),
+    ##                     dataDir=tempdir())
+    fullSpecies <- ahm$Species
+    genus <- unlist(strsplit(fullSpecies,split=" "))[1]
+    species <- unlist(strsplit(fullSpecies,split=" "))[2]
+    dbname <- makeOrgPackageFromNCBI(tax_id=ahm$TaxonomyId,
+                                     genus=genus,
+                                     species=species,
+                                     version=ahm$RDataVersion,
+                                     author=ahm$Maintainer,
+                                     maintainerahm$Maintainer,
+                                     databaseOnly=TRUE,
+                                     outputDir=getwd(),
+                                     NCBIFilesDir=getwd())
     db <- loadDb(file=dbname)
-    saveDb(db, file=outputFile(ahm)) ## this here is the problem.
+    saveDb(db, file=outputFile(ahm))
     outputFile(ahm)
 }
 
