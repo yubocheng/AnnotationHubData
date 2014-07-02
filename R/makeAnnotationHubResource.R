@@ -2,14 +2,14 @@
 ## class and method for end users (to automate those parts of adding
 ## recipe code that are always the same.
 
-.getSrcUrl <- function(ahm){ahm@SourceUrl}
+.getSrcUrl <- function(ahm){ahm@SourceUrl[1]}
 .getSrcUrls <- function(ahms){
     res <- unlist(lapply(ahms, .getSrcUrl))
     names(res) <- NULL
     res
 }
 
-.getRDataVersion <- function(ahm){as.character(ahm@RDataVersion)}
+.getRDataVersion <- function(ahm){as.character(ahm@RDataVersion)[1]}
 .getRDataVersions <- function(ahms){
     res <- unlist(lapply(ahms, .getRDataVersion))
     names(res) <- NULL

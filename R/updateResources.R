@@ -92,10 +92,7 @@ updateResources <- function(ahroot, BiocVersion,
         } else
             preparerInstance <- do.call(new, list(preparerClass))
         ahms <- newResources(preparerInstance, listOfExistingResources)
-        ## TODO: Bug in newResources creates extra long, partially empty lists..
         allAhms <- append(allAhms, ahms)
-## TEMP hack for the null values
-        allAhms <- allAhms[!(unlist(lapply(allAhms, is.null)))]
     }
     
     ## 2 make into JSON
