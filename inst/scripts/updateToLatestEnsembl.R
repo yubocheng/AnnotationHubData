@@ -41,14 +41,17 @@ res2 <- lapply(json, function(x) {
 
 ## Now I need to test on my new 'org' resources (which should not be in the 
 ## metdata yet)
-## Step #1: make a recipe etc. for my org class
+## Step #1: make a recipe etc. for my org class - DONE (should work)
 ## Step #2: make a replacement for updateAllResources().
-## Step #3: make a repacement for getExistingResources() (in client)
+## Step #3: make a repacement for getExistingResources() (for new back
+## end and in the new client).  I may have to get this working 1st?
+
 
 ## But rather than running updateAllResources() like before...  
 ## I need a new function that will 1) spawn the AHM, 2) make it into json 
 ## and 3) use the function above to send it off to the back end 
 ## (while calling the recipe).
+
 ## For this I will start with a fresh function in AHD.
 ## Later on I need to replace the getExistingResources() function 
 ## with something in the client 

@@ -1,5 +1,7 @@
 import(jsonlite)
 
+import(httr)
+
 import(GenomicFeatures)
 
 import(futile.logger)
@@ -18,7 +20,6 @@ importFrom(rtracklayer, import)
 
 importFrom(AnnotationForge, makeInpDb)
 
-importFrom(httr, HEAD)
 
 exportClasses(AnnotationHubMetadata,
               ImportPreparer,

@@ -65,6 +65,7 @@ Collate:
     makeInparanoid8ToDbs.R
     makeNCBIToOrgDbs.R
     downloadAndUpdate.R
+    updateResources.R
     ahmToJson.R
     zzz.R
     
