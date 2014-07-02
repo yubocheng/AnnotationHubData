@@ -57,6 +57,38 @@ res2 <- lapply(json, function(x) {
 ## with something in the client 
 
 
+###############################################################################
+## Testing pushing of AHMs / recipe running to the new backend:
+
+## On gamay:
+library(AnnotationHubData)
+ahroot <- "/var/FastRWeb/web"
+## BiocVersion <- c("2.14")  ## is this right?
+BiocVersion <- c("2.12", "2.13", "2.14", "3.0")  
+## list the importPreparerClasses I might want: 
+potentialClasses <- getImportPreparerClasses()
+potentialClasses
+debug(updateResources)
+
+orgahms = updateResources(ahroot, BiocVersion,
+  preparerClasses = "NCBIImportPreparer",
+  insert = FALSE, ## for 1st attempt don't insert OR run recipes...
+  metadataOnly=TRUE)           
+
+
+orgahms = updateResources(ahroot, BiocVersion,
+  preparerClasses = "NCBIImportPreparer",
+  insert = TRUE,
+  metadataOnly=FALSE)           
+
+
+
+
+
+
+
+
+
 
 
 ###########################################################################

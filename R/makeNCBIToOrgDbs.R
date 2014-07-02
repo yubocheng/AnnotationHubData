@@ -24,8 +24,8 @@
     ## general barley ID)
     ids <- ids[!(ids %in% '4513')]
 
-    ## TEMP HACK to avoid a 20 minute wait
-   ## ids <- ids[1:3]
+## TEMP HACK to avoid a 20 minute wait
+ids <- ids[1:2]
     ## This step takes a minute
     res <- lapply(ids,lookup)
     

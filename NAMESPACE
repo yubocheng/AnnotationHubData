@@ -65,7 +65,8 @@ export(AnnotationHubMetadata,
        EncodeImportPreparer,
        EncodeBaseURL,
        tracksToUpdate,
-       ahmToJson)
+       ahmToJson,
+       updateResources)
 
 exportMethods(
     show,

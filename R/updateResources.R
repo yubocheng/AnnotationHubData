@@ -25,9 +25,11 @@
     
     if (needs.download)
     {
-        downloadResource(ahm, downloadIfExists)
-## AskDan:: What is downloadIfExists?
-## AskDan:: What is insertOnlyIfRDataExists?
+        ## downloadResource(ahm, downloadIfExists)
+        downloadResource(ahm, downloadIfExists=FALSE)
+        ## AskDan:: What is downloadIfExists?
+        ## AskDan:: What is insertOnlyIfRDataExists? - only used by
+        ## insertAHM (which we bypass)
     }
     needs.recipe <- TRUE ## FIXME
     if (needs.recipe)
@@ -58,14 +60,17 @@
 ## 3) send metadata off to the back end
 ## 4) call the recipe and push the results of that off to the right place
 
+## pre-steps: get all the existing resources. For now - just an
+## empty list, but later I want to call a version of
+## getExistingResources(), (getCurrentResources).
+## listOfExistingResources <- list()
+## listOfExistingResources <- getCurrentResources(BiocVersion)
+
 updateResources <- function(ahroot, BiocVersion,
                             preparerClasses=getImportPreparerClasses(),
+                            listOfExistingResources=list(),
+                   ## listOfExistingResources=getCurrentResources(BiocVersion),
                             insert=TRUE, metadataOnly=FALSE){
-
-    ## pre-steps: get all the existing resources (for now - just an
-    ## empty list, but later I want to call a version of
-    ## getExistingResources())
-    listofExistingResources <- list()    
     
     ## 1 spawning the AHMs is about calling the newResources method
     ## defined for them.  The newResources method takes a class that
@@ -86,12 +91,15 @@ updateResources <- function(ahroot, BiocVersion,
 
         } else
             preparerInstance <- do.call(new, list(preparerClass))
-        ahms <- newResources(preparerInstance, existingResources)
+        ahms <- newResources(preparerInstance, listOfExistingResources)
+        ## TODO: Bug in newResources creates extra long, partially empty lists..
         allAhms <- append(allAhms, ahms)
+## TEMP hack for the null values
+        allAhms <- allAhms[!(unlist(lapply(allAhms, is.null)))]
     }
     
     ## 2 make into JSON
-    jsons = lapply(allAhms,ahmToJson) 
+    jsons = lapply(allAhms,ahmToJson)
 
     ## 3 send metadata off
     if(insert==TRUE){
@@ -103,9 +111,25 @@ updateResources <- function(ahroot, BiocVersion,
         lapply(allAhms, .runRecipes)
     }
 
-## AskDan: What was metadataFilter?
+    ## AskDan: What was metadataFilter? - also not used here
     
     return(allAhms)
 }
 
+
+## I also need a getCurrentResources() function - can define it here.
+## It basically needs to use the existing AHM DB to make all the
+## records into AHMs.
+
+## The basic issue here is that this function needs to talk to the
+## 'new' version of AnnotationHub (and possibly both versions?)...
+getCurrentResources <- function(version){
+    
+}
+
+
+## Unfortunately: Martins MyHub prototype is probably missing some
+## stuff, and is also depending on the back end to create a sqlite DB
+## port for it ahead of time (which it then downloads as needed).  But
+## the current backend on gamay doesn't do that yet.
 
