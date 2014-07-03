@@ -111,15 +111,15 @@ NCBIToOrgDbsRecipe <- function(ahm){
     ## make use of file.path to put on a trailing slash of the appropriate kind
     ## dbname <- makeInpDb(dir=file.path(inputFiles(ahm, useRoot=FALSE),""),
     ##                     dataDir=tempdir())
-    fullSpecies <- ahm$Species
+    fullSpecies <- ahm@Species
     genus <- unlist(strsplit(fullSpecies,split=" "))[1]
     species <- unlist(strsplit(fullSpecies,split=" "))[2]
-    dbname <- makeOrgPackageFromNCBI(tax_id=ahm$TaxonomyId,
+    dbname <- makeOrgPackageFromNCBI(tax_id=ahm@TaxonomyId,
                                      genus=genus,
                                      species=species,
-                                     version=ahm$RDataVersion,
-                                     author=ahm$Maintainer,
-                                     maintainerahm$Maintainer,
+                                     version=as.character(ahm@RDataVersion),
+                                     author=ahm@Maintainer,
+                                     maintainer=ahm@Maintainer,
                                      databaseOnly=TRUE,
                                      outputDir=getwd(),
                                      NCBIFilesDir=getwd())

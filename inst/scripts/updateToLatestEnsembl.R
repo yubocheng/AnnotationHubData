@@ -68,7 +68,8 @@ BiocVersion <- c("2.12", "2.13", "2.14", "3.0")
 ## list the importPreparerClasses I might want: 
 potentialClasses <- getImportPreparerClasses()
 potentialClasses
-debug(updateResources)
+#debug(updateResources)
+debug(AnnotationHubData:::NCBIToOrgDbsRecipe)
 
 orgahms = updateResources(ahroot, BiocVersion,
   preparerClasses = "NCBIImportPreparer",
@@ -87,7 +88,15 @@ orgahms = updateResources(ahroot, BiocVersion,
   metadataOnly=FALSE)
 ## Some good news is that it appears to NOT do double inserts :)
 
+## So just get this one to work here and we can be done.
+orgahms = updateResources(ahroot, BiocVersion,
+  preparerClasses = "NCBIImportPreparer",
+  insert = FALSE,  ## For 3rd attempt make sure it doesn't double insert.
+  metadataOnly=FALSE)
 ## BUT: it also looks like it is NOT yet running my recipe (although I do know that this recipe works-IOW that was verified independently)
+## I *think* I just need to change some $'s to @'s...
+
+
 
 ##max record at start of testing was 12815
 ## Then 12816 and 12817 were each added...  :)
