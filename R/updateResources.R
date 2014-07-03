@@ -3,9 +3,9 @@
 
 
 .pushMetadata <- function(jsons,
-                          handle=handle("http://gamay:9393/new_resource")){
+                          h=handle("http://gamay:9393/new_resource")){
     lapply(jsons, function(x) {
-        result <- POST(handle=handle, body=list(payload=x))
+        result <- POST(handle=h, body=list(payload=x))
         print(result)
         result
     })

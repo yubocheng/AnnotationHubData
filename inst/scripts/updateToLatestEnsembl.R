@@ -75,14 +75,22 @@ orgahms = updateResources(ahroot, BiocVersion,
   insert = FALSE, ## for 1st attempt don't insert OR run recipes...
   metadataOnly=TRUE)           
 
+## This works now
+orgahms = updateResources(ahroot, BiocVersion,
+  preparerClasses = "NCBIImportPreparer",
+  insert = TRUE, ## for 2nd attempt, try to insert metadata only
+  metadataOnly=TRUE)           
 
 orgahms = updateResources(ahroot, BiocVersion,
   preparerClasses = "NCBIImportPreparer",
-  insert = TRUE,
-  metadataOnly=FALSE)           
+  insert = TRUE,  ## For 3rd attempt make sure it doesn't double insert.
+  metadataOnly=FALSE)
+## Some good news is that it appears to NOT do double inserts :)
 
+## BUT: it also looks like it is NOT yet running my recipe (although I do know that this recipe works-IOW that was verified independently)
 
-
+##max record at start of testing was 12815
+## Then 12816 and 12817 were each added...  :)
 
 
 
