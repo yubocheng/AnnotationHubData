@@ -60,7 +60,7 @@ ids <- ids[1:2]
     sourceFiles <- c("gene_info.gz", "gene2go.gz", "gene2accession.gz", 
                      "gene2pubmed.gz", "gene2refseq.gz", "gene2unigene") 
     sourceFile <- rep(list(sourceFiles), length(fullSpecies))
-    rDataPath <- paste0("NCBI/OrganismDbs/",title)
+    rDataPath <- paste0("ncbi/",title)
     ## return as a list
     list(##annotationHubRoot = root,
         title=title, species = oriSpecies,
