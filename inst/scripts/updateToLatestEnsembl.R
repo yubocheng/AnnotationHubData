@@ -93,8 +93,8 @@ orgahms = updateResources(ahroot, BiocVersion,
   preparerClasses = "NCBIImportPreparer",
   insert = FALSE,  ## For 3rd attempt make sure it doesn't double insert.
   metadataOnly=FALSE)
-## BUT: it also looks like it is NOT yet running my recipe (although I do know that this recipe works-IOW that was verified independently)
-## I *think* I just need to change some $'s to @'s...
+
+## BUT: Still one remaining issue for this is that my path to save too does not exist yet.  Need to talk with Dan about how we are going to standardize this so that it can work for other packages. (AND: how will we control what other people with other recipes in other pachages load into our DB?)
 
 
 
