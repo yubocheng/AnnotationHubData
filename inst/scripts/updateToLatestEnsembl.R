@@ -69,7 +69,8 @@ BiocVersion <- c("2.12", "2.13", "2.14", "3.0")
 potentialClasses <- getImportPreparerClasses()
 potentialClasses
 #debug(updateResources)
-debug(AnnotationHubData:::NCBIToOrgDbsRecipe)
+#debug(AnnotationHubData:::NCBIToOrgDbsRecipe)
+debug(AnnotationHubData:::.runRecipes)
 
 orgahms = updateResources(ahroot, BiocVersion,
   preparerClasses = "NCBIImportPreparer",
@@ -93,6 +94,7 @@ orgahms = updateResources(ahroot, BiocVersion,
   preparerClasses = "NCBIImportPreparer",
   insert = FALSE,  ## For 3rd attempt make sure it doesn't double insert.
   metadataOnly=FALSE)
+
 
 ## BUT: Still one remaining issue for this is that my path to save too does not exist yet.  Need to talk with Dan about how we are going to standardize this so that it can work for other packages. (AND: how will we control what other people with other recipes in other pachages load into our DB?)
 

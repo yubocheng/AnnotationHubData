@@ -16,6 +16,12 @@
     metadata(ahm)$AnnotationHubRoot <- ahroot
     needs.download <- TRUE ## FIXME
     provider <- metadata(ahm)$DataProvider
+    ## Make sure we always have a local dir for saving too (based on
+    ## contents of the outputFile(ahm)
+    if(!file.exists(dirname(outputFile(ahm)))){
+        dir.create(dirname(outputFile(ahm)), recursive=TRUE)
+    }
+    
     ## TODO: better way needed for deciding this:
     if (grepl("http://inparanoid", provider, fixed=TRUE) ||
         grepl("ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/", provider, fixed=TRUE))
@@ -129,4 +135,5 @@ getCurrentResources <- function(version){
 ## stuff, and is also depending on the back end to create a sqlite DB
 ## port for it ahead of time (which it then downloads as needed).  But
 ## the current backend on gamay doesn't do that yet.
+
 

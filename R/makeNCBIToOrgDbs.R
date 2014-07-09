@@ -41,7 +41,7 @@ ids <- ids[1:2]
     ## then we need the full original genus and species etc.
     oriSpecies <- paste(genus, species, sep=" ") 
     fullSpecies <- gsub(" ", "_", oriSpecies)
-    ## fullSpecies <- gsub("/", "|", fullSpecies)
+    ## fullSpecies <- gsub("/", "_", fullSpecies)
 
     ## get the name for the DB
     title <- paste0("org.",
