@@ -64,6 +64,9 @@ upload_to_S3 <- function(file, remotename,
     {
         thisFile <- file[i]
         thisRemoteName <- remotename[i]
+        quotes = getOption("useFancyQuotes")
+        on.exit(options(useFancyQuotes=quotes))
+        options(useFancyQuotes=FALSE)
         args <- sprintf("%s s3 cp --acl %s %s s3://%s/%s",
             profileStr, acl, dQuote(thisFile), bucket, dQuote(thisRemoteName))
         res <- system2(cmd, args)
