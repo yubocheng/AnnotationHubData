@@ -70,7 +70,7 @@ potentialClasses <- getImportPreparerClasses()
 potentialClasses
 #debug(updateResources)
 #debug(AnnotationHubData:::NCBIToOrgDbsRecipe)
-debug(AnnotationHubData:::.runRecipes)
+# debug(AnnotationHubData:::.runRecipes)
 
 orgahms = updateResources(ahroot, BiocVersion,
   preparerClasses = "NCBIImportPreparer",
@@ -89,14 +89,19 @@ orgahms = updateResources(ahroot, BiocVersion,
   metadataOnly=FALSE)
 ## Some good news is that it appears to NOT do double inserts :)
 
-## So just get this one to work here and we can be done.
+## And this works too now
 orgahms = updateResources(ahroot, BiocVersion,
   preparerClasses = "NCBIImportPreparer",
   insert = FALSE,  ## For 3rd attempt make sure it doesn't double insert.
   metadataOnly=FALSE)
 
+## And so the 'final' run will be like this:
+orgahms = updateResources(ahroot, BiocVersion,
+  preparerClasses = "NCBIImportPreparer",
+  insert = TRUE,  ## For 3rd attempt make sure it doesn't double insert.
+  metadataOnly=FALSE)
 
-## BUT: Still one remaining issue for this is that my path to save too does not exist yet.  Need to talk with Dan about how we are going to standardize this so that it can work for other packages. (AND: how will we control what other people with other recipes in other pachages load into our DB?)
+
 
 
 

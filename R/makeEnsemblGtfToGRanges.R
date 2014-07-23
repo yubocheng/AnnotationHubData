@@ -59,7 +59,7 @@ makeEnsemblGTFsToAHMs <- function(currentMetadata){
 ## object.
 ensemblGTFToGRangesRecipe <- function(ahm){
     require(rtracklayer)
-    gz.inputFile <- inputFiles(ahm)[1]
+    gz.inputFile <- inputFiles(ahm)[1] ## DOES This work as written? - yes but 'convencience' method now requires extra exposition so perhaps it is better to not even use it? or to switch to the org package (or inp package) for an example?
     con <- gzfile(gz.inputFile)
     on.exit(close(con))
     gr <- import(con, "gtf", asRangedData=FALSE)

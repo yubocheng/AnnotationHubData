@@ -1,6 +1,4 @@
-## This is an example of how this new helper method can make things
-## simpler and also provides a test case for how we can parse ensembl
-## GTF files into GRanges objects.
+## This is an example of how to add resources to the hub in three steps
 
 
 ## helper to make metadata list from the data
@@ -72,16 +70,15 @@ makeinparanoid8ToAHMs <- function(currentMetadata){
 
 ## STEP 2: Make a recipe function that takes an AnnotationHubRecipe
 ## object.
-## REMEMBER: inputFiles will be file.path(AnnotationHubRoot,SourceFile)
-## (from the AHM)
-## and outputFile will be file.path(AnnotationHubRoot,RDataPath)
 inparanoid8ToDbsRecipe <- function(ahm){
     require(AnnotationForge)
-    ## make use of file.path to put on a trailing slash of the appropriate kind
-    dbname <- makeInpDb(dir=file.path(inputFiles(ahm, useRoot=FALSE),""),
+    inputFiles <- metadata(ahm)$SourceFile
+    dbname <- makeInpDb(dir=file.path(inputFiles,""),
                         dataDir=tempdir())
     db <- loadDb(file=dbname)
-    saveDb(db, file=outputFile(ahm)) ## this here is the problem.
+    outputPath <- file.path(metadata(ahm)$AnnotationHubRoot,
+                            metadata(ahm)$RDataPath)
+    saveDb(db, file=outputPath) 
     outputFile(ahm)
 }
 
