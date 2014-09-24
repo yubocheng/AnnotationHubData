@@ -49,7 +49,8 @@ setClass("AnnotationHubMetadata",
         Species="character",
         Tags='character',
         TaxonomyId="character",
-        Title="character"
+        Title="character",
+        Location_Prefix="character"
     ),
     prototype = prototype(
         AnnotationHubRoot=NA_character_,
@@ -78,7 +79,8 @@ setClass("AnnotationHubMetadata",
         Species=NA_character_,
         Tags=NA_character_,
         TaxonomyId=NA_character_,
-        Title=NA_character_
+        Title=NA_character_,
+        Location_Prefix=NA_character_
     )        
 )
 
@@ -108,13 +110,17 @@ setClass("AnnotationHubMetadata",
     as.character(speciesMap$taxon[idx])
 }
 
+## alternative prefix (so far)
+## http://hgdownload.cse.ucsc.edu/
+
 AnnotationHubMetadata <-
     function(AnnotationHubRoot, SourceFile, SourceUrl, SourceVersion,
         SourceMd5, SourceSize, DataProvider, Title, Description,
         Species, TaxonomyId, Genome, Tags, Recipe, RecipeArgs =
         list(), RDataClass, RDataVersion, RDataDateAdded, RDataPath, Maintainer,
         ..., BiocVersion=biocVersion(), Coordinate_1_based = TRUE,
-        Notes=NA_character_)
+        Notes=NA_character_,
+        Location_Prefix='http://s3.amazonaws.com/annotationhub/')
 {
     if (missing(SourceMd5))
         SourceMd5 <- unname(tools::md5sum(SourceFile))
@@ -127,6 +133,7 @@ AnnotationHubMetadata <-
         else
             TaxonomyId <- NA_character_
     }
+    ## This is probably too aggressive since some resources will not have this?
     if (missing(RDataPath)) {
         resourceDir <- dirname(SourceFile[1])
         resourceFiles <- .derivedFileName(SourceFile,  RDataVersion, "RData")
@@ -164,6 +171,7 @@ AnnotationHubMetadata <-
         Tags=Tags,
         TaxonomyId=TaxonomyId,
         Title=Title,
+        Location_Prefix=Location_Prefix,
         ...
     )
 }
