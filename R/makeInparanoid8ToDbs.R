@@ -14,7 +14,7 @@
                        sep="\t", header=TRUE, stringsAsFactors=FALSE)
     matches <- match(species, meta$inparanoidSpecies)
     fullSpecies <- meta$GenusAndSpecies[matches]
-    taxonomyId <- as.character(meta$taxID[matches])
+    taxonomyId <- as.integer(as.character(meta$taxID[matches]))
     ## get the name for the DB
     title <- paste0("hom.",
                      gsub(" ","_",fullSpecies),

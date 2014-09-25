@@ -48,7 +48,7 @@ setClass("AnnotationHubMetadata",
         SourceVersion="character",
         Species="character",
         Tags='character',
-        TaxonomyId="character",
+        TaxonomyId="integer", 
         Title="character",
         Location_Prefix="character"
     ),
@@ -78,7 +78,7 @@ setClass("AnnotationHubMetadata",
         SourceVersion=NA_character_,
         Species=NA_character_,
         Tags=NA_character_,
-        TaxonomyId=NA_character_,
+        TaxonomyId=NA_integer_,
         Title=NA_character_,
         Location_Prefix=NA_character_
     )        

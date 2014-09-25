@@ -30,7 +30,7 @@
     res <- lapply(ids,lookup)
     
     ## get the tax_ids like so (etc.)
-    taxonomyId <- as.character(unlist(lapply(res, function(x){x$tax_id})))
+    taxonomyId <- as.integer(as.character(unlist(lapply(res, function(x){x$tax_id}))))
     genus <- unlist(lapply(res, function(x){x$genus}))
     species <- unlist(lapply(res, function(x){x$species}))  
     ## cleanup of complex names
