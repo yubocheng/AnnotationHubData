@@ -25,3 +25,21 @@
     urls <- sprintf("%s/%s/liftOver", .chainBase, genomes)
     do.call(rbind, lapply(urls, .get1ChainResource, verbose=verbose))
 }
+
+.parseFileName <- function(table)
+{
+    FileNames <- sapply(table[,1], function(x) 
+        unlist(strsplit(basename(x),".over.chain.gz")))
+    FromToNames <- lapply(FileNames, function(x){
+        fromto <- unlist(strsplit(x,"To"))
+        from <- fromto[1]
+        to <- fromto[2]
+        to <- paste0(tolower(substring(to,1,1)), substring(to,2,nchar(to)))
+        c(from, to)
+    })
+    names(FileNames) <- NULL
+    names(FromToNames) <- NULL
+    df <- cbind(FileNames, t(as.data.frame(FromToNames)))
+    row.names(df) <- NULL
+    df
+}
