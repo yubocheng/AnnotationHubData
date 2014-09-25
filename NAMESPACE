@@ -27,6 +27,7 @@ exportClasses(AnnotationHubMetadata,
               EnsemblFastaImportPreparer,
               EncodeImportPreparer,
               UCSCTrackImportPreparer,
+              UCSCChainPreparer,
               ## 
               EnsemblGtfImportPreparer,
               Inparanoid8ImportPreparer,

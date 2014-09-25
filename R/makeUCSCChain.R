@@ -1,3 +1,5 @@
+.ucscChainBase <- "http://hgdownload.cse.ucsc.edu/"
+
 .get1ChainResource <- function(url, verbose=FALSE) {
     require(XML)
     tryCatch({
@@ -20,26 +22,54 @@
 .getUCSCChainResources <-
     function(verbose=FALSE)
 {
-    .chainBase <- "http://hgdownload.cse.ucsc.edu/goldenPath"
+    .chainBase <- sprintf("%sgoldenPath", .ucscChainBase)
     genomes <- rtracklayer::ucscGenomes()$db
     urls <- sprintf("%s/%s/liftOver", .chainBase, genomes)
-    do.call(rbind, lapply(urls, .get1ChainResource, verbose=verbose))
+    rsrc <- do.call(rbind, lapply(urls, .get1ChainResource, verbose=verbose))
+    rownames(rsrc) <- basename(rsrc$url)
+    rsrc
 }
 
 .parseFileName <- function(table)
 {
-    FileNames <- sapply(table[,1], function(x) 
-        unlist(strsplit(basename(x),".over.chain.gz")))
-    FromToNames <- lapply(FileNames, function(x){
-        fromto <- unlist(strsplit(x,"To"))
-        from <- fromto[1]
-        to <- fromto[2]
-        to <- paste0(tolower(substring(to,1,1)), substring(to,2,nchar(to)))
-        c(from, to)
-    })
-    names(FileNames) <- NULL
-    names(FromToNames) <- NULL
-    df <- cbind(FileNames, t(as.data.frame(FromToNames)))
-    row.names(df) <- NULL
-    df
+    table$from <-
+        sub("^([a-z][[:alnum:]]+)To.*.over.chain.gz", "\\1",
+            rownames(table))
+    to <- sub(".*To([A-Z][[:alnum:]]+)\\.over.chain.gz", "\\1", rownames(table))
+    table$to <- sub("^([A-Z])", "\\L\\1", to, perl=TRUE)
+    table
 }
+
+makeUCSCChain <- function(currentMetadata) {
+    rsrc <- .getUCSCChainResources()
+    rsrc <- .parseFileName(rsrc)
+
+    description <- sprintf("UCSC liftOver chain file from %s to %s",
+                           rsrc$from, rsrc$to)
+    genome <- rsrc$from
+    sourceFile <- rownames(rsrc)
+    sourceUrls <- sub(.ucscChainBase, "", rsrc$url)
+    sourceVersion <- rsrc$version
+    species <- NA_character_            # FIXME
+    taxonomyId <- NA_integer_           # FIXME
+    title <- rownames(rsrc)
+
+    Map(AnnotationHubMetadata,
+        Description=description, Genome=genome,
+        SourceFile=sourceFile, SourceUrl=sourceUrls,
+        SourceVersion=sourceVersion, Species=species,
+        TaxonomyId=taxonomyId, Title=title,
+        MoreArgs=list(
+          Coordinate_1_based = FALSE,
+          DataProvider = "hgdownload.cse.ucsc.edu",
+          Location_Prefix = .ucscChainBase,
+          Maintainer = "Sonali Arora <sarora@fhcrc.org>",
+          RDataClass = "ChainFileResource",
+          RDataDateAdded = Sys.time(),
+          RDataVersion = "0.0.1",
+          RDataPath = NA_character_,
+          Recipe = NA_character_,
+          Tags = c("liftOver", "chain", "UCSC", "genome", "homology")))
+}
+
+makeAnnotationHubResource("UCSCChainPreparer", makeUCSCChain)
