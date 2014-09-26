@@ -44,7 +44,7 @@
 {
     ga <- genomeAssemblies()
     idx <- match(rsrc$from, ga$UCSC_assembly_ID)
-    rsrc$taxid <- as.character(ga[idx, "Taxon_ID"])
+    rsrc$taxid <- ga[idx, "Taxon_ID"]
     rsrc$species <- ga[idx, "Scientific_Name"]
     rsrc
 }
