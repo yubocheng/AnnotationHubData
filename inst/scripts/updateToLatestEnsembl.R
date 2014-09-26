@@ -57,7 +57,23 @@ res2 <- lapply(json, function(x) {
 ## with something in the client 
 
 
-###############################################################################
+
+################################################################################
+## Testing for chainFiles. On gamay:
+library(AnnotationHubData)
+ahroot <- "/var/FastRWeb/web"
+BiocVersion <- c("3.0")  
+## list the importPreparerClasses I might want: 
+potentialClasses <- getImportPreparerClasses()
+potentialClasses
+## for 1st attempt don't insert OR run recipes...
+chainahms = updateResources(ahroot, BiocVersion,
+  preparerClasses = "UCSCChainPreparer",
+  insert = FALSE, metadataOnly=TRUE)           
+
+
+
+################################################################################
 ## Testing pushing of AHMs / recipe running to the new backend:
 
 ## On gamay:
