@@ -44,6 +44,8 @@
 {
     ga <- genomeAssemblies()
     idx <- match(rsrc$from, ga$UCSC_assembly_ID)
+    if (anyNA(idx))
+        stop(sum(is.na(idx)), " unknown UCSC assembly identifiers")
     rsrc$taxid <- ga[idx, "Taxon_ID"]
     rsrc$species <- ga[idx, "Scientific_Name"]
     rsrc
