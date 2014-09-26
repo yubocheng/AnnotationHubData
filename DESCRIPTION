@@ -2,7 +2,12 @@ Package: AnnotationHubData
 Type: Package
 Title: Transform public data resources into Bioconductor Data Structures
 Version: 0.0.92
-Author: Paul Shannon<pshannon@fhcrc.org>
+Authors@R:
+    c(person("Martin", "Morgan", role="ctb"),
+      person("Marc", "Carlson", role="ctb"),
+      person("Dan", "Tenenbaum", role="ctb"),
+      person("Sonali", "Arora", role="ctb"),
+      person("Paul", "Shannon", email="pshannon@fhcrc.org", role="cre"))
 Maintainer: Bioconductor Package Maintainer <maintainer@bioconductor.org>
 Depends:
     R (>= 2.15.0),
