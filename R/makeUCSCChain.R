@@ -43,14 +43,10 @@
 .getTaxGenome <- function(rsrc)
 {
     ga <- genomeAssemblies()
-    taxid <- apply(rsrc, 1, function(x){
-       i <- ga[which(ga$UCSC_assembly_ID==x["from"]),"Taxon_ID"]
-        paste(i, collapse=", ")
-    } )
-    species <- apply(rsrc, 1, function(x)
-        unique(ga[which(ga$UCSC_assembly_ID==x["from"]),"Scientific_Name"]))
-    cbind(rsrc, taxid=taxid, species=species)
-
+    idx <- match(rsrc$from, ga$UCSC_assembly_ID)
+    rsrc$taxid <- as.character(ga[idx, "Taxon_ID"])
+    rsrc$species <- ga[idx, "Scientific_Name"]
+    rsrc
 }
 
 makeUCSCChain <- function(currentMetadata) {
