@@ -40,18 +40,32 @@
     table
 }
 
+.getTaxGenome <- function(rsrc)
+{
+    ga <- genomeAssemblies()
+    taxid <- apply(rsrc, 1, function(x){
+       i <- ga[which(ga$UCSC_assembly_ID==x["from"]),"Taxon_ID"]
+        paste(i, collapse=", ")
+    } )
+    species <- apply(rsrc, 1, function(x)
+        unique(ga[which(ga$UCSC_assembly_ID==x["from"]),"Scientific_Name"]))
+    cbind(rsrc, taxid=taxid, species=species)
+
+}
+
 makeUCSCChain <- function(currentMetadata) {
     rsrc <- .getUCSCChainResources()
     rsrc <- .parseFileName(rsrc)
-
+    rsrc <- .getTaxGenome(rsrc)
+    
     description <- sprintf("UCSC liftOver chain file from %s to %s",
                            rsrc$from, rsrc$to)
     genome <- rsrc$from
     sourceFile <- rownames(rsrc)
     sourceUrls <- sub(.ucscChainBase, "", rsrc$url)
     sourceVersion <- rsrc$version
-    species <- NA_character_            # FIXME
-    taxonomyId <- NA_integer_           # FIXME
+    species <- rsrc$species            
+    taxonomyId <- rsrc$taxid           
     title <- rownames(rsrc)
 
     Map(AnnotationHubMetadata,

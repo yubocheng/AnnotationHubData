@@ -20,6 +20,7 @@ importFrom(rtracklayer, import)
 
 importFrom(AnnotationForge, makeInpDb)
 
+importFrom(GenomeInfoDb, genomeAssemblies)
 
 exportClasses(AnnotationHubMetadata,
               ImportPreparer,
