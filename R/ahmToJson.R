@@ -13,6 +13,8 @@
 
 ## helper to do cleanup and make sure things are present:
 cleanupLst <- function(lst){
+    if(is.na(lst[["recipe"]])){ return(lst) }
+    
     if(length(lst[["recipe"]])==1){
         lst[["recipe"]][[2]] <- "AnnotationHubData"
     }
@@ -87,7 +89,8 @@ ahmToJson <- function(ahm){
                  rdatadateadded=lst[['rdatadateadded']],
                  location_prefix="http://s3.amazonaws.com/annotationhub/",
                  recipe=lst[['recipe']][1],
-                 recipe_package=lst[['recipe']][[2]],
+                 recipe_package=ifelse(!is.na(lst[["recipe"]]),
+                   lst[['recipe']][2], lst[['recipe']][1] ),
                  rdatapaths=rdatapaths,                 
                  input_sources=input_sources,
                  tags=lst[['tags']],

@@ -58,6 +58,12 @@ res2 <- lapply(json, function(x) {
 
 
 
+
+
+
+
+
+
 ################################################################################
 ## Testing for chainFiles. On gamay:
 library(AnnotationHubData)
@@ -67,9 +73,16 @@ BiocVersion <- c("3.0")
 potentialClasses <- getImportPreparerClasses()
 potentialClasses
 ## for 1st attempt don't insert OR run recipes...
+
 chainahms = updateResources(ahroot, BiocVersion,
   preparerClasses = "UCSCChainPreparer",
   insert = FALSE, metadataOnly=TRUE)           
+
+## debug(AnnotationHubData:::cleanupLst)
+## debug(ahmToJson)
+
+
+
 
 
 
