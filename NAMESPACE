@@ -16,7 +16,7 @@ importFrom(Rsamtools, indexFa)
 
 importFrom(VariantAnnotation, readVcf)
 
-importFrom(rtracklayer, import)
+importFrom(rtracklayer, import, ucscGenomes)
 
 importFrom(AnnotationForge, makeInpDb)
 

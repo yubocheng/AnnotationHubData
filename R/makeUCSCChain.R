@@ -40,14 +40,54 @@
     table
 }
 
+.organismToTaxid <- function(organism=character())
+{
+    ## query NCBI for taxonomy ID
+    .eutils <- "http://eutils.ncbi.nlm.nih.gov/entrez/eutils"
+    
+    ## 1. ids
+    uorganism <- unique(organism[!is.na(organism)])
+    query <- paste(uorganism, collapse=" OR ")
+    url <- sprintf("%s/esearch.fcgi?db=taxonomy&term=%s&retmax=%d",
+                   .eutils, query, length(uorganism))
+    xml <- XML::xmlParse(url)
+    
+    ## 2. records
+    id <- as.character(sapply(xml["//Id/text()"], XML::xmlValue))
+    scin <- taxid <- character()
+    if (length(id)) {
+        query2 <- paste(id, collapse=",")
+        url <- sprintf("%s/efetch.fcgi?db=taxonomy&id=%s&retmax=%d",
+                       .eutils, query2, length(uorganism))
+        xml <- XML::xmlParse(url)
+        scin <- sapply(xml["/TaxaSet/Taxon/ScientificName"], XML::xmlValue)
+        taxid <- sapply(xml["/TaxaSet/Taxon/TaxId/text()"], XML::xmlValue)
+    }
+    
+    ## there are 3 special cases:
+    #a) query ="Pongo pygmaeus abelii", scin="Pongo abelii", taxid="9601"
+    #b) query ="Xenopus tropicalis", scin="Xenopus (Silurana) tropicalis", taxid="8364"
+    #c) query ="Spermophilus tridecemlineatus", scin="Ictidomys tridecemlineatus", taxid="43179"
+    
+    tax_ind <- match(c("9601","8364","43179"), taxid)
+    scin_ind <- match(c("Pongo abelii","Xenopus (Silurana) tropicalis",
+             "Ictidomys tridecemlineatus"), scin)
+    if(identical(tax_ind, scin_ind))
+        scin[scin_ind] <- c("Pongo pygmaeus abelii","Xenopus tropicalis",
+                            "Spermophilus tridecemlineatus")
+    
+    ## 3. Results
+    as.integer(taxid)[match(organism, scin)]
+}
+
 .getTaxGenome <- function(rsrc)
 {
-    ga <- genomeAssemblies()
-    idx <- match(rsrc$from, ga$UCSC_assembly_ID)
-    if (anyNA(idx))
-        stop(sum(is.na(idx)), " unknown UCSC assembly identifiers")
-    rsrc$taxid <- ga[idx, "Taxon_ID"]
-    rsrc$species <- ga[idx, "Scientific_Name"]
+    ga <- rtracklayer::ucscGenomes()
+    idx <- match(rsrc$from, ga$db)
+    rsrc$organism <- as.character(ga[idx, "organism"])
+    rsrc$organism[which(is.na(rsrc$organism))] <- NA_character_
+    rsrc$taxid <- .organismToTaxid(rsrc$organism)
+    rsrc$taxid[which(is.na(rsrc$taxid))]<- NA_character_
     rsrc
 }
 
@@ -62,7 +102,7 @@ makeUCSCChain <- function(currentMetadata) {
     sourceFile <- rownames(rsrc)
     sourceUrls <- sub(.ucscChainBase, "", rsrc$url)
     sourceVersion <- rsrc$version
-    species <- rsrc$species            
+    species <- rsrc$organism            
     taxonomyId <- rsrc$taxid           
     title <- rownames(rsrc)
 
