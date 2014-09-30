@@ -99,7 +99,6 @@ ahmToJson <- function(ahm){
                  input_sources=input_sources,
                  tags=lst[['tags']],
                  biocversions=lst[['biocversion']],
-                 location_prefix=lst[['location_prefix']]
                  )
     
     ## then make JSON
