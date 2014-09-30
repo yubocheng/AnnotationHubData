@@ -87,7 +87,11 @@ ahmToJson <- function(ahm){
                  maintainer=lst[['maintainer']],
                  rdataversion=lst[['rdataversion']],
                  rdatadateadded=lst[['rdatadateadded']],
-                 location_prefix="http://s3.amazonaws.com/annotationhub/",
+                 ## FIXME - Old AHMs may not have Location_Prefix filled in!
+                 ## It should be http://s3.amazonaws.com/annotationhub/
+                 ## by default, for chain files it should be:
+                 ## http://hgdownload.cse.ucsc.edu/
+                 location_prefix=lst[['location_prefix']],
                  recipe=lst[['recipe']][1],
                  recipe_package=ifelse(!is.na(lst[["recipe"]]),
                    lst[['recipe']][2], lst[['recipe']][1] ),
