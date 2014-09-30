@@ -116,7 +116,7 @@ makeUCSCChain <- function(currentMetadata) {
           DataProvider = "hgdownload.cse.ucsc.edu",
           Location_Prefix = .ucscChainBase,
           Maintainer = "Sonali Arora <sarora@fhcrc.org>",
-          RDataClass = "ChainFileResource",
+          RDataClass = "ChainFile",
           RDataDateAdded = Sys.time(),
           RDataVersion = "0.0.1",
           RDataPath = NA_character_,
