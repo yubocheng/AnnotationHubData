@@ -4,7 +4,7 @@
 
 .pushMetadata <- function(jsons,
                           h=handle(getOption("AH_SERVER_POST_URL", 
-                            "http://gamay:9393/resource")_){
+                            "http://gamay:9393/resource")){
     lapply(jsons, function(x) {
         result <- POST(handle=h, body=list(payload=x))
         print(result)
