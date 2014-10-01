@@ -20,8 +20,6 @@ importFrom(rtracklayer, import, ucscGenomes)
 
 importFrom(AnnotationForge, makeInpDb)
 
-importFrom(GenomeInfoDb, genomeAssemblies)
-
 exportClasses(AnnotationHubMetadata,
               ImportPreparer,
               dbSNPVCFImportPreparer,

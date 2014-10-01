@@ -1,5 +1,16 @@
 .ucscChainBase <- "http://hgdownload.cse.ucsc.edu/"
 
+.fileSize <- function(s){
+    s1 <- character(0)
+    if(s=="")
+        return(NA_character_)
+    
+    let <- gsub("[0-9]", "",s)
+    no <- gsub("[:A-Z:]", "",s)
+    s1 <- ifelse(let=="M", as.numeric(no)*1000000, as.numeric(no)*1000)
+    s1
+}  
+
 .get1ChainResource <- function(url, verbose=FALSE) {
     require(XML)
     tryCatch({
@@ -7,41 +18,31 @@
             message(basename(dirname(url)))
         html <- htmlParse(url)
         fls <- sapply(html["//pre[2]/a/text()"], xmlValue)
+        
+        ## extract the file name
         url <- sprintf("%s/%s", url, fls)
         keep <- grepl("chain.gz", fls)
+        
+        ## extract the date time stamp of file.  
         stamps <- sapply(html["//pre[2]/text()"], xmlValue)
         regex <- " *([[:alnum:]-]+) *([:[:alnum:]]+)*.*"
         version <- sub(regex, "\\1_\\2", stamps)
-        data.frame(url, version, stringsAsFactors=FALSE)[keep,,drop=FALSE]
+        
+        ## extract the file size
+        regex2 <- " *([[:alnum:]-]+) *([:[:alnum:]]+)"
+        size <- gsub(" ","",gsub("\\n","",sub(regex2, "", stamps)), fixed=TRUE)
+        size  <- gsub("-","", size)
+        newSize <- sapply(size, .fileSize)
+        
+        data.frame(url, version, size, newSize, 
+                   stringsAsFactors=FALSE)[keep,,drop=FALSE]
     }, error=function(err) {
         warning(basename(dirname(url)), ": ", conditionMessage(err))
         data.frame(url=character(), version=character(), stringsAsFactors=FALSE)
     })
 }
 
-.getUCSCChainResources <-
-    function(verbose=FALSE)
-{
-    .chainBase <- sprintf("%sgoldenPath", .ucscChainBase)
-    genomes <- rtracklayer::ucscGenomes()$db
-    urls <- sprintf("%s/%s/liftOver", .chainBase, genomes)
-    rsrc <- do.call(rbind, lapply(urls, .get1ChainResource, verbose=verbose))
-    rownames(rsrc) <- basename(rsrc$url)
-    rsrc
-}
-
-.parseFileName <- function(table)
-{
-    table$from <-
-        sub("^([a-z][[:alnum:]]+)To.*.over.chain.gz", "\\1",
-            rownames(table))
-    to <- sub(".*To([A-Z][[:alnum:]]+)\\.over.chain.gz", "\\1", rownames(table))
-    table$to <- sub("^([A-Z])", "\\L\\1", to, perl=TRUE)
-    table
-}
-
-.organismToTaxid <- function(organism=character())
-{
+.organismToTaxid <- function(organism=character()) {
     ## query NCBI for taxonomy ID
     .eutils <- "http://eutils.ncbi.nlm.nih.gov/entrez/eutils"
     
@@ -71,7 +72,7 @@
     
     tax_ind <- match(c("9601","8364","43179"), taxid)
     scin_ind <- match(c("Pongo abelii","Xenopus (Silurana) tropicalis",
-             "Ictidomys tridecemlineatus"), scin)
+                        "Ictidomys tridecemlineatus"), scin)
     if(identical(tax_ind, scin_ind))
         scin[scin_ind] <- c("Pongo pygmaeus abelii","Xenopus tropicalis",
                             "Spermophilus tridecemlineatus")
@@ -80,12 +81,28 @@
     as.integer(taxid)[match(organism, scin)]
 }
 
-.getTaxGenome <- function(rsrc)
-{
-    ga <- rtracklayer::ucscGenomes()
-    idx <- match(rsrc$from, ga$db)
-    rsrc$organism <- as.character(ga[idx, "organism"])
+
+.getUCSCChainResources <- function(verbose=FALSE) {
+    .chainBase <- sprintf("%sgoldenPath", .ucscChainBase)
+    genome_tbl <- rtracklayer::ucscGenomes(organism=TRUE)
+    genomes <- genome_tbl$db
+    urls <- sprintf("%s/%s/liftOver", .chainBase, genomes)
+    rsrc <- do.call(rbind, lapply(urls, .get1ChainResource, verbose=verbose))
+    rownames(rsrc) <- basename(rsrc$url)
+    
+    # parse the filename
+    rsrc$from <-
+        sub("^([a-z][[:alnum:]]+)To.*.over.chain.gz", "\\1",
+            rownames(rsrc))
+    to <- sub(".*To([A-Z][[:alnum:]]+)\\.over.chain.gz", "\\1", rownames(rsrc))
+    rsrc$to <- sub("^([A-Z])", "\\L\\1", to, perl=TRUE)
+    
+    ## add the organism 
+    idx <- match(rsrc$from, genome_tbl$db)
+    rsrc$organism <- as.character(genome_tbl[idx, "organism"])
     rsrc$organism[which(is.na(rsrc$organism))] <- NA_character_
+    
+    ## add the taxonmy Id. 
     rsrc$taxid <- .organismToTaxid(rsrc$organism)
     rsrc$taxid[which(is.na(rsrc$taxid))]<- NA_character_
     rsrc
@@ -93,9 +110,7 @@
 
 makeUCSCChain <- function(currentMetadata) {
     rsrc <- .getUCSCChainResources()
-    rsrc <- .parseFileName(rsrc)
-    rsrc <- .getTaxGenome(rsrc)
-    
+
     description <- sprintf("UCSC liftOver chain file from %s to %s",
                            rsrc$from, rsrc$to)
     genome <- rsrc$from
@@ -105,10 +120,15 @@ makeUCSCChain <- function(currentMetadata) {
     species <- rsrc$organism            
     taxonomyId <- rsrc$taxid           
     title <- rownames(rsrc)
+    SourceLastModifiedDate <- rsrc$version
+    SourceSize <- rsrc$newSize
+    
 
     Map(AnnotationHubMetadata,
         Description=description, Genome=genome,
         SourceFile=sourceFile, SourceUrl=sourceUrls,
+        SourceLastModifiedDate = SourceLastModifiedDate,
+        SourceSize = SourceSize,
         RDataPath=sourceFile,
         SourceVersion=sourceVersion, Species=species,
         TaxonomyId=taxonomyId, Title=title,
