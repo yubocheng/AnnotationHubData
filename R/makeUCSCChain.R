@@ -109,6 +109,7 @@ makeUCSCChain <- function(currentMetadata) {
     Map(AnnotationHubMetadata,
         Description=description, Genome=genome,
         SourceFile=sourceFile, SourceUrl=sourceUrls,
+        RDataPath=sourceFile,
         SourceVersion=sourceVersion, Species=species,
         TaxonomyId=taxonomyId, Title=title,
         MoreArgs=list(
@@ -119,7 +120,6 @@ makeUCSCChain <- function(currentMetadata) {
           RDataClass = "ChainFile",
           RDataDateAdded = Sys.time(),
           RDataVersion = "0.0.1",
-          RDataPath = NA_character_,
           Recipe = NA_character_,
           Tags = c("liftOver", "chain", "UCSC", "genome", "homology")))
 }
