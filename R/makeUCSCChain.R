@@ -118,10 +118,10 @@ makeUCSCChain <- function(currentMetadata) {
     sourceUrls <- sub(.ucscChainBase, "", rsrc$url)
     sourceVersion <- rsrc$version
     species <- rsrc$organism            
-    taxonomyId <- rsrc$taxid           
+    taxonomyId <- as.integer(rsrc$taxid)           
     title <- rownames(rsrc)
-    SourceLastModifiedDate <- rsrc$version
-    SourceSize <- rsrc$newSize
+    SourceLastModifiedDate <- as.POSIXct(rsrc$version) ## problem to resolve.
+    SourceSize <- as.numeric(rsrc$newSize)
     
 
     Map(AnnotationHubMetadata,
