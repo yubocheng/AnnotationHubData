@@ -27,7 +27,6 @@
         stamps <- sapply(html["//pre[2]/text()"], xmlValue)
         regex <- " *([[:alnum:]-]+) *([:[:alnum:]]+)*.*"
         version <- sub(regex, "\\1_\\2", stamps)
-        version <- as.POSIXct(strptime(version, "%d-%b-%Y_%H:%M"))
         
         ## extract the file size
         regex2 <- " *([[:alnum:]-]+) *([:[:alnum:]]+)"
@@ -121,7 +120,9 @@ makeUCSCChain <- function(currentMetadata) {
     species <- rsrc$organism            
     taxonomyId <- as.integer(rsrc$taxid)           
     title <- rownames(rsrc)
-    SourceLastModifiedDate <- rsrc$version
+    SourceLastModifiedDate <- as.POSIXct(strptime(rsrc$version,
+                                                  "%d-%b-%Y_%H:%M"))
+
     SourceSize <- as.numeric(rsrc$newSize)
     
 
