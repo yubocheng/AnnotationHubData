@@ -82,6 +82,9 @@ chainahms = updateResources(ahroot, BiocVersion,
 ## debug(ahmToJson)
 
 
+chainahms = updateResources(ahroot, BiocVersion,
+  preparerClasses = "UCSCChainPreparer",
+  insert = TRUE, metadataOnly=TRUE)           
 
 
 
@@ -571,3 +574,8 @@ save(mdhaem, file="mdhaem.rda")
 
 
 
+######################################################################
+## To spawn up the sqlite file from the mySQL one:
+## there is a chron job that does this for production
+## but for gamay you have to run it manually.  You can check out the
+## script that does it from github and then run it.
