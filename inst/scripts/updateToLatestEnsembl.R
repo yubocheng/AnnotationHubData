@@ -579,3 +579,16 @@ save(mdhaem, file="mdhaem.rda")
 ## there is a chron job that does this for production
 ## but for gamay you have to run it manually.  You can check out the
 ## script that does it from github and then run it.
+
+
+
+#############################################################
+## Instructions for connecting to the back end DB directly:
+## on gamay just connect to the DB like this:
+## mysql -p -u ahuser annotationhub
+## tickytacky
+##
+## And for production just log in FIRST
+## ssh ubuntu@annotationhub.bioconductor.org # it has your key
+## And proceed as above.
+
