@@ -568,10 +568,27 @@ save(mdhaem, file="mdhaem.rda")
 ## ~/s3sync/s3sync.rb -n -p -r --verbose --progress /var/FastRWeb/web/ annotationhub:
 
 ## and run it from anywhere.
-
 ## Dan
 
+######################
+## To copy things up to the S3 buckets: 
+## You can see help like this
+## aws s3 help
 
+## You can get copying help like this
+## aws s3 cp help
+
+## And you can copy something to be read only using the --acl argument like this:
+## aws s3 cp --acl public-read hello.txt s3://annotationhub/foo/bar/hello.txt
+
+## To sign in at the AWS console go here: (use your username and password)
+## https://bioconductor.signin.aws.amazon.com/console
+## then click 'S3'
+
+## https://console.aws.amazon.com/s3/home?region=us-west-2
+
+## And to recursively copy back down from the S3 bucket do like this:
+## aws s3 cp --dryrun --recursive s3://annotationhub/ensembl/release-75/fasta/ .
 
 
 ######################################################################
