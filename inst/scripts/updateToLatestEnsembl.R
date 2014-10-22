@@ -584,11 +584,21 @@ save(mdhaem, file="mdhaem.rda")
 ## To sign in at the AWS console go here: (use your username and password)
 ## https://bioconductor.signin.aws.amazon.com/console
 ## then click 'S3'
+## (account is bioconductor)
 
 ## https://console.aws.amazon.com/s3/home?region=us-west-2
 
 ## And to recursively copy back down from the S3 bucket do like this:
 ## aws s3 cp --dryrun --recursive s3://annotationhub/ensembl/release-75/fasta/ .
+
+## And then to copy back up you can do this:
+## aws s3 cp --dryrun --recursive --acl public-read ./fasta/ s3://annotationhub/ensembl/release-75/fasta/
+
+## And actually to copy back I should have uses 'aws s3 sync' instead of
+## 'aws s3 cp'...
+
+
+## uncovered a problem when making the .fai files (with macaca mulata dna sm sample)
 
 
 ######################################################################
