@@ -1,30 +1,20 @@
 <!--
-%\VignetteEngine{knitr::knitr}
-%\VignetteIndexEntry{Annotation}
+% \VignetteIndexEntry{The AnnotationHubData Package}
+% \VignetteDepends{AnnotationHubData}
+% \VignetteEngine{knitr::knitr}
 -->
 
-```{r setup, echo=FALSE}
-library(knitr)
-options(width=80)
+```{r style, echo = FALSE, results = 'asis'}
+BiocStyle::markdown()
 ```
-```{r wrap-hook, echo=FALSE}
-hook_output = knit_hooks$get('output')
-knit_hooks$set(output = function(x, options) {
-  # this hook is used only when the linewidth option is not NULL
-  if (!is.null(n <- options$linewidth)) {
-    x = knitr:::split_lines(x)
-    # any lines wider than n should be wrapped
-    if (any(nchar(x) > n)) x = strwrap(x, width = n)
-    x = paste(x, collapse = '\n')
-  }
-  hook_output(x, options)
-})
-```
-
 
 # The AnnotationHubData Package
 
-### by Paul Shannon and Marc Carlson
+**Package**: `r Biocpkg("AnnotationHubData")`<br />
+**Authors**: `r packageDescription("AnnotationHubData")[["Author"]] `<br />
+**Modified**: 11 October, 2014<br />
+**Compiled**: `r date()`
+
 
 ## Overview
 
@@ -58,9 +48,17 @@ implementation.  But the 'parent' database is the MySQL db (the sqlite
 ones are just cached copies of that).
 
 Normally when we work with this database we will 1st do testing on a
-local instance on gamay and then update the production machine later.
+local instance on "MachinName"" and then update the production machine later.
 
-To log in to the database on gamay use this (you will need the password):
+To actually push data to this local database you need to set an option in your .Rprofile for where the json should be posted to.  That should look like this:
+
+```{r}
+options("AH_SERVER_POST_URL"="http://<MachinName>:9393/resource")
+```
+
+
+
+To log in to the database on "MachinName"" use this (you will need the password):
 ```{}
 mysql -p -u ahuser annotationhub
 ```
@@ -95,7 +93,7 @@ https://github.com/Bioconductor/AnnotationHubServer3.0
 
 Unlike the metadata, the data that it stored after a recipe is run is
 stored in something that looks like a file system. When testing on
-gamay this data is stored in /var/FastRWeb/, but our production server
+<MachinName> this data is stored in /var/FastRWeb/, but our production server
 stores and retrieves data from S3.  So to get the data moved up to
 production you need to have access to these S3 resources.
 

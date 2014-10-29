@@ -3,8 +3,13 @@
 
 
 .pushMetadata <- function(jsons,
-                          h=handle(getOption("AH_SERVER_POST_URL", 
-                            "http://gamay:9393/resource"))){
+                          url=getOption("AH_SERVER_POST_URL")){
+    if(is.null(getOption("AH_SERVER_POST_URL"))){
+        stop(wmsg(paste0("If you really want to push to the server then you",
+                         " need to set option AH_SERVER_POST_URL in .Rprofile",
+                         ", otherwise use insert=FALSE.")))
+    }
+    h = handle(url)
     lapply(jsons, function(x) {
         result <- POST(handle=h, body=list(payload=x))
         print(result)
