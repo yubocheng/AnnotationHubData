@@ -82,7 +82,7 @@ updateResources <- function(ahroot, BiocVersion,
                             preparerClasses=getImportPreparerClasses(),
                             listOfExistingResources=list(),
                    ## listOfExistingResources=getCurrentResources(BiocVersion),
-                            insert=TRUE, metadataOnly=FALSE){
+                            insert=FALSE, metadataOnly=TRUE){
     
     ## 1 spawning the AHMs is about calling the newResources method
     ## defined for them.  The newResources method takes a class that
