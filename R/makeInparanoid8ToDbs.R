@@ -40,7 +40,7 @@
 ## This function will return the AHMs and takes no args.
 ## It also must specify a recipe function.
 makeinparanoid8ToAHMs <- function(currentMetadata){
-    baseUrl <- 'http://inparanoid.sbc.su.se/download/current/Orthologs'
+    baseUrl <- 'http://inparanoid.sbc.su.se/download/current/Orthologs_other_formats'
     ## Then make the metadata for these
     meta <- .inparanoidMetadataFromUrl(baseUrl)
     ## then make AnnotationHubMetadata objects.
