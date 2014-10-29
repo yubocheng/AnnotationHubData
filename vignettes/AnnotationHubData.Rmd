@@ -61,23 +61,23 @@ Normally when we work with this database we will 1st do testing on a
 local instance on gamay and then update the production machine later.
 
 To log in to the database on gamay use this (you will need the password):
-\begin{quote}
-  mysql -p -u ahuser annotationhub
-\end{quote}
+```{}
+mysql -p -u ahuser annotationhub
+```
 
 \begin{verbatim}
   mysql -p -u ahuser annotationhub
 \end{verbatim}
 
 And for production you will need to connect here:
-% <<eval=FALSE>>=
-% #  ssh ubuntu@annotationhub.bioconductor.org
-% @ 
+```{}
+ssh ubuntu@annotationhub.bioconductor.org
+```
 
 And then connect to the database:
-% <<eval=FALSE>>=
-% #  mysql -p -u ahuser annotationhub
-% @
+```{}
+mysql -p -u ahuser annotationhub
+```
 
 Whenever you have updated the MySQL back end, a chron job should do
 the job of creating the locally cached sqlite database from the MySQL
@@ -85,13 +85,13 @@ source db.  This is done by a ruby script called convert_db.rb.  This
 file in part fo code that is checked in at the following URL in
 github.
 
-% <<eval=FALSE>>=
-% #  https://github.com/Bioconductor/AnnotationHubServer3.0
-% @ 
+```{}
+https://github.com/Bioconductor/AnnotationHubServer3.0
+```
 
 
 
-\subsection{Where is the data stored?}
+## Where is the data stored?
 
 Unlike the metadata, the data that it stored after a recipe is run is
 stored in something that looks like a file system. When testing on
@@ -103,46 +103,45 @@ production you need to have access to these S3 resources.
 
 To copy things up to the S3 buckets you need to use the aws command
 line tools. You can see help like this
-% <<eval=FALSE>>=
-% # aws s3 help
-% @ 
+```{}
+aws s3 help
+```
 
 And you can get "copying" help like this
-% <<eval=FALSE>>=
-% # aws s3 cp help
-% @ 
+```{}
+aws s3 cp help
+```
 
 And you can copy something to be read only by using the --acl argument
 like this:
-% <<eval=FALSE>>=
-% # aws s3 cp --acl public-read hello.txt 
-% s3://annotationhub/foo/bar/hello.txt
-% @ 
+```{}
+aws s3 cp --acl public-read hello.txt s3://annotationhub/foo/bar/hello.txt
+```
 
 
 To sign in at the AWS console go here: (use your username and password
 the account is bioconductor)
-% <<eval=FALSE>>=
-% # https://bioconductor.signin.aws.amazon.com/console
-% @ 
+```{}
+https://bioconductor.signin.aws.amazon.com/console
+```
 And then click 'S3', 'annotationhub' etc.
 
 And to recursively copy back down from the S3 bucket do like this:
-% <<eval=FALSE>>=
-% #  aws s3 cp --dryrun --recursive s3://annotationhub/ensembl/release-75/fasta/ .
-% @ 
+```{}
+aws s3 cp --dryrun --recursive s3://annotationhub/ensembl/release-75/fasta/ .
+```
 
 And then to copy back up you could do it like this:
-% <<eval=FALSE>>=
-% #  aws s3 cp --dryrun --recursive --acl public-read ./fasta/ s3://annotationhub/ensembl/release-75/fasta/@ 
-% @ 
+```{}
+aws s3 cp --dryrun --recursive --acl public-read ./fasta/ s3://annotationhub/ensembl/release-75/fasta/@ 
+```
 
 But that will copy everything (not very efficient since some things
 may be the same and already there) So to actually copy back we should
 really use 'aws s3 sync' instead of 'aws s3 cp'.
-% <<eval=FALSE>>=
-% #  aws s3 sync help
-% @ 
+```{}
+aws s3 sync help
+```
 
 
 
