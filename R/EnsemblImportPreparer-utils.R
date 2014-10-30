@@ -33,6 +33,6 @@
         .taxonomyId(uspecies)[match(species, uspecies)]
     })
     list(annotationHubRoot = root, title=title, species = species,
-         taxonomyId = taxonomyId, genome = sub(sgRegex, "\\2", title),
+         taxonomyId = as.integer(taxonomyId), genome = sub(sgRegex, "\\2", title),
          sourceVersion = sub(releaseRegex, "\\1", sourceUrl))
 }

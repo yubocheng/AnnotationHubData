@@ -47,9 +47,9 @@ makeEnsemblFastaToAHMs <-
     sourceUrl <- .ensemblFastaSourceUrls(.ensemblBaseUrl) 
     
     sourceFile <- .ensemblSourcePathFromUrl(baseUrl, sourceUrl)
-    meta <- .ensemblMetadataFromUrl(
+    meta <- .ensemblMetadataFromUrl(  ## BUG
         sourceUrl,
-        "^([[:alpha:]_]+)\\.(.*)\\.[[:digit:]]+(\\.[[:alpha:]_]+){2,3}")
+          "^([[:alpha:]_]+)\\.(.*)")
     dnaType <- local({
         x <- basename(dirname(sourceFile))
         sub("(dna|rna)", "\\U\\1", x, perl=TRUE)

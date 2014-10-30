@@ -104,12 +104,15 @@ potentialClasses <- getImportPreparerClasses()
 potentialClasses
 ## for 1st attempt don't insert OR run recipes...
 
+# debug(AnnotationHubData:::makeEnsemblFastaToAHMs)
+# debug(AnnotationHubData:::.ensemblMetadataFromUrl)
+# debug(AnnotationHubData:::.taxonomyId)
+
 faahms = updateResources(ahroot, BiocVersion,
   preparerClasses = "EnsemblFastaImportPreparer",
   insert = FALSE, metadataOnly=TRUE)           
 
-debug(AnnnotationHubData:::makeEnsemblFastaToAHMs)
-
+## sub("^([[:alpha:]_]+)\\.(.*)", "\\1", title)
 
 
 
