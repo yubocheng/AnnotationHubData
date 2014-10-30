@@ -23,18 +23,17 @@ importFrom(AnnotationForge, makeInpDb)
 exportClasses(AnnotationHubMetadata,
               ImportPreparer,
               dbSNPVCFImportPreparer,
-              EnsemblFastaImportPreparer,
               EncodeImportPreparer,
               UCSCTrackImportPreparer,
               UCSCChainPreparer,
               ## 
               EnsemblGtfImportPreparer,
+              EnsemblFastaImportPreparer,
               Inparanoid8ImportPreparer,
               NCBIImportPreparer)
 
 export(AnnotationHubMetadata, 
        dbSNPVCFImportPreparer,
-       EnsemblFastaImportPreparer,
        UCSCTrackImportPreparer,
        HaemCodeImportPreparer,
        RefNetImportPreparer,

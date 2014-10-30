@@ -72,7 +72,7 @@ makeinparanoid8ToAHMs <- function(currentMetadata){
 ## object.
 inparanoid8ToDbsRecipe <- function(ahm){
     require(AnnotationForge)
-    inputFiles <- metadata(ahm)$SourceFile
+    inputFiles <- metadata(ahm)$SourceFile 
     dbname <- makeInpDb(dir=file.path(inputFiles,""),
                         dataDir=tempdir())
     db <- loadDb(file=dbname)

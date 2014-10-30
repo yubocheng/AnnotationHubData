@@ -86,6 +86,31 @@ chainahms = updateResources(ahroot, BiocVersion,
   preparerClasses = "UCSCChainPreparer",
   insert = TRUE, metadataOnly=TRUE)           
 
+################################################################################
+mdinp = updateResources(ahroot, BiocVersion,
+  insert = FALSE,                                  ## for 1st attempt.
+  preparerClasses = "Inparanoid8ImportPreparer",
+  metadataOnly=TRUE)                               ## for 1st attempt.
+
+
+
+################################################################################
+## Testing for ensembl 77. On gamay:
+library(AnnotationHubData)
+ahroot <- "~/TEMP/TEST_newResources"
+BiocVersion <- c("3.0")  
+## list the importPreparerClasses I might want: 
+potentialClasses <- getImportPreparerClasses()
+potentialClasses
+## for 1st attempt don't insert OR run recipes...
+
+faahms = updateResources(ahroot, BiocVersion,
+  preparerClasses = "EnsemblFastaImportPreparer",
+  insert = FALSE, metadataOnly=TRUE)           
+
+debug(AnnnotationHubData:::makeEnsemblFastaToAHMs)
+
+
 
 
 
@@ -153,7 +178,7 @@ orgahms = updateResources(ahroot, BiocVersion,
 
 ## Then try to update resources for inparanoid.
 mdinp = AnnotationHubData:::updateAllResources(ahroot, BiocVersion,
-  existingResources = resources,
+##  existingResources = resources,
   insert = FALSE,                                  ## for 1st attempt.
   preparerClasses = "Inparanoid8ImportPreparer",
   metadataOnly=TRUE)                               ## for 1st attempt.

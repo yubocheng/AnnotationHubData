@@ -2,9 +2,6 @@
     c("cdna.all", "dna_rm.toplevel", "dna_sm.toplevel",
       "dna.toplevel", "ncrna", "pep.all")
 
-EnsemblFastaImportPreparer <- 
-    setClass("EnsemblFastaImportPreparer", contains="ImportPreparer")
-
 ## retrieve FASTA file urls from Ensembl
 ## these should look "like" sourcUrls in the existing DB 
 .ensemblFastaSourceUrls <-
@@ -41,9 +38,14 @@ EnsemblFastaImportPreparer <-
     res
 }
 
-.ensemblFastaMetadata <-
-    function(baseUrl, sourceUrl)
+## AHM generator
+makeEnsemblFastaToAHMs <-
+    function(currentMetadata)
 {
+    baseUrl = .ensemblBaseUrl
+    ## get all possible sourceUrls
+    sourceUrl <- .ensemblFastaSourceUrls(.ensemblBaseUrl) 
+    
     sourceFile <- .ensemblSourcePathFromUrl(baseUrl, sourceUrl)
     meta <- .ensemblMetadataFromUrl(
         sourceUrl,
@@ -72,18 +74,20 @@ EnsemblFastaImportPreparer <-
           Tags = c("FASTA", "ensembl", "sequence")))
 }
 
-setMethod(newResources, signature="EnsemblFastaImportPreparer",
-    function(importPreparer, currentMetadata = list(), ...)
+## recipe
+ensemblFastaToFaFile <- function(ahm)
 {
-    sourceUrls <- .ensemblFastaSourceUrls(.ensemblBaseUrl) # 732,  6 March, 2013
+    require(Rsamtools)
+    faIn <- normalizePath(inputFiles(ahm))
+    faOut <- normalizePath(outputFile(ahm))
 
-    ## filter known
-    knownUrls <- sapply(currentMetadata, function(elt) {
-        metadata(elt)$SourceUrl
-    })
-    sourceUrls <- sourceUrls[!sourceUrls %in% knownUrls]
-    if (length(sourceUrls) == 0) return(list())
+    tmp <- tempfile()
+    system2("zcat", sprintf("%s > %s", faIn, tmp))
+    razip(tmp, faOut)
+    indexFa(faOut)
+}
 
-    ## AnnotationHubMetadata
-    .ensemblFastaMetadata(.ensemblBaseUrl, sourceUrls)
-})
+
+
+makeAnnotationHubResource("EnsemblFastaImportPreparer",
+                          makeEnsemblFastaToAHMs)

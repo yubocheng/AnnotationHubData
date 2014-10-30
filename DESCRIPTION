@@ -42,6 +42,7 @@ Collate:
     Message-class.R
     ImportPreparer-class.R
     dbSNPImportPreparer-class.R
+    makeAnnotationHubResource.R
     EnsemblImportPreparer-utils.R
     EnsemblFastaImportPreparer-class.R
     EnsemblGtfImportPreparer-class.R
@@ -67,7 +68,6 @@ Collate:
     testutils.R
     tsvToRefnet.R
     utils.R
-    makeAnnotationHubResource.R
     makeEnsemblGtfToGRanges.R
     makeInparanoid8ToDbs.R
     makeNCBIToOrgDbs.R
