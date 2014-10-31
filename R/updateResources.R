@@ -133,7 +133,45 @@ updateResources <- function(ahroot, BiocVersion,
 ## The basic issue here is that this function needs to talk to the
 ## 'new' version of AnnotationHub (and possibly both versions?)...
 getCurrentResources <- function(version){
-    
+    ## Call the thing in AnnotationHub that gets a DB conn to the cached meta
+    require(RSQLite) 
+    ah <- AnnotationHub()
+    con <- AnnotationHub:::.db_connection(ah)
+    ## Then send a massive SQL query to extract all the metadata as 
+    ## one horrific data.frame
+    SQL <- "SELECT * FROM resources, rdatapaths, biocVersions, input_sources, 
+            recipes, tags  WHERE 
+            resources.id = rdatapaths.resource_id AND 
+            resources.id = biocVersions.resource_id AND
+            resources.id = input_sources.resource_id AND
+            resources.recipe_id = recipes.id AND
+            resources.id = tags.resource_id"
+    meta <- dbGetQuery(con, SQL)
+    ahroot <- rep("NA", times=dim(meta)[1])
+    tags <- rep("NA", times=dim(meta)[1]) ## leave tags out (for now)
+    ## Then call Map and pass in the columns from the data.frame
+    message("Generating all existing AnnotationHubMetadata objects.  This will take a long time")
+    ## This might be too slow a way to do this...  
+    ## Might want instead to just check certain fields and not use objects for this.
+    Map(AnnotationHubMetadata,
+        AnnotationHubRoot=ahroot,
+        Description=meta$description,
+        Genome=meta$genome,
+        SourceFile=meta$sourcefile, 
+        SourceUrl=meta$sourceurl,
+        SourceVersion=meta$sourceversion, ##
+        Species=meta$species,
+        TaxonomyId=meta$taxonomyid,
+        Title=meta$title,
+        RDataPath=meta$rdatapath,
+        Coordinate_1_based = as.logical(meta$coordinate_1_based),
+        DataProvider = meta$dataprovider,
+        Maintainer = meta$maintainer,
+        RDataClass = meta$rdataclass,
+        RDataDateAdded = meta$rdatadateadded,
+        RDataVersion = meta$rdataversion,
+        Recipe = meta$recipe,
+        Tags = tags)
 }
 
 

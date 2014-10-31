@@ -1,7 +1,7 @@
 Package: AnnotationHubData
 Type: Package
 Title: Transform public data resources into Bioconductor Data Structures
-Version: 0.0.111
+Version: 0.0.112
 Authors@R:
     c(person("Martin", "Morgan", role="ctb"),
       person("Marc", "Carlson", role="ctb"),
@@ -17,6 +17,7 @@ Depends:
     GenomicRanges (>= 1.17.7),
     AnnotationHub
 Suggests:
+    RSQLite,
     RUnit, 
     knitr
 Imports:
