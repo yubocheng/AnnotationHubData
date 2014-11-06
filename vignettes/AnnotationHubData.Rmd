@@ -8,6 +8,7 @@
 BiocStyle::markdown()
 ```
 
+
 # The AnnotationHubData Package
 
 **Package**: `r Biocpkg("AnnotationHubData")`<br />
@@ -85,6 +86,103 @@ github.
 
 ```{}
 https://github.com/Bioconductor/AnnotationHubServer3.0
+```
+
+### How do we update the production database?
+
+The process of updating the production server should follow this process:
+
+#### run the recipe on gamay to generate and files and to insert into the local copy.
+
+You can run the recipe by calling updateResources with the insert and metadataOnly arguments set up like this:
+
+```{r, eval=FALSE}
+mdinp = updateResources(ahroot, 
+                        BiocVersion,
+                        preparerClasses = "Inparanoid8ImportPreparer",
+                        insert = TRUE,
+                        metadataOnly=FALSE)     
+```
+
+
+#### make a dump of the DB from production and then copy it over to/set it up on gamay.
+
+For this step you need to log in, and back up the database on production.  So that should look like this (use the ahuser password for this)
+
+```{}
+ssh ubuntu@annotationhub.bioconductor.org
+mysqldump -p -u ahuser annotationhub | gzip > dbdump_2014_11_05_fromProd.sql.gz
+```
+
+Then copy it down to gamay:
+
+```{}
+scp dbdump_2014_11_05_fromProd.sql.gz mcarlson@gamay:~
+```
+
+And then uppack it (use the MySQL password for this):
+
+```{}
+mysql -p -u root
+```
+
+Then in SQL drop and create the DB
+
+```{}
+drop database annotationhub;
+create database annotationhub;
+\q
+```
+
+Then unpack the dump into the DB
+
+```{}
+zcat dbdump_2014_11_05_fromProd.sql.gz | mysql -p -u root annotationhub
+```
+
+
+
+#### rerun the (now tested) recipe on gamay to insert the rows into a clean copy of the data.
+
+```{r, eval=FALSE}
+mdinp = updateResources(ahroot, 
+                        BiocVersion,
+                        preparerClasses = "Inparanoid8ImportPreparer",
+                        insert = TRUE,
+                        metadataOnly=FALSE)     
+```
+
+
+#### And finally dump the database and copy it up to production where you will also have to unpack it etc.  
+
+```{}
+mysqldump -p -u ahuser annotationhub | gzip > dbdump_2014_11_05_FromGamay.sql.gz
+```
+
+Then copy it up from gamay back to production:
+
+```{}
+scp dbdump_2014_11_05_FromGamay.sql.gz ubuntu@annotationhub.bioconductor.org:~
+```
+
+And then uppack it (use the MySQL password for this):
+
+```{}
+mysql -p -u root
+```
+
+Then in SQL drop and create the DB
+
+```{}
+drop database annotationhub;
+create database annotationhub;
+\q
+```
+
+Then unpack the dump into the DB
+
+```{}
+zcat dbdump_2014_11_05_FromGamay.sql.gz | mysql -p -u root annotationhub
 ```
 
 

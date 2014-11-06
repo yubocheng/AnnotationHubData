@@ -107,6 +107,9 @@ updateResources <- function(ahroot, BiocVersion,
         allAhms <- append(allAhms, ahms)
     }
     
+    #1.5 Filter out allAhms that already exist in the DB!
+    
+    
     ## 2 make into JSON
     jsons = lapply(allAhms,ahmToJson)
 
@@ -126,6 +129,39 @@ updateResources <- function(ahroot, BiocVersion,
 }
 
 
+
+
+###########################################################################
+## Now I need a function that will 1) take a list of AHMs, 
+## 2) thow away ones that we already have and then 
+## 3) return only the AHMs that are 'new'
+## For now: do the filtering based on the rdatapath, but as we get more 
+## sophisticated, I think we should start to filter based on MD5 
+## (and make one if not present) to ensure that things match (when relevant)etc.
+
+filterAHMs <- function(ahms){
+    ## we need certain data from the DB (but not *all* of it)
+    
+    
+    
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+###########################################################################
+## The following was basically a bust because it takes
+## FAR TOO LONG (like 30 minutes!) to make ~ a million S4 objects.
+###########################################################################
 ## I also need a getCurrentResources() function - can define it here.
 ## It basically needs to use the existing AHM DB to make all the
 ## records into AHMs.
