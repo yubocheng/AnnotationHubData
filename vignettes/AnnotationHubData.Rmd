@@ -49,17 +49,18 @@ implementation.  But the 'parent' database is the MySQL db (the sqlite
 ones are just cached copies of that).
 
 Normally when we work with this database we will 1st do testing on a
-local instance on "MachinName"" and then update the production machine later.
+local instance on "MachineName" and then update the production machine later.
 
 To actually push data to this local database you need to set an option in your .Rprofile for where the json should be posted to.  That should look like this:
 
 ```{r}
-options("AH_SERVER_POST_URL"="http://<MachinName>:9393/resource")
+options("AH_SERVER_POST_URL"="http://<MachineName>:9393/resource")
 ```
 
 
 
-To log in to the database on "MachinName"" use this (you will need the password):
+To log in to the database on "MachineName"" use this (you will need the
+ahuser password):
 ```{}
 mysql -p -u ahuser annotationhub
 ```
@@ -78,7 +79,7 @@ And then connect to the database:
 mysql -p -u ahuser annotationhub
 ```
 
-Whenever you have updated the MySQL back end, a chron job should do
+Whenever you have updated the MySQL back end, a cron job should do
 the job of creating the locally cached sqlite database from the MySQL
 source db.  This is done by a ruby script called convert_db.rb.  This
 file in part fo code that is checked in at the following URL in
@@ -101,13 +102,14 @@ mdinp = updateResources(ahroot,
                         BiocVersion,
                         preparerClasses = "Inparanoid8ImportPreparer",
                         insert = TRUE,
-                        metadataOnly=FALSE)     
+                        metadataOnly=FALSE)
 ```
 
 
 #### make a dump of the DB from production and then copy it over to/set it up on gamay.
 
-For this step you need to log in, and back up the database on production.  So that should look like this (use the ahuser password for this)
+For this step you need to log in, and back up the database on production.  So that should look like this (use the ahuser password for this).
+Instead of 2014_11_05, use the current date.
 
 ```{}
 ssh ubuntu@annotationhub.bioconductor.org
@@ -120,7 +122,7 @@ Then copy it down to gamay:
 scp dbdump_2014_11_05_fromProd.sql.gz mcarlson@gamay:~
 ```
 
-And then uppack it (use the MySQL password for this):
+And then unpack it (use the MySQL root password for this):
 
 ```{}
 mysql -p -u root
@@ -133,6 +135,9 @@ drop database annotationhub;
 create database annotationhub;
 \q
 ```
+
+At this point there is no data in the database, so AnnotationHub
+is not working! So be sure and do the next step right away.
 
 Then unpack the dump into the DB
 
@@ -229,7 +234,7 @@ aws s3 cp --dryrun --recursive s3://annotationhub/ensembl/release-75/fasta/ .
 
 And then to copy back up you could do it like this:
 ```{}
-aws s3 cp --dryrun --recursive --acl public-read ./fasta/ s3://annotationhub/ensembl/release-75/fasta/@ 
+aws s3 cp --dryrun --recursive --acl public-read ./fasta/ s3://annotationhub/ensembl/release-75/fasta/ 
 ```
 
 But that will copy everything (not very efficient since some things
