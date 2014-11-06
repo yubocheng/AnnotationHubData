@@ -113,13 +113,15 @@ Instead of 2014_11_05, use the current date.
 
 ```{}
 ssh ubuntu@annotationhub.bioconductor.org
+cd ~/AnnotationHubDumps
 mysqldump -p -u ahuser annotationhub | gzip > dbdump_2014_11_05_fromProd.sql.gz
 ```
 
-Then copy it down to gamay:
+Then copy it down from gamay:
 
 ```{}
-scp dbdump_2014_11_05_fromProd.sql.gz mcarlson@gamay:~
+cd /mnt/cpb_anno/mcarlson/AnnotationHubDumps/prodDumps/
+scp ubuntu@annotationhub.bioconductor.org:/home/ubuntu/AnnotationHubDumps/dbdump_2014_11_06_fromProd.sql.gz .
 ```
 
 And then unpack it (use the MySQL root password for this):
@@ -157,11 +159,43 @@ mdinp = updateResources(ahroot,
                         metadataOnly=FALSE)     
 ```
 
+#### And: final test that it works on gamay
+
+The 1st part of this is that the server on gamay has to have produced the .sqlite version of the mySQL database we just modified.  To make that happen you can start by 1st impersonating dan and go to his directory with the ruby scripts:
+```{}
+sudo su - dtenenba 
+cd AnnotationHubServer3.0/
+```
+From there you can look at his cron job to see how it runs every 10 mins...
+```{}
+crontab -l
+```
+
+But we don't want to wait ten minutes! So run the following ruby script to make the DB right now.
+```{}
+ruby convert_db.rb 
+exit
+```
+
+Once this is done, you then have to actually test the client and make sure that your data is in there etc. This means that you need to launch AnnotationHub so that it points to gamay for metadata.  You can do that like this:
+
+```{r, test_client, eval=FALSE}
+options(ANNOTATION_HUB_URL="http://gamay:9393")
+library(AnnotationHub)
+ah = AnnotationHub()
+```
+To manually test metadata you could just do this:
+```{r, test_client2, eval=FALSE}
+foo = mcols(ah)
+```
+
+And then Look for your data in 'foo'...  It's also a good idea to try and download that data with it's "AHID"
+
 
 #### And finally dump the database and copy it up to production where you will also have to unpack it etc.  
 
 ```{}
-mysqldump -p -u ahuser annotationhub | gzip > dbdump_2014_11_05_FromGamay.sql.gz
+mysqldump -p -u ahuser annotationhub | gzip > dbdump_2014_11_05_fromGamay.sql.gz
 ```
 
 Then copy it up from gamay back to production:
