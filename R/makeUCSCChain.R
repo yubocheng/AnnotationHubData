@@ -1,6 +1,6 @@
-.ucscChainBase <- "http://hgdownload.cse.ucsc.edu/"
+.ucscBase <- "http://hgdownload.cse.ucsc.edu/"
 
-.fileSize <- function(s){
+.fileSize <- function(s) {
     s1 <- character(0)
     if(s=="")
         return(NA_character_)
@@ -11,7 +11,7 @@
     s1
 }  
 
-.get1ChainResource <- function(url, verbose=FALSE) {
+.get1Resource <- function(url, fileName, verbose=FALSE) {
     require(XML)
     tryCatch({
         if (verbose)
@@ -21,7 +21,7 @@
         
         ## extract the file name
         url <- sprintf("%s/%s", url, fls)
-        keep <- grepl("chain.gz", fls)
+        keep <- grepl(paste0(fileName,"$"), fls)
         
         ## extract the date time stamp of file.  
         stamps <- sapply(html["//pre[2]/text()"], xmlValue)
@@ -35,10 +35,11 @@
         newSize <- sapply(size, .fileSize)
         
         data.frame(url, version, size, newSize, 
-                   stringsAsFactors=FALSE)[keep,,drop=FALSE]
+            stringsAsFactors=FALSE)[keep,,drop=FALSE]
     }, error=function(err) {
-        warning(basename(dirname(url)), ": ", conditionMessage(err))
-        data.frame(url=character(), version=character(), stringsAsFactors=FALSE)
+            warning(basename(dirname(url)), ": ", conditionMessage(err))
+            data.frame(url=character(), version=character(), 
+                stringsAsFactors=FALSE)
     })
 }
 
@@ -50,7 +51,7 @@
     uorganism <- unique(organism[!is.na(organism)])
     query <- paste(uorganism, collapse=" OR ")
     url <- sprintf("%s/esearch.fcgi?db=taxonomy&term=%s&retmax=%d",
-                   .eutils, query, length(uorganism))
+        .eutils, query, length(uorganism))
     xml <- XML::xmlParse(url)
     
     ## 2. records
@@ -59,7 +60,7 @@
     if (length(id)) {
         query2 <- paste(id, collapse=",")
         url <- sprintf("%s/efetch.fcgi?db=taxonomy&id=%s&retmax=%d",
-                       .eutils, query2, length(uorganism))
+            .eutils, query2, length(uorganism))
         xml <- XML::xmlParse(url)
         scin <- sapply(xml["/TaxaSet/Taxon/ScientificName"], XML::xmlValue)
         taxid <- sapply(xml["/TaxaSet/Taxon/TaxId/text()"], XML::xmlValue)
@@ -72,30 +73,36 @@
     
     tax_ind <- match(c("9601","8364","43179"), taxid)
     scin_ind <- match(c("Pongo abelii","Xenopus (Silurana) tropicalis",
-                        "Ictidomys tridecemlineatus"), scin)
+        "Ictidomys tridecemlineatus"), scin)
     if(identical(tax_ind, scin_ind))
         scin[scin_ind] <- c("Pongo pygmaeus abelii","Xenopus tropicalis",
-                            "Spermophilus tridecemlineatus")
+            "Spermophilus tridecemlineatus")
     
     ## 3. Results
     as.integer(taxid)[match(organism, scin)]
 }
 
-
-.getUCSCChainResources <- function(verbose=FALSE) {
-    .chainBase <- sprintf("%sgoldenPath", .ucscChainBase)
+.getUCSCResources <- function(fileType, dirName, fileName, verbose=FALSE) {
+    ## get resource from UCSC
+    .fileBase <- sprintf("%sgoldenPath", .ucscBase)
     genome_tbl <- rtracklayer::ucscGenomes(organism=TRUE)
     genomes <- genome_tbl$db
-    urls <- sprintf("%s/%s/liftOver", .chainBase, genomes)
-    rsrc <- do.call(rbind, lapply(urls, .get1ChainResource, verbose=verbose))
+    urls <- sprintf(paste0("%s/%s/", dirName), .fileBase, genomes)
+    rsrc <- do.call(rbind, lapply(urls, .get1Resource,  
+        fileName= fileName, verbose=verbose))
     rownames(rsrc) <- basename(rsrc$url)
     
-    # parse the filename
-    rsrc$from <-
-        sub("^([a-z][[:alnum:]]+)To.*.over.chain.gz", "\\1",
+    ## parse the filename for each file type. 
+    if(fileType=="chain") {
+        rsrc$from <- sub("^([a-z][[:alnum:]]+)To.*.over.chain.gz", "\\1",
             rownames(rsrc))
-    to <- sub(".*To([A-Z][[:alnum:]]+)\\.over.chain.gz", "\\1", rownames(rsrc))
-    rsrc$to <- sub("^([A-Z])", "\\L\\1", to, perl=TRUE)
+        to <- sub(".*To([A-Z][[:alnum:]]+)\\.over.chain.gz", "\\1", 
+            rownames(rsrc))
+        rsrc$to <- sub("^([A-Z])", "\\L\\1", to, perl=TRUE)
+    }
+    
+    if(fileType=="2bit")
+        rsrc$from <- sub(".2bit","",rownames(rsrc))
     
     ## add the organism 
     idx <- match(rsrc$from, genome_tbl$db)
@@ -109,23 +116,21 @@
 }
 
 makeUCSCChain <- function(currentMetadata) {
-    rsrc <- .getUCSCChainResources()
-
+    rsrc <- .getUCSCResources(fileType="chain", dirName="liftOver", 
+        fileName="chain.gz", verbose=FALSE)
     description <- sprintf("UCSC liftOver chain file from %s to %s",
-                           rsrc$from, rsrc$to)
+        rsrc$from, rsrc$to)
     genome <- rsrc$from
     sourceFile <- rownames(rsrc)
-    sourceUrls <- sub(.ucscChainBase, "", rsrc$url)
+    sourceUrls <- sub(.ucscBase, "", rsrc$url)
     sourceVersion <- rsrc$version
     species <- rsrc$organism            
     taxonomyId <- as.integer(rsrc$taxid)           
     title <- rownames(rsrc)
     SourceLastModifiedDate <- as.POSIXct(strptime(rsrc$version,
-                                                  "%d-%b-%Y_%H:%M"))
-
+        "%d-%b-%Y_%H:%M"))
     SourceSize <- as.numeric(rsrc$newSize)
-    
-
+        
     Map(AnnotationHubMetadata,
         Description=description, Genome=genome,
         SourceFile=sourceFile, SourceUrl=sourceUrls,
@@ -135,15 +140,15 @@ makeUCSCChain <- function(currentMetadata) {
         SourceVersion=sourceVersion, Species=species,
         TaxonomyId=taxonomyId, Title=title,
         MoreArgs=list(
-          Coordinate_1_based = FALSE,
-          DataProvider = "hgdownload.cse.ucsc.edu",
-          Location_Prefix = .ucscChainBase,
-          Maintainer = "Sonali Arora <sarora@fhcrc.org>",
-          RDataClass = "ChainFile",
-          RDataDateAdded = Sys.time(),
-          RDataVersion = "0.0.1",
-          Recipe = NA_character_,
-          Tags = c("liftOver", "chain", "UCSC", "genome", "homology")))
+            Coordinate_1_based = FALSE,
+            DataProvider = "hgdownload.cse.ucsc.edu",
+            Location_Prefix = .ucscBase,
+            Maintainer = "Sonali Arora <sarora@fhcrc.org>",
+            RDataClass = "ChainFile",
+            RDataDateAdded = Sys.time(),
+            RDataVersion = "0.0.1",
+            Recipe = NA_character_,
+            Tags = c("liftOver", "chain", "UCSC", "genome", "homology")))
 }
 
 makeAnnotationHubResource("UCSCChainPreparer", makeUCSCChain)
