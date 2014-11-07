@@ -113,7 +113,7 @@ Instead of 2014_11_05, use the current date.
 
 ```{}
 ssh ubuntu@annotationhub.bioconductor.org
-cd ~/AnnotationHubDumps
+cd ~/AnnotationHubDumps/prodDumps/
 mysqldump -p -u ahuser annotationhub | gzip > dbdump_2014_11_05_fromProd.sql.gz
 ```
 
@@ -121,7 +121,7 @@ Then copy it down from gamay:
 
 ```{}
 cd /mnt/cpb_anno/mcarlson/AnnotationHubDumps/prodDumps/
-scp ubuntu@annotationhub.bioconductor.org:/home/ubuntu/AnnotationHubDumps/dbdump_2014_11_06_fromProd.sql.gz .
+scp ubuntu@annotationhub.bioconductor.org:/home/ubuntu/AnnotationHubDumps/prodDumps/dbdump_2014_11_06_fromProd.sql.gz .
 ```
 
 And then unpack it (use the MySQL root password for this):
@@ -201,7 +201,7 @@ mysqldump -p -u ahuser annotationhub | gzip > dbdump_2014_11_05_fromGamay.sql.gz
 Then copy it up from gamay back to production:
 
 ```{}
-scp dbdump_2014_11_05_FromGamay.sql.gz ubuntu@annotationhub.bioconductor.org:~
+scp /mnt/cpb_anno/mcarlson/AnnotationHubDumps/gamayDumps/dbdump_2014_11_05_fromGamay.sql.gz  ubuntu@annotationhub.bioconductor.org:/home/ubuntu/AnnotationHubDumps/gamayDumps/
 ```
 
 And then uppack it (use the MySQL password for this):
@@ -221,7 +221,7 @@ create database annotationhub;
 Then unpack the dump into the DB
 
 ```{}
-zcat dbdump_2014_11_05_FromGamay.sql.gz | mysql -p -u root annotationhub
+zcat dbdump_2014_11_05_fromGamay.sql.gz | mysql -p -u root annotationhub
 ```
 
 
