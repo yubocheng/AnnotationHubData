@@ -1,5 +1,29 @@
+## TODO: add some checks in here to disallow any AHMs if the metadata for the 
+## rdatapath is not the same as the source URL whenever the location_prefix is 
+## something other than the standard thing
+
+
+################################################################################
 ## This is where the new functions for updating resources on the new
 ## back end are going to live
+################################################################################
+## After metadata is pushed up to the back end.  The back end will then do 
+## the following to 'fetch' records based on their IDs:
+## 
+# get '/fetch/:id' do
+#   rp = Rdatapath.find(:id=>params[:id])
+#   path = rp.rdatapath
+#   resource = rp.resource
+#   prefix = resource.location_prefix.location_prefix
+#   url = prefix + path
+#   # TODO do some logging here....
+#   redirect url
+# end
+##
+## That means that the formula for looking up a resource will always be :
+## location_prefix + rdatapath
+################################################################################
+
 
 
 .pushMetadata <- function(jsons,
