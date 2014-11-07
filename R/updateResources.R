@@ -1,8 +1,3 @@
-## TODO: add some checks in here to disallow any AHMs if the metadata for the 
-## rdatapath is not the same as the source URL whenever the location_prefix is 
-## something other than the standard thing
-
-
 ################################################################################
 ## This is where the new functions for updating resources on the new
 ## back end are going to live
