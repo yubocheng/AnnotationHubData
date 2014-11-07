@@ -82,7 +82,7 @@ mysql -p -u ahuser annotationhub
 Whenever you have updated the MySQL back end, a cron job should do
 the job of creating the locally cached sqlite database from the MySQL
 source db.  This is done by a ruby script called convert_db.rb.  This
-file in part fo code that is checked in at the following URL in
+file in part of code that is checked in at the following URL in
 github.
 
 ```{}
