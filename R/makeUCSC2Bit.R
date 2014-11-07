@@ -17,7 +17,7 @@ make2bit <- function(currentMetadata) {
         SourceFile=sourceFile, SourceUrl=sourceUrls,
         SourceLastModifiedDate = SourceLastModifiedDate,
         SourceSize = SourceSize,
-        RDataPath=sourceFile,
+        RDataPath=sourceUrls,
         SourceVersion=sourceVersion, Species=species,
         TaxonomyId=taxonomyId, Title=title,
         MoreArgs=list(
