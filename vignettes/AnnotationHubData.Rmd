@@ -105,6 +105,8 @@ mdinp = updateResources(ahroot,
                         metadataOnly=FALSE)
 ```
 
+#### Test the AnnotationHub locally by pointing it to gamay like this:
+See section below titled "Final test that it works on gamay"
 
 #### make a dump of the DB from production and then copy it over to/set it up on gamay.
 
@@ -117,14 +119,14 @@ cd ~/AnnotationHubDumps/prodDumps/
 mysqldump -p -u ahuser annotationhub | gzip > dbdump_2014_11_05_fromProd.sql.gz
 ```
 
-Then copy it down from gamay:
+Then copy it down (from gamay):
 
 ```{}
 cd /mnt/cpb_anno/mcarlson/AnnotationHubDumps/prodDumps/
 scp ubuntu@annotationhub.bioconductor.org:/home/ubuntu/AnnotationHubDumps/prodDumps/dbdump_2014_11_06_fromProd.sql.gz .
 ```
 
-And then unpack it (use the MySQL root password for this):
+And then unpack it on gamay (use the MySQL root password for this):
 
 ```{}
 mysql -p -u root
@@ -149,7 +151,7 @@ zcat dbdump_2014_11_05_fromProd.sql.gz | mysql -p -u root annotationhub
 
 
 
-#### rerun the (now tested) recipe on gamay to insert the rows into a clean copy of the data.
+#### rerun the recipe on gamay to insert the rows into a clean copy of the data.
 
 ```{r, eval=FALSE}
 mdinp = updateResources(ahroot, 
@@ -159,7 +161,8 @@ mdinp = updateResources(ahroot,
                         metadataOnly=FALSE)     
 ```
 
-#### And: final test that it works on gamay
+
+### Final test that it works on gamay
 
 The 1st part of this is that the server on gamay has to have produced the .sqlite version of the mySQL database we just modified.  To make that happen you can start by 1st impersonating dan and go to his directory with the ruby scripts:
 ```{}
@@ -183,7 +186,10 @@ Once this is done, you then have to actually test the client and make sure that 
 options(ANNOTATION_HUB_URL="http://gamay:9393")
 library(AnnotationHub)
 ah = AnnotationHub()
+length(ah) ## should be larger than you started with
+tail(ah) ## should have some new records
 ```
+
 To manually test metadata you could just do this:
 ```{r, test_client2, eval=FALSE}
 foo = mcols(ah)

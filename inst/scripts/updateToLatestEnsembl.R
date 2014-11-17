@@ -68,7 +68,7 @@ res2 <- lapply(json, function(x) {
 ## Testing for chainFiles. On gamay:
 library(AnnotationHubData)
 ahroot <- "/var/FastRWeb/web"
-BiocVersion <- c("3.0")  
+BiocVersion <- c("3.0", "3.1")  
 ## list the importPreparerClasses I might want: 
 potentialClasses <- getImportPreparerClasses()
 potentialClasses
@@ -85,6 +85,22 @@ chainahms = updateResources(ahroot, BiocVersion,
 chainahms = updateResources(ahroot, BiocVersion,
   preparerClasses = "UCSCChainPreparer",
   insert = TRUE, metadataOnly=TRUE)           
+
+
+
+################################################################################
+## "UCSC2BitPreparer"
+library(AnnotationHubData)
+ahroot <- "/var/FastRWeb/web"
+BiocVersion <- c("3.1")  
+ahms = updateResources(ahroot, BiocVersion,
+                        preparerClasses = "UCSC2BitPreparer",
+                        insert = TRUE, metadataOnly=TRUE)           
+
+
+
+
+
 
 ################################################################################
 mdinp = updateResources(ahroot, BiocVersion,
