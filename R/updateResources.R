@@ -120,13 +120,19 @@ updateResources <- function(ahroot, BiocVersion,
                 args$annotationHubRoot <- ahroot
             preparerInstance <- do.call(preparerClass, args)
 
-        } else
+        } else {
             preparerInstance <- do.call(new, list(preparerClass))
-        ahms <- newResources(preparerInstance, listOfExistingResources)
-        allAhms <- append(allAhms, ahms)
+            ahms <- newResources(preparerInstance, listOfExistingResources)
+            allAhms <- append(allAhms, ahms)
+        }
     }
     
-    #1.5 Filter out allAhms that already exist in the DB!
+    ## 1.5 Filter out allAhms that already exist in the DB!
+    ## So this function needs to take the allAhms thing from above and then
+    ## remove any of the AHMs that are already in the DB.  This requires that I 
+    ## have an updated DB already, which I can now get thanks to an upgraded 
+    ## AnnotationHub ()
+    ## allAhms <- filterAHMs(allAhms)
     
     
     ## 2 make into JSON
@@ -142,7 +148,6 @@ updateResources <- function(ahroot, BiocVersion,
         lapply(allAhms, .runRecipes)
     }
 
-    ## AskDan: What was metadataFilter? - also not used here
     
     return(allAhms)
 }
@@ -160,12 +165,51 @@ updateResources <- function(ahroot, BiocVersion,
 
 filterAHMs <- function(ahms){
     ## we need certain data from the DB (but not *all* of it)
+    require(RSQLite)
+    ah <- AnnotationHub()
+    conn <- ah@.db_connection
+    ## compared ahm@RDataVersion[1] and ahm@SourceUrl[1]
+
+    ## One option is that I could just get key data out of SQLite
+    SQL <- paste0("SELECT res.ah_id, res.rdatadateadded, res.rdataversion, ",
+                  "iso.sourceurl, bcv.biocversion ",
+                  "FROM resources AS res, input_sources AS iso, ",
+                  "biocversions AS bcv ",
+                  "WHERE res.id=iso.resource_id AND res.id=bcv.resource_id") 
+    existingMetadata <- dbGetQuery(conn, SQL)
     
+    ## helper to test if something was NOT in existingMetadata
+    .isNew <- function(ahm, em){
+        ahmVers <- ahm@RDataVersion[1]
+        ahmSrc <- ahm@SourceUrl[1]
+        ahmBcv <- ahm@BiocVersion
+        ## Work out if true or false that we "have seen this before?"
+        ## TODO: 1st subset based on srcUrl and then check the other things.
+        res <- ahmVers %in% em$rdataversion & ahmSrc %in% em$sourceurl & 
+                ahmBcv %in% em$biocversion
+        res        
+    }
     
-    
+    ## Then I could compare this data to my list of AHMs using an lapply 
+    idx <- lapply(ahms, FUN=.isNew, em=existingMetadata)
+    ahms[idx]
 }
 
+## This raises some questions to discuss with Martin: do we want to search on 
+## BiocVersion too?  Does that help?  What about rdataversion (which seems 
+## like an uninformative field?)  So far the only thing that seems to 
+## 'definitely' matter is the sourceUrl...  So why am I extracting this other 
+## stuff?
 
+## Consider the Fasta ones: Do we only want to update them if they have changed?  
+## Or do we want to just check if we have processed a file called that?
+## I think we want to get them again if their sourceMD5 sum has changed.  
+## But we don't always have that filled in.
+
+## Basically we need to talk about what the specific goals are for this project 
+## in terms of updates for older and newer runs of the recipes.
+
+## When exactly do we want to re-run a recipe?
 
 
 
