@@ -5,13 +5,12 @@ make2bit <- function(currentMetadata) {
     genome <- rsrc$from
     sourceFile <- rownames(rsrc)
     sourceUrls <- sub(.ucscBase, "", rsrc$url)
-    sourceVersion <- rsrc$version
+    sourceVersion <- sapply(rsrc$date, function(y) gsub(" ","_",y)) 
     species <- rsrc$organism            
     taxonomyId <- as.integer(rsrc$taxid)           
     title <- rownames(rsrc)
-    SourceLastModifiedDate <- as.POSIXct(strptime(rsrc$version, 
-        "%d-%b-%Y_%H:%M"))
-    SourceSize <- as.numeric(rsrc$newSize)
+    SourceLastModifiedDate <- rsrc$date
+    SourceSize <- as.numeric(rsrc$size)
     Map(AnnotationHubMetadata,
         Description=description, Genome=genome,
         SourceFile=sourceFile, SourceUrl=sourceUrls,

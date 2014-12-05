@@ -1,12 +1,6 @@
 .ucscBase <- "http://hgdownload.cse.ucsc.edu/"
 
-.fileSize <- function(s) {
-    let <- sub("[0-9.]+", "", s)
-    no <- sub("[:A-Z:]+", "", s)
-    ifelse(let=="M", as.numeric(no)*1000000, as.numeric(no)*1000)
-}  
-
-.get1Resource <- function(url, fileName, verbose=FALSE) {
+.get1Resource <- function(url, fileName, genome, verbose=FALSE) {
     require(XML)
     tryCatch({
         if (verbose)
@@ -14,22 +8,27 @@
 
         html <- htmlParse(url)
         fls <- sapply(html["//pre[2]/a/text()"], xmlValue)
+        if(length(fls)==0)
+            fls <- sapply(html["//pre[1]/a/text()"], xmlValue)
         
         ## extract the file name
         url <- sprintf("%s/%s", url, fls)
         keep <- grepl(paste0(fileName, "$"), fls)
         url <- url[keep]
-        
-        ## extract the date time stamp of file.  
-        stamps <- sapply(html["//pre[2]/text()"], xmlValue)[keep]
-        regex <- " *([[:alnum:]-]+) *([:[:alnum:]]+)*.*"
-        version <- sub(regex, "\\1_\\2", stamps)
-        
-        ## extract the file size
-        size <- sub(".* ([[:alnum:].]+).*", "\\1", stamps)
-        newSize <- .fileSize(size)
-        
-        data.frame(url, version, size, newSize, stringsAsFactors=FALSE)
+
+        result <- lapply(url, function(f) {
+            h <- basicTextGatherer()
+            ok <- curlPerform(url=f,
+                              nobody=TRUE, headerfunction=h$update)
+            yy <- h$value()
+            list(date=sub(".*Last-Modified: ([[:print:]]+) GMT.*", "\\1", yy),
+                 size=sub(".*Content-Length: ([[:digit:]]+).*","\\1", yy))
+        })
+        date <- strptime(sapply(result, "[[", "date"),
+                         "%a, %d %b %Y %H:%M:%S", tz="GMT")
+        size <- as.integer(sapply(result, "[[", "size"))
+                
+        data.frame(url, date, size, stringsAsFactors=FALSE)
     }, error=function(err) {
             warning(basename(dirname(url)), ": ", conditionMessage(err))
             data.frame(url=character(), version=character(), 
@@ -81,10 +80,16 @@
     .fileBase <- sprintf("%sgoldenPath", .ucscBase)
     genome_tbl <- rtracklayer::ucscGenomes(organism=TRUE)
     genomes <- genome_tbl$db
+    ## remove faulty genome. 
+    rm <- c("cb1", "eboVir3", "dp2", "strPur1", "ci1", "calMil1","monDom1", 
+            "balAcu1" ,"musFur1")
+    genomes <- setdiff(genomes, rm)
+        
     urls <- sprintf("%s/%s/%s", .fileBase, genomes, dirName)
     rsrc <- do.call(rbind, lapply(urls, .get1Resource,  
         fileName=fileName, verbose=verbose))
     rownames(rsrc) <- basename(rsrc$url)
+
     
     ## parse the filename for each file type.
     switch(fileType, chain={
@@ -117,13 +122,12 @@ makeUCSCChain <- function(currentMetadata) {
     genome <- rsrc$from
     sourceFile <- rownames(rsrc)
     sourceUrls <- sub(.ucscBase, "", rsrc$url)
-    sourceVersion <- rsrc$version
+    sourceVersion <- sapply(rsrc$date, function(y) gsub(" ","_",y)) 
     species <- rsrc$organism            
     taxonomyId <- as.integer(rsrc$taxid)           
     title <- rownames(rsrc)
-    SourceLastModifiedDate <- as.POSIXct(strptime(rsrc$version,
-        "%d-%b-%Y_%H:%M"))
-    SourceSize <- as.numeric(rsrc$newSize)
+    SourceLastModifiedDate <- rsrc$date
+    SourceSize <- as.numeric(rsrc$size)
         
     Map(AnnotationHubMetadata,
         Description=description, Genome=genome,
