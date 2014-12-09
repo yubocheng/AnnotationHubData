@@ -1,116 +1,91 @@
 .EpigenomeRoadMap <- "http://www.broadinstitute.org/~anshul/projects/roadmap/"
 
-trim <- function (x) gsub("^\\s+|\\s+$", "", x) 
-trim2 <- function(x) {
-    x <- gsub("\n","", x)
-    gsub("^ *|(?<= ) | *$","", x, perl=TRUE)
-}
+.trim <- function(x)
+    gsub("[[:space:]]{2,}"," ", x)
 
-.getFileInfo <- function(url, broad=TRUE) {
-    names(url) <- basename(url)
-    result <- lapply(url, function(f) {
-        h <- basicTextGatherer()
-        ok <- curlPerform(url=f,
-                          nobody=TRUE, headerfunction=h$update)
-        yy <- h$value()
-        list(date=sub(".*Last-Modified: ([[:print:]]+) GMT.*", "\\1", yy),
-             size=sub(".*Content-Length: ([[:digit:]]+).*","\\1", yy),
-             src_url=gsub(.EpigenomeRoadMap,"",f))
+.getFileInfo <- function(urls) {
+    names(urls) <- basename(urls)
+    result <- lapply(urls, function(url) {
+        message(".getFileInfo ", sQuote(basename(url)))
+        ok <- GET(url, config=config(nobody=TRUE))
+        stop_for_status(ok)
+        headers(ok)[c("last-modified", "content-length")]
     })
-    date <- strptime(sapply(result, "[[", "date"),
-                     "%a, %d %b %Y %H:%M:%S", tz="GMT")
-    size <- as.integer(sapply(result, "[[", "size"))
-    sourceUrl <- sapply(result, "[[", "src_url")
-    
-    description <- vector(length=length(url))
-    if(broad) {
-        ## broad peak description
-        keep_dna_b1  <- grepl("hotspot.fdr0.01.broad.bed.gz", url)
-        keep_dna_b2  <- grepl("hotspot.broad.bed.gz", url)  
-        description[keep_dna_b1] <- "Broad DNasePeaks at FDR 1%"
-        description[keep_dna_b2] <- "Broad DNasePeaks at no FDR thresholding"
-        keep_chip_b1  <- grepl("broadPeak.gz", url)  
-        keep_chip_b2 <- grepl("gappedPeak.gz", url) 
-        description[keep_chip_b1] <- trim2("Broad ChIP peaks passing the p-value 
-        0.1 threshold")
-        description[keep_chip_b2] <- trim2("Broad ChIP peaks (passing p-value 
-        0.1) that contain atleast one narrow peak passing a pvalue of 0.01.")
-    } else {
+    date <- parse_http_date(vapply(result, "[[", character(1), "last-modified"))
+    size <- as.integer(vapply(result, "[[", character(1), "content-length"))
+    sourceUrl <- sub(.EpigenomeRoadMap, "", urls)
+
+    map <- c(
+        ## broad peaks
+        hotspot.fdr0.01.broad.bed.gz="Broad DNasePeaks at FDR 1%",
+        hotspot.broad.bed.gz="Broad DNasePeaks at no FDR thresholding",
+        broadPeak.gz="Broad ChIP peaks passing the p-value 0.1 threshold",
+        gappedPeak.gz=.trim("Broad ChIP peaks (passing p-value 0.1) that
+            contain at least one narrow peak passing a pvalue of 0.01."),
         ## narrow peaks
-        keep_dna_n1 <-  grepl("hotspot.fdr0.01.peaks.bed.gz",url)   
-        keep_dna_n2 <- grepl("hotspot.all.peaks.bed.gz",url)
-        keep_dna_n3 <- grepl(".macs2.narrowPeak.gz",url)
-        description[keep_dna_n1] <- trim2("Narrow DNasePeaks in FDR 1% hotspots
-            called using HotSpot")
-        description[keep_dna_n2] <- trim2("Genome-wide tag density peak calls 
-        (not restricted to hotspots, thresholded or unthresholded) called 
-        using HotSpot peak caller")
-        description[keep_dna_n3] <- trim2("Narrow DNasePeaks called using MACS2 
-        with a p-value threshold of 0.01")
-        keep_chip_n1  <- grepl("narrowPeak.gz",url)
-        description[keep_chip_n1] <- trim2("Narrow ChIP peaks were called using 
-        MACSv2 with a p-value threshold of 0.01. ")
-    }
+        hotspot.fdr0.01.peaks.bed.gz=.trim("Narrow DNasePeaks in FDR 1%
+            hotspots called using HotSpot"),
+        hotspot.all.peaks.bed.gz=.trim("Genome-wide tag density peak calls,
+            (not restricted to hotspots, thresholded or unthresholded) called
+            using HotSpot peak caller"),
+        .macs2.narrowPeak.gz=.trim("Narrow DNasePeaks called using MACS2
+            with a p-value threshold of 0.01"),
+        narrowPeak.gz=.trim("Narrow ChIP peaks were called using MACSv2
+            with a p-value threshold of 0.01."))
+    description <- character(length(urls))
+    for (i in seq_along(map))
+        description[grep(names(map)[i], urls)] <- map[[i]]
     
-    data.frame(date=date, size=size, sourceUrl=sourceUrl, 
+    data.frame(date=date, size=size, sourceUrl=urls, 
                description=description, stringsAsFactors =FALSE)
 }
 
-.getPeakCalls <- function(url,verbose=FALSE, broad=TRUE) {
-    require(XML)
-    require(RCurl)
-    tryCatch ({
-        if (verbose)
-            message(basename(url))
-        html <- htmlParse(url)
+.getPeakCalls <- function(url, tag) {
+    ans <- tryCatch ({
+        message(basename(url))
+        result <- GET(url)
+        stop_for_status(result)
+        html <- content(result)
         
-        if(length(class(html))!=4)
-            stop("Cant connect to Broad Institute to get Epigenome files")
-        
-        fls <- sapply(html["//li/a/text()"], xmlValue)
-        
-        fls <- sapply(fls, trim, USE.NAMES=FALSE)
-        fls <- fls[!grepl("Parent Directory" , fls)]
-        fls <- fls[!grepl("README.txt" , fls)]
-        
+        fls <- sapply(html["//li/a/@href"], as.character)
+        fls <- fls[!grepl(".*(/|README.txt).*" , fls)]
+        urls <- paste0(url, fls)
         ## get file information for each file. 
-        .getFileInfo(url=paste0(url,fls), broad=broad) ## step takes time!!
+        .getFileInfo(urls) ## step takes time!!
         
-    },error=function(err) {
-        warning(basename(url), ": ", conditionMessage(err))
-        data.frame(url=character(), version=character(), 
+    }, error=function(err) {
+        warning(basename(url), ": ", conditionMessage(err), immediate.=TRUE)
+        data.frame(url=character(), version=character(),
                    stringsAsFactors=FALSE)
     })
+    cbind(ans, tag=tag)
 }
 
 .getEpigenomeRoadMapPeaks <- function() {
-    broadBase <- "peaks/stdnames30M/broadPeak/"
-    narrowBase <- "peaks/stdnames30M/combrep/"
-    
-    .broadUrl <- sprintf(paste0("%s",broadBase), .EpigenomeRoadMap)
-    broad_df <- .getPeakCalls(url =.broadUrl, broad=TRUE,verbose=TRUE)
-    
-    .narrowUrl <- sprintf(paste0("%s",narrowBase), .EpigenomeRoadMap)
-    narrow_df <- .getPeakCalls(url =.narrowUrl, broad=FALSE)
-    
-    rbind(broad_df, narrow_df)
-}
+    paths <- c(broadPeaks="peaks/stdnames30M/broadPeak/",
+               narrowPeaks="peaks/stdnames30M/combrep/")
+    urls <- setNames(paste0(.EpigenomeRoadMap, paths), names(paths))
 
+    do.call(rbind, Map(.getPeakCalls, urls, names(urls)))
+}
 
 makeEpigenomeRoadmap <- function(currentMetadata) {
     rsrc <- .getEpigenomeRoadMapPeaks()
     
     description <- rsrc$description
-    genome <- rep("hg19",nrow(rsrc))
+    genome <- rep("hg19", nrow(rsrc))
     sourceFile <- rownames(rsrc)
     title <- rownames(rsrc)
     sourceUrls <- rsrc$sourceUrl
     sourceVersion <- sapply(rsrc$date, function(y) gsub(" ","_",y)) 
         ## should be character
-    species <- rep("Homo sapiens",nrow(rsrc))           
-    taxonomyId <- as.integer(rep(9606,nrow(rsrc)))
+    species <- rep("Homo sapiens", nrow(rsrc))
+    taxonomyId <- rep(9606L, nrow(rsrc))
     SourceLastModifiedDate <- rsrc$date  ## should be "POSIXct" "POSIXt"
     SourceSize <- as.numeric(rsrc$size)
+    Tags <- lapply(rsrc$tag, function(tag) {
+        c("EpigenomeRoadmap", as.character(tag), "DNAseq","ChIPseq","genome")
+    })
     
     Map(AnnotationHubMetadata,
         Description=description, Genome=genome,
@@ -119,7 +94,7 @@ makeEpigenomeRoadmap <- function(currentMetadata) {
         SourceSize = SourceSize,
         RDataPath=sourceUrls,
         SourceVersion=sourceVersion, Species=species,
-        TaxonomyId=taxonomyId, Title=title,
+        TaxonomyId=taxonomyId, Title=title, Tags=Tags,
         MoreArgs=list(
             Coordinate_1_based = FALSE,
             DataProvider = "broadinstitute.org",
@@ -128,8 +103,7 @@ makeEpigenomeRoadmap <- function(currentMetadata) {
             RDataClass = "EpigenomeRoadmapFile",
             RDataDateAdded = Sys.time(),
             RDataVersion = "0.0.1",
-            Recipe = NA_character_,
-            Tags = c("DNAseq","ChIPseq","genome" )))
+            Recipe = NA_character_))
 }
 
 makeAnnotationHubResource("EpigenomeRoadMapPreparer", makeEpigenomeRoadmap)
