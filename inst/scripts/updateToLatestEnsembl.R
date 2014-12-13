@@ -1,3 +1,40 @@
+
+################################################################################
+## New test on gamay with the latest (need to update ensembl fasta files
+library(AnnotationHubData)
+ahroot <- "/var/FastRWeb/web"
+BiocVersion <- c("3.1")  
+## list the importPreparerClasses I might want: 
+potentialClasses <- getImportPreparerClasses()
+potentialClasses
+## for 1st attempt don't insert OR run recipes...
+
+
+## The 1st test. (looks OK.  With filter it adds for: 76-78)
+fastaAhms = updateResources(ahroot, BiocVersion,
+  preparerClasses = "EnsemblFastaImportPreparer",
+  insert = FALSE, metadataOnly=TRUE)           
+
+## debug(AnnotationHubData:::cleanupLst)
+## debug(ahmToJson)
+## For testing:
+# debug(AnnotationHubData:::filterAHMs)
+# load('allAhms.rda')
+# allAhms <- AnnotationHubData:::filterAHMs(allAhms)
+
+## Test to just see if we can generate the files.
+## But still don't insert as Sonali is modifying the DB.
+fastaAhms = updateResources(ahroot, BiocVersion,
+                            preparerClasses = "EnsemblFastaImportPreparer",
+                            insert = FALSE, metadataOnly=FALSE)           
+
+
+
+
+
+
+
+
 ## This script is for updating to the latest ensembl data.  Lets start
 ## with just one or two and then try to update the set once we know
 ## the recipe works.

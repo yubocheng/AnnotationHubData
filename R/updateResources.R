@@ -132,7 +132,7 @@ updateResources <- function(ahroot, BiocVersion,
     ## remove any of the AHMs that are already in the DB.  This requires that I 
     ## have an updated DB already, which I can now get thanks to an upgraded 
     ## AnnotationHub ()
-    ## allAhms <- filterAHMs(allAhms)
+    allAhms <- filterAHMs(allAhms)
     
     
     ## 2 make into JSON
@@ -166,6 +166,7 @@ updateResources <- function(ahroot, BiocVersion,
 filterAHMs <- function(ahms){
     ## we need certain data from the DB (but not *all* of it)
     require(RSQLite)
+    require(AnnotationHub)
     ah <- AnnotationHub()
     conn <- ah@.db_connection
     ## compared ahm@RDataVersion[1] and ahm@SourceUrl[1]
@@ -183,16 +184,29 @@ filterAHMs <- function(ahms){
         ahmVers <- ahm@RDataVersion[1]
         ahmSrc <- ahm@SourceUrl[1]
         ahmBcv <- ahm@BiocVersion
-        ## Work out if true or false that we "have seen this before?"
+        ## Work out whether true or false: "have we seen this before?"
         ## TODO: 1st subset based on srcUrl and then check the other things.
-        res <- ahmVers %in% em$rdataversion & ahmSrc %in% em$sourceurl & 
-                ahmBcv %in% em$biocversion
-        res        
+        ## Below can't work because the question needs to be asked for each specific AHM.
+        ## IOW they have to *all* match (or not)        
+        ## rdataversion does notcurrently contain valuable data.   :(
+        ## res <- ahmVers %in% em$rdataversion & ahmSrc %in% em$sourceurl & 
+        ## ahmBcv %in% em$biocversion
+        
+        ## next change this so that the checked values are on the same row.
+        ## res <- ahmSrc %in% em$sourceurl ## & ahmBcv %in% em$biocversion
+
+        ## BUT FOR NOW:
+        ## For just getting the ensembl fasta files, the following should be enough:
+        res <- ahmSrc %in% em$sourceurl
+
+        ## But it won't be enough for *everything (UCSC would end up with no updates)
+        
+        res
     }
     
     ## Then I could compare this data to my list of AHMs using an lapply 
-    idx <- lapply(ahms, FUN=.isNew, em=existingMetadata)
-    ahms[idx]
+    idx <- unlist(lapply(ahms, FUN=.isNew, em=existingMetadata))
+    ahms[!idx]
 }
 
 ## This raises some questions to discuss with Martin: do we want to search on 
@@ -212,7 +226,14 @@ filterAHMs <- function(ahms){
 ## When exactly do we want to re-run a recipe?
 
 
+###############################################################
+## So after talking with Martin there are a few things to consider
+## 1) Not all resoures are the same scenario (UCSC vs ensembl -> not versioned vs versioned resources)
+## 2) Some of our resources are NOT stored in S3 (and therefore can't be versioned ever).  Like chain files.  What the user gets will always just be what is online.  Does this mean that we should not make new records (or always make them?)
+## 3) Is a UCSC file that is out of date call for a new record?  What about an ensembl file?  How about a chain file?  How do we know what the rules will be for each case?  Do we need to indicate this in the metadata?  Or just follow a heuristic?
 
+
+## Talk to Dan and then discuss it with Martin to get clear rules/specifications in place...
 
 
 
