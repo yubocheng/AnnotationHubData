@@ -101,7 +101,8 @@ updateResources <- function(ahroot, BiocVersion,
                             preparerClasses=getImportPreparerClasses(),
                             listOfExistingResources=list(),
                    ## listOfExistingResources=getCurrentResources(BiocVersion),
-                            insert=FALSE, metadataOnly=TRUE){
+                            insert=FALSE, metadataOnly=TRUE,
+                            filtering=TRUE){
     
     ## 1 spawning the AHMs is about calling the newResources method
     ## defined for them.  The newResources method takes a class that
@@ -132,8 +133,14 @@ updateResources <- function(ahroot, BiocVersion,
     ## remove any of the AHMs that are already in the DB.  This requires that I 
     ## have an updated DB already, which I can now get thanks to an upgraded 
     ## AnnotationHub ()
-    allAhms <- filterAHMs(allAhms)
-    
+    if(filtering==TRUE){
+        allAhms <- filterAHMs(allAhms)
+    }
+    ## Running this function with filtering=FALSE for some older recipes
+    ## usually resuilts in no AHMs, which raises the question of
+    ## whether or not filterAHMs is really even needed?
+    ## I think is is necessary since we can't rely on the recipe to
+    ## filter out existing records for us.
     
     ## 2 make into JSON
     jsons = lapply(allAhms,ahmToJson)

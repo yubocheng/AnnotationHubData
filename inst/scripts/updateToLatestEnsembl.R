@@ -24,9 +24,18 @@ fastaAhms = updateResources(ahroot, BiocVersion,
 
 ## Test to just see if we can generate the files.
 ## But still don't insert as Sonali is modifying the DB.
+## fastaAhms = updateResources(ahroot, BiocVersion,
+##                             preparerClasses = "EnsemblFastaImportPreparer",
+##                             insert = FALSE, metadataOnly=FALSE)           
+
+
+## Then run it this way to get the metadata
 fastaAhms = updateResources(ahroot, BiocVersion,
                             preparerClasses = "EnsemblFastaImportPreparer",
-                            insert = FALSE, metadataOnly=FALSE)           
+                            insert = TRUE, metadataOnly=TRUE)           
+
+
+
 
 
 
@@ -113,7 +122,8 @@ potentialClasses
 
 chainahms = updateResources(ahroot, BiocVersion,
   preparerClasses = "UCSCChainPreparer",
-  insert = FALSE, metadataOnly=TRUE)           
+  insert = FALSE, metadataOnly=TRUE,
+  filtering=FALSE)           
 
 ## debug(AnnotationHubData:::cleanupLst)
 ## debug(ahmToJson)
@@ -132,7 +142,8 @@ ahroot <- "/var/FastRWeb/web"
 BiocVersion <- c("3.1")  
 ahms = updateResources(ahroot, BiocVersion,
                         preparerClasses = "UCSC2BitPreparer",
-                        insert = TRUE, metadataOnly=TRUE)           
+                        insert = FALSE, metadataOnly=TRUE,
+                        filtering=FALSE)           
 
 
 
