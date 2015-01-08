@@ -26,6 +26,7 @@ exportClasses(AnnotationHubMetadata,
               EncodeImportPreparer,
               UCSCTrackImportPreparer,
               UCSCChainPreparer,
+              Grasp2ImportPreparer,
               ## 
               EnsemblGtfImportPreparer,
               EnsemblFastaImportPreparer,

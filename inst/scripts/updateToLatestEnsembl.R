@@ -1,3 +1,44 @@
+## Test for Martins new recipe
+library(AnnotationHubData)
+## library(grasp2db) (stashed in AnnotationHubData)
+ahroot <- "/var/FastRWeb/web"
+BiocVersion <- c("3.1")  
+## list the importPreparerClasses I might want: 
+getImportPreparerClasses()
+
+## The 1st test. 
+ahms = updateResources(ahroot, BiocVersion,
+  preparerClasses = "Grasp2ImportPreparer",
+  insert = FALSE, metadataOnly=TRUE)
+
+
+## Then again to push the data to local metadata (he already ran the actual recipe)
+ahms = updateResources(ahroot, BiocVersion,
+  preparerClasses = "Grasp2ImportPreparer",
+  insert = TRUE, metadataOnly=TRUE)
+
+
+
+
+
+
+
+## TODO: fix problems here:
+## Test for updated UCSC tracks recipe
+library(AnnotationHubData)
+ahroot <- "/var/FastRWeb/web"
+BiocVersion <- c("3.1")  
+## list the importPreparerClasses I might want: 
+getImportPreparerClasses()
+
+## The 1st test. 
+UCSCAhms = updateResources(ahroot, BiocVersion,
+  preparerClasses = "UCSCTrackImportPreparer",
+  insert = FALSE, metadataOnly=TRUE)
+
+
+
+
 
 ################################################################################
 ## New test on gamay with the latest (need to update ensembl fasta files

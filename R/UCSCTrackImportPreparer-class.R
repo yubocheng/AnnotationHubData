@@ -119,9 +119,15 @@ UCSCFullTrackImportPreparer <-
 
 
 
+
+
+## STEP 1: make a function to process metadata into AHMs
 .UCSCTrackMetadata <-
-    function(sourceTracks, type = c("FULL", "TRACKONLY"))
+    function(type = c("FULL", "TRACKONLY"))
 {
+    ## just process all the sourceTracks
+    sourceTracks <- .UCSCTrackSourceTracks()
+    
     type <- match.arg(type)
     recipe <- switch(type, FULL="trackandTablesToGRangesRecipe",
                      TRACKONLY="trackToGRangesRecipe",
@@ -157,67 +163,106 @@ UCSCFullTrackImportPreparer <-
 
     ## use Map to make all these from vectors
 
-    Map(AnnotationHubMetadata, Description=description, Genome=genome,
-        SourceFile=sourceFile, SourceUrl=sourceUrl,
-        SourceVersion=sourceVersion, Species=species,
-        TaxonomyId=taxonomyId, Title=title, Tags=tags,
+    Map(AnnotationHubMetadata,
+        Description=description,
+        Genome=genome,
+        SourceFile=sourceFile,
+        SourceUrl=sourceUrl,
+        SourceVersion=sourceVersion,
+        Species=species,
+        TaxonomyId=taxonomyId,
+        Title=title,
+        Tags=tags,
         MoreArgs=list(
-          AnnotationHubRoot=NA_character_, Coordinate_1_based = TRUE,
+          ## AnnotationHubRoot=NA_character_,
+          Coordinate_1_based = TRUE,
           DataProvider = "hgdownload.cse.ucsc.edu",
           Maintainer = "Marc Carlson <mcarlson@fhcrc.org>",
           RDataClass = "GRanges",
           RDataDateAdded = format(Sys.time(), "%Y-%m-%d GMT"),
           RDataVersion = "0.0.1",
           Recipe = c(recipe, package="AnnotationHubData"),
-          SourceMd5=NA_character_, SourceSize=NA_real_))
+          SourceMd5=NA_character_,
+          SourceSize=NA_real_))
 }
 
-## method for track only recipe
-setMethod(newResources, "UCSCTrackImportPreparer",
-    function(importPreparer, currentMetadata=list(), numberGenomesToProcess=NULL,
-             ...)
-{
-    
-    allGoodTracks <- .UCSCTrackSourceTracks()
-    if( is.null(numberGenomesToProcess)){
-        sourceTracks <- allGoodTracks
-    }else{
-        sourceTracks <- allGoodTracks[numberGenomesToProcess]
-    }
+## Open questions:
+## 1) How did I decide which method to call (which recipe?) before?  (methods)
+## 2) make sure that allGoodTracks is used when we make the metadata, and that the AHMs are made based on the answer to #1.
 
-    ## filter known    
-##     knownTracks <- sapply(currentMetadata, function(elt) {
-##         sub("^.+/database/","",(metadata(elt)@SourceFile) 
-##     })
-##     sourceTracks <- sourceTracks[!sourceTracks %in% knownTracks]
+
+## STEP 2: Make a recipe function
+## In this case these live in: trackToGRangesRecipe.R and
+## trackWithAuxiliaryTableToGRangesRecipe.R
+
+
+
+## STEP 3:  Call the helper to set up the newResources() method
+makeAnnotationHubResource("UCSCTrackImportPreparer",
+                          .UCSCTrackMetadata(type="TRACKONLY"))
+
+makeAnnotationHubResource("UCSCFullTrackImportPreparer",
+                          .UCSCTrackMetadata(type="FULL"))
+
+
+
+
+
+
+
+################################################################################
+## Then comment all that is below this:
+################################################################################
+
+## TODO: find an alternative way to get the extra stuff below called.  (there should be some other examples by now).
+## Also the code at the top of these two methods does not even look 'correct' (subsetting issues)
+
+## ## method for track only recipe
+## setMethod(newResources, "UCSCTrackImportPreparer",
+##     function(importPreparer, currentMetadata=list(), numberGenomesToProcess=NULL,
+##              ...)
+## {
+    
+##     allGoodTracks <- .UCSCTrackSourceTracks()
+##     if( is.null(numberGenomesToProcess)){
+##         sourceTracks <- allGoodTracks
+##     }else{
+##         sourceTracks <- allGoodTracks[numberGenomesToProcess]
+##     }
+
+##     ## filter known    
+## ##     knownTracks <- sapply(currentMetadata, function(elt) {
+## ##         sub("^.+/database/","",(metadata(elt)@SourceFile) 
+## ##     })
+## ##     sourceTracks <- sourceTracks[!sourceTracks %in% knownTracks]
    
-    ## AnnotationHubMetadata
-    .UCSCTrackMetadata(sourceTracks, type="TRACKONLY")
-})
+##     ## AnnotationHubMetadata
+##     .UCSCTrackMetadata(sourceTracks, type="TRACKONLY")
+## })
 
 
-## For full tracks
-setMethod(newResources, "UCSCFullTrackImportPreparer",
-    function(importPreparer, currentMetadata=list(), numberGenomesToProcess=NULL,
-             ...)
-{
+## ## For full tracks
+## setMethod(newResources, "UCSCFullTrackImportPreparer",
+##     function(importPreparer, currentMetadata=list(), numberGenomesToProcess=NULL,
+##              ...)
+## {
     
-    allGoodTracks <- .UCSCTrackSourceTracks()
-    if( is.null(numberGenomesToProcess)){
-        sourceTracks <- allGoodTracks
-    }else{
-        sourceTracks <- allGoodTracks[1:numberGenomesToProcess]
-    }
+##     allGoodTracks <- .UCSCTrackSourceTracks()
+##     if( is.null(numberGenomesToProcess)){
+##         sourceTracks <- allGoodTracks
+##     }else{
+##         sourceTracks <- allGoodTracks[1:numberGenomesToProcess]
+##     }
 
-    ## filter known    
-##     knownTracks <- sapply(currentMetadata, function(elt) {
-##         sub("^.+/database/","",(metadata(elt)@SourceFile) 
-##     })
-##     sourceTracks <- sourceTracks[!sourceTracks %in% knownTracks]
+##     ## filter known    
+## ##     knownTracks <- sapply(currentMetadata, function(elt) {
+## ##         sub("^.+/database/","",(metadata(elt)@SourceFile) 
+## ##     })
+## ##     sourceTracks <- sourceTracks[!sourceTracks %in% knownTracks]
 
-    ## AnnotationHubMetadata
-    .UCSCTrackMetadata(sourceTracks, type="FULL")
-})
+##     ## AnnotationHubMetadata
+##     .UCSCTrackMetadata(sourceTracks, type="FULL")
+## })
 
 
 
