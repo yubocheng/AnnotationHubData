@@ -21,7 +21,7 @@
         Genome="hg19",
         Tags=c("SNP", "Annotation", "GRASP2"),
         Recipe=c(".grasp2ToAnnotationHub", package="grasp2db"),
-        RDataClass="GRASPResource",
+        RDataClass="GRASP",
         RDataDateAdded = Sys.time(),                                    
         RDataVersion="2.0.0",
         RDataPath="NHLBI_Public/GRASP/BiocGRASP2.sqlite",

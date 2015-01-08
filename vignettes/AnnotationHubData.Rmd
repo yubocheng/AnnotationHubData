@@ -180,6 +180,14 @@ ruby convert_db.rb
 exit
 ```
 
+Sometimes if you are rolling back there may be an issue where the ruby conversion script doesn't run because it thinks the new DB has an older timestamp.  If that happens remove the timestamp file and run it again:
+```{}
+rm dbtimestamp.cache
+ruby convert_db.rb 
+exit
+```
+
+
 Once this is done, you then have to actually test the client and make sure that your data is in there etc. This means that you need to launch AnnotationHub so that it points to gamay for metadata.  You can do that like this:
 
 ```{r, test_client, eval=FALSE}
