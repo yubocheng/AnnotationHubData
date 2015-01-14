@@ -32,6 +32,7 @@
     lapply(jsons, function(x) {
         result <- POST(handle=h, body=list(payload=x))
         print(result)
+        print(content(result))
         result
     })
 }
@@ -170,6 +171,9 @@ updateResources <- function(ahroot, BiocVersion,
 ## sophisticated, I think we should start to filter based on MD5 
 ## (and make one if not present) to ensure that things match (when relevant)etc.
 
+## UPDATED PLAN TO include both version AND name.  1st step: get all rows that match the name.  2nd step: see if the version number and name match for each.  If there is a match for both then return
+
+
 filterAHMs <- function(ahms){
     ## we need certain data from the DB (but not *all* of it)
     require(RSQLite)
@@ -206,7 +210,7 @@ filterAHMs <- function(ahms){
         ## For just getting the ensembl fasta files, the following should be enough:
         res <- ahmSrc %in% em$sourceurl
 
-        ## But it won't be enough for *everything (UCSC would end up with no updates)
+        ## But it won't be enough for *everything* (UCSC would end up with no updates)
         
         res
     }

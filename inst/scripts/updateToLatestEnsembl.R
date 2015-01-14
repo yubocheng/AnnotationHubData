@@ -1,27 +1,3 @@
-## Test for Martins new recipe
-library(AnnotationHubData)
-## library(grasp2db) (stashed in AnnotationHubData)
-ahroot <- "/var/FastRWeb/web"
-BiocVersion <- c("3.1")  
-## list the importPreparerClasses I might want: 
-getImportPreparerClasses()
-
-## The 1st test. 
-ahms = updateResources(ahroot, BiocVersion,
-  preparerClasses = "Grasp2ImportPreparer",
-  insert = FALSE, metadataOnly=TRUE)
-
-
-## Then again to push the data to local metadata (he already ran the actual recipe)
-ahms = updateResources(ahroot, BiocVersion,
-  preparerClasses = "Grasp2ImportPreparer",
-  insert = TRUE, metadataOnly=TRUE)
-
-
-
-
-
-
 
 ## TODO: fix problems here:
 ## Test for updated UCSC tracks recipe
@@ -39,6 +15,36 @@ UCSCAhms = updateResources(ahroot, BiocVersion,
 
 
 
+###############################################################################
+## Test for Martins new recipe
+library(AnnotationHubData)
+## library(grasp2db) (stashed in AnnotationHubData)
+ahroot <- "/var/FastRWeb/web"
+BiocVersion <- c("3.1")  
+## list the importPreparerClasses I might want: 
+getImportPreparerClasses()
+
+## The 1st test. 
+ahms = updateResources(ahroot, BiocVersion,
+  preparerClasses = "Grasp2ImportPreparer",
+  insert = FALSE, metadataOnly=TRUE, filtering=FALSE)
+
+
+## Then again to push the data to local metadata (he already ran the actual recipe)
+ahms = updateResources(ahroot, BiocVersion,
+  preparerClasses = "Grasp2ImportPreparer",
+  insert = TRUE, metadataOnly=TRUE, filtering=FALSE)
+
+
+## hooray. The above stuff at least made it in.
+## Still TOFO: move the updated recipe back over to the other package
+
+
+## TODO:
+## work out what happened to this title: "Ailuropoda_melanoleuca.ailMel1.78.dna.toplevel.fa" - answer - it was changed to no longer contain the 'version' From now on filters need to check that both the name and the sourceversion are present and identical (not just the name)
+## BUT maybe that just isn't the problem *here* since FASTA records (and indeed most FTP sources will include the version number in the sourceURL (as it includes the full path) - still gonna change it though - but this may not be the specific problem I am having here...
+## And now I have convinced myself that there really isn't a problem here other than the lack of separate version checking as ~400 is the number of records we have for previous versions (and the number that is expected)
+
 
 ################################################################################
 ## New test on gamay with the latest (need to update ensembl fasta files
@@ -55,6 +61,9 @@ potentialClasses
 fastaAhms = updateResources(ahroot, BiocVersion,
   preparerClasses = "EnsemblFastaImportPreparer",
   insert = FALSE, metadataOnly=TRUE)           
+fastaAhms[[1]]
+## And this looks 'good'
+cat(AnnotationHubData:::ahmToJson(fastaAhms[[1]]))
 
 ## debug(AnnotationHubData:::cleanupLst)
 ## debug(ahmToJson)
@@ -79,7 +88,9 @@ fastaAhms = updateResources(ahroot, BiocVersion,
 
 
 
-
+## <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+##<html><body><p>invalid resource: {:rdataversion=&gt;["cannot be empty"]}</p></body></html>
+ 
 
 
 

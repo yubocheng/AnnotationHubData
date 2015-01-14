@@ -38,10 +38,13 @@
     res
 }
 
+## This recips is 'tricky' because it has to include an extra row for the extra index file in the database.  That means that all relevant rows for the rdatapaths table needed to have extra elements in their slots...  So below you can see extra work done for RDataPath, RDataClass, RDataSize and RDataLastModifiedDate
+
 ## AHM generator
 makeEnsemblFastaToAHMs <-
     function(currentMetadata)
 {
+    time1 <- Sys.time()
     baseUrl = .ensemblBaseUrl
     ## get all possible sourceUrls
     sourceUrl <- .ensemblFastaSourceUrls(.ensemblBaseUrl) 
@@ -56,19 +59,33 @@ makeEnsemblFastaToAHMs <-
     })
     description <- paste("FASTA", dnaType, "sequence for", meta$species)
 
+    ## For rdatapaths, I need two copies of each one
+    rdataPath <- sub(".gz$", ".rz", sourceFile)
+    rdps <- rep(rdataPath,each=2)
+    rdatapaths <- split(rdps, f=as.factor(rep(1:length(rdataPath),each=2)))
+    ## Then the 2nd record of each set need to become an '.fai' file
+    rdatapaths <- lapply(rdatapaths,
+                         function(x){x[2] <- paste0(x[2],".fai") ; return(x)})
+    
     Map(AnnotationHubMetadata,
         AnnotationHubRoot=meta$annotationHubRoot,
-        Description=description, Genome=meta$genome,
-        RDataPath=sub(".gz$", ".rz", sourceFile), SourceFile=sourceFile,
-        SourceUrl=sourceUrl, SourceVersion=meta$sourceVersion,
-        Species=meta$species, TaxonomyId=meta$taxonomyId,
+        Description=description,
+        Genome=meta$genome,
+        RDataPath=rdatapaths,
+        SourceFile=sourceFile,
+        SourceUrl=sourceUrl,
+        SourceVersion=meta$sourceVersion,
+        Species=meta$species,
+        TaxonomyId=meta$taxonomyId,
         Title=meta$title,
         MoreArgs=list(
           Coordinate_1_based = TRUE,
           DataProvider = "ftp.ensembl.org",
           Maintainer = "Martin Morgan <mtmorgan@fhcrc.org>",
-          RDataClass = "FaFile",
+          RDataClass = c("FaFile", "FaFile"),
           RDataDateAdded = Sys.time(),
+          RDataSize = c(NA_real_,NA_real_),
+          RDataLastModifiedDate = c(Sys.time(),Sys.time()),
           RDataVersion = "0.0.1",
           Recipe = c("ensemblFastaToFaFile", package="AnnotationHubData"),
           Tags = c("FASTA", "ensembl", "sequence")))
