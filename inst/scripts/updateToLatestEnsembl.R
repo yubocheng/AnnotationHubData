@@ -46,6 +46,8 @@ ahms = updateResources(ahroot, BiocVersion,
 ## And now I have convinced myself that there really isn't a problem here other than the lack of separate version checking as ~400 is the number of records we have for previous versions (and the number that is expected)
 
 
+
+
 ################################################################################
 ## New test on gamay with the latest (need to update ensembl fasta files
 library(AnnotationHubData)
@@ -86,11 +88,27 @@ fastaAhms = updateResources(ahroot, BiocVersion,
 
 
 
-
-
 ## <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
 ##<html><body><p>invalid resource: {:rdataversion=&gt;["cannot be empty"]}</p></body></html>
  
+
+## This is the SQL that extracts the stuff we need to clone for spoofing .fai records (plus one other field)
+## SELECT  input_sources.sourceversion, rdatapath, rdataclass, rdatasize, rdatamd5, rdatalastmodifieddate, rdatapaths.resource_id FROM rdatapaths, input_sources WHERE input_sources.resource_id=rdatapaths.resource_id AND sourceversion='release-78' AND rdatapath LIKE '%Ailuropoda_melanoleuca.ailMel1.%';
+
+## When refined this should look like this in .sqlite:
+## SELECT  input_sources.sourceversion, rdatapath||'.fai', rdataclass, rdatasize, rdatamd5, rdatalastmodifieddate, rdatapaths.resource_id FROM rdatapaths, input_sources WHERE input_sources.resource_id=rdatapaths.resource_id AND sourceversion='release-78';
+
+## and like this for mysql:
+## SELECT  input_sources.sourceversion, concat(rdatapath,'.fai'), rdataclass, rdatasize, rdatamd5, rdatalastmodifieddate, rdatapaths.resource_id FROM rdatapaths, input_sources WHERE input_sources.resource_id=rdatapaths.resource_id AND sourceversion='release-78';
+
+## And this query should insert that stuff again
+
+## This is the final command for MySQL
+##INSERT INTO rdatapaths (rdatapath, rdataclass, rdatasize, rdatamd5, rdatalastmodifieddate, resource_id) SELECT concat(rdatapath,'.fai'), rdataclass, rdatasize, rdatamd5, rdatalastmodifieddate, rdatapaths.resource_id FROM rdatapaths, input_sources WHERE input_sources.resource_id=rdatapaths.resource_id AND sourceversion='release-78';
+
+
+
+
 
 
 
