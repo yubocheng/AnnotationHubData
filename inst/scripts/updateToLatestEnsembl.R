@@ -62,7 +62,7 @@ potentialClasses
 ## The 1st test. (looks OK.  With filter it adds for: 76-78)
 fastaAhms = updateResources(ahroot, BiocVersion,
   preparerClasses = "EnsemblFastaImportPreparer",
-  insert = FALSE, metadataOnly=TRUE)           
+  insert = FALSE, metadataOnly=TRUE,filtering=FALSE)           
 fastaAhms[[1]]
 ## And this looks 'good'
 cat(AnnotationHubData:::ahmToJson(fastaAhms[[1]]))
