@@ -17,6 +17,7 @@ BiocStyle::markdown()
 **Compiled**: `r date()`
 
 
+
 ## Overview
 
 The AnnotationHubData package provides tools to acquire,
@@ -28,14 +29,65 @@ transformed to standard Bioconductor data types, and stored so that
 they may be conveniently served up on demand to users via the
 AnnotationHub client.
 
-For a description of how to put new data into the AnnotationHub,
-please see the vignette titled "How to write recipes for new resources
-for the AnnotationHub" in the AnnotationHub package.
-
 This document will deal with the nuts and bolts of how the back end of
-the AnnotationHub works and operates.
+the AnnotationHub works and operates. 
 
-## How is the metadata stored?
+
+
+## How are recipes created and then run?
+
+For the 1st part of the description of how to put new data into the AnnotationHub, please see the vignette titled "How to write recipes for new resources for the AnnotationHub" in the AnnotationHub package.  This will explain how to create a recipe and an AnnotationHubMetadata generating function.  
+
+After those initial two steps though, you will have to actually run the recipe.  This will require that you follow the instructions described here.
+
+### Calling the makeAnnotationHubResource helper 
+
+Once you have a recipe and an AnnotationHubMetadata generating functions you will need to call the makeAnnotationHubResource function to do some automatic setup.  This function only has two required arguments.  The 1st is basically the name of a class that describes the kind of resource you are writing code to import.  It just needs to be a unique class name and will be used internally to create a class for dispatch.  The 2nd argument is the name of your metadata processing function from the 1st step in the other vignette.  If this function name is NAMESPACED in another package (IOW if it's a contributed recipe) you might have to import it for the next step to work.  
+
+```{r, makeAnnotationHubResource, eval=FALSE}
+require(AnnotationHubData)
+makeAnnotationHubResource("Inparanoid8ImportPreparer",
+                          makeinparanoid8ToAHMs)
+```
+
+
+Once you have added this call to AnnnotationHubData, the only step left is to export the class name into the NAMESPACE (remember that this is that string you are providing as your 1st argument). Then reinstall AnnotationHubData and go to the next step. 
+
+
+
+
+### Testing your new recipe
+
+Next install the modified AnnotationHubData package and see if the recipe works correctly. You just need to call the function that will try to update the resources for your recipe.  That function is called updateResources(). The updateResources() function takes several arguments.  These are:
+
+* ahroot: represents the place where you would like any generated files go.
+* BiocVersion: character vector for versions of Bioc your objects will be compatible with
+* preparerClasses: vector of which classes you want to process recipes for.
+* insert: try to insert metadata into the DB? As a recipe author, you don't get to do this.  So it should be FALSE when you call this or you will get an error.
+* metadataOnly: should the recipes be run to create the processed files?
+* filtering: this is normally TRUE to indicate that we don't want to regenerate AHMs for records that are already in the local cached database.  However, you sometimes may want to set this to FALSE if you need to do some testing.
+
+```{r, updateResources, eval=FALSE}
+library(AnnotationHubData)  
+
+mdinp = updateResources(ahroot=getwd(), 
+                        BiocVersion=biocVersion(),
+                        preparerClasses = "Inparanoid8ImportPreparer",
+                        insert = FALSE,
+                        metadataOnly=TRUE)     
+```
+
+When you call updateResources() like this, a set of AnnotationHubMetadata objects should be returned.  You should inspect those to make sure that they contain all the metadata that you intended to use.  And if you run it again with metadataOnly set to FALSE, then it should generate the final objects for you in the ahroot directory that you specified.  If both of these things happen to your satisfaction then your recipe is ready to be run.
+
+
+
+
+
+
+
+
+
+## How is the back end metadata stored?
 
 When a recipe is run a lot of metadata is also required and collected
 about the data that is processed by that recipe.  This data is stored
@@ -240,7 +292,7 @@ zcat dbdump_2014_11_05_fromGamay.sql.gz | mysql -p -u root annotationhub
 
 
 
-## Where is the data stored?
+## Where is the actual file (cloud) data stored?
 
 Unlike the metadata, the data that it stored after a recipe is run is
 stored in something that looks like a file system. When testing on
