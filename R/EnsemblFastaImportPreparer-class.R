@@ -87,7 +87,7 @@ makeEnsemblFastaToAHMs <-
           RDataSize = c(NA_real_,NA_real_),
           RDataLastModifiedDate = c(Sys.time(),Sys.time()),
           RDataVersion = "0.0.1",
-          Recipe = c("ensemblFastaToFaFile", package="AnnotationHubData"),
+          Recipe = "AnnotationHubData:::ensemblFastaToFaFile",
           Tags = c("FASTA", "ensembl", "sequence")))
 }
 
