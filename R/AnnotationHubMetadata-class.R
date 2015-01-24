@@ -37,7 +37,7 @@ setOldClass(c("package_version", "numeric_version"))
 
 
 ## ------------------------------------------------------------------------------
-## isComplete
+## isComplete is used for translation from json
 ##
 
 .isComplete <-
@@ -73,27 +73,6 @@ setOldClass(c("package_version", "numeric_version"))
 }
 
 
-## TODO: add some checks in here to disallow any AHMs if the metadata for the 
-## rdatapath is not the same as the source URL whenever the location_prefix is 
-## something other than the standard thing
-
-setValidity("AnnotationHubMetadata",function(object) {
-    msg = NULL
-    ## no spaces are allowed int he RDataPath field
-    if(grepl(" ", object@RDataPath)){
-        msg <- c(msg, "the string for RDataPath cannot contain spaces.")
-    }
-    ## if the location prefix is "non-standard" (IOW not stored in S3) and 
-    ## if the source URL is not the same as rdatapath 
-    ## then we need to add a message and fail out
-    standardLocationPrefix <- 'http://s3.amazonaws.com/annotationhub/'
-    if(object@Location_Prefix != standardLocationPrefix){
-        if(object@RDataPath != object@SourceUrl){
-            msg <- c(msg, "the string for RDataPath must match the SourceUrl.")
-        }
-    }
-    if (is.null(msg)) TRUE else msg 
-})
 
 ## ----------------------------------------------------------------------------
 ## Generics
