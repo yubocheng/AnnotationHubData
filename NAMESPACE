@@ -4,6 +4,8 @@ import(httr)
 
 import(GenomicFeatures)
 
+import(AnnotationHub)
+
 import(futile.logger)
 
 importFrom(RCurl, getURL)
@@ -20,7 +22,7 @@ importFrom(rtracklayer, import, ucscGenomes)
 
 importFrom(AnnotationForge, makeInpDb)
 
-exportClasses(AnnotationHubMetadata,
+exportClasses(## AnnotationHubMetadata, #(moved to AnnotationHub)
               ImportPreparer,
               EncodeImportPreparer,
               UCSCTrackImportPreparer,
@@ -32,7 +34,7 @@ exportClasses(AnnotationHubMetadata,
               Inparanoid8ImportPreparer,
               NCBIImportPreparer)
 
-export(AnnotationHubMetadata, 
+export(## AnnotationHubMetadata, #(moved to AnnotationHub)
        UCSCTrackImportPreparer,
        HaemCodeImportPreparer,
        RefNetImportPreparer,

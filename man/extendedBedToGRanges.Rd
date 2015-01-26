@@ -6,10 +6,11 @@ Transform an 'extended' BED file (with possibly more than the canonical
 three columns) into a Bioconductor GRanges object.
 }
 \usage{
-extendedBedToGRanges(recipe)
+extendedBedToGRanges(ahm, colClasses)
 }
 \arguments{
-  \item{recipe}{a \code{AnnotationHubRecipe} object. }
+  \item{ahm}{an \code{AnnotationHub} object. }
+  \item{colClasses}{ . }
 }
 
 \value{

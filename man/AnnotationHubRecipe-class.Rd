@@ -39,7 +39,7 @@ better name might be "AnnotationHubChef".
 }
 
 \usage{
-AnnotationHubRecipe(metadata)
+AnnotationHubRecipe(metadata, ...)
 constructSeqInfo(species, genome)
 inputFiles(object)
 outputFile(object)

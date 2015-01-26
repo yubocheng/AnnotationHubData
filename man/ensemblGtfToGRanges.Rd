@@ -9,11 +9,11 @@
 }
 
 \usage{
-ensemblGtfToGRanges(recipe)
+ensemblGtfToGRanges(ahm)
 }
 
 \arguments{
-  \item{recipe}{An \code{AnnotationHubRecipe} object.}
+  \item{ahm}{an \code{AnnotationHub} object. }
 }
 
 \details{
