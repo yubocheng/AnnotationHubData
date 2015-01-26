@@ -4,9 +4,9 @@
 
 .fileInfo <- function(url, tag) {
     tryCatch({
-        df2 <- strsplit(getURL(url, dirlistonly=TRUE), "\r\n")[[1]]
+        df2 <- strsplit(getURL(url, dirlistonly=TRUE), "\n")[[1]]
         
-        df2 <- df2[grep(".vcf.gz", df2)]
+        df2 <- df2[grep(".vcf.gz$", df2)]
         drop <-  grepl("latest", df2) | grepl("00-", df2)
         df2 <- df2[!drop]
         df2 <- paste0(url, df2)
@@ -52,9 +52,9 @@
     sourceUrl <- sub(.dbSNPBaseUrl, "", df$fileurl)
     
     n <- length(title)
-    withTbi <- grep(".tbi$",title)
-    
+        
     map <- c(`All_` = "VCF of all variations that meet the criteria to be in a VCF file.  This file is created once per dbSNP build.",
+        `All_papu` ="VCF of all variations found in the psuedoautosomal region (PAR), alternate loci, patch sequences and unlocalized or unplaced contigs(papu)",
         `common_all` = "VCF of all variations that are polymorphic in a least one population the 1000 Genomes project or any of the following handles: 1000GENOMES, CSHL-HAPMAP, EGP_SNPS NHLBI-ESP, PGA-UW-FHCRC. A variation is polymorphic if the minor allele frequency is at least 0.01 and the minor allele is present in at least two samples.",
         `clinvar` = "VCF of variations from clinvar where 'YYYYMMDD' represents the date the file was created. This file is created weekly.", 
         `common_and_clinical` = "Variations from common_all.vcf.gz that are clinical.  A clinical variation is one the appears in clinvar_YYYYMMDD.vcf.gz with at least one of the following clinical significance codes: 4 - probable-pathogenic, 5 - pathogenic, 6 - drug-response, 7 - histocompatibility, 255 - other, This file is created weekly.",
@@ -70,6 +70,15 @@
 
 makedbSNPVCF <- function(currentMetadata) {
     rsrc <- .getdbSNP()
+    
+    ## For rdatapaths, I need two copies of each one
+    rdataPath <- sub(".gz$", ".rz", rsrc$sourceUrl)
+    rdps <- rep(rdataPath,each=2)
+    rdatapaths <- split(rdps, f=as.factor(rep(1:length(rdataPath),each=2)))
+    ## Then the 2nd record of each set need to become an '.fai' file
+    rdatapaths <- lapply(rdatapaths,
+                         function(x){x[2] <- paste0(x[2],".tbi") ; return(x)})
+    
     
     description <- rsrc$description
     genome <- rsrc$genome
@@ -91,7 +100,7 @@ makedbSNPVCF <- function(currentMetadata) {
         SourceFile=sourceFile, SourceUrl=sourceUrls,
         SourceLastModifiedDate = SourceLastModifiedDate,
         SourceSize = SourceSize,
-        RDataPath=sourceUrls,
+        RDataPath=rdatapaths,
         SourceVersion=sourceVersion, Species=species,
         TaxonomyId=taxonomyId, Title=title, Tags=Tags,
         MoreArgs=list(
@@ -99,12 +108,25 @@ makedbSNPVCF <- function(currentMetadata) {
             DataProvider = "ftp://ftp.ncbi.nih.gov/snp",
             Location_Prefix = .dbSNPBaseUrl,
             Maintainer = "Martin Morgan <mtmorgan@fhcrc.org>",
-            RDataClass = "dbSNPVCFFile",
+            RDataClass = c("dbSNPVCFFile","dbSNPVCFFile"),
+            RDataSize = c(NA_real_,NA_real_),
             RDataDateAdded = Sys.time(),
-            RDataVersion = "0.0.1",
-            Recipe = NA_character_))
+            RDataVersion = "0.0.2",
+            Recipe = "AnnotationHubData:::ncbi_dbSNPVCFFile"))
 }
 
-makeAnnotationHubResource("dbSNPVCFPreparer", makedbSNPVCF)
+## recipe
+ncbi_dbSNPVCFFile <- function(ahm)
+{
+    ## The tbi file exists online, just download it.
+    faIn <- normalizePath(inputFiles(ahm))
+    faOut <- normalizePath(outputFile(ahm))
+    
+    tbiFile <- paste0(.dbSNPBaseUrl, metadata(ahm)$sourceUrl, ".tbi") 
+    tbi <- download.file(tbiFile, faOut)
+    faOut
+}
+
+makeAnnotationHubResource("dbSNPVCFPreparer", makedbSNPVCF, quiet=TRUE)
 
 
