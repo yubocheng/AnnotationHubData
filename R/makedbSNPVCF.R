@@ -53,7 +53,7 @@
     
     n <- length(title)
         
-    map <- c(`All_` = "VCF of all variations that meet the criteria to be in a VCF file.  This file is created once per dbSNP build.",
+    map <- c(`All` = "VCF of all variations that meet the criteria to be in a VCF file.  This file is created once per dbSNP build.",
         `All_papu` ="VCF of all variations found in the psuedoautosomal region (PAR), alternate loci, patch sequences and unlocalized or unplaced contigs(papu)",
         `common_all` = "VCF of all variations that are polymorphic in a least one population the 1000 Genomes project or any of the following handles: 1000GENOMES, CSHL-HAPMAP, EGP_SNPS NHLBI-ESP, PGA-UW-FHCRC. A variation is polymorphic if the minor allele frequency is at least 0.01 and the minor allele is present in at least two samples.",
         `clinvar` = "VCF of variations from clinvar where 'YYYYMMDD' represents the date the file was created. This file is created weekly.", 
@@ -72,7 +72,7 @@ makedbSNPVCF <- function(currentMetadata) {
     rsrc <- .getdbSNP()
     
     ## For rdatapaths, I need two copies of each one
-    rdataPath <- sub(".gz$", ".rz", rsrc$sourceUrl)
+    rdataPath <- rsrc$sourceUrl
     rdps <- rep(rdataPath,each=2)
     rdatapaths <- split(rdps, f=as.factor(rep(1:length(rdataPath),each=2)))
     ## Then the 2nd record of each set need to become an '.fai' file
