@@ -63,44 +63,44 @@ test_constructor <- function()
 
 
 
-## test_isComplete <- function()
-## {
-##     .isComplete <- AnnotationHubData:::.isComplete
-##     valid <- .AnnotationHubMetadata
-##     checkTrue(.isComplete(valid))
+test_isComplete <- function()
+{
+    .isComplete <- AnnotationHubData:::.isComplete
+    valid <- .AnnotationHubMetadata
+    checkTrue(.isComplete(valid))
 
-##     ## zero-length 'required' field
-##     invalid <- valid
-##     metadata(invalid)$Title <- character()
-##     checkException(.isComplete(invalid), silent=TRUE)
+    ## zero-length 'required' field
+    invalid <- valid
+    metadata(invalid)$Title <- character()
+    checkException(.isComplete(invalid), silent=TRUE)
 
-##     ## invalid email address
-##     invalid <- valid
-##     metadata(invalid)$Maintainer <- "User <user at fhcrc.org>"
-##     checkException(.isComplete(invalid), silent=TRUE)
+    ## invalid email address
+    invalid <- valid
+    metadata(invalid)$Maintainer <- "User <user at fhcrc.org>"
+    checkException(.isComplete(invalid), silent=TRUE)
 
-##     ## species not in database
-##     invalid <- valid
-##     metadata(invalid)$Species <- "Unknown"
-##     checkException(.isComplete(invalid), silent=TRUE)
-## }
+    ## species not in database
+    invalid <- valid
+    metadata(invalid)$Species <- "Unknown"
+    checkException(.isComplete(invalid), silent=TRUE)
+}
 
-## test_multi_input <- function()
-## {
-##     args <- .AnnotationHubMetadata_args
-##     rp <- "goldenpath/hg19/encodeDCC/wgEncodeRegDnaseClustered"
-##     files <- c("wgEncodeRegDnaseClustered.bed.gz",
-##                "wgEncodeRegDnaseClusteredInputs.tab")
-##     args$SourceFile <- file.path(rp, files)
-##     args$SourceUrl <-
-##         sprintf("http://hgdownload.cse.ucsc.edu/%s/%s", rp, files)
+test_multi_input <- function()
+{
+    args <- .AnnotationHubMetadata_args
+    rp <- "goldenpath/hg19/encodeDCC/wgEncodeRegDnaseClustered"
+    files <- c("wgEncodeRegDnaseClustered.bed.gz",
+               "wgEncodeRegDnaseClusteredInputs.tab")
+    args$SourceFile <- file.path(rp, files)
+    args$SourceUrl <-
+        sprintf("http://hgdownload.cse.ucsc.edu/%s/%s", rp, files)
 
-##     x <- do.call("AnnotationHubMetadata", args)
-##     checkEquals(2L, length(metadata(x)$SourceUrl))
-##     checkEquals(2L, length(metadata(x)$SourceMd5))
-##     checkEquals(2L, length(metadata(x)$SourceSize))
-##     checkEquals(2L, length(metadata(x)$SourceFile))
-## }
+    x <- do.call("AnnotationHubMetadata", args)
+    checkEquals(2L, length(metadata(x)$SourceUrl))
+    checkEquals(2L, length(metadata(x)$SourceMd5))
+    checkEquals(2L, length(metadata(x)$SourceSize))
+    checkEquals(2L, length(metadata(x)$SourceFile))
+}
 
 ## test_json_prerequisites <- function()
 ## {
