@@ -1,52 +1,67 @@
-## .AnnotationHubMetadata_args <- local({
-##     ## local copy of AnnotationHub, and arg list for AHMetadata; singleton
-##     sourceDirectory <-
-##         system.file('extdata', package='AnnotationHubData')
-##     ahroot <- AnnotationHubData:::.createWorkingDirectory(sourceDirectory)
-##     ##ahroot <- tempdir()
-##     basepath <- paste0("goldenpath/hg19/encodeDCC/wgEncodeRikenCage/",
-##                        "wgEncodeRikenCageCd20CellPapTssHmm.bedRnaElements")
+## Many of the tests in here (and other files) are from before a major
+## refactor.  Many of them are therefore likely to be meaningless in
+## the new context, but others will need to be replaced with
+## modernized tests.
 
-##     list(AnnotationHubRoot=ahroot,
-##         SourceFile=basepath,
-##         SourceUrl=sprintf("http://hgdownload.cse.ucsc.edu/%s", basepath),
-##         SourceVersion=NA_character_,
-##         Title="CD20 CAGE defined Transcriptional Start Sites",
-##         Description="120785 TSS sites ...",
-##         Species="Homo sapiens", Genome="hg19",
-##         Recipe="extendedBedToGranges", Tags="gene regulation",
-##         RDataClass="GRanges", RDataVersion=numeric_version("0.0.1"),
-##         Coordinate_1_based=TRUE,
-##         Maintainer="Paul Shannon <pshannon@fhcrc.org>",
-##         DataProvider="hgdownload.cse.ucsc.edu",
-##         Notes="9 total columns...",
-##         RDataDateAdded=as.POSIXct("2013-01-01", tz="GMT"))
-## })
+## Here we will try to put tests that make sure that the constructor
+## is behaving itself.
 
-## .AnnotationHubMetadata <- 
-##     ## singleton AHMetadata class instance
-##     do.call("AnnotationHubMetadata", .AnnotationHubMetadata_args)
+.AnnotationHubMetadata_args <- local({
+    ## local copy of AnnotationHub, and arg list for AHMetadata; singleton
+    sourceDirectory <-
+        system.file('extdata', package='AnnotationHubData')
+    ahroot <- AnnotationHubData:::.createWorkingDirectory(sourceDirectory)
+    ##ahroot <- tempdir()
+    basepath <- paste0("goldenpath/hg19/encodeDCC/wgEncodeRikenCage/",
+                       "wgEncodeRikenCageCd20CellPapTssHmm.bedRnaElements")
 
-## test_constructor <- function()
-## {
-##     ## null constructor
-##     checkTrue(validObject(new("AnnotationHubMetadata")))
+    list(AnnotationHubRoot=ahroot,
+         SourceFile=basepath,
+         SourceUrl=sprintf("http://hgdownload.cse.ucsc.edu/%s", basepath),
+         SourceVersion=NA_character_,
+         Title="CD20 CAGE defined Transcriptional Start Sites",
+         Description="120785 TSS sites ...",
+         Species="Homo sapiens",
+         TaxonomyId=9606L,
+         Genome="hg19",
+         Recipe="extendedBedToGranges",
+         Tags=c("gene regulation", "ranged genomic data"),
+         RDataClass="GRanges",
+         RDataVersion=numeric_version("0.0.1"),
+         Coordinate_1_based=TRUE,
+         Maintainer="Paul Shannon <pshannon@fhcrc.org>",
+         DataProvider="hgdownload.cse.ucsc.edu",
+         Notes="9 total columns...",
+         RDataDateAdded=as.POSIXct("2013-01-01", tz="GMT"))
+})
 
-##     ## construction from complete args
-##     args <- .AnnotationHubMetadata_args
-##     ahm <- do.call("AnnotationHubMetadata", args)
-##     checkTrue(validObject(ahm))
-##     ## ... correctly inserted into slots
-##     values <- metadata(ahm)
-##     test <- unlist(Map(identical, args, values[names(args)]))
-##     checkTrue(all(test))
+.AnnotationHubMetadata <- 
+    ## singleton AHMetadata class instance
+    do.call("AnnotationHubMetadata", .AnnotationHubMetadata_args)
 
-##     ## date / version coercion
-##     idx <- grep("(Version|Date)", names(args))
-##     args[idx] <- sapply(args[idx], as.character)
-##     ahm1 <- do.call("AnnotationHubMetadata", args)
-##     checkIdentical(ahm, ahm1)
-## }
+test_constructor <- function()
+{
+    ## null constructor (remove this - IOW we don't intend to support 'new')
+    ## checkTrue(validObject(new("AnnotationHubMetadata")))
+
+    ## construction from complete args
+    args <- .AnnotationHubMetadata_args
+    ahm <- do.call("AnnotationHubMetadata", args)
+    checkTrue(validObject(ahm))
+    ## ... correctly inserted into slots
+    values <- metadata(ahm)
+    test <- unlist(Map(identical, args, values[names(args)]))
+    checkTrue(all(test))
+
+    ## date / version coercion
+    idx <- grep("(Version|Date)", names(args))
+    args[idx] <- sapply(args[idx], as.character)
+    ahm1 <- do.call("AnnotationHubMetadata", args)
+    checkIdentical(ahm, ahm1)
+}
+
+
+
 
 ## test_isComplete <- function()
 ## {
