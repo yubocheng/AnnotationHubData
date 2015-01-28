@@ -69,6 +69,9 @@
 }
 
 makedbSNPVCF <- function(currentMetadata) {
+    oldwarn <- getOption("warn")
+    on.exit(options(warn=oldwarn))
+    options(warn=1)
     rsrc <- .getdbSNP()
     
     ## For rdatapaths, I need two copies of each one

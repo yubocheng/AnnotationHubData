@@ -113,7 +113,7 @@ makeEncodeImporter <- function(currentMetadata) {
             DataProvider = "hgdownload.cse.ucsc.edu",
             Location_Prefix = .ucscBase,
             Maintainer = "Sonali Arora <sarora@fhcrc.org>",
-            RDataClass = "EncodeDCC", 
+            RDataClass = "GRangesResource", 
             RDataDateAdded = Sys.time(),
             RDataVersion = "0.0.2",
             Recipe = "AnnotationHubData:::extendedBedToGRanges"))
