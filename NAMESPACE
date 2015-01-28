@@ -60,7 +60,6 @@ export(## AnnotationHubMetadata, #(moved to AnnotationHub)
        ensemblGTFToGRangesRecipe,
        rtrackLayerImport,
        importTable,
-       EncodeImportPreparer,
        tracksToUpdate,
        ahmToJson,
        updateResources)
