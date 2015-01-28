@@ -312,3 +312,17 @@ getCurrentResources <- function(version){
 ## the current backend on gamay doesn't do that yet.
 
 
+
+
+
+##########################################################################
+## Need a helper to delete one record.  I could do this as a direct DB
+## query, but Dan already has ruby code that does this, so we will
+## recycle that functionality like so:
+
+.removeOneRecord <- function(id){
+    if(!exists(id)){stop("You can't delete a record randomly. You need an id.")}
+    if(!is.integer(id)){stop("id must be an integer")}
+    url <- paste0("http://gamay:9393/resource/",id)
+    DELETE(url)
+}
