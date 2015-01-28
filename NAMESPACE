@@ -24,7 +24,6 @@ importFrom(AnnotationForge, makeInpDb)
 
 exportClasses(## AnnotationHubMetadata, #(moved to AnnotationHub)
               ImportPreparer,
-              EncodeImportPreparer,
               UCSCTrackImportPreparer,
               UCSCChainPreparer,
               Grasp2ImportPreparer,
@@ -62,7 +61,6 @@ export(## AnnotationHubMetadata, #(moved to AnnotationHub)
        rtrackLayerImport,
        importTable,
        EncodeImportPreparer,
-       EncodeBaseURL,
        tracksToUpdate,
        ahmToJson,
        updateResources)

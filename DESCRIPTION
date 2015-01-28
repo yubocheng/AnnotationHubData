@@ -1,7 +1,7 @@
 Package: AnnotationHubData
 Type: Package
 Title: Transform public data resources into Bioconductor Data Structures
-Version: 0.0.140
+Version: 0.0.141
 Authors@R:
     c(person("Martin", "Morgan", role="ctb"),
       person("Marc", "Carlson", role="ctb"),
@@ -69,6 +69,7 @@ Collate:
     testutils.R
     tsvToRefnet.R
     utils.R
+    makeEncodeDCC.R
     makeEnsemblGtfToGRanges.R
     makeInparanoid8ToDbs.R
     makeNCBIToOrgDbs.R
