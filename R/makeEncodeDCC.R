@@ -3,7 +3,6 @@
 
 .readHtmlPage <- function(url, isSubDir=FALSE) {
     tryCatch({
-        #html <- htmlParse(url)
         result <- GET(url)
         stop_for_status(result)
         html <- content(result)
@@ -96,10 +95,10 @@ makeEncodeImporter <- function(currentMetadata) {
     taxonomyId <- rep(9606L, nrow(rsrc))
     SourceLastModifiedDate <- rsrc$date  ## should be "POSIXct" "POSIXt"
     SourceSize <- as.numeric(rsrc$size)
-    Tags <- mapply(function(x, y) {
-        c("EnodeDCC", x, y, "hg19")
-    }, rsrc$title, rsrc$type)
-    
+    Tags <- lapply(rsrc$type, function(tag) {
+        c(as.character(tag), "EnodeDCC","hg19")
+    }) 
+        
     Map(AnnotationHubMetadata,
         Description=description, Genome=genome,
         SourceFile=sourceFile, SourceUrl=sourceUrls,
@@ -113,98 +112,11 @@ makeEncodeImporter <- function(currentMetadata) {
             DataProvider = "hgdownload.cse.ucsc.edu",
             Location_Prefix = .ucscBase,
             Maintainer = "Sonali Arora <sarora@fhcrc.org>",
-            RDataClass = "GRangesResource", 
+            RDataClass = "EpigenomeRoadmapFile", 
             RDataDateAdded = Sys.time(),
             RDataVersion = "0.0.2",
-            Recipe = "AnnotationHubData:::extendedBedToGRanges"))
+	    Recipe = NA_character_))
 }
 
-
-extendedBedToGRanges <- function(ahm) {
-    faIn <- normalizePath(inputFiles(ahm))
-    faOut <- normalizePath(outputFile(ahm))
-    
-    Tags <- metadata(ahm)$Tags
-    
-    if(grepl("broadPeak", Tags))
-        colClasses <- list(seqnames="character",
-                           start="integer",
-                           end="integer",
-                           name="character",
-                           score="integer",
-                           strand="character",
-                           signalValue="numeric",
-                           pValue="numeric",
-                           qValue="numeric")
-    
-    if(grepl("narrowPeak", Tags))
-        colClasses <- list(seqnames="character",
-                           start="integer",
-                           end="integer",
-                           name="character",
-                           score="integer",
-                           strand="character",
-                           signalValue="numeric",
-                           pValue="numeric",
-                           qValue="numeric",
-                           peak="integer")
-       
-    if(grepl("bedRnaElements", Tags))
-        colClasses <- list(seqnames="character",
-                           start="integer",
-                           end="integer",
-                           name="character",
-                           score="integer",
-                           strand="character",
-                           level="numeric",
-                           signif="numeric",
-                           score2="integer")
-    
-    if(colClasses[1] == 'implicit') {
-        # TODO: if a strand column can be deduced, it SHOULD be deduced.
-        # TODO: pshannon (10 jan 2013)
-        tbl <- read.table(inputFiles(ahm)[1], sep="\t", header=FALSE)
-        columnCount <- ncol(tbl)
-        mandatory.colnames <- c("seqnames", "start", "end")
-        if (columnCount > 3) {
-            implicitColumnCount <- ncol(tbl) - 3
-            implicitColumnNumbers <- 4:(3+implicitColumnCount)
-            implicit.colnames = sprintf("col.%02d", implicitColumnNumbers)
-            colnames <- c(mandatory.colnames, implicit.colnames)
-            colnames(tbl) <- colnames
-            gr <- with(tbl, GRanges(seqnames, IRanges(start, end)))
-            other.colnames <- setdiff(colnames, mandatory.colnames)
-            mcols(gr) <- DataFrame(tbl[, other.colnames])
-            
-        }
-    } else {
-        colnames <- names(colClasses)
-        unused <- which(colnames == "")
-        if(length(unused) > 0)
-            colnames <- colnames[-unused]
-        required.colnames <- c("seqnames", "start", "end", "strand")
-        stopifnot(all(required.colnames %in% colnames))
-        other.colnames <- setdiff(colnames, required.colnames)
-        tbl <- read.table(inputFiles(ahm)[1], sep="\t", header=FALSE, colClasses=colClasses)
-        colnames(tbl) <- colnames
-        new.strand <- sub(".", "*", tbl$strand, fixed=TRUE)
-        gr <- with(tbl, GRanges(seqnames, IRanges(start, end), new.strand))
-        mcols(gr) <- DataFrame(tbl[, other.colnames])
-    }
-    
-    # add seqlength & chromosome circularity information
-    newSeqInfo <- constructSeqInfo(metadata(ahm)$Species,
-                                   metadata(ahm)$Genome)
-    # if gr only has a subset of all possible chromosomes, then update those only
-    seqinfo(gr) <- newSeqInfo[names(seqinfo(gr))]
-    
-    save(gr, file=faOut)
-    
-    faOut
-    
-} 
-
-
 makeAnnotationHubResource("EncodeImportPreparer", makeEncodeImporter)
-
 
