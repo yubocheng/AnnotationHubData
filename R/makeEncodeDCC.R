@@ -1,7 +1,7 @@
 # This is a new recipe for EncodeImportPreparer-class.R 
 .ucscBase <- "http://hgdownload.cse.ucsc.edu/"
 
-.readHtmlPage <- function(url, isSubDir=FALSE) {
+.httrRead <- function(url) {
     tryCatch({
         result <- GET(url)
         stop_for_status(result)
@@ -11,16 +11,38 @@
         remove <- c("Name", "Size", "Last modified", "Description",
                     "Parent Directory", "referenceSequences/",
                     "files.txt", "md5sum.txt")
-        fls <- fls[-which(fls %in% remove )]
-        
-        if(isSubDir)
-            fls <- fls[grepl(basename(url), fls)]
-        
-        fls
+        fls[-which(fls %in% remove )]
     }, error=function(err) {
         warning(basename(url), ": ", conditionMessage(err))
-            url=character()
+        url=character()
     })
+}
+
+
+.cleanFiles <- function(url, isSubDir=FALSE) {
+    fls <- .httrRead(url)
+        
+    if(length(fls) != 0) {
+        faultyfolders <-c( "wgEncodeAwgTfbsUniform", 
+                           "wgEncodeAwgDnaseUniform", "wgEncodeGencodeV4")
+        if(isSubDir){
+            if(basename(url) %in% faultyfolders){
+                if(basename(url)=="wgEncodeAwgTfbsUniform")
+                    fls <- fls[grepl("wgEncodeAwgTfbs", fls)]
+                
+                if(basename(url)=="wgEncodeAwgDnaseUniform")
+                    fls <- fls[grepl("wgEncodeAwgDnase", fls)]
+                
+                if(basename(url)=="wgEncodeGencodeV4")
+                    fls <- fls[grepl("wgEncodeGencode", fls)]
+            } else { # for main dir
+                fls <- fls[grepl(basename(url), fls)]
+            }
+        }
+    } else { # no files returned 
+        fls <- character(0)
+    }    
+    fls
 }
 
 .httrFileInfo <- function(files, verbose=TRUE) {
@@ -45,7 +67,7 @@
 
 
 .subDir <- function(url, verbose=TRUE) {
-    contents <- .readHtmlPage(url, isSubDir=TRUE)
+    contents <- .cleanFiles(url, isSubDir=TRUE)
     supported.formats <- c("narrowPeak", "broadPeak", "bedRnaElements", 
                            "gtf")
     type <- sapply(strsplit(contents,".",fixed = TRUE),"[[",2)
@@ -54,10 +76,10 @@
     type <- type[idx]        
     if(length(contents)!=0) {
         files <-  sprintf("%s%s", url, contents)
-        if(length(files)>5){
-            files<- files[1:5]
-            type<- type[1:5]
-        }
+#         if(length(files)>5){
+#             files<- files[1:5]
+#             type<- type[1:5]
+#         }
             
         df <- .httrFileInfo(files ,verbose)
         cbind(df, type=type, stringsAsFactors=FALSE)
@@ -68,7 +90,7 @@
 
 .encodeFiles <- function(){
     encode_url <- paste0(.ucscBase, "goldenpath/hg19/encodeDCC/")
-    subdirs <- .readHtmlPage(encode_url, isSubDir=FALSE)
+    subdirs <- .cleanFiles(encode_url, isSubDir=FALSE)
     urls <- setNames(paste0(encode_url, subdirs), subdirs)
     
     df <- do.call(rbind, Map(.subDir, urls, verbose=TRUE))
