@@ -327,3 +327,10 @@ getCurrentResources <- function(version){
     url <- paste0("http://gamay:9393/resource/",id)
     DELETE(url)
 }
+
+
+deleteResources <- function(id) {
+    sapply(id, function(x){
+        .removeOneRecord(as.integer(sub("AH", "", x)))
+    })
+}

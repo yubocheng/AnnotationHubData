@@ -7,11 +7,11 @@
         stop_for_status(result)
         html <- content(result)
         
-        fls <- sapply(html["//pre/a/text()"], xmlValue)
+        fls <- vapply(html["//pre/a/text()"], xmlValue, character(1))
         remove <- c("Name", "Size", "Last modified", "Description",
                     "Parent Directory", "referenceSequences/",
                     "files.txt", "md5sum.txt")
-        fls[-which(fls %in% remove )]
+        fls[!fls %in% remove ]
     }, error=function(err) {
         warning(basename(url), ": ", conditionMessage(err))
         url=character()
@@ -23,24 +23,14 @@
     fls <- .httrRead(url)
         
     if(length(fls) != 0) {
-        faultyfolders <-c( "wgEncodeAwgTfbsUniform", 
-                           "wgEncodeAwgDnaseUniform", "wgEncodeGencodeV4")
         if(isSubDir){
-            if(basename(url) %in% faultyfolders){
-                if(basename(url)=="wgEncodeAwgTfbsUniform")
-                    fls <- fls[grepl("wgEncodeAwgTfbs", fls)]
-                
-                if(basename(url)=="wgEncodeAwgDnaseUniform")
-                    fls <- fls[grepl("wgEncodeAwgDnase", fls)]
-                
-                if(basename(url)=="wgEncodeGencodeV4")
-                    fls <- fls[grepl("wgEncodeGencode", fls)]
-            } else { # for main dir
-                fls <- fls[grepl(basename(url), fls)]
-            }
-        }
-    } else { # no files returned 
-        fls <- character(0)
+             subst <- switch( basename(url),
+               wgEncodeAwgTfbsUniform="wgEncodeAwgTfbs",
+               wgEncodeAwgDnaseUniform="wgEncodeAwgDnase",
+               wgEncodeGencodeV4="wgEncodeGencode",
+               basename(url))                  
+             fls <- fls[grepl(subst,fls)]    
+	}
     }    
     fls
 }
@@ -76,10 +66,10 @@
     type <- type[idx]        
     if(length(contents)!=0) {
         files <-  sprintf("%s%s", url, contents)
-#         if(length(files)>5){
-#             files<- files[1:5]
-#             type<- type[1:5]
-#         }
+         if(length(files)>5){
+             files<- files[1:5]
+             type<- type[1:5]
+         }
             
         df <- .httrFileInfo(files ,verbose)
         cbind(df, type=type, stringsAsFactors=FALSE)
@@ -103,33 +93,28 @@
 
 makeEncodeImporter <- function(currentMetadata) {
     rsrc <- .encodeFiles()
-    
-    # previously the description field just contained the name of the file
-    
-    description <- rsrc$title
-    genome <- rep("hg19", nrow(rsrc))
+
+    description <- paste0(rsrc$type, " file from ENCODE")
     sourceFile <- rsrc$title
     title <- rsrc$title
     sourceUrls <- rsrc$sourceUrl
-    sourceVersion <- sapply(rsrc$date, function(y) gsub(" ","_",y)) 
-    ## should be character
-    species <- rep("Homo sapiens", nrow(rsrc))
-    taxonomyId <- rep(9606L, nrow(rsrc))
-    SourceLastModifiedDate <- rsrc$date  ## should be "POSIXct" "POSIXt"
+    sourceVersion <- gsub(" ", "_", rsrc$date) # should be character
+    SourceLastModifiedDate <- rsrc$date  # should be "POSIXct" "POSIXt"
     SourceSize <- as.numeric(rsrc$size)
-    Tags <- lapply(rsrc$type, function(tag) {
-        c(as.character(tag), "EnodeDCC","hg19")
-    }) 
-        
+    Tags <- lapply(rsrc$type, c, "EncodeDCC", "hg19")
+            
     Map(AnnotationHubMetadata,
-        Description=description, Genome=genome,
+        Description=description, 
         SourceFile=sourceFile, SourceUrl=sourceUrls,
         SourceLastModifiedDate = SourceLastModifiedDate,
         SourceSize = SourceSize,
         RDataPath=sourceUrls,
-        SourceVersion=sourceVersion, Species=species,
-        TaxonomyId=taxonomyId, Title=title, Tags=Tags,
+        SourceVersion=sourceVersion,
+        Title=title, Tags=Tags,
         MoreArgs=list(
+            Genome= "hg19",
+            Species="Homo sapiens",
+            TaxonomyId=9606L,
             Coordinate_1_based = FALSE,
             DataProvider = "hgdownload.cse.ucsc.edu",
             Location_Prefix = .ucscBase,

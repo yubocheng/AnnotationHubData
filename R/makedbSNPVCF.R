@@ -24,8 +24,9 @@
         #   "%a, %d %b %Y %H:%M:%S", tz="GMT")
         
         result <- lapply(df2, function(x){
-            h = GET(x, config=config(nobody=TRUE, filetime=TRUE)) 
-            headers(h)[c("last-modified", "content-length")] 
+            h = suppressWarnings(
+	         GET(x, config=config(nobody=TRUE, filetime=TRUE)))
+	    headers(h)[c("last-modified", "content-length")] 
         })
         
         size <- as.numeric(sapply(result, "[[", "content-length"))
@@ -69,30 +70,20 @@
 }
 
 makedbSNPVCF <- function(currentMetadata) {
-    oldwarn <- getOption("warn")
-    on.exit(options(warn=oldwarn))
-    options(warn=1)
     rsrc <- .getdbSNP()
-    
-    ## For rdatapaths, I need two copies of each one
+   
     rdataPath <- rsrc$sourceUrl
-    rdps <- rep(rdataPath,each=2)
-    rdatapaths <- split(rdps, f=as.factor(rep(1:length(rdataPath),each=2)))
-    ## Then the 2nd record of each set need to become an '.fai' file
+    rdps <- rep(rsrc$sourceUrl,each=2) 
+    rdatapaths <- split(rdps, f=as.factor(rep(seq_along(rdataPath),each=2)))
     rdatapaths <- lapply(rdatapaths,
-                         function(x){x[2] <- paste0(x[2],".tbi") ; return(x)})
-    
-    
+         function(x){x[2] <- paste0(x[2],".tbi") ; return(x)}) 
     description <- rsrc$description
     genome <- rsrc$genome
     sourceFile <- rsrc$title
     title <- rsrc$title
     sourceUrls <- rsrc$sourceUrl
-    sourceVersion <- sapply(rsrc$date, function(y) gsub(" ","_",y)) 
-    ## should be character
-    species <- rep("Homo sapiens", nrow(rsrc))
-    taxonomyId <- rep(9606L, nrow(rsrc))
-    SourceLastModifiedDate <- rsrc$date  ## should be "POSIXct" "POSIXt"
+    sourceVersion <- gsub(" ","_",rsrc$date) # should be character
+    SourceLastModifiedDate <- rsrc$date  # should be "POSIXct" "POSIXt"
     SourceSize <- as.numeric(rsrc$size)
     Tags <- lapply(rsrc$genome, function(tag) {
         c("dbSNP", tag, "VCF")
@@ -104,9 +95,11 @@ makedbSNPVCF <- function(currentMetadata) {
         SourceLastModifiedDate = SourceLastModifiedDate,
         SourceSize = SourceSize,
         RDataPath=rdatapaths,
-        SourceVersion=sourceVersion, Species=species,
-        TaxonomyId=taxonomyId, Title=title, Tags=Tags,
+        SourceVersion=sourceVersion, 
+        Title=title, Tags=Tags,
         MoreArgs=list(
+            Species="Homo sapiens",
+            TaxonomyId=9606L, 
             Coordinate_1_based = FALSE,
             DataProvider = "ftp://ftp.ncbi.nih.gov/snp",
             Location_Prefix = .dbSNPBaseUrl,
@@ -125,11 +118,10 @@ ncbi_dbSNPVCFFile <- function(ahm)
     faIn <- normalizePath(inputFiles(ahm))
     faOut <- normalizePath(outputFile(ahm))
     
-    tbiFile <- paste0(.dbSNPBaseUrl, metadata(ahm)$sourceUrl, ".tbi") 
+    tbiFile <- paste0(metadata(ahm)$Location_Prefix, metadata(ahm)$sourceUrl, ".tbi") 
     tbi <- download.file(tbiFile, faOut)
     faOut
 }
 
 makeAnnotationHubResource("dbSNPVCFPreparer", makedbSNPVCF, quiet=TRUE)
-
 

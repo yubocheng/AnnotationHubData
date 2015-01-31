@@ -73,14 +73,11 @@ makeEpigenomeRoadmap <- function(currentMetadata) {
     rsrc <- .getEpigenomeRoadMapPeaks()
     
     description <- rsrc$description
-    genome <- rep("hg19", nrow(rsrc))
     sourceFile <- rownames(rsrc)
     title <- rownames(rsrc)
     sourceUrls <- rsrc$sourceUrl
-    sourceVersion <- sapply(rsrc$date, function(y) gsub(" ","_",y)) 
+    sourceVersion <- gsub(" ","_",rsrc$date) 
         ## should be character
-    species <- rep("Homo sapiens", nrow(rsrc))
-    taxonomyId <- rep(9606L, nrow(rsrc))
     SourceLastModifiedDate <- rsrc$date  ## should be "POSIXct" "POSIXt"
     SourceSize <- as.numeric(rsrc$size)
     Tags <- lapply(rsrc$tag, function(tag) {
@@ -88,14 +85,17 @@ makeEpigenomeRoadmap <- function(currentMetadata) {
     })
     
     Map(AnnotationHubMetadata,
-        Description=description, Genome=genome,
+        Description=description, 
         SourceFile=sourceFile, SourceUrl=sourceUrls,
         SourceLastModifiedDate = SourceLastModifiedDate,
         SourceSize = SourceSize,
         RDataPath=sourceUrls,
-        SourceVersion=sourceVersion, Species=species,
-        TaxonomyId=taxonomyId, Title=title, Tags=Tags,
+        SourceVersion=sourceVersion, 
+        Title=title, Tags=Tags,
         MoreArgs=list(
+            Genome="hg19",
+            Species="Homo sapiens",
+            TaxonomyId=9606L,
             Coordinate_1_based = FALSE,
             DataProvider = "broadinstitute.org",
             Location_Prefix = .EpigenomeRoadMap,

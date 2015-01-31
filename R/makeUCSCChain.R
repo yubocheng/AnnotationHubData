@@ -122,7 +122,7 @@ makeUCSCChain <- function(currentMetadata) {
     genome <- rsrc$from
     sourceFile <- rownames(rsrc)
     sourceUrls <- sub(.ucscBase, "", rsrc$url)
-    sourceVersion <- sapply(rsrc$date, function(y) gsub(" ","_",y)) 
+    sourceVersion <- gsub(" ", "_", rsrc$date) 
     species <- rsrc$organism            
     taxonomyId <- as.integer(rsrc$taxid)           
     title <- rownames(rsrc)

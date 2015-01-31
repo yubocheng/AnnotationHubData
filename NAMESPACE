@@ -62,7 +62,8 @@ export(## AnnotationHubMetadata, #(moved to AnnotationHub)
        importTable,
        tracksToUpdate,
        ahmToJson,
-       updateResources)
+       updateResources,
+       deleteResources)
 
 exportMethods(
     show,
