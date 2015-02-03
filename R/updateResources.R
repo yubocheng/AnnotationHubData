@@ -368,16 +368,24 @@ deleteResources <- function(id) {
               pass=pswd)
 }
 
-# helper to clean one table:
+## helper to clean one table from MySQL DB (on gamay)
+## This is for cases where a table (or some tables have become contaminated with redundant entries...)
 .cleanOneTable <- function(tbl, reallyDeleteRows=FALSE){
     sql <- paste0("SELECT * FROM ",tbl)
     con <- .getAnnotHubCon()
     res <- dbGetQuery(con, sql)
     ## Then we have to call duplicated() in R to identify which rows need to be deleted (and trap their ids)
-    colIdx <- !(colnames(res) %in% 'id')
-    idColIdx <- colnames(res) %in% 'id'
+    ## And if tbl is 'resources' then we have to ignore two columns (not just one)
+    if(tbl=='resources'){
+        ignoreCols <- c('id','ah_id')
+    }else{
+        ignoreCols <- 'id'
+    }
+    ## work out which rows are dups
+    colIdx <- !(colnames(res) %in% ignoreCols)
+    idColIdx <- colnames(res) %in% ignoreCols
     idx <- duplicated(res[,colIdx])
-    ids <- res[idx,idColIdx]
+    ids <- res[idx,'id'] ## yes, we always want just the column named 'id'
     message('We just found ',length(ids),' duplicated records from the ', tbl, ' table.')
     idsFmt <- paste(ids,collapse="','")
     sql2 <- paste0("DELETE FROM ",tbl," WHERE id IN ('",idsFmt,"')")
