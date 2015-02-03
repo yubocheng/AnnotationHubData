@@ -328,9 +328,66 @@ getCurrentResources <- function(version){
     DELETE(url)
 }
 
-
+## and a vectorized function for removing records
 deleteResources <- function(id) {
     sapply(id, function(x){
         .removeOneRecord(as.integer(sub("AH", "", x)))
     })
 }
+
+
+
+##########################################################################
+## Need another helper to help clean up the tables after redundant records 
+## have been inserted.
+## This will need to happen to several tables, so I basically need to go 
+## through the following tables and remove redundant fields.
+## input_sources, rdatapaths, resources, tags, biocversions
+
+
+## SELECT * FROM (SELECT id, tag, resource_id FROM tags WHERE resource_id=7226) AS tags GROUP BY tags.tag, tags.resource_id HAVING count(tags.id) > 1  limit 10;
+## This is pretty close to what I would need here:
+## SELECT * FROM (SELECT id, tag, resource_id FROM tags WHERE resource_id=7226) AS tags GROUP BY tags.tag, tags.resource_id  limit 10;
+
+## But it feels like the operation to remove dups might be easier if done in R?  (using duplicated)
+## That is, I could pull the contents into R, ID the dups and then the query is more straightforward to debug.
+
+## So the following code should extract what I need for a test set
+
+## Helper to get connection to the roundup DB
+.getAnnotHubCon <- function(){
+    pswd <- getOption("gamayAHUserPSWD")
+    if(!exists('pswd')){
+        stop("You need to set a password for the issue tracker in .Rprofile")
+    }
+    require(RMySQL)
+    dbConnect(dbDriver('MySQL'),
+              host='localhost',  ## we always will run this locally anyhow
+              dbname='annotationhub',
+              user='ahuser',
+              pass=pswd)
+}
+
+# helper to clean one table:
+.cleanOneTable <- function(tbl, reallyDeleteRows=FALSE){
+    sql <- paste0("SELECT * FROM ",tbl)
+    con <- .getAnnotHubCon()
+    res <- dbGetQuery(con, sql)
+    ## Then we have to call duplicated() in R to identify which rows need to be deleted (and trap their ids)
+    colIdx <- !(colnames(res) %in% 'id')
+    idColIdx <- colnames(res) %in% 'id'
+    idx <- duplicated(res[,colIdx])
+    ids <- res[idx,idColIdx]
+    message('We just found ',length(ids),' duplicated records from the ', tbl, ' table.')
+    idsFmt <- paste(ids,collapse="','")
+    sql2 <- paste0("DELETE FROM ",tbl," WHERE id IN ('",idsFmt,"')")
+    if(reallyDeleteRows){
+       dbGetQuery(con, sql2)
+    }
+}
+
+## Then call the above function twice on each table that we want to clean.  
+## 1st to see if if finds anything and then again to really remove duplicates...
+## usage: .cleanOneTable('tags') ## Doing this only revealed dups in 'tags' table.
+## usage: .cleanOneTable('tags', reallyDeleteRows=TRUE)
+
