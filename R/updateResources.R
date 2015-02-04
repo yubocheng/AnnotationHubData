@@ -386,37 +386,63 @@ deleteResources <- function(id) {
 ## BUT: lets be super-duper safe ANYWAYS and (when considering resources), lets
 ## join all the relevant tables together and look at all that data.
 
+## helper that returns ids that have been duplicated.
+## Do I want to add argument to return "sets" of dups? - yes I DO
+.getDuplicatedRowIds <- function(res, getALLIds=FALSE){
+    ## work out which rows are duplicated
+    colIdx <- !(colnames(res) %in% 'id')
+    idColIdx <- colnames(res) %in% 'id'
+    if(getALLIds){
+        idx1 <- duplicated(res[,colIdx])
+        idx2 <- duplicated(res[,colIdx],fromLast=TRUE)
+        idx <- idx1 | idx2
+    }else{
+        idx <- duplicated(res[,colIdx])
+    }
+    ids <- res[idx,'id'] ## yes, we always want just the column named 'id'
+    ids
+}
+
+.getOtherTableDupIDs <- function(tbl, ids, con){
+    idsFmt <- paste(ids,collapse="','")
+    res <- dbGetQuery(con, paste0("SELECT * FROM ",tbl," WHERE resource_id IN ('",idsFmt,"')"))
+    .getDuplicatedRowIds(res, getALLIds=TRUE)
+}
+
+
 .cleanOneTable <- function(tbl, reallyDeleteRows=FALSE){
     con <- .getAnnotHubCon()
     ## And if tbl is 'resources' then we have to ignore two columns (not just one)
     ## And this also means a much 'larger' query.
     if(tbl=='resources'){
-        ## NOTE: resources MUST ALWAYS be the 1st thing this query gets.
-        ## The policing of this is also why this statement has been inlined.
-        sql <- "SELECT * FROM resources, rdatapaths, biocversions, input_sources, 
-                recipes, tags  WHERE 
-                resources.id = rdatapaths.resource_id AND 
-                resources.id = biocversions.resource_id AND
-                resources.id = input_sources.resource_id AND
-                resources.recipe_id = recipes.id AND
-                resources.id = tags.resource_id"
-        res <- dbGetQuery(con, sql)
-        ## Then drop certain columns from res esp. EXTRA cols called 'id'  
-        res <- res[,!duplicated(colnames(res))]
-        ## And drop any columns called 'resource_id' or 'ah_id')
-        res <- res[,!(colnames(res) %in% c('ah_id','resource_id'))]
+        res <- dbGetQuery(con, "SELECT * FROM resources")
+        res <- res[,!(colnames(res) %in% c('ah_id'))]
+        #dids <- .getDuplicatedRowIds(res)
+        ids <- .getDuplicatedRowIds(res,getALLIds=TRUE)
+        ## Now we have to check the other tables...  
+        ## TODO (lapply through rdatapaths, input_sources, tags, biocversions
+        ##res2 <- .getOtherTableDupIDs('rdatapaths',ids)
+        tables <- c('rdatapaths', 'input_sources', 'tags', 'biocversions')
+        AllDupIds <- lapply(tables, .getOtherTableDupIDs, ids=ids, con=con)
+        ## Then take do the intersect for each of the list elements on the next one over...
+        if(any(sapply(AllDupIds,function(x){length(x)==0}))){
+            message("No duplicates are possible for resources.")
+        }else{
+            message("Bad news: you will have to add more code to .cleanOneTable() 
+                    to intersect and filter the ids that have been found to be 
+                    duplicated in all the relevant sub tables. for tidying of 
+                    the resources table.")
+            ## ADD code to intersect ids for all the sub tables here, and then 
+            ## filter it using dids (commented above)
+        }
     }else{
         sql <- paste0("SELECT * FROM ",tbl)
         res <- dbGetQuery(con, sql)
+        ids <- .getDuplicatedRowIds(res)        
+        idsFmt <- paste(ids,collapse="','")
+        message('We just found ',length(ids),' duplicated records from the ', tbl, ' table.')
     }
-    ## work out which rows are duplicated
-    colIdx <- !(colnames(res) %in% 'id')
-    idColIdx <- colnames(res) %in% 'id'
-    idx <- duplicated(res[,colIdx])
-    ids <- res[idx,'id'] ## yes, we always want just the column named 'id'
-    message('We just found ',length(ids),' duplicated records from the ', tbl, ' table.')
-    idsFmt <- paste(ids,collapse="','")
-    
+    ## then delete things (if appropriate)
     if(reallyDeleteRows && length(ids)>0){
         if(tbl=='resources'){
             deleteResources(ids)
@@ -432,7 +458,7 @@ deleteResources <- function(id) {
 ## usage: AnnotationHubData:::.cleanOneTable('tags') ## Doing this only revealed dups in 'tags' table.
 ## usage: AnnotationHubData:::.cleanOneTable('tags', reallyDeleteRows=TRUE)
 
-## STILL TODO: debug the above by (when looking at resources) dropping all the
-## extra 'id' columns that will be pulled in from the join!
-## There may be other problems too (in case multiple columns are called 'id')
+## library(AnnotationHub);debug(AnnotationHubData:::.cleanOneTable);AnnotationHubData:::.cleanOneTable('resources')
+
+## usage: AnnotationHubData:::.cleanOneTable('resources') ## Doing this only revealed dups in 'tags' table.
 
