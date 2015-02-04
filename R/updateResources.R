@@ -391,26 +391,33 @@ deleteResources <- function(id) {
     ## And if tbl is 'resources' then we have to ignore two columns (not just one)
     ## And this also means a much 'larger' query.
     if(tbl=='resources'){
-        sql <- .allMajorTablesSQL()
+        ## NOTE: resources MUST ALWAYS be the 1st thing this query gets.
+        ## The policing of this is also why this statement has been inlined.
+        sql <- "SELECT * FROM resources, rdatapaths, biocversions, input_sources, 
+                recipes, tags  WHERE 
+                resources.id = rdatapaths.resource_id AND 
+                resources.id = biocversions.resource_id AND
+                resources.id = input_sources.resource_id AND
+                resources.recipe_id = recipes.id AND
+                resources.id = tags.resource_id"
         res <- dbGetQuery(con, sql)
-        ## Then drop certain columns from res... (id, or resource_id)
-        res <- res[,!(c(,))]
-        ignoreCols <- c('id','ah_id')
+        ## Then drop certain columns from res esp. EXTRA cols called 'id'  
+        res <- res[,!duplicated(colnames(res))]
+        ## And drop any columns called 'resource_id' or 'ah_id')
+        res <- res[,!(colnames(res) %in% c('ah_id','resource_id'))]
     }else{
         sql <- paste0("SELECT * FROM ",tbl)
         res <- dbGetQuery(con, sql)
-        ignoreCols <- 'id'
     }
-    
-    ## work out which rows are dups
-    colIdx <- !(colnames(res) %in% ignoreCols)
-    idColIdx <- colnames(res) %in% ignoreCols
+    ## work out which rows are duplicated
+    colIdx <- !(colnames(res) %in% 'id')
+    idColIdx <- colnames(res) %in% 'id'
     idx <- duplicated(res[,colIdx])
     ids <- res[idx,'id'] ## yes, we always want just the column named 'id'
     message('We just found ',length(ids),' duplicated records from the ', tbl, ' table.')
     idsFmt <- paste(ids,collapse="','")
     
-    if(reallyDeleteRows){
+    if(reallyDeleteRows && length(ids)>0){
         if(tbl=='resources'){
             deleteResources(ids)
         }else{
