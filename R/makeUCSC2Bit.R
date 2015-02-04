@@ -5,7 +5,7 @@ make2bit <- function(currentMetadata) {
     genome <- rsrc$from
     sourceFile <- rownames(rsrc)
     sourceUrls <- sub(.ucscBase, "", rsrc$url)
-    sourceVersion <- gsub(" ", "_", rsrc$date
+    sourceVersion <- gsub(" ", "_", rsrc$date)
     species <- rsrc$organism            
     taxonomyId <- as.integer(rsrc$taxid)           
     title <- rownames(rsrc)

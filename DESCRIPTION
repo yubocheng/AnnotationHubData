@@ -42,7 +42,6 @@ VignetteBuilder: knitr
 Collate:
     Message-class.R
     ImportPreparer-class.R
-    dbSNPImportPreparer-class.R
     test_AnnotationHubData_package.R
     makeAnnotationHubResource.R
     EnsemblImportPreparer-utils.R
@@ -59,7 +58,6 @@ Collate:
     extendedBedWithAuxiliaryTableToGRangesRecipe.R
     trackToGRangesRecipe.R
     trackWithAuxiliaryTableToGRangesRecipe.R
-    EncodeImportPreparer-class.R
     fakedata.R
     importBedFiles.R
     importFastaFiles.R

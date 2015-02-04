@@ -388,14 +388,19 @@ deleteResources <- function(id) {
     ids <- res[idx,'id'] ## yes, we always want just the column named 'id'
     message('We just found ',length(ids),' duplicated records from the ', tbl, ' table.')
     idsFmt <- paste(ids,collapse="','")
-    sql2 <- paste0("DELETE FROM ",tbl," WHERE id IN ('",idsFmt,"')")
+    
     if(reallyDeleteRows){
-       dbGetQuery(con, sql2)
+        if(tbl=='resources'){
+            deleteResources(ids)
+        }else{
+            sql2 <- paste0("DELETE FROM ",tbl," WHERE id IN ('",idsFmt,"')")
+            dbGetQuery(con, sql2)
+        }
     }
 }
 
 ## Then call the above function twice on each table that we want to clean.  
 ## 1st to see if if finds anything and then again to really remove duplicates...
-## usage: .cleanOneTable('tags') ## Doing this only revealed dups in 'tags' table.
-## usage: .cleanOneTable('tags', reallyDeleteRows=TRUE)
+## usage: AnnotationHubData:::.cleanOneTable('tags') ## Doing this only revealed dups in 'tags' table.
+## usage: AnnotationHubData:::.cleanOneTable('tags', reallyDeleteRows=TRUE)
 
