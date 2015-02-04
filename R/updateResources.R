@@ -261,6 +261,20 @@ filterAHMs <- function(ahms){
 ## It basically needs to use the existing AHM DB to make all the
 ## records into AHMs.
 
+## Helper to just define SQL needed for all relevant tables together
+.allMajorTablesSQL <- function(){
+    SQL <- "SELECT * FROM resources, rdatapaths, biocversions, input_sources, 
+            recipes, tags  WHERE 
+            resources.id = rdatapaths.resource_id AND 
+            resources.id = biocversions.resource_id AND
+            resources.id = input_sources.resource_id AND
+            resources.recipe_id = recipes.id AND
+            resources.id = tags.resource_id"
+    SQL
+}
+## input_sources, rdatapaths, resources, tags, biocversions
+
+
 ## The basic issue here is that this function needs to talk to the
 ## 'new' version of AnnotationHub (and possibly both versions?)...
 getCurrentResources <- function(version){
@@ -270,13 +284,7 @@ getCurrentResources <- function(version){
     con <- AnnotationHub:::.db_connection(ah)
     ## Then send a massive SQL query to extract all the metadata as 
     ## one horrific data.frame
-    SQL <- "SELECT * FROM resources, rdatapaths, biocVersions, input_sources, 
-            recipes, tags  WHERE 
-            resources.id = rdatapaths.resource_id AND 
-            resources.id = biocVersions.resource_id AND
-            resources.id = input_sources.resource_id AND
-            resources.recipe_id = recipes.id AND
-            resources.id = tags.resource_id"
+    SQL <- .allMajorTablesSQL()
     meta <- dbGetQuery(con, SQL)
     ahroot <- rep("NA", times=dim(meta)[1])
     tags <- rep("NA", times=dim(meta)[1]) ## leave tags out (for now)
@@ -369,18 +377,31 @@ deleteResources <- function(id) {
 }
 
 ## helper to clean one table from MySQL DB (on gamay)
-## This is for cases where a table (or some tables have become contaminated with redundant entries...)
+## This is for cases where a table (or some tables have become contaminated with 
+## redundant entries...)
+## For the resources table this function may not be strict enough someday IF 
+## someday we get to the point where we have records that are identical 'except' 
+## for say their sourceURLs (for example).  But it should be plenty picky for now
+
+## BUT: lets be super-duper safe ANYWAYS and (when considering resources), lets
+## join all the relevant tables together and look at all that data.
+
 .cleanOneTable <- function(tbl, reallyDeleteRows=FALSE){
-    sql <- paste0("SELECT * FROM ",tbl)
     con <- .getAnnotHubCon()
-    res <- dbGetQuery(con, sql)
-    ## Then we have to call duplicated() in R to identify which rows need to be deleted (and trap their ids)
     ## And if tbl is 'resources' then we have to ignore two columns (not just one)
+    ## And this also means a much 'larger' query.
     if(tbl=='resources'){
+        sql <- .allMajorTablesSQL()
+        res <- dbGetQuery(con, sql)
+        ## Then drop certain columns from res... (id, or resource_id)
+        res <- res[,!(c(,))]
         ignoreCols <- c('id','ah_id')
     }else{
+        sql <- paste0("SELECT * FROM ",tbl)
+        res <- dbGetQuery(con, sql)
         ignoreCols <- 'id'
     }
+    
     ## work out which rows are dups
     colIdx <- !(colnames(res) %in% ignoreCols)
     idColIdx <- colnames(res) %in% ignoreCols
@@ -403,4 +424,8 @@ deleteResources <- function(id) {
 ## 1st to see if if finds anything and then again to really remove duplicates...
 ## usage: AnnotationHubData:::.cleanOneTable('tags') ## Doing this only revealed dups in 'tags' table.
 ## usage: AnnotationHubData:::.cleanOneTable('tags', reallyDeleteRows=TRUE)
+
+## STILL TODO: debug the above by (when looking at resources) dropping all the
+## extra 'id' columns that will be pulled in from the join!
+## There may be other problems too (in case multiple columns are called 'id')
 
