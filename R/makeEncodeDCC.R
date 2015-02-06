@@ -156,6 +156,7 @@
     df <- do.call(rbind, Map(.subDir, urls, verbose=TRUE))
         
     title <- basename(df$fileurl)
+    title <- sub("[.].*", "", title)
     sourceUrl <- sub(.ucscBase , "", df$fileurl)
         
     cbind(df, title, sourceUrl, stringsAsFactors = FALSE)

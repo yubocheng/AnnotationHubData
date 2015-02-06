@@ -39,7 +39,9 @@ makeRefNetImporter <- function(currentMetadata) {
     sourceVersion <- gsub(" ", "_", rsrc$date) # should be character
     SourceLastModifiedDate <- rsrc$date  # should be "POSIXct" "POSIXt"
     SourceSize <- as.numeric(rsrc$size)
-    Tags <- rsrc$description
+    Tags <- lapply(rsrc$description, function(x) {
+        c("interactions", x)
+    })
     
     Map(AnnotationHubMetadata,
         Description=description, 
