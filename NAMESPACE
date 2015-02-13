@@ -35,7 +35,6 @@ exportClasses(## AnnotationHubMetadata, #(moved to AnnotationHub)
 
 export(## AnnotationHubMetadata, #(moved to AnnotationHub)
        UCSCTrackImportPreparer,
-       HaemCodeImportPreparer,
        newResources,
        constructAnnotationHubMetadataFromSourceFilePath,
        postProcessMetadata,
