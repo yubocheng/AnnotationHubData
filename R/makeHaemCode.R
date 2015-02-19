@@ -44,55 +44,85 @@
     
     df <- .httrFileInfo(haemfiles, verbose=TRUE)
     title <- basename(haemfiles)
-    type <- file_ext(title)
+    type <- tools::file_ext(title)
     
     fileType <- sapply(type, function(x) 
         switch(x, bw="bigWig", bed="peak", csv="geneList"), 
         USE.NAMES =FALSE)
     
     description <- paste0(fileType, " file from Haemcode")
+        
+    rdataclass <- sapply(type, function(x) 
+        switch(x, bw="GRanges", bed="GRanges", csv="data.frame"), 
+        USE.NAMES =FALSE)
     
-    #rdataclass <- # multiple types - 2 will use import, 1 will use data.frame?
-    # dispatchclass
+    dispatchclass <- sapply(type, function(x) 
+        switch(x, bw="importBigWig", bed="importBed", csv="data.frame"), 
+        USE.NAMES =FALSE)
     
-    cbind(df, title,  description, fileType, tags, #rdataclass, dispatchclass,
-          stringsAsFactors=FALSE)
+    sourcetype <- sapply(type, function(x) 
+        switch(x, bw="BigWig file", bed="BED  file", csv="CSV file"), 
+        USE.NAMES =FALSE)
+    
+    cbind(df, title,  description, fileType, tags, rdataclass, dispatchclass,
+          sourcetype, stringsAsFactors=FALSE)
     
 }
 
 makeHaemCodeImporter <- function(currentMetadata) {
     rsrc <- .getHaemCode()
-    
-    description <- rsrc$description
-    sourceFile <- rsrc$title
-    title <- rsrc$title
+        
+    ## input_sources table
+    sourceSize <- as.numeric(rsrc$size)
     sourceUrls <- rsrc$fileurl
     sourceVersion <- gsub(" ", "_", rsrc$date) # should be character
     SourceLastModifiedDate <- rsrc$date  # should be "POSIXct" "POSIXt"
-    SourceSize <- as.numeric(rsrc$size)
-    tags <- strsplit(rsrc$tags, ", ")
+    sourceType <- rsrc$sourcetype
+    
+    ## resources table
+    title <- rsrc$title
+    # dataprovider, species, taxonomyid, genome are same for all files
+    description <- rsrc$description
+    # maintainer, cordinateBased, status_id, location_prefix, rdataadded, 
+    # preparerclss are same for all files
+    
+    rdatapath <- sourceUrls
     rdataclass <- rsrc$rdataclass   
+    dispatchclass <- rsrc$dispatchclass
+    
+    tags <- strsplit(rsrc$tags, ", ")
     
     Map(AnnotationHubMetadata,
-        Description=description, 
-        SourceFile=sourceFile, SourceUrl=sourceUrls,
-        SourceLastModifiedDate = SourceLastModifiedDate,
-        SourceSize = SourceSize,
-        RDataPath=sourceUrls,
+        
+        SourceSize=sourceSize,
+        SourceUrl=sourceUrls,
         SourceVersion=sourceVersion,
-        Title=title, Tags=Tags,
+        SourceLastModifiedDate = SourceLastModifiedDate,
+        SourceType = sourceType,
+        
+        Description=description, 
+        Title=title, 
+                
+        RDataPath=sourceUrls,
         RDataClass = rdataclass,
+        DispatchClass = dispatchclass,
+        
+        Tags=tags,
+        
         MoreArgs=list(
-            Genome= "mm10",
+            DataProvider = "Haemcode",
             Species="Mus musculus",
             TaxonomyId=10090L,
+            Genome= "mm10",
+            Maintainer = "Sonali Arora <sarora@fredhutch.org>",            
             Coordinate_1_based = FALSE,
-            DataProvider = "Haemcode",
+            status_id =2L, 
             Location_Prefix = .haemcodeBaseUrl,
-            Maintainer = "Sonali Arora <sarora@fredhutch.org>",
             RDataDateAdded = Sys.time(),
-            RDataVersion = "0.0.2",
-            Recipe = NA_character_))
+            PreparerClass = "HaemCodeImportPreparer",
+            
+            Recipe = NA_character_)
+            )
 }
 
 makeAnnotationHubResource("HaemCodeImportPreparer", makeHaemCodeImporter)

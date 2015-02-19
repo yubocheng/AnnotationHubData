@@ -23,46 +23,63 @@
     
     filename.stem <- sub(".tsv", "", title)
     description <- sprintf("interactions from %s", filename.stem)
-    sourceUrl <- sub("http://s3.amazonaws.com/" , "", df$fileurl)
-        
-    cbind(df, title,  description, sourceUrl, stringsAsFactors=FALSE)
+    cbind(df, title,  description, stringsAsFactors=FALSE)
 }
 
 
 makeRefNetImporter <- function(currentMetadata) {
     rsrc <- .refnetFiles()
     
-    description <- rsrc$description
-    sourceFile <- rsrc$title
+    ## input_sources table
+    sourceSize <- as.numeric(rsrc$size)
+    sourceUrls <- rsrc$fileurl
+    sourceVersion <- gsub(" ", "_", rsrc$date) 
+    sourceLastModifiedDate <- rsrc$date
+    
+    ## resources table
+    
     title <- rsrc$title
-    sourceUrls <- rsrc$sourceUrl
-    sourceVersion <- gsub(" ", "_", rsrc$date) # should be character
-    SourceLastModifiedDate <- rsrc$date  # should be "POSIXct" "POSIXt"
-    SourceSize <- as.numeric(rsrc$size)
+    description <- rsrc$description
+    
     Tags <- lapply(rsrc$description, function(x) {
-        c("interactions", x)
+        c("refNet","interactions", x)
     })
     
     Map(AnnotationHubMetadata,
-        Description=description, 
-        SourceFile=sourceFile, SourceUrl=sourceUrls,
-        SourceLastModifiedDate = SourceLastModifiedDate,
-        SourceSize = SourceSize,
-        RDataPath=sourceUrls,
-        SourceVersion=sourceVersion,
-        Title=title, Tags=Tags,
+        
+        SourceSize = sourceSize,
+        SourceUrl = sourceUrls,
+        SourceVersion = sourceVersion,
+        SourceLastModifiedDate = sourceLastModifiedDate,
+        
+        Description = description,
+        Title = title,
+            
+        RDataPath = sourceUrls,
+        
         MoreArgs=list(
-            Genome= "RefNet Genome",
-            Species="Homo sapiens",
-            TaxonomyId=9606L,
-            Coordinate_1_based = FALSE,
+            # input sources 
+            SourceType = "CSV File",
+            
+            # resources
+            Species = "species", 
+            TaxonomyId = "taxonomyId",
+            Genome = "RefNet Genome",
             DataProvider = "RefNet",
+            Maintainer = "Sonali Arora <sarora@fredhutch.org>",         
+            Coordinate_1_based = FALSE,
+            status_id = 2L, 
             Location_Prefix = .refNetbase.url,
-            Maintainer = "Sonali Arora <sarora@fredhutch.org>",
-            RDataClass = "data.frame", 
             RDataDateAdded = Sys.time(),
-            RDataVersion = "0.0.2",
-            Recipe = NA_character_))
+            PreparerClass = "RefNetImportPreparer",
+            
+            #rdata table
+            DispatchClass = "data.frame" ,
+            RDataClass = "data.frame",
+            
+            Tags = Tags,
+            
+            Recipe = NA_character_ ))
 }
 
 makeAnnotationHubResource("RefNetImportPreparer", makeRefNetImporter)

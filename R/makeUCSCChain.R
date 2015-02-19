@@ -117,35 +117,54 @@
 makeUCSCChain <- function(currentMetadata) {
     rsrc <- .getUCSCResources(fileType="chain", dirName="liftOver", 
         fileName="chain.gz", verbose=FALSE)
-    description <- sprintf("UCSC liftOver chain file from %s to %s",
-        rsrc$from, rsrc$to)
-    genome <- rsrc$from
-    sourceFile <- rownames(rsrc)
-    sourceUrls <- sub(.ucscBase, "", rsrc$url)
+    
+    ## input_sources table
+    sourceSize <- as.numeric(rsrc$size)
+    sourceUrls <- rsrc$url
     sourceVersion <- gsub(" ", "_", rsrc$date) 
-    species <- rsrc$organism            
+    sourceLastModifiedDate <- rsrc$date
+    
+    ## resources table
+    species <- rsrc$organism   
+    genome <- rsrc$from
     taxonomyId <- as.integer(rsrc$taxid)           
-    title <- rownames(rsrc)
-    SourceLastModifiedDate <- rsrc$date
-    SourceSize <- as.numeric(rsrc$size)
-        
+    title <- rownames(rsrc) 
+    description <- sprintf("UCSC liftOver chain file from %s to %s",
+                           rsrc$from, rsrc$to)
+      
     Map(AnnotationHubMetadata,
-        Description=description, Genome=genome,
-        SourceFile=sourceFile, SourceUrl=sourceUrls,
-        SourceLastModifiedDate = SourceLastModifiedDate,
-        SourceSize = SourceSize,
+        
+        SourceSize=sourceSize,
+        SourceUrl=sourceUrls,
+        SourceVersion=sourceVersion,
+        SourceLastModifiedDate = sourceLastModifiedDate,
+        
+        Description=description,
+        Title=title,
+        Genome=genome,
+        Species=species, 
+        TaxonomyId=taxonomyId,
+        
         RDataPath=sourceUrls,
-        SourceVersion=sourceVersion, Species=species,
-        TaxonomyId=taxonomyId, Title=title,
+        
         MoreArgs=list(
+            # input sources 
+            SourceType= "ChainFile",
+            
+            # resources
+            DataProvider = "UCSC",
+            Maintainer =  "Sonali Arora <sarora@fhcrc.org>",         
             Coordinate_1_based = FALSE,
-            DataProvider = "hgdownload.cse.ucsc.edu",
+            status_id =2L, 
             Location_Prefix = .ucscBase,
-            Maintainer = "Sonali Arora <sarora@fhcrc.org>",
-            RDataClass = "ChainFile",
             RDataDateAdded = Sys.time(),
-            RDataVersion = "0.0.1",
-            Recipe = NA_character_,
+            PreparerClass = "UCSCChainPreparer",
+            
+            #rdata table
+            DispatchClass= "ChainFile" ,
+            RDataClass = "GRanges",
+            
+            Recipe = NA_character_, 
             Tags = c("liftOver", "chain", "UCSC", "genome", "homology")))
 }
 

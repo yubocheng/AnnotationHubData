@@ -1,33 +1,52 @@
 make2bit <- function(currentMetadata) {
     rsrc <- .getUCSCResources(fileType="2bit", dirName="bigZips", 
-        fileName=".2bit", verbose=FALSE)
-    description <- sprintf("UCSC 2 bit file for %s ", rsrc$from)
+                              fileName=".2bit", verbose=FALSE)
+    ## input_sources table
+    sourceSize <- as.numeric(rsrc$size)
+    sourceUrls <- rsrc$url
+    sourceVersion <- gsub(" ", "_", rsrc$date) 
+    sourceLastModifiedDate <- rsrc$date
+    
+    ## resources table
+    species <- rsrc$organism   
     genome <- rsrc$from
-    sourceFile <- rownames(rsrc)
-    sourceUrls <- sub(.ucscBase, "", rsrc$url)
-    sourceVersion <- gsub(" ", "_", rsrc$date)
-    species <- rsrc$organism            
     taxonomyId <- as.integer(rsrc$taxid)           
-    title <- rownames(rsrc)
-    SourceLastModifiedDate <- rsrc$date
-    SourceSize <- as.numeric(rsrc$size)
+    title <- rownames(rsrc) 
+    description <- sprintf("UCSC 2 bit file for %s ", rsrc$from)
+    
     Map(AnnotationHubMetadata,
-        Description=description, Genome=genome,
-        SourceFile=sourceFile, SourceUrl=sourceUrls,
-        SourceLastModifiedDate = SourceLastModifiedDate,
-        SourceSize = SourceSize,
-        RDataPath=sourceUrls,
-        SourceVersion=sourceVersion, Species=species,
-        TaxonomyId=taxonomyId, Title=title,
+        
+        SourceSize = sourceSize,
+        SourceUrl = sourceUrls,
+        SourceVersion = sourceVersion,
+        SourceLastModifiedDate = sourceLastModifiedDate,
+        
+        Description = description,
+        Title = title,
+        Genome = genome,
+        Species = species, 
+        TaxonomyId = taxonomyId,
+        
+        RDataPath = sourceUrls,
+        
         MoreArgs=list(
+            # input sources 
+            SourceType = "TowBitFile",
+            
+            # resources
+            DataProvider = "UCSC",
+            Maintainer =  "Sonali Arora <sarora@fredhutch.org>",         
             Coordinate_1_based = FALSE,
-            DataProvider = "hgdownload.cse.ucsc.edu",
+            status_id = 2L, 
             Location_Prefix = .ucscBase,
-            Maintainer = "Sonali Arora <sarora@fhcrc.org>",
-            RDataClass = "TwoBitFile",
             RDataDateAdded = Sys.time(),
-            RDataVersion = "0.0.1",
-            Recipe = NA_character_,
+            PreparerClass = "UCSC2BitPreparer",
+            
+            #rdata table
+            DispatchClass= "TwoBitFile" ,
+            RDataClass = "TwoBitFile",
+            
+            Recipe = NA_character_, 
             Tags = c("2bit", "UCSC", "genome" )))
 }
 

@@ -45,9 +45,12 @@
         g <- grep("grant=", temp, value=TRUE)
         g <- ifelse(length(g)!=0, paste0(gsub(".*=", "", g)," grant"), 
                     NA_character_)
-    
+        
+        dv <- grep("dataVersion=", temp, value=TRUE)
+        dv <- ifelse(length(dv)!=0, gsub(".*=", "", dv), NA_character_)
+        
         ## get only important fields
-        toMatch <- "dataVersion|dataType|lorigAssembly|type"
+        toMatch <- "dataType|lorigAssembly|type"
         temp <- temp[grepl(toMatch, temp)]
         
         ## remove everything before "="
@@ -63,7 +66,8 @@
         temp <- c("wgEncode", temp)
         temp <- temp[!grepl("None",temp)]
         
-        list(tags=paste0(temp, collapse=", "), md5sum = md) 
+        list(tags=paste0(temp, collapse=", "), md5sum = md, 
+             sourceVersion=dv) 
    })
 }
 
@@ -79,6 +83,7 @@
                 result <- .getTags(url)
                 tags <- sapply(result, "[[", "tags")
                 sourcemd5sum <- sapply(result, "[[", "md5sum")
+                sourceVersion <- sapply(result, "[[", "sourceVersion") 
             }               
             
             subst <- switch( basename(url),
@@ -90,7 +95,8 @@
             fls <- fls[grepl(subst,fls)]
             fls <- fls[!grepl("files.txt", fls)]
             if(length(tags)!=0)
-                fls <- list(filename=fls, tags=tags, sourcemd5sum=sourcemd5sum)
+                fls <- list(filename=fls, tags=tags, sourcemd5sum=sourcemd5sum,
+                            sourceVersion=sourceVersion)
 	    }
     }    
     fls
@@ -124,6 +130,7 @@
     tags <- contents$tags
     sourcemd5sum <- contents$sourcemd5sum
     files <- contents$filename
+    sourceVersion <- contents$sourceVersion
     
     type <- sapply(strsplit(files, ".", fixed = TRUE), "[[", 2)
     idx <- type %in% supported.formats
@@ -142,7 +149,9 @@
          }
             
         df <- .httrFileInfo(files, verbose)
-        cbind(df, type, tags, sourcemd5sum, stringsAsFactors=FALSE)
+        
+        cbind(df, type, tags, sourcemd5sum, sourceVersion, 
+              stringsAsFactors=FALSE)
     } else 
         data.frame(fileurl=character(), date=character(), size=numeric(),
                    type= character(), stringsAsFactors=FALSE)
@@ -153,49 +162,62 @@
     subdirs <- .cleanFiles(encode_url, isSubDir=FALSE)
     urls <- setNames(paste0(encode_url, subdirs), subdirs)
     
-    df <- do.call(rbind, Map(.subDir, urls, verbose=TRUE))
-        
-    title <- basename(df$fileurl)
-    title <- sub("[.].*", "", title)
-    sourceUrl <- sub(.ucscBase , "", df$fileurl)
-        
-    cbind(df, title, sourceUrl, stringsAsFactors = FALSE)
+    do.call(rbind, Map(.subDir, urls, verbose=TRUE))
 }
 
 makeEncodeImporter <- function(currentMetadata) {
     rsrc <- .encodeFiles()
-
-    description <- paste0(rsrc$type, " file from ENCODE")
-    sourceFile <- rsrc$title
-    title <- rsrc$title
-    sourceUrls <- rsrc$sourceUrl
-    sourceMd5sum <- rsrc$sourcemd5sum
-    sourceVersion <- gsub(" ", "_", rsrc$date) # should be character
+    
+    ## input_sources table
+    sourceSize <- as.numeric(rsrc$size)
+    sourceUrls <- rsrc$fileurl
+    sourceVersion <- rsrc$sourceVersion # should be character
     SourceLastModifiedDate <- rsrc$date  # should be "POSIXct" "POSIXt"
-    SourceSize <- as.numeric(rsrc$size)
-    Tags <- strsplit(rsrc$tags, ", ")
-            
+        
+    ## resources table
+    title <- basename(rsrc$fileurl)
+    description <- rsrc$description
+    sourceMd5sum <- rsrc$sourcemd5sum
+    
+    rdatapath <- sourceUrls
+    
+    tags <- strsplit(rsrc$tags, ", ")
+    
     Map(AnnotationHubMetadata,
-        Description=description, 
-        SourceFile=sourceFile, SourceUrl=sourceUrls,
-        SourceLastModifiedDate = SourceLastModifiedDate,
-        SourceSize = SourceSize,
-        RDataPath=sourceUrls,
+        
+        SourceSize=sourceSize,
+        SourceUrl=sourceUrls,
         SourceVersion=sourceVersion,
-        Title=title, Tags=Tags,
-        SourceMd5= sourceMd5sum,
+        SourceLastModifiedDate = SourceLastModifiedDate,
+                
+        Description= paste0(rsrc$type, " file from ENCODE"), 
+        Title=title, 
+        
+        RDataPath=sourceUrls,
+               
+        Tags=tags,
+        
         MoreArgs=list(
-            Genome= "hg19",
+            # input sources 
+            SourceType= "BED file",
+                        
+            # resources
+            DataProvider = "UCSC",
             Species="Homo sapiens",
             TaxonomyId=9606L,
+            Genome= "hg19",
+            Maintainer = "Sonali Arora <sarora@fredhutch.org>",            
             Coordinate_1_based = FALSE,
-            DataProvider = "hgdownload.cse.ucsc.edu",
+            status_id =2L, 
             Location_Prefix = .ucscBase,
-            Maintainer = "Sonali Arora <sarora@fhcrc.org>",
-            RDataClass = "EpigenomeRoadmapFile", 
             RDataDateAdded = Sys.time(),
-            RDataVersion = "0.0.2",
-	        Recipe = NA_character_))
+            PreparerClass = "EncodeImportPreparer",
+            
+            #rdata table
+            DispatchClass= "importBed",
+            RDataClass = "GRanges",
+            
+            Recipe = NA_character_))
 }
 
 makeAnnotationHubResource("EncodeImportPreparer", makeEncodeImporter)
