@@ -1,7 +1,7 @@
 Package: AnnotationHubData
 Type: Package
 Title: Transform public data resources into Bioconductor Data Structures
-Version: 0.0.155
+Version: 0.0.156
 Authors@R:
     c(person("Martin", "Morgan", role="ctb"),
       person("Marc", "Carlson", role="ctb"),
@@ -74,8 +74,6 @@ Collate:
     makeGrasp2Db.R
     makeHaemCode.R
     makedbSNPVCF.R
-    makeHaemCode.R
-    makeRefNet.R
     makeEpigenomeRoadmap.R
     makeRefNet.R
     downloadAndUpdate.R

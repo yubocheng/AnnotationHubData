@@ -183,7 +183,7 @@ filterAHMs <- function(ahms){
     ## compared ahm@RDataVersion[1] and ahm@SourceUrl[1]
 
     ## One option is that I could just get key data out of SQLite
-    SQL <- paste0("SELECT res.ah_id, res.rdatadateadded, res.rdataversion, ",
+    SQL <- paste0("SELECT res.ah_id, res.rdatadateadded, ",
                   "iso.sourceurl, bcv.biocversion ",
                   "FROM resources AS res, input_sources AS iso, ",
                   "biocversions AS bcv ",
@@ -192,16 +192,12 @@ filterAHMs <- function(ahms){
     
     ## helper to test if something was NOT in existingMetadata
     .isNew <- function(ahm, em){
-        ahmVers <- ahm@RDataVersion[1]
         ahmSrc <- ahm@SourceUrl[1]
         ahmBcv <- ahm@BiocVersion
         ## Work out whether true or false: "have we seen this before?"
         ## TODO: 1st subset based on srcUrl and then check the other things.
         ## Below can't work because the question needs to be asked for each specific AHM.
         ## IOW they have to *all* match (or not)        
-        ## rdataversion does notcurrently contain valuable data.   :(
-        ## res <- ahmVers %in% em$rdataversion & ahmSrc %in% em$sourceurl & 
-        ## ahmBcv %in% em$biocversion
         
         ## next change this so that the checked values are on the same row.
         ## res <- ahmSrc %in% em$sourceurl ## & ahmBcv %in% em$biocversion
