@@ -4,7 +4,7 @@ ahroot <- "/var/FastRWeb/web"
 BiocVersion <- c("3.1")  
 
 ##debug(AnnotationHubData:::.generalNewResources)
-
+##debug(AnnotationHubData:::ahmToJson)
 
 ahms = updateResources(ahroot, BiocVersion,
   preparerClasses = "HaemCodeImportPreparer",

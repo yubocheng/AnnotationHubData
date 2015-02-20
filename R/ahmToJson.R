@@ -43,8 +43,8 @@ ahmToJson <- function(ahm){
     lst <- metadata(ahm)    
     require('jsonlite')
     ## casting on elements that toJSON can't handle
-    lst[[2]] <- as.character(lst[[2]])
-    lst[[15]] <- as.character(lst[[15]])
+    lst[['BiocVersion']] <- as.character(lst[['BiocVersion']])
+    lst[['SourceLastModifiedDate']] <- as.character(lst[['SourceLastModifiedDate']])
     ## lower case all the names
     names(lst) <- tolower(names(lst))
     
@@ -53,18 +53,15 @@ ahmToJson <- function(ahm){
     
     rdatapaths <- Map(list,
                       rdatapath=lst[['rdatapath']],
-                      rdataclass=lst[['rdataclass']],
-                      rdatasize=as.integer(lst[['rdatasize']]),
-                      derivedmd5=lst[['derivedmd5']],
-                      rdatalastmodifieddate=lst[['rdatalastmodifieddate']]
+                      rdataclass=lst[['rdataclass']] 
                       )
     ## using Map puts unwanted labels on things...
     names(rdatapaths) <- NULL 
 
     input_sources <- Map(list,
-                         sourcefile=lst[['sourcefile']],
                          sourcesize=lst[['sourcesize']],
                          sourceurl=lst[['sourceurl']],
+                         sourcetype=lst[['sourcetype']],
                          sourceversion=lst[['sourceversion']],
                          sourcemd5=lst[['sourcemd5']],
                          sourcelastmodifieddate=lst[['sourcelastmodifieddate']]
@@ -98,7 +95,9 @@ ahmToJson <- function(ahm){
                  rdatapaths=rdatapaths,                 
                  input_sources=input_sources,
                  tags=lst[['tags']],
-                 biocversions=lst[['biocversion']]
+                 biocversions=lst[['biocversion']],
+                 dispatchclass=lst[['dispatchclass']],
+                 preparerclass=lst[['preparerclass']]
                  )
     
     ## then make JSON
