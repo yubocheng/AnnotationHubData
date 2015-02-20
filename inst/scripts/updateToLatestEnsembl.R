@@ -1,3 +1,30 @@
+## Test of new constructor for an updated recipe
+library(AnnotationHubData)
+ahroot <- "/var/FastRWeb/web"
+BiocVersion <- c("3.1")  
+
+##debug(AnnotationHubData:::.generalNewResources)
+
+
+ahms = updateResources(ahroot, BiocVersion,
+  preparerClasses = "HaemCodeImportPreparer",
+  insert = FALSE, metadataOnly=TRUE)
+
+## ahms = updateResources(ahroot, BiocVersion,
+##   preparerClasses = "EncodeImportPreparer",
+##   insert = FALSE, metadataOnly=TRUE)
+
+## Some bad juju in this one too:
+## ahms = updateResources(ahroot, BiocVersion,
+##   preparerClasses = "UCSCChainPreparer",
+##   insert = FALSE, metadataOnly=TRUE)
+
+## lets try a simple one
+## ahms = updateResources(ahroot, BiocVersion,
+##   preparerClasses = "UCSCChainPreparer",
+##   insert = FALSE, metadataOnly=TRUE)
+
+
 
 ## TODO: fix problems here:
 ## Test for updated UCSC tracks recipe

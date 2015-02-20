@@ -116,11 +116,10 @@ makeHaemCodeImporter <- function(currentMetadata) {
             Genome= "mm10",
             Maintainer = "Sonali Arora <sarora@fredhutch.org>",            
             Coordinate_1_based = FALSE,
-            status_id =2L, 
+           ## status_id =2L, ## internal ID 
             Location_Prefix = .haemcodeBaseUrl,
             RDataDateAdded = Sys.time(),
-            PreparerClass = "HaemCodeImportPreparer",
-            
+           # PreparerClass = "HaemCodeImportPreparer", ## Automatic  ;)
             Recipe = NA_character_)
             )
 }

@@ -46,9 +46,9 @@ setOldClass(c("package_version", "numeric_version"))
     rc <- .Message()
 
     ## required fields must have non-zero length
-    requiredFields <- c("AnnotationHubRoot", "SourceFile",
+    requiredFields <- c("AnnotationHubRoot", 
         "SourceUrl", "Title", "Species", "Genome", "Recipe", "Tags",
-        "RDataClass", "RDataVersion", "SourceVersion",
+        "RDataClass", "SourceVersion",
         "Coordinate_1_based", "Maintainer", "DataProvider",
         "RDataDateAdded")
     values <- metadata(object)[requiredFields]
@@ -168,7 +168,7 @@ jsonPath <-
     function(x)
 {
     with(metadata(x), {
-        fl <- sprintf("%s_%s.json", SourceFile, RDataVersion)
+        fl <- sprintf("%s_%s.json", SourceFile)
         file.path(AnnotationHubRoot, fl)
     })
 }
@@ -226,9 +226,6 @@ AnnotationHubMetadataFromJson <-
     lst <- .decodeNA(fromJSON(file=path))
     lst <- lst[!sapply(lst, is.null)]         # replace with default values
 
-    ## coerce types
-    lst[["RDataVersion"]] <- .as.numeric_version(lst[["RDataVersion"]])
-
     lst[["BiocVersion"]] <- package_version(lst$BiocVersion)
      # lst[["BiocVersion"]] <- lapply(lst$BiocVersion, package_version)
 
@@ -273,8 +270,7 @@ writeJSON <- function(ahroot, metadata, flat=FALSE, filename=NULL)
     resourceDir <- dirname(sourceFile)
     if (is.null(filename))
     {
-        filename <- .derivedFileName(sourceFile,
-            metadata(metadata)$RDataVersion, "json")
+        filename <- .derivedFileName(sourceFile, "json")
     }
     if (flat)
         outfile <- file.path(ahroot, filename)
@@ -285,10 +281,10 @@ writeJSON <- function(ahroot, metadata, flat=FALSE, filename=NULL)
 }
 
 constructAnnotationHubMetadataFromSourceFilePath <-
-    function(ahroot, RDataVersion, originalFile)
+    function(ahroot, originalFile)
 {
     dir <- dirname(file.path(ahroot, originalFile))
-    jsonFile <- .derivedFileName(originalFile, RDataVersion, "json")
+    jsonFile <- .derivedFileName(originalFile, "json")
     jsonFile <- file.path(dir[1], jsonFile)
     AnnotationHubMetadataFromJson(jsonFile, ahroot)
 }
@@ -325,8 +321,7 @@ postProcessMetadata <- function(ahm)
     json <- toJson(ahm)
     resourceDir <- dirname(metadata(ahm)$SourceFile[1])
     outfile <- file.path(metadata(ahm)$AnnotationHubRoot,
-        resourceDir, .derivedFileName(metadata(ahm)$SourceFile, 
-        metadata(ahm)$RDataVersion, "json"))
+        resourceDir, .derivedFileName(metadata(ahm)$SourceFile, "json"))
     cat(json, "\n", file=outfile)
     ahm
 }

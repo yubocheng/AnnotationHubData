@@ -9,22 +9,23 @@
     res
 }
 
-.getRDataVersion <- function(ahm){as.character(ahm@RDataVersion)[1]}
-.getRDataVersions <- function(ahms){
-    res <- unlist(lapply(ahms, .getRDataVersion))
-    names(res) <- NULL
-    res
-}
+## TODO: point to something other than this non-used field!
+## .getRDataVersion <- function(ahm){as.character(ahm@RDataVersion)[1]}
+## .getRDataVersions <- function(ahms){
+##     res <- unlist(lapply(ahms, .getRDataVersion))
+##     names(res) <- NULL
+##     res
+## }
 
 ## return only AHMs in list that are in the new list, but NOT the old one.
 .compareAHMs <- function(new, old){
     ## get values from AHMs
     oldSrc <- .getSrcUrls(old)
     newSrc <- .getSrcUrls(new)
-    oldVer <- .getRDataVersions(old)
-    newVer <- .getRDataVersions(new)
+    ## oldVer <- .getRDataVersions(old)
+    ## newVer <- .getRDataVersions(new)
     ## I want to keep them if either the url OR if the version was different
-    keepNewIdx <- !(newSrc %in% oldSrc) |  !(newVer %in% oldVer)
+    keepNewIdx <- !(newSrc %in% oldSrc) ##|  !(newVer %in% oldVer)
     ## then filter
     new[keepNewIdx]
 }
@@ -38,7 +39,10 @@
     ## This is to filter in the event that the users
     ## makeAnnotationHubMetadataFunction() has not already done that
     ## job...
-    .compareAHMs(ahms, currentMetadata)
+    ahms <- .compareAHMs(ahms, currentMetadata)
+    ## Then for each remaining AHM, add in the importPreparer information
+    lapply(ahms, function(x){x@PreparerClass<-class(importPreparer)[1];
+                             return(x)})
 }
 
 
