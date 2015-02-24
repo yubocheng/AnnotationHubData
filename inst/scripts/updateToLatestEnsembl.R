@@ -9,7 +9,7 @@ BiocVersion <- c("3.1")
 
 ahms = updateResources(ahroot, BiocVersion,
   preparerClasses = "HaemCodeImportPreparer",
-  insert = FALSE, metadataOnly=TRUE)
+  insert = FALSE, metadataOnly=TRUE, filtering=FALSE)
 
 ## ahms = updateResources(ahroot, BiocVersion,
 ##   preparerClasses = "EncodeImportPreparer",

@@ -22,7 +22,7 @@ importFrom(rtracklayer, import, ucscGenomes)
 
 importFrom(AnnotationForge, makeInpDb)
 
-exportClasses(## AnnotationHubMetadata, #(moved to AnnotationHub)
+exportClasses(AnnotationHubMetadata,
               ImportPreparer,
               UCSCTrackImportPreparer,
               UCSCChainPreparer,
@@ -33,7 +33,7 @@ exportClasses(## AnnotationHubMetadata, #(moved to AnnotationHub)
               Inparanoid8ImportPreparer,
               NCBIImportPreparer)
 
-export(## AnnotationHubMetadata, #(moved to AnnotationHub)
+export(AnnotationHubMetadata, 
        UCSCTrackImportPreparer,
        newResources,
        constructAnnotationHubMetadataFromSourceFilePath,
