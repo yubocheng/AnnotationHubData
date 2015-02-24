@@ -292,7 +292,6 @@ getCurrentResources <- function(version){
         AnnotationHubRoot=ahroot,
         Description=meta$description,
         Genome=meta$genome,
-#        SourceFile=meta$sourcefile, 
         SourceUrl=meta$sourceurl,
         SourceVersion=meta$sourceversion, ##
         Species=meta$species,
@@ -303,8 +302,6 @@ getCurrentResources <- function(version){
         DataProvider = meta$dataprovider,
         Maintainer = meta$maintainer,
         RDataClass = meta$rdataclass,
-#        RDataDateAdded = meta$rdatadateadded,
-#        RDataVersion = meta$rdataversion,
         Recipe = meta$recipe,
         Tags = tags)
 }
