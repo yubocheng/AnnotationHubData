@@ -86,7 +86,7 @@ makeHaemCodeImporter <- function(currentMetadata) {
     # maintainer, cordinateBased, status_id, location_prefix, rdataadded, 
     # preparerclss are same for all files
     
-    rdatapath <- sourceUrls
+    rdatapath <- sub(.haemcodeBaseUrl, "", sourceUrls)
     rdataclass <- rsrc$rdataclass   
     dispatchclass <- rsrc$dispatchclass
     

@@ -182,7 +182,7 @@ makeEncodeImporter <- function(currentMetadata) {
     description <- rsrc$description
     sourceMd5sum <- rsrc$sourcemd5sum
     
-    rdatapath <- sourceUrls
+    rdatapath <- gsub(.ucscBase, "", sourceUrls) 
     
     tags <- strsplit(rsrc$tags, ", ")
     
