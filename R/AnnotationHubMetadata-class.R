@@ -31,7 +31,6 @@ setClass("AnnotationHubMetadata",
         RDataDateAdded="POSIXct",
         RDataPath="character",
         Recipe="character",                 ## no longer needed for record_id
-        RecipeArgs="list",
         SourceLastModifiedDate="POSIXct",
         SourceMd5="character",
         SourceSize="numeric",
@@ -61,7 +60,6 @@ setClass("AnnotationHubMetadata",
         RDataDateAdded=as.POSIXct(NA_character_),
         RDataPath=NA_character_,
         Recipe=NA_character_,
-        RecipeArgs=list(),
         SourceLastModifiedDate=as.POSIXct(NA_character_),
         SourceMd5=NA_character_,
         SourceSize=NA_real_,
@@ -96,24 +94,24 @@ setClass("AnnotationHubMetadata",
 
 AnnotationHubMetadata <-
     function(AnnotationHubRoot,  SourceUrl, SourceType, SourceVersion,
-        SourceMd5=NA_character_, SourceSize, DataProvider, Title, Description,
-        Species, TaxonomyId, Genome, Tags, Recipe, RecipeArgs =
-        list(), RDataClass, RDataDateAdded, RDataPath,
+        SourceLastModifiedDate, SourceMd5=NA_character_, SourceSize,
+        DataProvider, Title, Description,
+        Species, TaxonomyId, Genome, Tags, Recipe,
+        RDataClass, RDataDateAdded, RDataPath,
         Maintainer, ..., BiocVersion=biocVersion(), Coordinate_1_based = TRUE,
         Notes=NA_character_, DispatchClass,
         Location_Prefix='http://s3.amazonaws.com/annotationhub/')
 {
-    ## TODO: work out a way to derive these (Sonali has some methods for some files that we can apply using httr etc.)
-    ## And we *may just want to continue requiring that the recipe give this value - and then not store it.
-    ## if (missing(SourceMd5))
-    ##     SourceMd5 <- unname(tools::md5sum(SourceFile))
-    ## if (missing(SourceSize))
-    ##     SourceSize <- file.info(SourceFile)$size
+    ## Try to derive some of this stuff 
+    if (missing(SourceLastModifiedDate))
+        SourceLastModifiedDate <- as.POSIXct(.httrFileInfo(SourceUrl)$date)   
+    if (missing(SourceSize))
+        SourceSize <- as.character(.httrFileInfo(SourceUrl)$size)
     if (missing(TaxonomyId))
     {
         if (!is.na(Species) &&
             requireNamespace("AnnotationHubData", quietly=TRUE))
-            TaxonomyId <- AnnotationHubData:::.taxonomyId(Species)
+            TaxonomyId <- .taxonomyId(Species)
         else
             TaxonomyId <- NA_character_
     }
@@ -146,9 +144,9 @@ AnnotationHubMetadata <-
         RDataDateAdded=as.POSIXct(RDataDateAdded),
         RDataPath=RDataPath,
         Recipe=Recipe,
-        RecipeArgs=RecipeArgs,
-        SourceMd5=SourceMd5,                          ## required 
-        SourceSize=SourceSize,                        ## required
+        SourceLastModifiedDate=SourceLastModifiedDate,
+        SourceMd5=SourceMd5,                           
+        SourceSize=SourceSize,
         SourceUrl=SourceUrl,
         SourceVersion=SourceVersion,
         SourceType=SourceType,
