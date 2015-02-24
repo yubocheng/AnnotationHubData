@@ -138,7 +138,9 @@
     tags <- tags[idx]
     sourcemd5sum <- sourcemd5sum[idx]
     type <- type[idx]
-    
+    sourceVersion <- sourceVersion[idx]
+ 
+
     if(length(files)!=0) {
         files <-  sprintf("%s%s", url, files)
          if(length(files)>5){
@@ -146,6 +148,7 @@
              tags<- tags[1:5]
              sourcemd5sum <- sourcemd5sum[1:5]
              type <- type[1:5]
+             sourceVersion <- sourceVersion[1:5]
          }
             
         df <- .httrFileInfo(files, verbose)
@@ -208,10 +211,10 @@ makeEncodeImporter <- function(currentMetadata) {
             Genome= "hg19",
             Maintainer = "Sonali Arora <sarora@fredhutch.org>",            
             Coordinate_1_based = FALSE,
-            status_id =2L, 
+            ##status_id =2L, 
             Location_Prefix = .ucscBase,
             RDataDateAdded = Sys.time(),
-            PreparerClass = "EncodeImportPreparer",
+            ##PreparerClass = "EncodeImportPreparer",
             
             #rdata table
             DispatchClass= "importBed",
