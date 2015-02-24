@@ -5,7 +5,8 @@ BiocVersion <- c("3.1")
 
 ##debug(AnnotationHubData:::.generalNewResources)
 ##debug(AnnotationHubData:::ahmToJson)
-## debug(AnnotationHub:::.checkRdataclassIsReal)
+## debug(AnnotationHubData:::.checkRdataclassIsReal)
+## debug(AnnotationHubData:::AnnotationHubMetadata)
 
 ahms = updateResources(ahroot, BiocVersion,
   preparerClasses = "HaemCodeImportPreparer",

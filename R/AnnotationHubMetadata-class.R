@@ -116,12 +116,11 @@ AnnotationHubMetadata <-
             TaxonomyId <- NA_character_
     }
     ## This was probably too aggressive since some resources do not have the sourceFile field
-    if (missing(RDataPath)) {
-        ## resourceDir <- dirname(SourceFile[1])
-        ## resourceFiles <- .derivedFileName(SourceFile,  RDataVersion, "RData")
-        ## RDataPath <- file.path(resourceDir, resourceFiles)
-        Stop("You must supply an Rdatapath")
-        ## TODO: try to derive this from the sourceUrl and the location prefix (if present)
+    if (missing(RDataPath)) {        
+        ## Add two. (one for substr starting AT clipChars,
+        ## and one for that extra slash)
+        clipChars <- nchar(Location_Prefix) + 2  
+        RDataPath <- substr(SourceUrl, clipChars, nchar(SourceUrl))
     }
     if (missing(AnnotationHubRoot)){
         AnnotationHubRoot <- "/var/FastRWeb/web" ## Dans preferred default
@@ -256,14 +255,24 @@ if(!(taxId %in% validTaxIds)){
 }
     
 
+.checkThatRDataPathIsOK <- function(rdatapath){
+    ## no spaces are allowed int he RDataPath field
+    if(grepl(" ", rdatapath)){
+        stop(wmsg("The string for RDataPath cannot contain spaces."))
+    }
+    protocolPrefixes <- c('^http://','^https://','^ftp://','^rtracklayer://')
+    prefixesFound <- unlist(lapply(protocolPrefixes, FUN=grepl, x=rdatapath))
+    if(any(prefixesFound)){
+        stop(wmsg(paste0("The string for an RDataPath should only contain",
+                         " the partial path after the location_Prefix",
+                         " (including the protocol) has been trimmed off")))
+    }    
+}
+
 
 
 setValidity("AnnotationHubMetadata",function(object) {
     msg = NULL
-    ## no spaces are allowed int he RDataPath field
-    if(grepl(" ", object@RDataPath)){
-        msg <- c(msg, "the string for RDataPath cannot contain spaces.")
-    }
     ## if the location prefix is "non-standard" (IOW not stored in S3) and 
     ## if the source URL is not the same as rdatapath 
     ## then we need to add a message and fail out
@@ -282,6 +291,7 @@ setValidity("AnnotationHubMetadata",function(object) {
     .checkRdataclassIsReal(object@RDataClass)
     .checkThatSourceTypeSoundsReasonable(object@SourceType)
     .checkForAValidTaxonomyId(object@TaxonomyId)
+    .checkThatRDataPathIsOK(object@RDataPath)
 })
 
 
