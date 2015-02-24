@@ -96,7 +96,7 @@ setClass("AnnotationHubMetadata",
 
 AnnotationHubMetadata <-
     function(AnnotationHubRoot,  SourceUrl, SourceType, SourceVersion,
-        SourceMd5, SourceSize, DataProvider, Title, Description,
+        SourceMd5=NA_character_, SourceSize, DataProvider, Title, Description,
         Species, TaxonomyId, Genome, Tags, Recipe, RecipeArgs =
         list(), RDataClass, RDataDateAdded, RDataPath,
         Maintainer, ..., BiocVersion=biocVersion(), Coordinate_1_based = TRUE,
@@ -147,7 +147,7 @@ AnnotationHubMetadata <-
         RDataPath=RDataPath,
         Recipe=Recipe,
         RecipeArgs=RecipeArgs,
-        SourceMd5=SourceMd5,                          ## required
+        SourceMd5=SourceMd5,                          ## required 
         SourceSize=SourceSize,                        ## required
         SourceUrl=SourceUrl,
         SourceVersion=SourceVersion,
@@ -246,9 +246,8 @@ expectedSourceTypes <- c("BED file",
 
 .checkForAValidTaxonomyId <- function(taxId){
 ## TODO: precompute the list of valid tax Ids
-if (!exists("speciesMap")) 
-         data(speciesMap, package = "AnnotationHubData")
-validTaxIds <- unique(speciesMap$taxon)
+if (!exists("validTaxIds")) 
+         data(validTaxIds, package = "AnnotationHubData")
 if(!(taxId %in% validTaxIds)){
       stop(wmsg(paste0("The taxonomy Id you have provided (",taxId,")",
                        " is not in our list of valid Tax Ids.",
@@ -284,7 +283,7 @@ setValidity("AnnotationHubMetadata",function(object) {
     .checkThatGenomeLooksReasonable(object@Genome)
     .checkRdataclassIsReal(object@RDataClass)
     .checkThatSourceTypeSoundsReasonable(object@SourceType)
- ##   .checkForAValidTaxonomyId(object@TaxonomyId)
+    .checkForAValidTaxonomyId(object@TaxonomyId)
 })
 
 
