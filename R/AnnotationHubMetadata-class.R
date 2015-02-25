@@ -8,7 +8,7 @@ setOldClass(c("POSIXct", "POSIXt"))
 setOldClass("numeric_version")
 setOldClass(c("package_version", "numeric_version"))
 
-.NA_version_ <- numeric_version("0.0")  # proxy for unknown version
+.NA_version_ <- numeric_version("0.0")  ## proxy for unknown version
 
 
 ## Class defintion

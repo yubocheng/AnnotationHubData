@@ -102,8 +102,7 @@ updateResources <- function(ahroot, BiocVersion,
                             preparerClasses=getImportPreparerClasses(),
                             listOfExistingResources=list(),
                    ## listOfExistingResources=getCurrentResources(BiocVersion),
-                            insert=FALSE, metadataOnly=TRUE,
-                            filtering=TRUE){
+                            insert=FALSE, metadataOnly=TRUE){
     
     ## 1 spawning the AHMs is about calling the newResources method
     ## defined for them.  The newResources method takes a class that
@@ -129,14 +128,6 @@ updateResources <- function(ahroot, BiocVersion,
         }
     }
     
-    ## 1.5 Filter out allAhms that already exist in the DB!
-    ## So this function needs to take the allAhms thing from above and then
-    ## remove any of the AHMs that are already in the DB.  This requires that I 
-    ## have an updated DB already, which I can now get thanks to an upgraded 
-    ## AnnotationHub ()
-    if(filtering==TRUE){
-        allAhms <- filterAHMs(allAhms)
-    }
     ## Running this function with filtering=FALSE for some older recipes
     ## usually resuilts in no AHMs, which raises the question of
     ## whether or not filterAHMs is really even needed?
@@ -163,58 +154,6 @@ updateResources <- function(ahroot, BiocVersion,
 
 
 
-###########################################################################
-## Now I need a function that will 1) take a list of AHMs, 
-## 2) thow away ones that we already have and then 
-## 3) return only the AHMs that are 'new'
-## For now: do the filtering based on the rdatapath, but as we get more 
-## sophisticated, I think we should start to filter based on MD5 
-## (and make one if not present) to ensure that things match (when relevant)etc.
-
-## UPDATED PLAN TO include both version AND name.  1st step: get all rows that match the name.  2nd step: see if the version number and name match for each.  If there is a match for both then return
-
-
-filterAHMs <- function(ahms){
-    ## we need certain data from the DB (but not *all* of it)
-    require(RSQLite)
-    require(AnnotationHub)
-    ah <- AnnotationHub()
-    conn <- ah@.db_connection
-    ## compared ahm@RDataVersion[1] and ahm@SourceUrl[1]
-
-    ## One option is that I could just get key data out of SQLite
-    SQL <- paste0("SELECT res.ah_id, res.rdatadateadded, ",
-                  "iso.sourceurl, bcv.biocversion ",
-                  "FROM resources AS res, input_sources AS iso, ",
-                  "biocversions AS bcv ",
-                  "WHERE res.id=iso.resource_id AND res.id=bcv.resource_id") 
-    existingMetadata <- dbGetQuery(conn, SQL)
-    
-    ## helper to test if something was NOT in existingMetadata
-    .isNew <- function(ahm, em){
-        ahmSrc <- ahm@SourceUrl[1]
-        ahmBcv <- ahm@BiocVersion
-        ## Work out whether true or false: "have we seen this before?"
-        ## TODO: 1st subset based on srcUrl and then check the other things.
-        ## Below can't work because the question needs to be asked for each specific AHM.
-        ## IOW they have to *all* match (or not)        
-        
-        ## next change this so that the checked values are on the same row.
-        ## res <- ahmSrc %in% em$sourceurl ## & ahmBcv %in% em$biocversion
-
-        ## BUT FOR NOW:
-        ## For just getting the ensembl fasta files, the following should be enough:
-        res <- ahmSrc %in% em$sourceurl
-
-        ## But it won't be enough for *everything* (UCSC would end up with no updates)
-        
-        res
-    }
-    
-    ## Then I could compare this data to my list of AHMs using an lapply 
-    idx <- unlist(lapply(ahms, FUN=.isNew, em=existingMetadata))
-    ahms[!idx]
-}
 
 ## This raises some questions to discuss with Martin: do we want to search on 
 ## BiocVersion too?  Does that help?  What about rdataversion (which seems 
