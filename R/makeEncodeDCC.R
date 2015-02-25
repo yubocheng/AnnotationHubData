@@ -1,25 +1,6 @@
 # This is a new recipe for EncodeImportPreparer-class.R 
 .ucscBase <- "http://hgdownload.cse.ucsc.edu/"
 
-.httrRead <- function(url) {
-    tryCatch({
-        result <- GET(url)
-        stop_for_status(result)
-        html <- content(result)
-        
-        fls <- vapply(html["//pre/a/text()"], xmlValue, character(1))
-        remove <- c("Name", "Size", "Last modified", "Description",
-                    "Parent Directory", "referenceSequences/",
-                    "md5sum.txt")
-        fls[!fls %in% remove ]
-    }, error=function(err) {
-        warning(basename(url), ": ", conditionMessage(err))
-        url=character()
-    })
-}
-
-.trim <- function (x) gsub("^\\s+|\\s+$", "", x)
-
 .getTags <- function(url) {
     tagurl <- paste0(url, "files.txt")
     result <- GET(tagurl)
@@ -72,19 +53,17 @@
 }
 
 .cleanFiles <- function(url, isSubDir=FALSE) {
-    fls <- .httrRead(url)
+    fls <- .httrRead(url, fileName=NA_character_, getmd5sum=FALSE)$files
         
     if(length(fls) != 0) {
         if(isSubDir){
             tags <- character(0)
             sourcemd5sum <- character(0)
             
-            if(grep("files.txt",fls)){
-                result <- .getTags(url)
-                tags <- sapply(result, "[[", "tags")
-                sourcemd5sum <- sapply(result, "[[", "md5sum")
-                sourceVersion <- sapply(result, "[[", "sourceVersion") 
-            }               
+            result <- .getTags(url)
+            tags <- sapply(result, "[[", "tags")
+            sourcemd5sum <- sapply(result, "[[", "md5sum")
+            sourceVersion <- sapply(result, "[[", "sourceVersion") 
             
             subst <- switch( basename(url),
                 wgEncodeAwgTfbsUniform="wgEncodeAwgTfbs",
@@ -101,27 +80,6 @@
     }    
     fls
 }
-
-.httrFileInfo <- function(files, verbose=TRUE) {
-    tryCatch({
-        result <- lapply(files, function(f){
-            if(verbose)
-                message(basename(f))
-            
-            h = GET(f, config=config(nobody=TRUE, filetime=TRUE))
-            stop_for_status(h)
-            headers(h)[c("last-modified", "content-length")] 
-        })
-        size <- as.numeric(sapply(result, "[[", "content-length"))
-        date <- strptime(sapply(result, "[[", "last-modified"),
-                         "%a, %d %b %Y %H:%M:%S", tz="GMT")
-        data.frame(fileurl=files, date, size, stringsAsFactors=FALSE)
-    }, error=function(err) {
-        warning(basename(files), ": ", conditionMessage(err))
-            url=character()
-    })    
-}
-
 
 .subDir <- function(url, verbose=TRUE) {
     contents <- .cleanFiles(url, isSubDir=TRUE)
@@ -160,10 +118,13 @@
                    type= character(), stringsAsFactors=FALSE)
 }
 
-.encodeFiles <- function(){
+.encodeFiles <- function(unitTests=FALSE){
     encode_url <- paste0(.ucscBase, "goldenpath/hg19/encodeDCC/")
     subdirs <- .cleanFiles(encode_url, isSubDir=FALSE)
     urls <- setNames(paste0(encode_url, subdirs), subdirs)
+    
+    if(unitTests)
+        urls <- urls[1:3]
     
     do.call(rbind, Map(.subDir, urls, verbose=TRUE))
 }

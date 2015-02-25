@@ -1,39 +1,15 @@
 .ucscBase <- "http://hgdownload.cse.ucsc.edu/"
 
-.get1Resource <- function(url, fileName, genome, verbose=FALSE) {
-    require(XML)
-    tryCatch({
-        if (verbose)
-            message(basename(dirname(url)))
-
-        html <- htmlParse(url)
-        fls <- sapply(html["//pre[2]/a/text()"], xmlValue)
-        if(length(fls)==0)
-            fls <- sapply(html["//pre[1]/a/text()"], xmlValue)
-        
-        ## extract the file name
-        url <- sprintf("%s/%s", url, fls)
-        keep <- grepl(paste0(fileName, "$"), fls)
-        url <- url[keep]
-
-        result <- lapply(url, function(f) {
-            h <- basicTextGatherer()
-            ok <- curlPerform(url=f,
-                              nobody=TRUE, headerfunction=h$update)
-            yy <- h$value()
-            list(date=sub(".*Last-Modified: ([[:print:]]+) GMT.*", "\\1", yy),
-                 size=sub(".*Content-Length: ([[:digit:]]+).*","\\1", yy))
-        })
-        date <- strptime(sapply(result, "[[", "date"),
-                         "%a, %d %b %Y %H:%M:%S", tz="GMT")
-        size <- as.integer(sapply(result, "[[", "size"))
-                
-        data.frame(url, date, size, stringsAsFactors=FALSE)
-    }, error=function(err) {
-            warning(basename(dirname(url)), ": ", conditionMessage(err))
-            data.frame(url=character(), version=character(), 
-                stringsAsFactors=FALSE)
-    })
+.getchainFiles <- function(url, fileName=NA_character_, verbose=TRUE) {
+    result <- .httrRead(url, fileName=fileName, getmd5sum=TRUE)
+    if(length(result$files)!=0) {
+        files <-  paste0(url, "/", result$files)
+        df <- .httrFileInfo(files, verbose=TRUE)
+        if(identical(names(result), c("files","md5sum")))
+            cbind(df, md5sum=result$md5sum, stringsAsFactors=FALSE)
+    } else 
+        data.frame(fileurl=NA_character_, date=NA, 
+            size=NA, md5sum=NA_character_, stringsAsFactors=FALSE)
 }
 
 .organismToTaxid <- function(organism=character()) {
@@ -75,7 +51,9 @@
     as.integer(taxid[match(organism, scin)])
 }
 
-.getUCSCResources <- function(fileType, dirName, fileName, verbose=FALSE) {
+.getUCSCResources <- 
+    function(fileType, dirName, fileName, verbose=FALSE, unitTests=FALSE) 
+{
     ## get resource from UCSC
     .fileBase <- sprintf("%sgoldenPath", .ucscBase)
     genome_tbl <- rtracklayer::ucscGenomes(organism=TRUE)
@@ -86,18 +64,22 @@
     genomes <- setdiff(genomes, rm)
         
     urls <- sprintf("%s/%s/%s", .fileBase, genomes, dirName)
-    rsrc <- do.call(rbind, lapply(urls, .get1Resource,  
-        fileName=fileName, verbose=verbose))
-    rownames(rsrc) <- basename(rsrc$url)
-
     
+    if(unitTests)
+        urls <- urls[1:3]
+        
+    rsrc <- do.call(rbind, lapply(urls, .getchainFiles, 
+        fileName=fileName, verbose=verbose))
+    rsrc <- rsrc[complete.cases(rsrc),]
+    title <- basename(rsrc$fileurl)
+
     ## parse the filename for each file type.
     switch(fileType, chain={
-        rsrc$from <- sub("^([[:alnum:]]+)To[A-Z].*", "\\1", rownames(rsrc))
+        rsrc$from <- sub("^([[:alnum:]]+)To[A-Z].*", "\\1", title)
         rsrc$to <- sub(".*To([A-Z])([[:alnum:]]+).*", "\\L\\1\\E\\2",
-                       rownames(rsrc), perl=TRUE)
+                       title, perl=TRUE)
     }, "2bit"={
-        rsrc$from <- sub(".2bit","", rownames(rsrc))
+        rsrc$from <- sub(".2bit","", title)
     }, {
         stop("unknown fileType ", sQuote(fileType))
     })
@@ -116,7 +98,7 @@
 
 makeUCSCChain <- function(currentMetadata) {
     rsrc <- .getUCSCResources(fileType="chain", dirName="liftOver", 
-        fileName="chain.gz", verbose=FALSE)
+        fileName="chain.gz", verbose=TRUE)
     
     ## input_sources table
     sourceSize <- as.numeric(rsrc$size)
@@ -128,7 +110,7 @@ makeUCSCChain <- function(currentMetadata) {
     species <- rsrc$organism   
     genome <- rsrc$from
     taxonomyId <- as.integer(rsrc$taxid)           
-    title <- rownames(rsrc) 
+    title <- basename(rsrc$fileurl) 
     description <- sprintf("UCSC liftOver chain file from %s to %s",
                            rsrc$from, rsrc$to)
       
