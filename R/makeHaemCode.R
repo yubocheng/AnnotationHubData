@@ -103,7 +103,7 @@ makeHaemCodeImporter <- function(currentMetadata) {
         Description=description, 
         Title=title, 
                 
-        RDataPath=sourceUrls,
+        RDataPath=rdatapath,
         RDataClass = rdataclass,
         DispatchClass = dispatchclass,
         
