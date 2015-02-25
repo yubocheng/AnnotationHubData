@@ -14,11 +14,14 @@
     ##ahroot <- tempdir()
     basepath <- paste0("goldenpath/hg19/encodeDCC/wgEncodeRikenCage/",
                        "wgEncodeRikenCageCd20CellPapTssHmm.bedRnaElements")
-
+    
     list(AnnotationHubRoot=ahroot,
-         SourceFile=basepath,
          SourceUrl=sprintf("http://hgdownload.cse.ucsc.edu/%s", basepath),
          SourceVersion=NA_character_,
+         SourceLastModifiedDate=as.POSIXct("2015-01-01", tz="GMT"),
+         SourceSize=as.numeric(99999),
+         SourceMd5="2",
+         SourceType="BED file",
          Title="CD20 CAGE defined Transcriptional Start Sites",
          Description="120785 TSS sites ...",
          Species="Homo sapiens",
@@ -27,12 +30,13 @@
          Recipe="extendedBedToGranges",
          Tags=c("gene regulation", "ranged genomic data"),
          RDataClass="GRanges",
-         RDataVersion=numeric_version("0.0.1"),
          Coordinate_1_based=TRUE,
          Maintainer="Paul Shannon <pshannon@fhcrc.org>",
          DataProvider="hgdownload.cse.ucsc.edu",
          Notes="9 total columns...",
-         RDataDateAdded=as.POSIXct("2013-01-01", tz="GMT"))
+         RDataDateAdded=as.POSIXct("2013-01-01", tz="GMT"),
+         DispatchClass="GRanges",
+         PreparerClass="EncodeImportPreparer")
 })
 
 .AnnotationHubMetadata <- 
@@ -54,8 +58,9 @@ test_constructor <- function()
     checkTrue(all(test))
 
     ## date / version coercion
-    idx <- grep("(Version|Date)", names(args))
+    idx <- grep("(Version)", names(args))
     args[idx] <- sapply(args[idx], as.character)
+
     ahm1 <- do.call("AnnotationHubMetadata", args)
     checkIdentical(ahm, ahm1)
 }
@@ -91,15 +96,15 @@ test_multi_input <- function()
     rp <- "goldenpath/hg19/encodeDCC/wgEncodeRegDnaseClustered"
     files <- c("wgEncodeRegDnaseClustered.bed.gz",
                "wgEncodeRegDnaseClusteredInputs.tab")
-    args$SourceFile <- file.path(rp, files)
     args$SourceUrl <-
         sprintf("http://hgdownload.cse.ucsc.edu/%s/%s", rp, files)
+    args$SourceMd5 <- c("2","2")
+        args$SourceSize <- c(as.numeric(99999),as.numeric(99999))
 
     x <- do.call("AnnotationHubMetadata", args)
     checkEquals(2L, length(metadata(x)$SourceUrl))
     checkEquals(2L, length(metadata(x)$SourceMd5))
     checkEquals(2L, length(metadata(x)$SourceSize))
-    checkEquals(2L, length(metadata(x)$SourceFile))
 }
 
 ## test_json_prerequisites <- function()
