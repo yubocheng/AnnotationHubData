@@ -1,4 +1,4 @@
-.haemcodeBaseUrl <- "http://haemcode.stemcells.cam.ac.uk"
+.haemcodeBaseUrl <- "http://haemcode.stemcells.cam.ac.uk/"
 
 .getHaemCodeFileNames <- function() {
     filename <- system.file("extdata", "haemCodeFileList.txt", 
@@ -15,9 +15,9 @@
     metadata <- rep(metadata, 3)
     names(metadata) <- NULL
     
-    paths <- c(bigWig="/blood/BigWig/mm10",
-               peaks="/blood/Peaks/mm10",
-               geneList="/blood/geneList")
+    paths <- c(bigWig="blood/BigWig/mm10",
+               peaks="blood/Peaks/mm10",
+               geneList="blood/geneList")
     
     urls <- paste0(.haemcodeBaseUrl, paths)
     
