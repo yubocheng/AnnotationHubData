@@ -3,9 +3,11 @@ make2bit <- function(currentMetadata) {
                               fileName=".2bit", verbose=TRUE)
     ## input_sources table
     sourceSize <- as.numeric(rsrc$size)
-    sourceUrls <- rsrc$url
+    sourceUrls <- rsrc$fileurl
     sourceVersion <- gsub(" ", "_", rsrc$date) 
     sourceLastModifiedDate <- rsrc$date
+    rdatapaths <- gsub(.ucscBase, "",sourceUrls)
+    md5sum <- rsrc$md5sum
     
     ## resources table
     species <- rsrc$organism   
@@ -20,6 +22,7 @@ make2bit <- function(currentMetadata) {
         SourceUrl = sourceUrls,
         SourceVersion = sourceVersion,
         SourceLastModifiedDate = sourceLastModifiedDate,
+        SourceMd5 =md5sum,
         
         Description = description,
         Title = title,
@@ -27,21 +30,19 @@ make2bit <- function(currentMetadata) {
         Species = species, 
         TaxonomyId = taxonomyId,
         
-        RDataPath = sourceUrls,
+        RDataPath = rdatapaths,
         
         MoreArgs=list(
             # input sources 
-            SourceType = "TowBitFile",
+            SourceType = "TowBit file",
             
             # resources
             DataProvider = "UCSC",
             Maintainer =  "Sonali Arora <sarora@fredhutch.org>",         
             Coordinate_1_based = FALSE,
-            status_id = 2L, 
             Location_Prefix = .ucscBase,
             RDataDateAdded = Sys.time(),
-            PreparerClass = "UCSC2BitPreparer",
-            
+                        
             #rdata table
             DispatchClass= "TwoBitFile" ,
             RDataClass = "TwoBitFile",

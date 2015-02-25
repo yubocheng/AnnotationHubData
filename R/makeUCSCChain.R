@@ -102,7 +102,7 @@ makeUCSCChain <- function(currentMetadata) {
     
     ## input_sources table
     sourceSize <- as.numeric(rsrc$size)
-    sourceUrls <- rsrc$url
+    sourceUrls <- rsrc$fileurl
     sourceVersion <- gsub(" ", "_", rsrc$date) 
     sourceLastModifiedDate <- rsrc$date
     
@@ -113,13 +113,16 @@ makeUCSCChain <- function(currentMetadata) {
     title <- basename(rsrc$fileurl) 
     description <- sprintf("UCSC liftOver chain file from %s to %s",
                            rsrc$from, rsrc$to)
-      
-    Map(AnnotationHubMetadata,
+    rdatapaths <-gsub(.ucscBase, "",sourceUrls)
+    md5sum <- rsrc$md5sum
+    
+    chain <- Map(AnnotationHubMetadata,
         
         SourceSize=sourceSize,
         SourceUrl=sourceUrls,
         SourceVersion=sourceVersion,
         SourceLastModifiedDate = sourceLastModifiedDate,
+        SourceMd5 =md5sum, 
         
         Description=description,
         Title=title,
@@ -127,21 +130,19 @@ makeUCSCChain <- function(currentMetadata) {
         Species=species, 
         TaxonomyId=taxonomyId,
         
-        RDataPath=sourceUrls,
+        RDataPath= rdatapaths,
         
         MoreArgs=list(
             # input sources 
-            SourceType= "ChainFile",
+            SourceType= "Chain file",
             
             # resources
             DataProvider = "UCSC",
-            Maintainer =  "Sonali Arora <sarora@fhcrc.org>",         
+            Maintainer =  "Sonali Arora <sarora@fredhutch.org>",         
             Coordinate_1_based = FALSE,
-            status_id =2L, 
             Location_Prefix = .ucscBase,
             RDataDateAdded = Sys.time(),
-            PreparerClass = "UCSCChainPreparer",
-            
+                        
             #rdata table
             DispatchClass= "ChainFile" ,
             RDataClass = "GRanges",
