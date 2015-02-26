@@ -114,7 +114,7 @@ makeUCSCChain <- function(currentMetadata) {
     rdatapaths <-gsub(.ucscBase, "",sourceUrls)
     md5sum <- rsrc$md5sum
     
-    chain <- Map(AnnotationHubMetadata,
+    Map(AnnotationHubMetadata,
         
         SourceSize=sourceSize,
         SourceUrl=sourceUrls,

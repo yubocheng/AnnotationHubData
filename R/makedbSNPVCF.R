@@ -67,13 +67,12 @@ makedbSNPVCF <- function(currentMetadata) {
     
     ## resources table
     title <- basename(rsrc$fileurl) 
-    description <- sprintf("UCSC liftOver chain file from %s to %s",
-                           rsrc$from, rsrc$to)
+    description <- rsrc$description
     
     ## rdatapath should have 2 entries -for the VCF and its TabixFile
-    rdatapath <- sub(.dbSNPBaseUrl, "", df$fileurl)
+    rdatapath <- sub(.dbSNPBaseUrl, "", rsrc$fileurl)
     rdps <- rep(rdatapath, each=2) 
-    rdatapaths <- split(rdps, f=as.factor(rep(seq_along(rdataPath),each=2)))
+    rdatapaths <- split(rdps, f=as.factor(rep(seq_along(rdatapath),each=2)))
     rdatapaths <- lapply(rdatapaths,
                          function(x){x[2] <- paste0(x[2],".tbi") ; return(x)}) 
     
@@ -110,8 +109,7 @@ makedbSNPVCF <- function(currentMetadata) {
             #rdata table
             DispatchClass= "dbSNPVCFFile" ,
             RDataClass = c("VcfFile", "VcfFile"),
-            RDataSize = c(NA_real_,NA_real_),
-            
+                       
             Recipe = "AnnotationHubData:::ncbi_dbSNPVCFFile"))
 }
 
