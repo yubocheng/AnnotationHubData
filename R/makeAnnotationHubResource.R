@@ -32,7 +32,8 @@
 
 
 .generalNewResources <- function(importPreparer, currentMetadata,
-                                 makeAnnotationHubMetadataFunction, ...){
+                                 makeAnnotationHubMetadataFunction,
+                                 justRunUnitTest, ...){
     ## The 1st function must return AHMs
     ahms <- makeAnnotationHubMetadataFunction(currentMetadata, ...)
     ## Next part just does a poor mans setdiff()
@@ -61,9 +62,11 @@ makeAnnotationHubResource <-
     ## So it will call the makeAnnotationHubMetadataFunction, and then
     ## toss out any currentMetadata() AHMs that are already present.
     setMethod(newResources, objName,
-              function(importPreparer, currentMetadata=list(), ...){
+              function(importPreparer, currentMetadata=list(),
+                       justRunUnitTest=FALSE, ...){
          .generalNewResources(importPreparer, currentMetadata,
-                              makeAnnotationHubMetadataFunction, ...)})
+                              makeAnnotationHubMetadataFunction,
+                              justRunUnitTest, ...)})
 }
 
 

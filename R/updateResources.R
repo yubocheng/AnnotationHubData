@@ -102,7 +102,8 @@ updateResources <- function(ahroot, BiocVersion,
                             preparerClasses=getImportPreparerClasses(),
                             listOfExistingResources=list(),
                    ## listOfExistingResources=getCurrentResources(BiocVersion),
-                            insert=FALSE, metadataOnly=TRUE){
+                            insert=FALSE, metadataOnly=TRUE,
+                            justRunUnitTest=FALSE){
     
     ## 1 spawning the AHMs is about calling the newResources method
     ## defined for them.  The newResources method takes a class that
@@ -123,7 +124,8 @@ updateResources <- function(ahroot, BiocVersion,
 
         } else {
             preparerInstance <- do.call(new, list(preparerClass))
-            ahms <- newResources(preparerInstance, listOfExistingResources)
+            ahms <- newResources(preparerInstance, listOfExistingResources,
+                                 justRunUnitTest=justRunUnitTest)
             allAhms <- append(allAhms, ahms)
         }
     }

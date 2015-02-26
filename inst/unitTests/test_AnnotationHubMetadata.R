@@ -193,7 +193,12 @@ test_that_recipes_run <- function(){
 
     ahms = updateResources(ahroot, BiocVersion,
       preparerClasses = "HaemCodeImportPreparer",
-      insert = FALSE, metadataOnly=TRUE)    
-    checkTrue(class(ahms[[1]])=="AnnotationHubMetadata")
+      insert = FALSE, metadataOnly=TRUE, justRunUnitTest=TRUE)
 
+
+    
+    checkTrue(class(ahms)=="AnnotationHubMetadata")
+
+    
+    
 }
