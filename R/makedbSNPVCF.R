@@ -1,6 +1,4 @@
-.dbSNPBaseUrl <-"ftp://ftp.ncbi.nih.gov/snp/organisms/"
-
-.trim <- function (x) gsub("^\\s+|\\s+$", "", x)
+.dbSNPBaseUrl <-"ftp://ftp.ncbi.nih.gov/"
 
 .fileInfo <- function(url, tag) {
     tryCatch({
@@ -11,22 +9,10 @@
         df2 <- df2[!drop]
         df2 <- paste0(url, df2)
         
-        #result <- lapply(df2, function(x){
-        #   ok <- system(paste("curl -I", x), intern=TRUE)
-        #   ok = GET(x, config=config(nobody=TRUE, filetime=TRUE)) 
-        #   date <- ok[grep("Last-Modified", ok)]
-        #   date <- sub("(.*?)Last-Modified:", "", date)
-        #   size <- sub("Content-Length:", "", ok[grep("Content-Length:", ok)])
-        #   list(date=.trim(date), size=.trim(size))
-        #})
-        #size <- as.numeric(sapply(result, "[[", "size"))
-        #date <- strptime(sapply(result, "[[", "date"),
-        #   "%a, %d %b %Y %H:%M:%S", tz="GMT")
-        
         result <- lapply(df2, function(x){
             h = suppressWarnings(
-	         GET(x, config=config(nobody=TRUE, filetime=TRUE)))
-	    headers(h)[c("last-modified", "content-length")] 
+                GET(x, config=config(nobody=TRUE, filetime=TRUE)))
+                headers(h)[c("last-modified", "content-length")] 
         })
         
         size <- as.numeric(sapply(result, "[[", "content-length"))
@@ -46,12 +32,13 @@
                GRCh38_b142="human_9606_b142_GRCh38/VCF/",
                GRCh38_b141="human_9606_b141_GRCh38/VCF/")
     
-    urls <- setNames(paste0(.dbSNPBaseUrl, paths), names(paths))
+    baseUrl <- paste0(.dbSNPBaseUrl, "snp/organisms/")
+        
+    urls <- setNames(paste0(baseUrl, paths), names(paths))
     
     df <- do.call(rbind, Map(.fileInfo, urls, names(urls)))
     title <- basename(df$fileurl)
-    sourceUrl <- sub(.dbSNPBaseUrl, "", df$fileurl)
-    
+        
     n <- length(title)
         
     map <- c(`All` = "VCF of all variations that meet the criteria to be in a VCF file.  This file is created once per dbSNP build.",
@@ -65,51 +52,69 @@
     for (i in seq_along(map))
         description[grep(names(map)[i], title)] <- map[[i]]
     
-    cbind(df, title, sourceUrl, description, stringsAsFactors = FALSE)
+    cbind(df, title, description, stringsAsFactors = FALSE)
     
 }
 
 makedbSNPVCF <- function(currentMetadata) {
     rsrc <- .getdbSNP()
    
-    rdataPath <- rsrc$sourceUrl
-    rdps <- rep(rsrc$sourceUrl,each=2) 
+    ## input_sources table
+    sourceSize <- as.numeric(rsrc$size)
+    sourceUrls <- rsrc$fileurl
+    sourceVersion <- gsub(" ", "_", rsrc$date) 
+    sourceLastModifiedDate <- rsrc$date
+    
+    ## resources table
+    title <- basename(rsrc$fileurl) 
+    description <- sprintf("UCSC liftOver chain file from %s to %s",
+                           rsrc$from, rsrc$to)
+    
+    ## rdatapath should have 2 entries -for the VCF and its TabixFile
+    rdatapath <- sub(.dbSNPBaseUrl, "", df$fileurl)
+    rdps <- rep(rdatapath, each=2) 
     rdatapaths <- split(rdps, f=as.factor(rep(seq_along(rdataPath),each=2)))
     rdatapaths <- lapply(rdatapaths,
-         function(x){x[2] <- paste0(x[2],".tbi") ; return(x)}) 
-    description <- rsrc$description
-    genome <- rsrc$genome
-    sourceFile <- rsrc$title
-    title <- rsrc$title
-    sourceUrls <- rsrc$sourceUrl
-    sourceVersion <- gsub(" ","_",rsrc$date) # should be character
-    SourceLastModifiedDate <- rsrc$date  # should be "POSIXct" "POSIXt"
-    SourceSize <- as.numeric(rsrc$size)
+                         function(x){x[2] <- paste0(x[2],".tbi") ; return(x)}) 
+    
     Tags <- lapply(rsrc$genome, function(tag) {
         c("dbSNP", tag, "VCF")
     })
-       
+        
     Map(AnnotationHubMetadata,
-        Description=description, Genome=genome,
-        SourceFile=sourceFile, SourceUrl=sourceUrls,
-        SourceLastModifiedDate = SourceLastModifiedDate,
-        SourceSize = SourceSize,
+        SourceSize=sourceSize,
+        SourceUrl=sourceUrls,
+        SourceVersion=sourceVersion,
+        SourceLastModifiedDate=sourceLastModifiedDate,
+                     
+        Description=description,
+        Title=title,
+        Tags=Tags,
+         
         RDataPath=rdatapaths,
-        SourceVersion=sourceVersion, 
-        Title=title, Tags=Tags,
+                 
         MoreArgs=list(
+            # input sources 
+            SourceType= "VCF file",
+                              
+            # resources
             Species="Homo sapiens",
+            Genome="hg19",
             TaxonomyId=9606L, 
+            DataProvider = "dbSNP",
+            Maintainer =  "Sonali Arora <sarora@fredhutch.org>",
             Coordinate_1_based = FALSE,
-            DataProvider = "ftp://ftp.ncbi.nih.gov/snp",
             Location_Prefix = .dbSNPBaseUrl,
-            Maintainer = "Martin Morgan <mtmorgan@fhcrc.org>",
-            RDataClass = c("dbSNPVCFFile","dbSNPVCFFile"),
-            RDataSize = c(NA_real_,NA_real_),
             RDataDateAdded = Sys.time(),
-            RDataVersion = "0.0.2",
+            
+            #rdata table
+            DispatchClass= "dbSNPVCFFile" ,
+            RDataClass = c("VcfFile", "VcfFile"),
+            RDataSize = c(NA_real_,NA_real_),
+            
             Recipe = "AnnotationHubData:::ncbi_dbSNPVCFFile"))
 }
+
 
 ## recipe
 ncbi_dbSNPVCFFile <- function(ahm)
