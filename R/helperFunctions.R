@@ -1,3 +1,7 @@
+
+## Using this function, once can read all the filenames or filenames ending with a 
+## cetrain extension on an http page, it also reads the 
+## md5sum which is present in "md5sum.txt" on the same http page
 .httrRead <- function(url, fileName, getmd5sum=FALSE) {
     tryCatch({
         result <- GET(url)
@@ -19,7 +23,6 @@
         }
         
         ## the chain files and the ucsc 2bit files have a file called md5sum.txt
-        ## lying in the same folder - here we read it in. 
         ## col1=md5sum, col2=filename
         ## note : not all chain files have md5sum on UCSC website!
         if(getmd5sum & md5exists & length(fls!=0)) {
@@ -37,8 +40,40 @@
     })
 }
 
+## Using this function, once can read all the filenames or filenames ending with a 
+## cetrain extension on an FTP page, it also gets the date the file was last 
+## modified and the file size. 
+.ftpFileInfo <- function(url, filename, tag) {
+    tryCatch({
+        df2 <- strsplit(getURL(url, dirlistonly=TRUE), "\r\n")[[1]]
+        
+        df2 <- df2[grep(paste0(filename, "$"), df2)]
+        drop <-  grepl("latest", df2) | grepl("00-", df2)
+        df2 <- df2[!drop]
+        df2 <- paste0(url, df2)
+        
+        result <- lapply(df2, function(x){
+            h = suppressWarnings(
+                GET(x, config=config(nobody=TRUE, filetime=TRUE)))
+            headers(h)[c("last-modified", "content-length")] 
+        })
+        
+        size <- as.numeric(sapply(result, "[[", "content-length"))
+        date <- strptime(sapply(result, "[[", "last-modified"),
+                         "%a, %d %b %Y %H:%M:%S", tz="GMT")
+        
+        data.frame(fileurl=df2, date, size, genome=tag, stringsAsFactors=FALSE)
+    }, error=function(err) {
+        warning(basename(dirname(url)), ": ", conditionMessage(err))
+        data.frame(url=character(), version=character(), 
+                   stringsAsFactors=FALSE)
+    })
+}
+
+## remove leading and trailing white spaces
 .trim <- function (x) gsub("^\\s+|\\s+$", "", x)
 
+## for files on http sites, get the file size and file's date last modified. 
 .httrFileInfo <- function(files, verbose=TRUE) {
     tryCatch({
         result <- lapply(files, function(f){
@@ -59,6 +94,7 @@
     })    
 }
 
+## check if file exists online. 
 .fileExistsOnline  <- function(file) {
    sapply(file, function(z) {
        try(
@@ -71,7 +107,8 @@
     }) 
 }
 
-
+## currently not in use - used to parse a http page and get the file size 
+## and file's date last modified. 
 .get1Resource <- function(url, fileName, genome, verbose=FALSE) {
     require(XML)
     tryCatch({

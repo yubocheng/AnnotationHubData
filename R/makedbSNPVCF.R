@@ -1,32 +1,5 @@
 .dbSNPBaseUrl <-"ftp://ftp.ncbi.nih.gov/"
 
-.fileInfo <- function(url, tag) {
-    tryCatch({
-        df2 <- strsplit(getURL(url, dirlistonly=TRUE), "\n")[[1]]
-        
-        df2 <- df2[grep(".vcf.gz$", df2)]
-        drop <-  grepl("latest", df2) | grepl("00-", df2)
-        df2 <- df2[!drop]
-        df2 <- paste0(url, df2)
-        
-        result <- lapply(df2, function(x){
-            h = suppressWarnings(
-                GET(x, config=config(nobody=TRUE, filetime=TRUE)))
-                headers(h)[c("last-modified", "content-length")] 
-        })
-        
-        size <- as.numeric(sapply(result, "[[", "content-length"))
-        date <- strptime(sapply(result, "[[", "last-modified"),
-                         "%a, %d %b %Y %H:%M:%S", tz="GMT")
-        
-        data.frame(fileurl=df2, date, size, genome=tag, stringsAsFactors=FALSE)
-    }, error=function(err) {
-        warning(basename(dirname(url)), ": ", conditionMessage(err))
-        data.frame(url=character(), version=character(), 
-                   stringsAsFactors=FALSE)
-    })
-}
-
 .getdbSNP <- function() {
     paths <- c(GRCh37="human_9606/VCF/", 
                GRCh38_b142="human_9606_b142_GRCh38/VCF/",
@@ -35,8 +8,8 @@
     baseUrl <- paste0(.dbSNPBaseUrl, "snp/organisms/")
         
     urls <- setNames(paste0(baseUrl, paths), names(paths))
-    
-    df <- do.call(rbind, Map(.fileInfo, urls, names(urls)))
+    df <- do.call(rbind, 
+                Map(.ftpFileInfo, urls, filename="vcf.gz", tag=names(urls)))
     title <- basename(df$fileurl)
         
     n <- length(title)
@@ -53,7 +26,6 @@
         description[grep(names(map)[i], title)] <- map[[i]]
     
     cbind(df, title, description, stringsAsFactors = FALSE)
-    
 }
 
 makedbSNPVCF <- function(currentMetadata) {

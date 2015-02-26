@@ -8,7 +8,9 @@ import(AnnotationHub)
 
 import(futile.logger)
 
-importFrom(RCurl, getURL)
+import(XML)
+
+importFrom(RCurl, getURL, getBinaryURL)
 
 importFrom(BiocInstaller, biocVersion)
 
