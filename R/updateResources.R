@@ -19,6 +19,13 @@
 ## location_prefix + rdatapath
 ################################################################################
 
+getImportPreparerClasses <- function()
+{
+    subclasses <- names(getClassDef("ImportPreparer")@subclasses)
+    dont.use <- c("UCSCFullTrackImportPreparer") ## revisit this
+    subclasses[!subclasses %in% dont.use]
+
+}
 
 
 .pushMetadata <- function(jsons,
@@ -59,9 +66,6 @@
     {
         ## downloadResource(ahm, downloadIfExists)
         downloadResource(ahm, downloadIfExists=FALSE)
-        ## AskDan:: What is downloadIfExists?
-        ## AskDan:: What is insertOnlyIfRDataExists? - only used by
-        ## insertAHM (which we bypass)
     }
     needs.recipe <- TRUE ## FIXME
     if (needs.recipe)
@@ -86,22 +90,15 @@
     }
 }
 
-## Here is the main function it is responsible for:
+## Here is the main function and what it is responsible for:
 ## 1) spawning the AHMs
 ## 2) making them into JSON
 ## 3) send metadata off to the back end
 ## 4) call the recipe and push the results of that off to the right place
 
-## pre-steps: get all the existing resources. For now - just an
-## empty list, but later I want to call a version of
-## getExistingResources(), (getCurrentResources).
-## listOfExistingResources <- list()
-## listOfExistingResources <- getCurrentResources(BiocVersion)
-
 updateResources <- function(ahroot, BiocVersion,
                             preparerClasses=getImportPreparerClasses(),
                             listOfExistingResources=list(),
-                   ## listOfExistingResources=getCurrentResources(BiocVersion),
                             insert=FALSE, metadataOnly=TRUE,
                             justRunUnitTest=FALSE){
     
