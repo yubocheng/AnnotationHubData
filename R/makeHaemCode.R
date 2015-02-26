@@ -30,14 +30,16 @@
     list(files= unlist(fileurls), metadata = metadata)
 }
 
-.getHaemCode <- function() {
+.getHaemCode <- function(justRunUnitTest) {
     result <- .getHaemCodeFileNames() 
     
     haemfiles <- result$files
     tags <- result$metadata
     
-    haemfiles <- head(haemfiles, 10)
-    tags <- head(tags,10)
+    if(justRunUnitTest) {
+        haemfiles <- head(haemfiles, 5)
+        tags <- head(tags,5)
+    }
  
     if(length(haemfiles)==0) 
         stop(" File List not found! ")
@@ -69,8 +71,8 @@
     
 }
 
-makeHaemCodeImporter <- function(currentMetadata) {
-    rsrc <- .getHaemCode()
+makeHaemCodeImporter <- function(currentMetadata, justRunUnitTest=FALSE) {
+    rsrc <- .getHaemCode(justRunUnitTest)
         
     ## input_sources table
     sourceSize <- as.numeric(rsrc$size)

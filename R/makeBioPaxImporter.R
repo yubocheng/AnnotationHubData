@@ -4,7 +4,7 @@
     files <- .ftpFileInfo(url, filename="owl.gz", tag="hg19")
 }    
 
-.getBioPaxFilesNIH <- function() {
+.getBioPaxFilesNIH <- function(justRunUnitTest=FALSE) {
     paths <- c(bioPax="BioPAX/", 
                bioPaxLevel2="BioPAX_Level_2/",
                biocPaxLevel3="BioPAX_Level_3/")
@@ -12,6 +12,9 @@
     baseUrl <- paste0(.nihBaseUrl, "pub/PID/")
     
     urls <- setNames(paste0(baseUrl, paths), names(paths))
+     
+    if(justRunUnitTest)
+	urls <- url[1]
     
     df <- do.call(rbind, Map(.getBioPax, urls))
     
@@ -39,8 +42,8 @@
     cbind(df, title,tags, sourceType, description, stringsAsFactors=FALSE)
 }
 
-makeBioPaxImporter <- function(currentMetadata) {
-    rsrc <- .getBioPaxFilesNIH()
+makeBioPaxImporter <- function(currentMetadata, justRunUnitTest=FALSE) {
+    rsrc <- .getBioPaxFilesNIH(justRunUnitTest)
     
     ## input_sources table
     sourceSize <- as.numeric(rsrc$size)
@@ -79,8 +82,8 @@ makeBioPaxImporter <- function(currentMetadata) {
             Genome= "hg19",
             Maintainer = "Sonali Arora <sarora@fredhutch.org>",            
             Coordinate_1_based = FALSE,
-            rdataclass <- "data.frame",   
-            dispatchclass <- "importBioPax",
+            RDataClass = "data.frame",   
+            DispatchClass = "importBioPax",
             Location_Prefix = .nihBaseUrl,
             RDataDateAdded = Sys.time(),
             Recipe = NA_character_)

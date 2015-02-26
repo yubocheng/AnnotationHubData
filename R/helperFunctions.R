@@ -45,7 +45,7 @@
 ## modified and the file size. 
 .ftpFileInfo <- function(url, filename, tag) {
     tryCatch({
-        df2 <- strsplit(getURL(url, dirlistonly=TRUE), "\r\n")[[1]]
+        df2 <- strsplit(getURL(url, dirlistonly=TRUE), "\n")[[1]]
         
         df2 <- df2[grep(paste0(filename, "$"), df2)]
         drop <-  grepl("latest", df2) | grepl("00-", df2)
