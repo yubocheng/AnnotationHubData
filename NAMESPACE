@@ -12,6 +12,8 @@ import(XML)
 
 importFrom(RCurl, getURL, getBinaryURL)
 
+importFrom(tools, file_ext)
+
 importFrom(BiocInstaller, biocVersion)
 
 importFrom(S4Vectors, metadata, "metadata<-")
