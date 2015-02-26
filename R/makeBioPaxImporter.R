@@ -79,8 +79,8 @@ makeBioPaxImporter <- function(currentMetadata) {
             Genome= "hg19",
             Maintainer = "Sonali Arora <sarora@fredhutch.org>",            
             Coordinate_1_based = FALSE,
-            rdataclass <- "data.frame"   
-            dispatchclass <- "importBioPax"
+            rdataclass <- "data.frame",   
+            dispatchclass <- "importBioPax",
             Location_Prefix = .nihBaseUrl,
             RDataDateAdded = Sys.time(),
             Recipe = NA_character_)
