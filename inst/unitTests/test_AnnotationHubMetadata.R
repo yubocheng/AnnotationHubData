@@ -181,26 +181,30 @@ test_multi_input <- function()
 
 
 ################################################################################
-## Tests to just see if we can run our recipes
+## Tests to just see if we can run all of our recipes
 ## Unfortunately, there is no way to only run 'one' AHM of a recipe...
 ##
 
-test_that_recipes_run <- function(){
+.recipeSetup <- function(){
     require(RUnit)              ## just for convenience
     require(AnnotationHubData)  ## just for convenience
     ahroot <- "/var/FastRWeb/web"
-    BiocVersion <- c("3.1")  
-
-    ## ahms = updateResources(ahroot, BiocVersion,
-    ##   preparerClasses = "HaemCodeImportPreparer",
-    ##   insert = FALSE, metadataOnly=TRUE, justRunUnitTest=TRUE)
-    
-    ## checkTrue(class(ahms[[1]])=="AnnotationHubMetadata")
-
-
-    biopax = updateResources(ahroot, BiocVersion,
-      preparerClasses = "BioPaxImportPreparer",
-      insert = FALSE, metadataOnly=TRUE, justRunUnitTest=TRUE) 
-    
-    
+    BiocVersion <- c("3.1")      
 }
+
+test_HaemCodeImportPreparer_recipe <- function(){
+    .recipeSetup()
+    ahms = updateResources(ahroot, BiocVersion,
+      preparerClasses = "HaemCodeImportPreparer",
+      insert = FALSE, metadataOnly=TRUE, justRunUnitTest=TRUE)    
+    checkTrue(class(ahms[[1]])=="AnnotationHubMetadata")
+}
+
+test_BioPaxImportPreparer_recipe <- function(){
+    .recipeSetup()
+    ahms = updateResources(ahroot, BiocVersion,
+      preparerClasses = "BioPaxImportPreparer",
+      insert = FALSE, metadataOnly=TRUE, justRunUnitTest=TRUE)
+    checkTrue(class(ahms[[1]])=="AnnotationHubMetadata")
+}
+
