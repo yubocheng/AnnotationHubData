@@ -35,7 +35,9 @@
                                  makeAnnotationHubMetadataFunction,
                                  justRunUnitTest, ...){
     ## The 1st function must return AHMs
-    ahms <- makeAnnotationHubMetadataFunction(currentMetadata, ...)
+    ahms <- makeAnnotationHubMetadataFunction(currentMetadata,
+                                              justRunUnitTest=justRunUnitTest,
+                                              ...)
     ## Next part just does a poor mans setdiff()
     ## This is to filter in the event that the users
     ## makeAnnotationHubMetadataFunction() has not already done that

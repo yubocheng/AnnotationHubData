@@ -191,14 +191,16 @@ test_that_recipes_run <- function(){
     ahroot <- "/var/FastRWeb/web"
     BiocVersion <- c("3.1")  
 
-    ahms = updateResources(ahroot, BiocVersion,
-      preparerClasses = "HaemCodeImportPreparer",
-      insert = FALSE, metadataOnly=TRUE, justRunUnitTest=TRUE)
-
-
+    ## ahms = updateResources(ahroot, BiocVersion,
+    ##   preparerClasses = "HaemCodeImportPreparer",
+    ##   insert = FALSE, metadataOnly=TRUE, justRunUnitTest=TRUE)
     
-    checkTrue(class(ahms)=="AnnotationHubMetadata")
+    ## checkTrue(class(ahms[[1]])=="AnnotationHubMetadata")
 
+
+    biopax = updateResources(ahroot, BiocVersion,
+      preparerClasses = "BioPaxImportPreparer",
+      insert = FALSE, metadataOnly=TRUE, justRunUnitTest=TRUE) 
     
     
 }
