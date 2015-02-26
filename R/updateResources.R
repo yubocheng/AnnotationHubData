@@ -155,31 +155,9 @@ updateResources <- function(ahroot, BiocVersion,
 
 
 
-## This raises some questions to discuss with Martin: do we want to search on 
-## BiocVersion too?  Does that help?  What about rdataversion (which seems 
-## like an uninformative field?)  So far the only thing that seems to 
-## 'definitely' matter is the sourceUrl...  So why am I extracting this other 
-## stuff?
-
-## Consider the Fasta ones: Do we only want to update them if they have changed?  
-## Or do we want to just check if we have processed a file called that?
-## I think we want to get them again if their sourceMD5 sum has changed.  
-## But we don't always have that filled in.
-
-## Basically we need to talk about what the specific goals are for this project 
-## in terms of updates for older and newer runs of the recipes.
-
-## When exactly do we want to re-run a recipe?
 
 
-###############################################################
-## So after talking with Martin there are a few things to consider
-## 1) Not all resoures are the same scenario (UCSC vs ensembl -> not versioned vs versioned resources)
-## 2) Some of our resources are NOT stored in S3 (and therefore can't be versioned ever).  Like chain files.  What the user gets will always just be what is online.  Does this mean that we should not make new records (or always make them?)
-## 3) Is a UCSC file that is out of date call for a new record?  What about an ensembl file?  How about a chain file?  How do we know what the rules will be for each case?  Do we need to indicate this in the metadata?  Or just follow a heuristic?
 
-
-## Talk to Dan and then discuss it with Martin to get clear rules/specifications in place...
 
 
 
@@ -244,12 +222,6 @@ getCurrentResources <- function(version){
         Recipe = meta$recipe,
         Tags = tags)
 }
-
-
-## Unfortunately: Martins MyHub prototype is probably missing some
-## stuff, and is also depending on the back end to create a sqlite DB
-## port for it ahead of time (which it then downloads as needed).  But
-## the current backend on gamay doesn't do that yet.
 
 
 
