@@ -157,7 +157,7 @@ makeEncodeImporter <- function(currentMetadata) {
         Description= paste0(rsrc$type, " file from ENCODE"), 
         Title=title, 
         
-        RDataPath=sourceUrls,
+        RDataPath=rdatapath,
                
         Tags=tags,
         

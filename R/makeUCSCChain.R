@@ -2,7 +2,7 @@
 
 .getchainFiles <- function(url, fileName=NA_character_, verbose=TRUE) {
     result <- .httrRead(url, fileName=fileName, getmd5sum=TRUE)
-    if(length(result$files)!=0) {
+    if(length(result)) {
         files <-  paste0(url, "/", result$files)
         df <- .httrFileInfo(files, verbose=TRUE)
         if(identical(names(result), c("files","md5sum")))
@@ -35,18 +35,16 @@
         taxid <- sapply(xml["/TaxaSet/Taxon/TaxId/text()"], XML::xmlValue)
     }
     
-    ## there are 3 special cases:
+    
+    scin[which(scin %in% "Pongo abelii")] <- "Pongo pygmaeus abelii"
+    scin[which(scin %in% "Xenopus (Silurana) tropicalis")]="Xenopus tropicalis"
+    scin[which(scin %in% "Ictidomys tridecemlineatus")]="Spermophilus tridecemlineatus"
+    
+    ## there are 3 special cases: WE provide query, ncbi returns scin
     #a) query ="Pongo pygmaeus abelii", scin="Pongo abelii", taxid="9601"
     #b) query ="Xenopus tropicalis", scin="Xenopus (Silurana) tropicalis", taxid="8364"
     #c) query ="Spermophilus tridecemlineatus", scin="Ictidomys tridecemlineatus", taxid="43179"
-    
-    table <- c("Pongo abelii","Xenopus (Silurana) tropicalis",
-               "Ictidomys tridecemlineatus")
-    idx <- match(scin, table)
-    updt <- !is.na(idx)
-    if (any(updt))
-        scin[updt] <- table[idx[updt]]
-    
+        
     ## 3. Results
     as.integer(taxid[match(organism, scin)])
 }

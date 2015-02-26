@@ -34,7 +34,7 @@ make2bit <- function(currentMetadata) {
         
         MoreArgs=list(
             # input sources 
-            SourceType = "TowBit file",
+            SourceType = "TwoBit file",
             
             # resources
             DataProvider = "UCSC",
