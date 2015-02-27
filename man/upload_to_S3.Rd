@@ -7,7 +7,7 @@
 Upload a file to Amazon S3
 }
 \description{
-%%  ~~ A concise (1-5 lines) description of what the function does. ~~
+This function is for uploading a file resource to the S3 cloud.
 }
 \usage{
 upload_to_S3(file, remotename,
@@ -55,9 +55,6 @@ will exit with an error.
 }
 \author{Dan Tenenbaum}
 
-\seealso{
-%% ~~objects to See Also as \code{\link{help}}, ~~~
-}
 \examples{
 \dontrun{
 upload_to_S3("myfile.txt", "foo/bar/baz/yourfile.txt")
