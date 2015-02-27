@@ -28,10 +28,11 @@ importFrom(AnnotationForge, makeInpDb)
 
 exportClasses(AnnotationHubMetadata,
               ImportPreparer,
+              ## For new preparer classes:
+              ## Don't forget to add alias to 'ImportPreparer-class.Rd'
               UCSCTrackImportPreparer,
               UCSCChainPreparer,
               Grasp2ImportPreparer,
-              ## 
               EnsemblGtfImportPreparer,
               EnsemblFastaImportPreparer,
               Inparanoid8ImportPreparer,
