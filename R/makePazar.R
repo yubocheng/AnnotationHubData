@@ -46,6 +46,7 @@ makePazarImporter <- function(currentMetadata, justRunUnitTest=FALSE) {
     
     ## resources table
     description <- rsrc$description
+    title <- basename(rsrc$fileurl)
     
     Map(AnnotationHubMetadata,
         SourceSize = sourceSize,
@@ -56,7 +57,7 @@ makePazarImporter <- function(currentMetadata, justRunUnitTest=FALSE) {
         Description = description,
         Title = title,
         
-        RDataPath = gsub(.amazonBaseUrl, "", sourceUrls),
+        RDataPath = gsub(.pazarBaseUrl, "", sourceUrls),
         
         MoreArgs=list(
             # input sources 
