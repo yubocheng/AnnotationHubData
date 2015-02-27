@@ -75,23 +75,22 @@
 
 ## for files on http sites, get the file size and file's date last modified. 
 .httrFileInfo <- function(files, verbose=TRUE) {
-    tryCatch({
-        result <- lapply(files, function(f){
-            if(verbose)
-                message(basename(f))
-            
+    result <- lapply(files, function(f){
+        if(verbose)
+            message(basename(f))
+        tryCatch({    
             h = GET(f, config=config(nobody=TRUE, filetime=TRUE))
             stop_for_status(h)
             headers(h)[c("last-modified", "content-length")] 
-        })
-        size <- as.numeric(sapply(result, "[[", "content-length"))
-        date <- strptime(sapply(result, "[[", "last-modified"),
-                         "%a, %d %b %Y %H:%M:%S", tz="GMT")
-        data.frame(fileurl=files, date, size, stringsAsFactors=FALSE)
-    }, error=function(err) {
-        warning(basename(files), ": ", conditionMessage(err))
-        url=character()
-    })    
+        }, error=function(err) {
+        warning(basename(f), ": ", conditionMessage(err))
+        list("last-modified"=character(), "content-length"=character())
+        }) 
+    })
+    size <- as.numeric(sapply(result, "[[", "content-length"))
+    date <- strptime(sapply(result, "[[", "last-modified"),
+        "%a, %d %b %Y %H:%M:%S", tz="GMT")
+    data.frame(fileurl=files, date, size, stringsAsFactors=FALSE)
 }
 
 ## check if file exists online. 
