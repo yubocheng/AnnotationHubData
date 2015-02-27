@@ -50,7 +50,7 @@
 }
 
 .getUCSCResources <- 
-    function(fileType, dirName, fileName, verbose=FALSE, unitTests=FALSE) 
+    function(fileType, dirName, fileName, verbose=FALSE, justRunUnitTest=FALSE)
 {
     ## get resource from UCSC
     .fileBase <- sprintf("%sgoldenPath", .ucscBase)
@@ -60,12 +60,12 @@
     rm <- c("cb1", "eboVir3", "dp2", "strPur1", "ci1", "calMil1","monDom1", 
             "balAcu1" ,"musFur1")
     genomes <- setdiff(genomes, rm)
-        
+    
     urls <- sprintf("%s/%s/%s", .fileBase, genomes, dirName)
     
-    if(unitTests)
-        urls <- urls[1:3]
-        
+    if(justRunUnitTest)
+       	urls <- urls[1:2]
+       
     rsrc <- do.call(rbind, lapply(urls, .getchainFiles, 
         fileName=fileName, verbose=verbose))
     rsrc <- rsrc[complete.cases(rsrc),]
@@ -94,9 +94,9 @@
     rsrc
 }
 
-makeUCSCChain <- function(currentMetadata) {
+makeUCSCChain <- function(currentMetadata, justRunUnitTest=FALSE) {
     rsrc <- .getUCSCResources(fileType="chain", dirName="liftOver", 
-        fileName="chain.gz", verbose=TRUE)
+        fileName="chain.gz", verbose=TRUE, justRunUnitTest)
     
     ## input_sources table
     sourceSize <- as.numeric(rsrc$size)

@@ -1,6 +1,6 @@
-make2bit <- function(currentMetadata) {
+make2bit <- function(currentMetadata, justRunUnitTest=FALSE) {
     rsrc <- .getUCSCResources(fileType="2bit", dirName="bigZips", 
-                              fileName=".2bit", verbose=TRUE)
+                              fileName=".2bit", verbose=TRUE, justRunUnitTest)
     ## input_sources table
     sourceSize <- as.numeric(rsrc$size)
     sourceUrls <- rsrc$fileurl

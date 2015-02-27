@@ -13,10 +13,8 @@
     
     urls <- setNames(paste0(baseUrl, paths), names(paths))
      
-    if(justRunUnitTest){
+    if(justRunUnitTest)
 	urls <- urls[1]
-     }
-     cat(urls)
     
     df <- do.call(rbind, Map(.getBioPax, urls))
     

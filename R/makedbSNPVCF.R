@@ -1,6 +1,6 @@
 .dbSNPBaseUrl <-"ftp://ftp.ncbi.nih.gov/"
 
-.getdbSNP <- function() {
+.getdbSNP <- function(justRunUnitTest) {
     paths <- c(GRCh37="human_9606/VCF/", 
                GRCh38_b142="human_9606_b142_GRCh38/VCF/",
                GRCh38_b141="human_9606_b141_GRCh38/VCF/")
@@ -8,6 +8,10 @@
     baseUrl <- paste0(.dbSNPBaseUrl, "snp/organisms/")
         
     urls <- setNames(paste0(baseUrl, paths), names(paths))
+
+    if(justRunUnitTest)
+	urls <- urls[1]
+
     df <- do.call(rbind, 
                 Map(.ftpFileInfo, urls, filename="vcf.gz", tag=names(urls)))
     title <- basename(df$fileurl)
@@ -28,8 +32,8 @@
     cbind(df, title, description, stringsAsFactors = FALSE)
 }
 
-makedbSNPVCF <- function(currentMetadata) {
-    rsrc <- .getdbSNP()
+makedbSNPVCF <- function(currentMetadata, justRunUnitTest=FALSE) {
+    rsrc <- .getdbSNP(justRunUnitTest)
    
     ## input_sources table
     sourceSize <- as.numeric(rsrc$size)

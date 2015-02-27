@@ -118,19 +118,19 @@
                    type= character(), stringsAsFactors=FALSE)
 }
 
-.encodeFiles <- function(unitTests=FALSE){
+.encodeFiles <- function(justRunUnitTest=FALSE) {
     encode_url <- paste0(.ucscBase, "goldenpath/hg19/encodeDCC/")
     subdirs <- .cleanFiles(encode_url, isSubDir=FALSE)
     urls <- setNames(paste0(encode_url, subdirs), subdirs)
     
-    if(unitTests)
+    if(justRunUnitTest)
         urls <- urls[1:3]
     
     do.call(rbind, Map(.subDir, urls, verbose=TRUE))
 }
 
-makeEncodeImporter <- function(currentMetadata) {
-    rsrc <- .encodeFiles()
+makeEncodeImporter <- function(currentMetadata, justRunUnitTest=FALSE) {
+    rsrc <- .encodeFiles(justRunUnitTest)
     
     ## input_sources table
     sourceSize <- as.numeric(rsrc$size)

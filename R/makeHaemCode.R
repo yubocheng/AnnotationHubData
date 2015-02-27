@@ -30,7 +30,7 @@
     list(files= unlist(fileurls), metadata = metadata)
 }
 
-.getHaemCode <- function(justRunUnitTest) {
+.getHaemCode <- function(justRunUnitTest=FALSE) {
     result <- .getHaemCodeFileNames() 
     
     haemfiles <- result$files
