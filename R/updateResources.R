@@ -96,9 +96,8 @@ getImportPreparerClasses <- function()
 ## 3) send metadata off to the back end
 ## 4) call the recipe and push the results of that off to the right place
 
-updateResources <- function(ahroot, BiocVersion,
+updateResources <- function(AnnotationHubRoot, BiocVersion,
                             preparerClasses=getImportPreparerClasses(),
-                            listOfExistingResources=list(),
                             insert=FALSE, metadataOnly=TRUE,
                             justRunUnitTest=FALSE){
     
@@ -116,7 +115,7 @@ updateResources <- function(ahroot, BiocVersion,
         {
             args <- list()
             if ("annotationHubRoot" %in% names(formals(preparerClass)))
-                args$annotationHubRoot <- ahroot
+                args$annotationHubRoot <- AnnotationHubRoot
             preparerInstance <- do.call(preparerClass, args)
 
         } else {

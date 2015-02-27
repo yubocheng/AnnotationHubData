@@ -1,7 +1,7 @@
 Package: AnnotationHubData
 Type: Package
 Title: Transform public data resources into Bioconductor Data Structures
-Version: 0.0.175
+Version: 0.0.176
 Authors@R:
     c(person("Martin", "Morgan", role="ctb"),
       person("Marc", "Carlson", role="ctb"),
@@ -19,7 +19,13 @@ Depends:
 Suggests:
     RSQLite,
     RUnit, 
-    knitr
+    knitr,
+    AnnotationForge,
+    RMySQL,
+    Rsamtools,
+    XML,
+    jsonlite,
+    rtracklayer
 Imports:
     GenomicFeatures (>= 1.17.3),
     Rsamtools (>= 1.17.4),
@@ -80,6 +86,8 @@ Collate:
     makeRefNet.R
     makeUCSCChain.R
     makeUCSC2Bit.R
+    makeChEA.R
+    makePazar.R
     updateResources.R
     ahmToJson.R
     zzz.R
