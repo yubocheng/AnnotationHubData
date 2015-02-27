@@ -63,7 +63,7 @@
         USE.NAMES =FALSE)
     
     sourcetype <- sapply(type, function(x) 
-        switch(x, bw="BigWig file", bed="BED  file", csv="CSV file"), 
+        switch(x, bw="BigWig file", bed="BED file", csv="CSV file"), 
         USE.NAMES =FALSE)
     
     cbind(df, title,  description, fileType, tags, rdataclass, dispatchclass,

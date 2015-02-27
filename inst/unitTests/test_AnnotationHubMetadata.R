@@ -247,4 +247,13 @@ test_RefNetImportPreparer_recipe <- function() {
      checkTrue(class(ahms[[1]])=="AnnotationHubMetadata")
 }
 
+test_PazarNetImportPreparer_recipe <- function() {
+    .recipeSetup()
+    ahms = updateResources(ahroot, BiocVersion,
+        preparerClasses = "PazarImportPreparer",
+        insert = FALSE, metadataOnly=TRUE)
+     checkTrue(class(ahms[[1]])=="AnnotationHubMetadata")
+}
+
+
 

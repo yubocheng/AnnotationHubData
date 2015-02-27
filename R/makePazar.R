@@ -11,7 +11,7 @@
     result <- GET(theurl)
     stop_for_status(result)
     html <- content(result)
-    tab <- sapply(html["//table[2]"], xmlValue)
+    tab <- sapply(html["//table"], xmlValue)
     files <- strsplit(tab, "\n\t\t\t")[[1]]
     filenames <- grep(".csv", files, value=TRUE)
     
