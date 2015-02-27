@@ -1,9 +1,10 @@
-.amazonBaseUrl <- "http://s3.amazonaws.com/annotationhub/"
+.mssmBaseUrl <- "http://amp.pharm.mssm.edu/"
 
 makeChEAImporter <- function(currentMetadata, justRunUnitTest=FALSE) {
-    files <- "chea/chea-background.zip"
-    files <- paste0(.amazonBaseUrl, files)
-    rsrc <- .httrFileInfo(files, verbose=FALSE)
+    files <- "result/kea/chea-background.zip"
+
+    files <- paste0(.mssmBaseUrl, files)
+    rsrc <- AnnotationHubData:::.httrFileInfo(files, verbose=FALSE)
     title <- basename(rsrc$fileurl)
         
     ## input_sources table
@@ -24,11 +25,11 @@ makeChEAImporter <- function(currentMetadata, justRunUnitTest=FALSE) {
         Description = description,
         Title = title,
         
-        RDataPath = gsub(.amazonBaseUrl, "", sourceUrls),
+        RDataPath = gsub(.mssmBaseUrl, "", sourceUrls),
         
         MoreArgs=list(
             # input sources 
-            SourceType = "CSV file",
+            SourceType = "ZIP file",
             
             # resources
             Species = "Homo sapiens", 
@@ -41,7 +42,7 @@ makeChEAImporter <- function(currentMetadata, justRunUnitTest=FALSE) {
             RDataDateAdded = Sys.time(),
                         
             #rdata table
-            DispatchClass = "data.frame" ,
+            DispatchClass = "zip" ,
             RDataClass = "data.frame",
             
             Tags = c("ChEA","Transcription Factors"),
