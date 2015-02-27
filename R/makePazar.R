@@ -4,7 +4,7 @@
 ## "pazar_Foxa2_Robertson_20120522.csv" "pazar_jaspar_core_20120522.csv"    
 ## "pazar_Pax6_Aniridia_20120522.csv" 
 
-.getPazarFiles <- function() {
+.getPazarFiles <- function(justRunUnitTest) {
     
     ## read the filenames from the url 
     theurl <- paste0(.pazarBaseUrl, "cgi-bin/downloads_csv.pl")
@@ -14,7 +14,10 @@
     tab <- sapply(html["//table[2]"], xmlValue)
     files <- strsplit(tab, "\n\t\t\t")[[1]]
     filenames <- grep(".csv", files, value=TRUE)
-            
+    
+    if(justRunUnitTest)
+	filenames  <- filenames[1:5]
+        
     ## get the fileSize and 
     actualUrl <- paste0( .pazarBaseUrl, "tftargets/")
     sourceUrl <- paste0(actualUrl, filenames)
@@ -32,8 +35,8 @@
     cbind(df, title, description, tags, sourceUrl, stringsAsFactors=FALSE)
 }
 
-makePazarImporter <- function(currentMetadata) {
-    rsrc <- .getPazarFiles()
+makePazarImporter <- function(currentMetadata, justRunUnitTest=FALSE) {
+    rsrc <- .getPazarFiles(justRunUnitTest)
     
     ## input_sources table
     sourceSize <- as.numeric(rsrc$size)

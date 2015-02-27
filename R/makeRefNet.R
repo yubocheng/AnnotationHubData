@@ -25,7 +25,7 @@
 }
 
 
-makeRefNetImporter <- function(currentMetadata) {
+makeRefNetImporter <- function(currentMetadata, justRunUnitTest=FALSE) {
     rsrc <- .refnetFiles()
     
     ## input_sources table

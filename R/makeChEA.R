@@ -1,6 +1,6 @@
 .amazonBaseUrl <- "http://s3.amazonaws.com/annotationhub/"
 
-makeChEAImporter <- function(currentMetadata) {
+makeChEAImporter <- function(currentMetadata, justRunUnitTest=FALSE) {
     files <- "chea/chea-background.zip"
     files <- paste0(.amazonBaseUrl, files)
     rsrc <- .httrFileInfo(files, verbose=FALSE)

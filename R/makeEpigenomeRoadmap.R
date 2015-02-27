@@ -69,7 +69,7 @@
     do.call(rbind, Map(.getPeakCalls, urls, names(urls)))
 }
 
-makeEpigenomeRoadmap <- function(currentMetadata) {
+makeEpigenomeRoadmap <- function(currentMetadata, justRunUnitTest=FALSE) {
     rsrc <- .getEpigenomeRoadMapPeaks()
     
     description <- rsrc$description
