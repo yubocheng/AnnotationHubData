@@ -86,8 +86,6 @@ Collate:
     makeRefNet.R
     makeUCSCChain.R
     makeUCSC2Bit.R
-    makeChEA.R
-    makePazar.R
     updateResources.R
     ahmToJson.R
     zzz.R
