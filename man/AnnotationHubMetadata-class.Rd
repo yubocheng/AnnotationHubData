@@ -64,12 +64,14 @@ AnnotationHubMetadata(AnnotationHubRoot, SourceUrl, SourceType,
                  Coordinate_1_based = TRUE, Notes = NA_character_,
                  DispatchClass, Location_Prefix =
                  "http://s3.amazonaws.com/annotationhub/")
+
 jsonPath(x)
 toJson(x)
 constructAnnotationHubMetadataFromSourceFilePath(ahroot, originalFile)
 constructMetadataFromJsonPath(ahroot, jsonpath)
 postProcessMetadata(ahm)
 constructSeqInfo(species, genome)
+
 inputFiles(object, ...)
 outputFile(object)
 ahmToJson(ahm)
