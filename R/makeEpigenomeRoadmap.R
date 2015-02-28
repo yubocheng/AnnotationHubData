@@ -40,7 +40,7 @@
                description=description, stringsAsFactors =FALSE)
 }
 
-.getPeakCalls <- function(url, tag) {
+.getPeakCalls <- function(url, tag, justRunUnitTest) {
     ans <- tryCatch ({
         message(basename(url))
         result <- GET(url)
@@ -50,6 +50,10 @@
         fls <- sapply(html["//li/a/@href"], as.character)
         fls <- fls[!grepl(".*(/|README.txt).*" , fls)]
         urls <- paste0(url, fls)
+        
+        if(justRunUnitTest)
+            urls <- urls[1:5]
+        
         ## get file information for each file. 
         .getFileInfo(urls) ## step takes time!!
         
@@ -61,19 +65,18 @@
     cbind(ans, tag=tag)
 }
 
-.getEpigenomeRoadMapPeaks <- function() {
-    paths <- c(broadPeaks="peaks/stdnames30M/broadPeak/",
-               narrowPeaks="peaks/stdnames30M/combrep/")
+.getEpigenomeRoadMapPeaks <- function(justRunUnitTest) {
+    paths <- c(broadPeaks="peaks/consolidated/broadPeak/",
+               narrowPeaks="peaks/consolidated/narrowPeak/")
     urls <- setNames(paste0(.EpigenomeRoadMap, paths), names(paths))
 
-    do.call(rbind, Map(.getPeakCalls, urls, names(urls)))
+    do.call(rbind, Map(.getPeakCalls, urls, names(urls), justRunUnitTest))
 }
 
 makeEpigenomeRoadmap <- function(currentMetadata, justRunUnitTest=FALSE) {
-    rsrc <- .getEpigenomeRoadMapPeaks()
+    rsrc <- .getEpigenomeRoadMapPeaks(justRunUnitTest)
     
     description <- rsrc$description
-    sourceFile <- rownames(rsrc)
     title <- rownames(rsrc)
     sourceUrls <- rsrc$sourceUrl
     sourceVersion <- gsub(" ","_",rsrc$date) 
@@ -83,13 +86,14 @@ makeEpigenomeRoadmap <- function(currentMetadata, justRunUnitTest=FALSE) {
     Tags <- lapply(rsrc$tag, function(tag) {
         c("EpigenomeRoadmap", as.character(tag), "DNAseq","ChIPseq","genome")
     })
+    rdatapath <- gsub(.EpigenomeRoadMap, "", sourceUrls)
     
     Map(AnnotationHubMetadata,
         Description=description, 
-        SourceFile=sourceFile, SourceUrl=sourceUrls,
+        SourceUrl=sourceUrls,
         SourceLastModifiedDate = SourceLastModifiedDate,
         SourceSize = SourceSize,
-        RDataPath=sourceUrls,
+        RDataPath=rdatapath,
         SourceVersion=sourceVersion, 
         Title=title, Tags=Tags,
         MoreArgs=list(
@@ -97,12 +101,13 @@ makeEpigenomeRoadmap <- function(currentMetadata, justRunUnitTest=FALSE) {
             Species="Homo sapiens",
             TaxonomyId=9606L,
             Coordinate_1_based = FALSE,
-            DataProvider = "broadinstitute.org",
+            SourceType ="BED file",
+            DataProvider = "BroadInstitute",
             Location_Prefix = .EpigenomeRoadMap,
-            Maintainer = "Sonali Arora <sarora@fhcrc.org>",
-            RDataClass = "EpigenomeRoadmapFile",
+            Maintainer = "Sonali Arora <sarora@fredhutch.org>",
+            RDataClass = "GRanges",
+            DispatchClass = "EpigenomeRoadmapFile",
             RDataDateAdded = Sys.time(),
-            RDataVersion = "0.0.1",
             Recipe = NA_character_))
 }
 
