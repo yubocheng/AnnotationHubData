@@ -73,6 +73,12 @@
 ## remove leading and trailing white spaces
 .trim <- function (x) gsub("^\\s+|\\s+$", "", x)
 
+
+## while inserting long text(more than 80 chars), we want to remove "\n"
+.expandLine <- function(x)
+    gsub("[[:space:]]{2,}"," ", x)
+
+
 ## for files on http sites, get the file size and file's date last modified. 
 .httrFileInfo <- function(files, verbose=TRUE) {
     result <- lapply(files, function(f){

@@ -230,6 +230,13 @@ test_EncodeImportPreparer_recipe <- function() {
     checkTrue(class(ahms[[1]])=="AnnotationHubMetadata")
 }
 
+test_EpigenomeRoadmapImportPreparer_recipe <- function() {
+    .recipeSetup()
+    ahms = updateResources(ahroot, BiocVersion,
+        preparerClasses = "EpigenomeRoadMapPreparer",
+        insert = FALSE, metadataOnly=TRUE, justRunUnitTest=TRUE)
+    checkTrue(class(ahms[[1]])=="AnnotationHubMetadata")
+}
 
 test_dbSNPVCFPreparer_recipe <- function() {
     .recipeSetup()

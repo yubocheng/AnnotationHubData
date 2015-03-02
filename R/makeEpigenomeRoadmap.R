@@ -1,43 +1,32 @@
 .EpigenomeRoadMap <- "http://www.broadinstitute.org/~anshul/projects/roadmap/"
 
-.trim <- function(x)
-    gsub("[[:space:]]{2,}"," ", x)
-
-.getFileInfo <- function(urls) {
-    names(urls) <- basename(urls)
-    result <- lapply(urls, function(url) {
-        message(".getFileInfo ", sQuote(basename(url)))
-        ok <- GET(url, config=config(nobody=TRUE))
-        stop_for_status(ok)
-        headers(ok)[c("last-modified", "content-length")]
-    })
-    date <- parse_http_date(vapply(result, "[[", character(1), "last-modified"))
-    size <- as.integer(vapply(result, "[[", character(1), "content-length"))
-    sourceUrl <- sub(.EpigenomeRoadMap, "", urls)
+.getEpiFileInfo <- function(urls) {
+    df <- .httrFileInfo(urls, verbose=TRUE) 
+    rdatapath <- sub(.EpigenomeRoadMap, "", urls)
 
     map <- c(
         ## broad peaks
         hotspot.fdr0.01.broad.bed.gz="Broad DNasePeaks at FDR 1%",
         hotspot.broad.bed.gz="Broad DNasePeaks at no FDR thresholding",
         broadPeak.gz="Broad ChIP peaks passing the p-value 0.1 threshold",
-        gappedPeak.gz=.trim("Broad ChIP peaks (passing p-value 0.1) that
+        gappedPeak.gz=.expandLine("Broad ChIP peaks (passing p-value 0.1) that
             contain at least one narrow peak passing a pvalue of 0.01."),
         ## narrow peaks
-        hotspot.fdr0.01.peaks.bed.gz=.trim("Narrow DNasePeaks in FDR 1%
+        hotspot.fdr0.01.peaks.bed.gz=.expandLine("Narrow DNasePeaks in FDR 1%
             hotspots called using HotSpot"),
-        hotspot.all.peaks.bed.gz=.trim("Genome-wide tag density peak calls,
+        hotspot.all.peaks.bed.gz=.expandLine("Genome-wide tag density peak calls,
             (not restricted to hotspots, thresholded or unthresholded) called
             using HotSpot peak caller"),
-        .macs2.narrowPeak.gz=.trim("Narrow DNasePeaks called using MACS2
+        .macs2.narrowPeak.gz=.expandLine("Narrow DNasePeaks called using MACS2
             with a p-value threshold of 0.01"),
-        narrowPeak.gz=.trim("Narrow ChIP peaks were called using MACSv2
+        narrowPeak.gz=.expandLine("Narrow ChIP peaks were called using MACSv2
             with a p-value threshold of 0.01."))
     description <- character(length(urls))
     for (i in seq_along(map))
         description[grep(names(map)[i], urls)] <- map[[i]]
     
-    data.frame(date=date, size=size, sourceUrl=urls, 
-               description=description, stringsAsFactors =FALSE)
+    cbind(df, rdatapath=rdatapath, description=description, 
+        stringsAsFactors =FALSE)
 }
 
 .getPeakCalls <- function(url, tag, justRunUnitTest) {
@@ -55,7 +44,7 @@
             urls <- urls[1:5]
         
         ## get file information for each file. 
-        .getFileInfo(urls) ## step takes time!!
+        .getEpiFileInfo(urls) ## step takes time!!
         
     }, error=function(err) {
         warning(basename(url), ": ", conditionMessage(err), immediate.=TRUE)
@@ -77,8 +66,8 @@ makeEpigenomeRoadmap <- function(currentMetadata, justRunUnitTest=FALSE) {
     rsrc <- .getEpigenomeRoadMapPeaks(justRunUnitTest)
     
     description <- rsrc$description
-    title <- rownames(rsrc)
-    sourceUrls <- rsrc$sourceUrl
+    title <- basename(rsrc$fileurl)
+    sourceUrls <- rsrc$fileurl
     sourceVersion <- gsub(" ","_",rsrc$date) 
         ## should be character
     SourceLastModifiedDate <- rsrc$date  ## should be "POSIXct" "POSIXt"
@@ -86,7 +75,7 @@ makeEpigenomeRoadmap <- function(currentMetadata, justRunUnitTest=FALSE) {
     Tags <- lapply(rsrc$tag, function(tag) {
         c("EpigenomeRoadmap", as.character(tag), "DNAseq","ChIPseq","genome")
     })
-    rdatapath <- gsub(.EpigenomeRoadMap, "", sourceUrls)
+    rdatapath <- rsrc$rdatapath
     
     Map(AnnotationHubMetadata,
         Description=description, 
@@ -101,7 +90,7 @@ makeEpigenomeRoadmap <- function(currentMetadata, justRunUnitTest=FALSE) {
             Species="Homo sapiens",
             TaxonomyId=9606L,
             Coordinate_1_based = FALSE,
-            SourceType ="BED file",
+            SourceType ="BED",
             DataProvider = "BroadInstitute",
             Location_Prefix = .EpigenomeRoadMap,
             Maintainer = "Sonali Arora <sarora@fredhutch.org>",
