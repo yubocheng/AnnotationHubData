@@ -124,7 +124,7 @@
     urls <- setNames(paste0(encode_url, subdirs), subdirs)
     
     if(justRunUnitTest)
-        urls <- urls[1:3]
+        urls <- urls[c(1,2,3,10,14)]
     
     do.call(rbind, Map(.subDir, urls, verbose=TRUE))
 }
@@ -137,7 +137,14 @@ makeEncodeImporter <- function(currentMetadata, justRunUnitTest=FALSE) {
     sourceUrls <- rsrc$fileurl
     sourceVersion <- rsrc$sourceVersion # should be character
     SourceLastModifiedDate <- rsrc$date  # should be "POSIXct" "POSIXt"
-        
+    sourceType <- sapply(rsrc$type, function(x) 
+        switch(x, 
+               broadPeak="BED", 
+               narrowPeak="BED",
+               gtf="GTF", 
+               bedRnaElements="BED"), 
+        USE.NAMES =FALSE)
+    
     ## resources table
     title <- basename(rsrc$fileurl)
     description <- rsrc$description
@@ -153,7 +160,8 @@ makeEncodeImporter <- function(currentMetadata, justRunUnitTest=FALSE) {
         SourceUrl=sourceUrls,
         SourceVersion=sourceVersion,
         SourceLastModifiedDate = SourceLastModifiedDate,
-                
+        SourceType = sourceType,
+	        
         Description= paste0(rsrc$type, " file from ENCODE"), 
         Title=title, 
         
@@ -162,9 +170,6 @@ makeEncodeImporter <- function(currentMetadata, justRunUnitTest=FALSE) {
         Tags=tags,
         
         MoreArgs=list(
-            # input sources 
-            SourceType= "BED",
-                        
             # resources
             DataProvider = "UCSC",
             Species="Homo sapiens",
