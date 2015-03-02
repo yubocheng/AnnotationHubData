@@ -18,12 +18,29 @@
         
     n <- length(title)
         
-    map <- c(`All` = "VCF of all variations that meet the criteria to be in a VCF file.  This file is created once per dbSNP build.",
-        `All_papu` ="VCF of all variations found in the psuedoautosomal region (PAR), alternate loci, patch sequences and unlocalized or unplaced contigs(papu)",
-        `common_all` = "VCF of all variations that are polymorphic in a least one population the 1000 Genomes project or any of the following handles: 1000GENOMES, CSHL-HAPMAP, EGP_SNPS NHLBI-ESP, PGA-UW-FHCRC. A variation is polymorphic if the minor allele frequency is at least 0.01 and the minor allele is present in at least two samples.",
-        `clinvar` = "VCF of variations from clinvar where 'YYYYMMDD' represents the date the file was created. This file is created weekly.", 
-        `common_and_clinical` = "Variations from common_all.vcf.gz that are clinical.  A clinical variation is one the appears in clinvar_YYYYMMDD.vcf.gz with at least one of the following clinical significance codes: 4 - probable-pathogenic, 5 - pathogenic, 6 - drug-response, 7 - histocompatibility, 255 - other, This file is created weekly.",
-        `common_no_known_medical_impact` = "Variations from common_all.vcf.gz that do not meet the clinical criteria described above.  This file is created weekly.")
+    map <- c(`All` = .expandLine("VCF of all variations that meet the criteria
+         to be in a  VCF file.  This file is created once per dbSNP build."),
+        `All_papu` = .expandLine("VCF of all variations found in the 
+         psuedoautosomal region (PAR), alternate loci, patch sequences and 
+         unlocalized or unplaced contigs(papu)"),
+        `common_all` = .expandLine("VCF of all variations that are polymorphic
+          in a least one population the 1000 Genomes project or any of the 
+          following handles: 1000GENOMES, CSHL-HAPMAP, EGP_SNPS NHLBI-ESP,
+          PGA-UW-FHCRC. A variation is polymorphic if the minor allele 
+          frequency is at least 0.01 and the minor allele is present in 
+          at least two samples."),
+        `clinvar` = .expandLine("VCF of variations from clinvar where 'YYYYMMDD' 
+         represents the date the file was created. This file is created 
+         weekly."), 
+        `common_and_clinical` = .expandLine("Variations from common_all.vcf.gz
+         that are clinical.  A clinical variation is one the appears in 
+         clinvar_YYYYMMDD.vcf.gz with at least one of the following clinical
+         significance codes: 4 - probable-pathogenic, 5 - pathogenic, 
+         6 - drug-response, 7 - histocompatibility, 255 - other, 
+         This file is created weekly."),
+        `common_no_known_medical_impact` = .expandLine("Variations from 
+         common_all.vcf.gz that do not meet the clinical criteria described 
+         above.  This file is created weekly."))
     
     description <- character(n)
     for (i in seq_along(map))

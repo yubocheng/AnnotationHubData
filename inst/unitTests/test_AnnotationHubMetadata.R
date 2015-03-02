@@ -262,5 +262,11 @@ test_PazarImportPreparer_recipe <- function() {
      checkTrue(class(ahms[[1]])=="AnnotationHubMetadata")
 }
 
-
+test_ChEAPreparer_recipe <- function() {
+    .recipeSetup()
+    ahms = updateResources(ahroot, BiocVersion,
+        preparerClasses = "ChEAImportPreparer",
+        insert = FALSE, metadataOnly=TRUE)
+    checkTrue(class(ahms[[1]])=="AnnotationHubMetadata")
+}
 
