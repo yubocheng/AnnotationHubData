@@ -103,10 +103,19 @@ AnnotationHubMetadata <-
         Location_Prefix='http://s3.amazonaws.com/annotationhub/')
 {
     ## Try to derive some of this stuff 
-    if (missing(SourceLastModifiedDate))
-        SourceLastModifiedDate <- as.POSIXct(.httrFileInfo(SourceUrl)$date)   
-    if (missing(SourceSize))
-        SourceSize <- as.character(.httrFileInfo(SourceUrl)$size)
+    if (missing(SourceLastModifiedDate) & missing(SourceSize)) {
+        res <- .httrFileInfo(SourceUrl)
+        size <- res$size
+	date <- res$date
+        if(!all(is.na(date)))
+            SourceLastModifiedDate <- as.POSIXct(date)
+	else
+	    SourceLastModifiedDate <- NA 
+        if(!all(is.na(size)))
+            SourceSize <- as.character(size)
+	else
+            SourceSize <- NA
+    }
     if (missing(TaxonomyId))
     {
         if (!is.na(Species) &&

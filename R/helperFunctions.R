@@ -93,11 +93,17 @@
         list("last-modified"=character(), "content-length"=character())
         }) 
     })
-    size <- as.numeric(sapply(result, "[[", "content-length"))
-    date <- strptime(sapply(result, "[[", "last-modified"),
-        "%a, %d %b %Y %H:%M:%S", tz="GMT")
-    data.frame(fileurl=files, date, size, stringsAsFactors=FALSE)
-}
+    
+    if("content-length"%in% names(result)) {
+	size <- as.numeric(sapply(result, "[[", "content-length")) 
+	date <- strptime(sapply(result, "[[", "last-modified"),
+             "%a, %d %b %Y %H:%M:%S", tz="GMT")
+    } else{
+        size <- rep.int(NA, length(files)) 
+        date <- rep.int(NA, length(files))
+     }
+    data.frame(fileurl=files, date, size, stringsAsFactors=FALSE)	
+}    
 
 ## check if file exists online. 
 .fileExistsOnline  <- function(file) {

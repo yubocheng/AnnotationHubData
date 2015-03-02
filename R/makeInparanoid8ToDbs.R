@@ -25,13 +25,13 @@
     sourceVersion <- rep('Inparanoid version 8',length(allDirs))
     description <- paste("Inparanoid 8 annotations about", fullSpecies)
     sourceUrl <- paste0(baseUrl,"/", species)
-    sourceFile <- allDirs
+    
     rDataPath <- paste0("inparanoid8/Orthologs/",title)
     ## return as a list
     list(##annotationHubRoot = root,
          title=title, species = fullSpecies,
          taxonomyId = taxonomyId, genome = genome, sourceUrl=sourceUrl,
-         sourceFile = sourceFile, sourceVersion = sourceVersion,
+         sourceVersion = sourceVersion,
          description=description, rDataPath=rDataPath)
 }
 
@@ -39,7 +39,7 @@
 ## STEP 1: make function to process metadata into AHMs
 ## This function will return the AHMs and takes no args.
 ## It also must specify a recipe function.
-makeinparanoid8ToAHMs <- function(currentMetadata){
+makeinparanoid8ToAHMs <- function(currentMetadata, justRunUnitTest) {
     baseUrl <- 'http://inparanoid.sbc.su.se/download/current/Orthologs_other_formats'
     ## Then make the metadata for these
     meta <- .inparanoidMetadataFromUrl(baseUrl)
@@ -48,7 +48,6 @@ makeinparanoid8ToAHMs <- function(currentMetadata){
         ## AnnotationHubRoot=meta$annotationHubRoot,
         Description=meta$description,
         Genome=meta$genome,
-        SourceFile=meta$sourceFile, 
         SourceUrl=meta$sourceUrl,
         SourceVersion=meta$sourceVersion,
         Species=meta$species,
@@ -56,12 +55,13 @@ makeinparanoid8ToAHMs <- function(currentMetadata){
         Title=meta$title,
         RDataPath=meta$rDataPath,
         MoreArgs=list(
+	  SourceType="Inparanoid",
           Coordinate_1_based = TRUE, ## TRUE unless it "needs" to be FALSE
-          DataProvider = baseUrl,
+          DataProvider = "Inparanoid8",
           Maintainer = "Marc Carlson <mcarlson@fhcrc.org>",
-          RDataClass = "SQLiteFile",
+          RDataClass = "Inparanoid8Db",
+	  DispatchClass="SQLiteFile",	
           RDataDateAdded = Sys.time(),
-          RDataVersion = "0.0.1",
           Recipe = c("inparanoid8ToDbsRecipe", package="AnnotationHubData"),
           Tags = c("Inparanoid", "Gene", "Homology", "Annotation")))
 }
