@@ -132,7 +132,7 @@ makeUCSCChain <- function(currentMetadata, justRunUnitTest=FALSE) {
         
         MoreArgs=list(
             # input sources 
-            SourceType= "Chain file",
+            SourceType= "Chain",
             
             # resources
             DataProvider = "UCSC",

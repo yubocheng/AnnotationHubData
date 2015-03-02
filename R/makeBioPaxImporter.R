@@ -27,9 +27,9 @@
     
     sourceType <- sapply(bpLevel, function(x) 
         switch(x, 
-               bp3="BioPaxLevel3 file", 
-               bp2="BioPaxLevel2 file",
-               bp="BioPax file"), 
+               bp3="BioPaxLevel3", 
+               bp2="BioPaxLevel2",
+               bp="BioPax"), 
         USE.NAMES =FALSE)
     
     tags <- unlist(mapply(function(x,y) {

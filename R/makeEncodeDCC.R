@@ -163,7 +163,7 @@ makeEncodeImporter <- function(currentMetadata, justRunUnitTest=FALSE) {
         
         MoreArgs=list(
             # input sources 
-            SourceType= "BED file",
+            SourceType= "BED",
                         
             # resources
             DataProvider = "UCSC",

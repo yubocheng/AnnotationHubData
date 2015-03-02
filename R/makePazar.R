@@ -61,7 +61,7 @@ makePazarImporter <- function(currentMetadata, justRunUnitTest=FALSE) {
         
         MoreArgs=list(
             # input sources 
-            SourceType = "CSV file",
+            SourceType = "CSV",
             
             # resources
             Species = "Homo sapiens", 

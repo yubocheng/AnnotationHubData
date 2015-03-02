@@ -29,7 +29,7 @@ makeChEAImporter <- function(currentMetadata, justRunUnitTest=FALSE) {
         
         MoreArgs=list(
             # input sources 
-            SourceType = "ZIP file",
+            SourceType = "Zip",
             
             # resources
             Species = "Homo sapiens", 

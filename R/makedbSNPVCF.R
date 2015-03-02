@@ -70,7 +70,7 @@ makedbSNPVCF <- function(currentMetadata, justRunUnitTest=FALSE) {
                  
         MoreArgs=list(
             # input sources 
-            SourceType= "VCF file",
+            SourceType= "VCF",
                               
             # resources
             Species="Homo sapiens",

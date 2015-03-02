@@ -21,7 +21,7 @@
          SourceLastModifiedDate=as.POSIXct("2015-01-01", tz="GMT"),
          SourceSize=as.numeric(99999),
          SourceMd5="2",
-         SourceType="BED file",
+         SourceType="BED",
          Title="CD20 CAGE defined Transcriptional Start Sites",
          Description="120785 TSS sites ...",
          Species="Homo sapiens",
@@ -247,7 +247,7 @@ test_RefNetImportPreparer_recipe <- function() {
      checkTrue(class(ahms[[1]])=="AnnotationHubMetadata")
 }
 
-test_PazarNetImportPreparer_recipe <- function() {
+test_PazarImportPreparer_recipe <- function() {
     .recipeSetup()
     ahms = updateResources(ahroot, BiocVersion,
         preparerClasses = "PazarImportPreparer",

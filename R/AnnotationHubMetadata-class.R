@@ -215,23 +215,6 @@ setMethod(show, "AnnotationHubMetadata",
 
 
 .checkThatSourceTypeSoundsReasonable <- function(sourcetype){
-## expectedSourceTypes <- c("BED file",
-##                          "UCSC track",
-##                          "VCF file",
-##                          "GTF file",
-##                          "GFF file",
-##                          "CSV file",
-##                          "TSV file",
-##                          "BigWig file",
-##                          "TwoBit file",
-##                          "Chain file",
-##                          "FASTA file",
-##                          "BioPax file",
-##                          "BioPaxLevel2 file",
-##                          "BioPaxLevel3 file",
-##                          "Inparanoid sqltable files",
-##                      "NCBI gene files with supplemental data from blast2GO",
-##                          "NHLBI GRASP 2.0 GWAS database")
 expectedSourceTypes <- c("BED",                                            
                          "UCSC track",
                          "VCF",
@@ -248,7 +231,8 @@ expectedSourceTypes <- c("BED",
                          "BioPaxLevel3",
                          "Inparanoid",
                          "NCBI/blast2GO",
-                         "GRASP")
+                         "GRASP",
+                         "Zip")
 if(!(sourcetype %in% expectedSourceTypes)){
       stop(wmsg(paste0("The source type you have provided (",sourcetype,")",
                        " looks unusual.  We were expecting one of these",
