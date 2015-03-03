@@ -11,28 +11,22 @@
     result <- GET(theurl)
     stop_for_status(result)
     html <- content(result)
-    tab <- sapply(html["//table"], xmlValue)
-    files <- strsplit(tab, "\n\t\t\t")[[1]]
-    filenames <- grep(".csv", files, value=TRUE)
+     
+    filenames <- sapply(html["//table//tr/td/a/text()"], xmlValue)
+    sourceUrl <- sapply(html["//table//tr/td/a/@href"], as.character)
+
     
     if(justRunUnitTest)
 	filenames  <- filenames[1:5]
         
     ## get the fileSize and 
-    actualUrl <- paste0( .pazarBaseUrl, "tftargets/")
-    sourceUrl <- paste0(actualUrl, filenames)
-    
     df <- .httrFileInfo(sourceUrl, verbose=TRUE)
     title <- basename(df$fileurl)
     
     filename.stem <- sub(".csv", "", title)
     description <- sprintf("TF - Target Gene file from %s", filename.stem)
     
-    tags <- sapply(filename.stem, function(x) {
-        paste0("Pazar", "TF-Target Gene file", x)
-    })
-    
-    cbind(df, title, description, tags, sourceUrl, stringsAsFactors=FALSE)
+    cbind(df, title, description, sourceUrl, stringsAsFactors=FALSE)
 }
 
 makePazarImporter <- function(currentMetadata, justRunUnitTest=FALSE) {
@@ -74,7 +68,7 @@ makePazarImporter <- function(currentMetadata, justRunUnitTest=FALSE) {
             RDataDateAdded = Sys.time(),
             
             #rdata table
-            DispatchClass = "CSV" ,
+            DispatchClass = "Pazar" ,
             RDataClass = "data.frame",
             
             Tags = c("Pazar","Transcription Factors"),
