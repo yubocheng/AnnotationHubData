@@ -256,8 +256,10 @@ if(!(sourcetype %in% expectedSourceTypes)){
 
 .checkForAValidTaxonomyId <- function(taxId){
 ## TODO: precompute the list of valid tax Ids
-if (!exists("validTaxIds")) 
-         data(validTaxIds, package = "AnnotationHubData")
+if (!exists("validTaxIds")) {
+     data(validTaxIds, package = "AnnotationHubData")
+     validTaxIds <- c(validTaxIds, NA_integer_)
+}
 if(!(taxId %in% validTaxIds)){
       stop(wmsg(paste0("The taxonomy Id you have provided (",taxId,")",
                        " is not in our list of valid Tax Ids.",
