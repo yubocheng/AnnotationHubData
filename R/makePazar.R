@@ -74,10 +74,10 @@ makePazarImporter <- function(currentMetadata, justRunUnitTest=FALSE) {
             RDataDateAdded = Sys.time(),
             
             #rdata table
-            DispatchClass = "data.frame" ,
+            DispatchClass = "CSV" ,
             RDataClass = "data.frame",
             
-            Tags = c("ChEA","Transcription Factors"),
+            Tags = c("Pazar","Transcription Factors"),
             
             Recipe = NA_character_ ))
 }

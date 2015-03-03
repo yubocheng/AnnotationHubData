@@ -42,7 +42,7 @@ makeChEAImporter <- function(currentMetadata, justRunUnitTest=FALSE) {
             DataProvider = "ChEA",
             Maintainer = "Sonali Arora <sarora@fredhutch.org>",         
             Coordinate_1_based = FALSE,
-            Location_Prefix = .amazonBaseUrl,
+            Location_Prefix = .mssmBaseUrl,
             RDataDateAdded = Sys.time(),
                         
             #rdata table
