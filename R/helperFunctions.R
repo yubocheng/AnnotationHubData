@@ -87,21 +87,22 @@
         tryCatch({    
             h = GET(f, config=config(nobody=TRUE, filetime=TRUE))
             stop_for_status(h)
-            headers(h)[c("last-modified", "content-length")] 
+            nams <- names(headers(h))
+            if("last-modified" %in% nams)
+                 headers(h)[c("last-modified", "content-length")] 
+	    else
+                c("last-modified"=NA, "content-length"=NA)	
         }, error=function(err) {
         warning(basename(f), ": ", conditionMessage(err))
         list("last-modified"=character(), "content-length"=character())
         }) 
     })
     
-    if("content-length"%in% names(result)) {
-	size <- as.numeric(sapply(result, "[[", "content-length")) 
-	date <- strptime(sapply(result, "[[", "last-modified"),
+    
+    size <- as.numeric(sapply(result, "[[", "content-length")) 
+    date <- strptime(sapply(result, "[[", "last-modified"),
              "%a, %d %b %Y %H:%M:%S", tz="GMT")
-    } else{
-        size <- rep.int(NA, length(files)) 
-        date <- rep.int(NA, length(files))
-     }
+    
     data.frame(fileurl=files, date, size, stringsAsFactors=FALSE)	
 }    
 

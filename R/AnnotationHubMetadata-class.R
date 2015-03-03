@@ -110,11 +110,11 @@ AnnotationHubMetadata <-
         if(!all(is.na(date)))
             SourceLastModifiedDate <- as.POSIXct(date)
 	else
-	    SourceLastModifiedDate <- NA 
+	    SourceLastModifiedDate <- as.POSIXct(NA_character_) 
         if(!all(is.na(size)))
-            SourceSize <- as.character(size)
+            SourceSize <- as.double(size)
 	else
-            SourceSize <- NA
+            SourceSize <- NA_real_
     }
     if (missing(TaxonomyId))
     {
@@ -122,7 +122,7 @@ AnnotationHubMetadata <-
             requireNamespace("AnnotationHubData", quietly=TRUE))
             TaxonomyId <- .taxonomyId(Species)
         else
-            TaxonomyId <- NA_character_
+            TaxonomyId <- NA_integer_
     }
     ## This was probably too aggressive since some resources do not have the sourceFile field
     if (missing(RDataPath)) {        

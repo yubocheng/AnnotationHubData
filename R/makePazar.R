@@ -64,9 +64,9 @@ makePazarImporter <- function(currentMetadata, justRunUnitTest=FALSE) {
             SourceType = "CSV",
             
             # resources
-            Species = "Homo sapiens", 
-            TaxonomyId = 9606L,
-            Genome = "hg19",
+            Species = NA_character_, 
+            TaxonomyId = NA_integer_,
+            Genome = NA_character_,
             DataProvider = "Pazar",
             Maintainer = "Sonali Arora <sarora@fredhutch.org>",         
             Coordinate_1_based = FALSE,
