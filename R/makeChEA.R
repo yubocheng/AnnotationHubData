@@ -36,9 +36,9 @@ makeChEAImporter <- function(currentMetadata, justRunUnitTest=FALSE) {
             SourceType = "Zip",
             
             # resources
-            Species = "Homo sapiens", 
-            TaxonomyId = 9606L,
-            Genome = "hg19",
+            Species = "Homo sapiens, Mus musculus", 
+            #TaxonomyId = NA,
+            Genome = NA_character_,
             DataProvider = "ChEA",
             Maintainer = "Sonali Arora <sarora@fredhutch.org>",         
             Coordinate_1_based = FALSE,
