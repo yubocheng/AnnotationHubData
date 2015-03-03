@@ -16,7 +16,7 @@ importFrom(XML, xmlValue)
 
 importFrom(BiocInstaller, biocVersion)
 
-importFrom(S4Vectors, metadata, "metadata<-")
+importFrom(S4Vectors, metadata, "metadata<-", isSingleString, isTRUEorFALSE, isSingleNumber, isSingleInteger, isSingleNumberOrNA, isSingleStringOrNA)
 
 importFrom(Rsamtools, indexFa)
 

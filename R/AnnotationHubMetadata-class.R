@@ -88,6 +88,13 @@ setClass("AnnotationHubMetadata",
     sprintf("%s_%s.%s", ret, suffix)
 }
 
+## Helper just b/c we have a LOT of strings that need to be single value or NA
+.checkSingleStringOrNA <- function(value){
+    if(!isSingleStringOrNA(value)){
+        valStr <- deparse(substitute(value))
+        stop(wmsg(paste0("AnnotationHubMetdata objects can contain",
+                         " only one ",valStr," or NA")))}
+}
 
 ## alternative prefix (so far)
 ## http://hgdownload.cse.ucsc.edu/
@@ -102,6 +109,7 @@ AnnotationHubMetadata <-
         Notes=NA_character_, DispatchClass,
         Location_Prefix='http://s3.amazonaws.com/annotationhub/')
 {
+    #######################################################################
     ## Try to derive some of this stuff 
     if (missing(SourceLastModifiedDate) & missing(SourceSize)) {
         res <- .httrFileInfo(SourceUrl)
@@ -124,7 +132,6 @@ AnnotationHubMetadata <-
         else
             TaxonomyId <- NA_integer_
     }
-    ## This was probably too aggressive since some resources do not have the sourceFile field
     if (missing(RDataPath)) {        
         ## Add two. (one for substr starting AT clipChars,
         ## and one for that extra slash)
@@ -139,6 +146,18 @@ AnnotationHubMetadata <-
         as.POSIXct(strsplit(
             as.character(RDataDateAdded), " ")[[1]][1], tz="GMT")
 
+    #######################################################################
+    ## More checking to see if we have supplied reasonable values for
+    ## things (after guessing and before we call 'new')
+    .checkSingleStringOrNA(Species)
+    .checkSingleStringOrNA(Genome)
+    if(!(isSingleInteger(TaxonomyId) || is.na(TaxonomyId))){
+        stop(wmsg(paste0("AnnotationHubMetdata objects can contain",
+                         " only one taxonomy ID or NA")))}
+    
+    
+    
+    #######################################################################
     new("AnnotationHubMetadata",
         AnnotationHubRoot=AnnotationHubRoot,
         BiocVersion=BiocVersion,
@@ -258,8 +277,8 @@ if(!(sourcetype %in% expectedSourceTypes)){
 ## TODO: precompute the list of valid tax Ids
 if (!exists("validTaxIds")) {
      data(validTaxIds, package = "AnnotationHubData")
-     validTaxIds <- c(validTaxIds, NA_integer_)
 }
+validTaxIds <- c(validTaxIds, NA_integer_)
 if(!(taxId %in% validTaxIds)){
       stop(wmsg(paste0("The taxonomy Id you have provided (",taxId,")",
                        " is not in our list of valid Tax Ids.",
