@@ -20,7 +20,7 @@
     
     title <- basename(df$fileurl)
     
-    tempTags <- strsplit(gsub(".owl.gz", "", title),"\\.")
+    tempTags <- strsplit(sub(".owl.gz", "", title),"\\.")
     fileSource <- sapply(tempTags, function(x)  x[1])
     bpLevel <- sapply(tempTags, function(x)  x[2])
     bpLevel[is.na(bpLevel)] <- "bp"
@@ -76,13 +76,13 @@ makeBioPaxImporter <- function(currentMetadata, justRunUnitTest=FALSE) {
         Tags=tags,
         
         MoreArgs=list(
-            DataProvider = "NIH PID",
+            DataProvider = "NIH Pathway Interaction Database",
             Species="Homo sapiens",
             TaxonomyId=9606L,
             Genome= "hg19",
             Maintainer = "Sonali Arora <sarora@fredhutch.org>",            
             Coordinate_1_based = FALSE,
-            RDataClass = "data.frame",   
+            RDataClass = "biopax",   
             DispatchClass = "BioPax",
             Location_Prefix = .nihBaseUrl,
             RDataDateAdded = Sys.time(),
