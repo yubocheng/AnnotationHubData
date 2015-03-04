@@ -88,13 +88,33 @@ setClass("AnnotationHubMetadata",
     sprintf("%s_%s.%s", ret, suffix)
 }
 
-## Helper just b/c we have a LOT of strings that need to be single value or NA
-.checkSingleStringOrNA <- function(value){
+## Helpers for strings that need to be single value or NA
+.checkThatSingleStringOrNA <- function(value){
+    valStr <- deparse(substitute(value))
     if(!isSingleStringOrNA(value)){
-        valStr <- deparse(substitute(value))
         stop(wmsg(paste0("AnnotationHubMetdata objects can contain",
                          " only one ",valStr," or NA")))}
 }
+.checkThatSingleStringOrNAAndNoCommas <- function(value){
+    valStr <- deparse(substitute(value))
+    .checkThatSingleStringOrNA(value)
+    if(grepl(",",value)){
+        stop(wmsg(paste0("The ",valStr," in an AnnotationHubMetdata object",
+                         " must not contain any commas")))}
+}
+
+## Helper for strings that need to be single value (no commas) and can NOT be NA
+.checkThatSingleStringAndNoCommas <- function(value){
+    valStr <- deparse(substitute(value))
+    if(!isSingleString(value)){
+        stop(wmsg(paste0("AnnotationHubMetdata objects can contain",
+                         " only one ",valStr)))}
+    if(grepl(",",value)){
+        stop(wmsg(paste0("The ",valStr," in an AnnotationHubMetdata object",
+                         " must not contain any commas")))}
+}
+
+
 
 ## alternative prefix (so far)
 ## http://hgdownload.cse.ucsc.edu/
@@ -149,13 +169,42 @@ AnnotationHubMetadata <-
     #######################################################################
     ## More checking to see if we have supplied reasonable values for
     ## things (after guessing and before we call 'new')
-    .checkSingleStringOrNA(Species)
-    .checkSingleStringOrNA(Genome)
+
+    ## 1st check for things that need to be a single string with no
+    ## commas (where NAs are allowed)
+    mustBeSingleStringNoCommasOrNA <- c(SourceType, Location_Prefix,
+                                        DispatchClass, RDataClass)
+    lapply(mustBeSingleStringNoCommasOrNA, .checkThatSingleStringAndNoCommas) 
+
+    ## check for things that need to be any single string or NA 
+    mustBeSingleString <- c(Recipe, Genome, Species)
+    lapply(mustBeSingleString, .checkThatSingleStringOrNA)
+
+    ## 
+    .checkThatSingleStringOrNAAndNoCommas(SourceVersion)
+
+    ## Taxonomy Id must be an integer (or NA)
     if(!(isSingleInteger(TaxonomyId) || is.na(TaxonomyId))){
         stop(wmsg(paste0("AnnotationHubMetdata objects can contain",
                          " only one taxonomy ID or NA")))}
-    
-    
+
+    ## SourceUrl can be a vector, but no NAs allowed in there
+    if(any(is.na(SourceUrl))){
+        stop(wmsg(paste0("AnnotationHubMetdata SourceUrl slot cannot",
+                         " contain NAs")))}
+
+    ## SourceSize must be a single number (or NA) (no commas you get for free)
+    if((!isSingleNumberOrNA(SourceSize))){
+        stop(wmsg(paste0("AnnotationHubMetdata SourceSize slot must",
+                         " contain a single number (with no commas)",
+                         " or an NA")))}
+
+    ## sourceLastModifiedDate must be only one thing (no commas is free)
+    if(length(SourceLastModifiedDate) > 1){
+        stop(wmsg(paste0("AnnotationHubMetdata SourceLastModifiedDate slot",
+                         " must contain a single date (with no commas)",
+                         " or an NA")))}
+
     
     #######################################################################
     new("AnnotationHubMetadata",
