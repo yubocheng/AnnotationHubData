@@ -14,7 +14,10 @@
      
     filenames <- sapply(html["//table//tr/td/a/text()"], xmlValue)
     sourceUrl <- sapply(html["//table//tr/td/a/@href"], as.character)
-
+    sourceUrl <- grep(".csv$", sourceUrl, value=TRUE)
+ 
+    if(!identical(basename(sourceUrl), filenames))
+         stop("Inconsistent FileNames and sourceUrls")
     
     if(justRunUnitTest)
 	filenames  <- filenames[1:5]
@@ -69,7 +72,7 @@ makePazarImporter <- function(currentMetadata, justRunUnitTest=FALSE) {
             
             #rdata table
             DispatchClass = "Pazar" ,
-            RDataClass = "data.frame",
+            RDataClass = "GRanges",
             
             Tags = c("Pazar","Transcription Factors"),
             
