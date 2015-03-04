@@ -364,3 +364,65 @@ deleteResources <- function(id) {
 
 ## usage: AnnotationHubData:::.cleanOneTable('resources') ## Doing this only revealed dups in 'tags' table.
 
+
+downloadResource <- function(ahm, downloadIfExists)
+{
+    with(metadata(ahm), {
+        flog(INFO, "in downloadResource(), url is : %s", SourceUrl)
+        ## the [1] assumes that all files in this resource
+        ## have the same protocol:
+        protocol <- tolower(URL_parts(SourceUrl)[,'protocol'])[1]
+        filename <- basename(URL_parts(SourceUrl)[,'path'])
+        dest0 <- file.path(AnnotationHubRoot, RDataPath)
+        destdir <- dirname(dest0)
+        destfile <- file.path(destdir, filename)
+
+        if (file.exists(destfile) && (!downloadIfExists))
+        {
+            flog(INFO, "%s exists, skipping...", destfile)
+            return()
+        }
+
+        for (dir in unique(destdir))
+            if (!file.exists(dir))
+                dir.create(dir, recursive=TRUE)
+        if (protocol == "rtracklayer")
+            return ## recipe will do necessary downloading
+        if (protocol == "ftp")
+        {
+            oldwd <- getwd()
+            on.exit(setwd(oldwd))
+            setwd(destdir)
+            pieces <- detectCores()
+            ## FIXME - this leads to oversubscription if
+            ## parallelCores is not NULL in updateAllResources
+            args <- sprintf("-e 'pget -n %s %s;quit'",
+                pieces, SourceUrl)
+            tryCatch(ret <- system2("lftp", args),
+                error=function(e){
+                    flog(ERROR, "Error downloading %s: %s",
+                        SourceUrl, conditionMessage(e))
+                    })
+            if (!getOption("AnnotationHub_Use_Disk", FALSE))
+            {
+                res <- upload_to_S3(destfile, RDataPath)
+                # TODO - if download is successful, delete local file?
+            }
+        } else if (protocol %in% c("http", "https")){
+            ## FIXME be more sophisticated in deciding how to download
+            ## (e.g. use parallel download for bigger files)
+            tryCatch(download.file(SourceUrl, destfile, quiet=TRUE),
+                error=function(e){
+                    flog(ERROR, "Error downloading %s: %s",
+                        SourceUrl, conditionMessage(e))
+                    })
+            # if (!getOption("AnnotationHub_Use_Disk", FALSE))
+            # {
+            #     fileToUpload <- file.path(AnnotationHubRoot, RDataPath)
+            #     res <- upload_to_S3(fileToUpload, sub("^/", "", RDataPath))
+            #     # TODO - if download is successful, delete local file?
+            # }
+        }
+    })
+}
+
