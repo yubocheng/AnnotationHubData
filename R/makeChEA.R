@@ -14,11 +14,8 @@ makeChEAImporter <- function(currentMetadata, justRunUnitTest=FALSE) {
     sourceLastModifiedDate <- rsrc$date
     
     ## resources table
-    description <- .expandLine("ChEA database file -  Each line of the 
-        background data file contains 3 entries. The first is a transcription
-        factor and pubmed id, the second a reported transcription factor 
-        target, third th pubmed id from the publication the interaction was 
-        reported.")
+    description <- .expandLine("ChEA background file, containing  
+        transcription factor data to run ChEA") 
     
     Map(AnnotationHubMetadata,
         SourceSize = sourceSize,
@@ -46,7 +43,7 @@ makeChEAImporter <- function(currentMetadata, justRunUnitTest=FALSE) {
             RDataDateAdded = Sys.time(),
                         
             #rdata table
-            DispatchClass = "zip" ,
+            DispatchClass = "ChEA",
             RDataClass = "data.frame",
             
             Tags = c("ChEA","Transcription Factors"),
