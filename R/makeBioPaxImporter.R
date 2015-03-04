@@ -86,8 +86,20 @@ makeBioPaxImporter <- function(currentMetadata, justRunUnitTest=FALSE) {
             DispatchClass = "BioPax",
             Location_Prefix = .nihBaseUrl,
             RDataDateAdded = Sys.time(),
-            Recipe = NA_character_)
+            Recipe = "AnnotationHubData:::makeBioPaxRdata")
     )
+}
+
+## recipe
+makeBioPaxRdata <- function(ahm)
+{
+    ## The tbi file exists online, just download it.
+    faIn <- normalizePath(inputFiles(ahm))
+    faOut <- normalizePath(outputFile(ahm))
+    
+    rb <- rBiopaxParser::readBiopax(faInr)
+    save(rb, file=faOut)
+    faOut
 }
 
 makeAnnotationHubResource("BioPaxImportPreparer", makeBioPaxImporter)
