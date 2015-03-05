@@ -145,6 +145,15 @@ makeEncodeImporter <- function(currentMetadata, justRunUnitTest=FALSE) {
                bedRnaElements="BED"), 
         USE.NAMES =FALSE)
     
+    dispatchclass <- sapply(rsrc$type, function(x)
+       switch(x,
+               broadPeak="EpigenomeRoadmapFile",
+               narrowPeak="EpigenomeRoadmapFile",
+               gtf="GTFFile",
+               bedRnaElements="BEDFile"),
+       USE.NAMES =FALSE)
+
+    
     ## resources table
     title <- basename(rsrc$fileurl)
     description <- rsrc$description
@@ -166,7 +175,8 @@ makeEncodeImporter <- function(currentMetadata, justRunUnitTest=FALSE) {
         Title=title, 
         
         RDataPath=rdatapath,
-               
+        DispatchClass = dispatchclass,  
+      
         Tags=tags,
         
         MoreArgs=list(
@@ -183,7 +193,6 @@ makeEncodeImporter <- function(currentMetadata, justRunUnitTest=FALSE) {
             ##PreparerClass = "EncodeImportPreparer",
             
             #rdata table
-            DispatchClass= "importBed",
             RDataClass = "GRanges",
             
             Recipe = NA_character_))
