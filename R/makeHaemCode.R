@@ -1,6 +1,6 @@
 .haemcodeBaseUrl <- "http://haemcode.stemcells.cam.ac.uk/"
 
-.getHaemCodeFileNames <- function() {
+.getHaemCodeFileNames <- function(justRunUnitTest) {
     filename <- system.file("extdata", "haemCodeFileList.txt", 
                             package="AnnotationHubData")
     stopifnot(file.exists(filename))
@@ -26,21 +26,22 @@
     fileurls <- mapply(function(x, y){
         paste0(x, "/", file.list,".",  y)
     }, urls, file.types, USE.NAMES=FALSE, SIMPLIFY=FALSE)
+    fileurls <- unlist(fileurls) 
     
-    list(files= unlist(fileurls), metadata = metadata)
+    if(justRunUnitTest) {
+       fileurls <- fileurls[c(1,2,326,327, 638,639)]
+       metadata <- metadata[c(1,2,326,327, 638,639)]
+    }
+
+    list(files= fileurls, metadata = metadata)
 }
 
 .getHaemCode <- function(justRunUnitTest=FALSE) {
-    result <- .getHaemCodeFileNames() 
+    result <- .getHaemCodeFileNames(justRunUnitTest) 
     
     haemfiles <- result$files
     tags <- result$metadata
     
-    if(justRunUnitTest) {
-        haemfiles <- head(haemfiles, 5)
-        tags <- head(tags,5)
-    }
- 
     if(length(haemfiles)==0) 
         stop(" File List not found! ")
     
@@ -54,19 +55,15 @@
     
     description <- paste0(fileType, " file from Haemcode")
         
-    rdataclass <- sapply(type, function(x) 
-        switch(x, bw="GRanges", bed="GRanges", csv="data.frame"), 
-        USE.NAMES =FALSE)
-    
     dispatchclass <- sapply(type, function(x) 
-        switch(x, bw="importBigWig", bed="importBed", csv="data.frame"), 
+        switch(x, bw="BigWigFile", bed="BEDFile", csv="CSVtoGranges"), 
         USE.NAMES =FALSE)
     
     sourcetype <- sapply(type, function(x) 
         switch(x, bw="BigWig", bed="BED", csv="CSV"), 
         USE.NAMES =FALSE)
     
-    cbind(df, title,  description, fileType, tags, rdataclass, dispatchclass,
+    cbind(df, title,  description, fileType, tags, dispatchclass,
           sourcetype, stringsAsFactors=FALSE)
     
 }
@@ -89,7 +86,6 @@ makeHaemCodeImporter <- function(currentMetadata, justRunUnitTest=FALSE) {
     # preparerclss are same for all files
     
     rdatapath <- sub(.haemcodeBaseUrl, "", sourceUrls)
-    rdataclass <- rsrc$rdataclass   
     dispatchclass <- rsrc$dispatchclass
     
     tags <- strsplit(rsrc$tags, ", ")
@@ -106,7 +102,6 @@ makeHaemCodeImporter <- function(currentMetadata, justRunUnitTest=FALSE) {
         Title=title, 
                 
         RDataPath=rdatapath,
-        RDataClass = rdataclass,
         DispatchClass = dispatchclass,
         
         Tags=tags,
@@ -118,10 +113,9 @@ makeHaemCodeImporter <- function(currentMetadata, justRunUnitTest=FALSE) {
             Genome= "mm10",
             Maintainer = "Sonali Arora <sarora@fredhutch.org>",            
             Coordinate_1_based = FALSE,
-           ## status_id =2L, ## internal ID 
             Location_Prefix = .haemcodeBaseUrl,
             RDataDateAdded = Sys.time(),
-           # PreparerClass = "HaemCodeImportPreparer", ## Automatic  ;)
+            RDataClass ="GRanges",
             Recipe = NA_character_)
             )
 }
