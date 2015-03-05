@@ -111,12 +111,16 @@ makedbSNPVCF <- function(currentMetadata, justRunUnitTest=FALSE) {
 ncbi_dbSNPVCFFile <- function(ahm)
 {
     ## The tbi file exists online, just download it.
-    faIn <- normalizePath(inputFiles(ahm))
-    faOut <- normalizePath(outputFile(ahm))
+
+    faIn <- normalizePath(inputFiles(ahm))  # this is file on ftp site
+    faOut1 <- normalizePath(outputFile(ahm))[1] # this is vcf.gz file on localDir
+    faOut2 <- outputFile(ahm)[2]  # This is the vcf.gz.tbi file on localDir
     
-    tbiFile <- paste0(metadata(ahm)$Location_Prefix, metadata(ahm)$sourceUrl, ".tbi") 
-    tbi <- download.file(tbiFile, faOut)
-    faOut
+    if(!file.exists(faOut2)) {
+        tbiFile <- paste0(metadata(ahm)$Location_Prefix, metadata(ahm)$RDataPath[2]) 
+        tbi <- download.file(tbiFile, faOut2)
+    }
+    faOut2
 }
 
 makeAnnotationHubResource("dbSNPVCFPreparer", makedbSNPVCF, quiet=TRUE)
