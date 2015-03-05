@@ -309,7 +309,8 @@ expectedSourceTypes <- c("BED",
                          "Inparanoid",
                          "NCBI/blast2GO",
                          "GRASP",
-                         "Zip")
+                         "Zip",
+                         "RData" )
 if(!(sourcetype %in% expectedSourceTypes)){
       stop(wmsg(paste0("The source type you have provided (",sourcetype,")",
                        " looks unusual.  We were expecting one of these",
@@ -489,9 +490,13 @@ setReplaceMethod("metadata", c("AnnotationHubMetadata", "list"),
 #------------------------------------------------------------------------------
 setMethod("run", "AnnotationHubMetadata",
     function(object, recipeFunction, ...) {
-       if (missing(recipeFunction))
-           recipeFunction <- get(recipeName(object),
-                                 envir=getNamespace("AnnotationHubData"))
+       if (missing(recipeFunction)) {
+         temp <- strsplit(recipeName(object), ":::")[[1]]  
+         functionName <- temp[2]
+         pkgName <- temp[1]
+         recipeFunction <- get(functionName,
+              envir=getNamespace(pkgName))
+       }
        stopifnot(is.function(recipeFunction))
        recipeFunction(object) ## disregard return value
        postProcessMetadata(object)
@@ -509,9 +514,9 @@ setMethod("inputFiles", "AnnotationHubMetadata",
     function(object, useRoot=TRUE) {
         if(useRoot==TRUE){
             res <- file.path(metadata(object)$AnnotationHubRoot,
-                             metadata(object)$SourceFile)            
+                             metadata(object)$RDataPath)            
         }else{
-            res <- metadata(object)$SourceFile
+            res <- metadata(object)$SourceUrl
         }
         res
     })
@@ -686,15 +691,15 @@ constructMetadataFromJsonPath <-
 postProcessMetadata <- function(ahm)
 {
 
-    derived <- file.path(metadata(ahm)$AnnotationHubRoot,
-        metadata(ahm)$RDataPath)
-    metadata(ahm)$RDataSize <- as.integer(file.info(derived)$size)
-    metadata(ahm)$RDataLastModifiedDate <- unname(file.info(derived)$mtime)
-    json <- toJson(ahm)
-    resourceDir <- dirname(metadata(ahm)$SourceFile[1])
-    outfile <- file.path(metadata(ahm)$AnnotationHubRoot,
-        resourceDir, .derivedFileName(metadata(ahm)$SourceFile, "json"))
-    cat(json, "\n", file=outfile)
+    #derived <- file.path(metadata(ahm)$AnnotationHubRoot,
+    #    metadata(ahm)$RDataPath)
+    #metadata(ahm)$RDataSize <- as.integer(file.info(derived)$size)
+    #metadata(ahm)$RDataLastModifiedDate <- unname(file.info(derived)$mtime)
+    #json <- toJson(ahm)
+    #resourceDir <- dirname(metadata(ahm)$SourceUrl[1])
+    #outfile <- file.path(metadata(ahm)$AnnotationHubRoot,
+    #    resourceDir, .derivedFileName(metadata(ahm)$SourceUrl, "json"))
+    #cat(json, "\n", file=outfile)
     ahm
 }
 
