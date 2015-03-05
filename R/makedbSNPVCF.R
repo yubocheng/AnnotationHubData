@@ -59,7 +59,7 @@ makedbSNPVCF <- function(currentMetadata, justRunUnitTest=FALSE) {
     sourceLastModifiedDate <- rsrc$date
     
     ## resources table
-    title <- basename(rsrc$fileurl) 
+    title <- rsrc$title
     description <- rsrc$description
     
     ## rdatapath should have 2 entries -for the VCF and its TabixFile
