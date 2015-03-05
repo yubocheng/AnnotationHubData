@@ -8,8 +8,10 @@
 .getRefNetFileURIs <- function() { 
     # everything is embedded in the second line of xml
     .refNetbase.url  <- paste0(.amazonBaseUrl, "refnet/")
-    filenames <- c("gerstein-2012.tsv" ,"hypoxiaSignaling-2006.tsv", 
-        "stamlabTFs-2012.tsv", "recon202.tsv" )      
+    filenames <- c("gerstein-2012.tsv_0.0.1.RData" ,
+                "hypoxiaSignaling-2006.tsv_0.0.1.RData", 
+                "stamlabTFs-2012.tsv_0.0.1.RData", 
+                "recon202.tsv_0.0.1.RData")      
     paste0(.refNetbase.url, filenames)
 } 
 
@@ -19,7 +21,7 @@
     df <- .httrFileInfo(files, verbose=FALSE)
     title <- basename(files)
     
-    filename.stem <- sub(".tsv", "", title)
+    filename.stem <- sub(".tsv_0.0.1.RData", "", title)
     description <- sprintf("Interactions from %s", filename.stem)
     cbind(df, title,  description, stringsAsFactors=FALSE)
 }
@@ -57,7 +59,7 @@ makeRefNetImporter <- function(currentMetadata, justRunUnitTest=FALSE) {
         
         MoreArgs=list(
             # input sources 
-            SourceType = "CSV",
+            SourceType = "RData",
             
             # resources
             Species = "Homo sapiens", 
@@ -75,8 +77,7 @@ makeRefNetImporter <- function(currentMetadata, justRunUnitTest=FALSE) {
             RDataClass = "data.frame",
             
             Tags = c("refnet", "interactions"),
-            
-            Recipe = NA_character_ ))
+            Recipe= NA_character_))
 }
 
 makeAnnotationHubResource("RefNetImportPreparer", makeRefNetImporter)
