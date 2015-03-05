@@ -51,8 +51,9 @@ getImportPreparerClasses <- function()
     provider <- metadata(ahm)$DataProvider
     ## Make sure we always have a local dir for saving too (based on
     ## contents of the outputFile(ahm)
-    if(!file.exists(dirname(outputFile(ahm)))){
-        dir.create(dirname(outputFile(ahm)), recursive=TRUE)
+    localDir <- unique(dirname(outputFile(ahm)))
+    if(!file.exists(localDir)) {
+        dir.create(localDir, recursive=TRUE)
     }
     
     ## TODO: better way needed for deciding this:
