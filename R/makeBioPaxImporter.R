@@ -13,11 +13,11 @@
     
     urls <- setNames(paste0(baseUrl, paths), names(paths))
      
-    if(justRunUnitTest)
-	urls <- urls[1]
-    
     df <- do.call(rbind, Map(.getBioPax, urls))
     
+    if(justRunUnitTest)
+        df <- df[1:2, ]  ## just first 2 files from first url.
+       
     title <- basename(df$fileurl)
     
     tempTags <- strsplit(sub(".owl.gz", "", title),"\\.")
@@ -57,7 +57,8 @@ makeBioPaxImporter <- function(currentMetadata, justRunUnitTest=FALSE) {
     description <- rsrc$description
     
     rdatapath <- sub(.nihBaseUrl, "", sourceUrls)
-        
+    rdatapath <- paste0(rdatapath, ".Rda")
+
     tags <- strsplit(rsrc$tags, ", ")
     
     Map(AnnotationHubMetadata,
@@ -87,18 +88,31 @@ makeBioPaxImporter <- function(currentMetadata, justRunUnitTest=FALSE) {
             Location_Prefix = .nihBaseUrl,
             RDataDateAdded = Sys.time(),
             Recipe = "AnnotationHubData:::makeBioPaxRdata")
+	    #Recipe =c("makeBioPaxRdata", package="AnnotationHubData"))
     )
 }
 
 ## recipe
 makeBioPaxRdata <- function(ahm)
 {
-    ## The tbi file exists online, just download it.
-    faIn <- normalizePath(inputFiles(ahm))
-    faOut <- normalizePath(outputFile(ahm))
+    ahmroot <- metadata(ahm)$AnnotationHubRoot  # path on localDir
     
-    rb <- rBiopaxParser::readBiopax(faInr)
-    save(rb, file=faOut)
+    ## contains truncated path to .Rda file on localDir
+    rdatapath <- metadata(ahm)$RDataPath # contains truncated path to .Rda file on localDir
+    
+    ## path to original Biopax file on the web
+    originalFile <- basename(metadata(ahm)$SourceUrl)  
+    
+    ## contains truncated path to original file on localDir
+    originalPath <- gsub(basename(rdatapath), originalFile, rdatapath)   
+  
+    faIn <- file.path(ahmroot, originalPath)
+    faOut <- file.path(ahmroot, rdatapath)
+   
+    if(!file.exists(faOut)) {   
+        rb <- rBiopaxParser::readBiopax(faIn)
+        save(rb, file=faOut)
+    } 
     faOut
 }
 
