@@ -1,4 +1,5 @@
 .nihBaseUrl <- "ftp://ftp1.nci.nih.gov/"
+.amazonBaseUrl <- "http://s3.amazonaws.com/annotationhub/"
 
 .getBioPax <- function(url) {
     files <- .ftpFileInfo(url, filename="owl.gz", tag="hg19")
@@ -6,8 +7,8 @@
 
 .getBioPaxFilesNIH <- function(justRunUnitTest=FALSE) {
     paths <- c(bioPax="BioPAX/", 
-               bioPaxLevel2="BioPAX_Level_2/",
-               biocPaxLevel3="BioPAX_Level_3/")
+               bioPaxLevel2="BioPAX_Level_2/")
+               #biocPaxLevel3="BioPAX_Level_3/")
     
     baseUrl <- paste0(.nihBaseUrl, "pub/PID/")
     
@@ -15,6 +16,9 @@
      
     df <- do.call(rbind, Map(.getBioPax, urls))
     
+    dropbp3 <- grep("bp3", basename(df$fileurl))
+    df <- df[-dropbp3,]
+
     if(justRunUnitTest)
         df <- df[1:2, ]  ## just first 2 files from first url.
        
@@ -85,7 +89,7 @@ makeBioPaxImporter <- function(currentMetadata, justRunUnitTest=FALSE) {
             Coordinate_1_based = FALSE,
             RDataClass = "biopax",   
             DispatchClass = "BioPax",
-            Location_Prefix = .nihBaseUrl,
+            Location_Prefix = .amazonBaseUrl,
             RDataDateAdded = Sys.time(),
             Recipe = "AnnotationHubData:::makeBioPaxRdata")
 	    #Recipe =c("makeBioPaxRdata", package="AnnotationHubData"))
