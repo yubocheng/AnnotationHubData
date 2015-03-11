@@ -32,7 +32,7 @@ makeRefNetImporter <- function(currentMetadata, justRunUnitTest=FALSE) {
     
     ## input_sources table
     sourceSize <- as.numeric(rsrc$size)
-    sourceUrls <- rsrc$fileurl
+    sourceUrls <- gsub("_0.0.1.RData", "", rsrc$fileurl)
     sourceVersion <- gsub(" ", "_", rsrc$date) 
     sourceLastModifiedDate <- rsrc$date
     
@@ -64,7 +64,7 @@ makeRefNetImporter <- function(currentMetadata, justRunUnitTest=FALSE) {
             # resources
             Species = "Homo sapiens", 
             TaxonomyId = 9606L,
-            Genome = "hg19",
+            Genome = "RefNet Genome",
             DataProvider = "RefNet",
             Maintainer = "Sonali Arora <sarora@fredhutch.org>",         
             Coordinate_1_based = FALSE,

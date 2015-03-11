@@ -57,13 +57,11 @@
         
     if(length(fls) != 0) {
         if(isSubDir){
-            tags <- character(0)
-            sourcemd5sum <- character(0)
             
             result <- .getTags(url)
             tags <- sapply(result, "[[", "tags")
-            sourcemd5sum <- sapply(result, "[[", "md5sum")
-            sourceVersion <- sapply(result, "[[", "sourceVersion") 
+            sourcemd5sum <- vapply(result, "[[",character(1),  "md5sum")
+            sourceVersion <- vapply(result, "[[", "", "sourceVersion") 
             
             subst <- switch( basename(url),
                 wgEncodeAwgTfbsUniform="wgEncodeAwgTfbs",
@@ -147,10 +145,10 @@ makeEncodeImporter <- function(currentMetadata, justRunUnitTest=FALSE) {
     
     dispatchclass <- sapply(rsrc$type, function(x)
        switch(x,
-               broadPeak="EpigenomeRoadmapFile",
-               narrowPeak="EpigenomeRoadmapFile",
+               broadPeak="UCSCBroadPeak",
+               narrowPeak="UCSCNarrowPeak",
                gtf="GTFFile",
-               bedRnaElements="BEDFile"),
+               bedRnaElements="UCSCBEDRnaElements"),
        USE.NAMES =FALSE)
 
     
