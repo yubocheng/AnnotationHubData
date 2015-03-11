@@ -2,7 +2,7 @@
 
 
 ## helper to make metadata list from the data
-.inparanoidMetadataFromUrl <- function(baseUrl) {
+.inparanoidMetadataFromUrl <- function(baseUrl, justRunUnitTest) {
     ## get all the subDirs
     subDirs <- AnnotationForge:::.getSubDirs(baseUrl)
     subDirs <- subDirs[!(subDirs %in% c('stderr/'))]
@@ -27,12 +27,16 @@
     sourceUrl <- paste0(baseUrl,"/", species)
     
     rDataPath <- paste0("inparanoid8/Orthologs/",title)
-    ## return as a list
-    list(##annotationHubRoot = root,
-         title=title, species = fullSpecies,
+        
+    df <- data.frame(title=title, species = fullSpecies,
          taxonomyId = taxonomyId, genome = genome, sourceUrl=sourceUrl,
          sourceVersion = sourceVersion,
-         description=description, rDataPath=rDataPath)
+         description=description, rDataPath=rDataPath, stringsAsFactors=FALSE)
+    rownames(df) <- NULL
+    
+    if(justRunUnitTest)
+        df <- df[1:2, ]    
+    df
 }
 
 
@@ -42,7 +46,7 @@
 makeinparanoid8ToAHMs <- function(currentMetadata, justRunUnitTest) {
     baseUrl <- 'http://inparanoid.sbc.su.se/download/current/Orthologs_other_formats'
     ## Then make the metadata for these
-    meta <- .inparanoidMetadataFromUrl(baseUrl)
+    meta <- .inparanoidMetadataFromUrl(baseUrl, justRunUnitTest)
     ## then make AnnotationHubMetadata objects.
     Map(AnnotationHubMetadata,
         ## AnnotationHubRoot=meta$annotationHubRoot,
