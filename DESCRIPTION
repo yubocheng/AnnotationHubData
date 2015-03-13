@@ -1,7 +1,7 @@
 Package: AnnotationHubData
 Type: Package
 Title: Transform public data resources into Bioconductor Data Structures
-Version: 0.0.187
+Version: 0.0.188
 Authors@R:
     c(person("Martin", "Morgan", role="ctb"),
       person("Marc", "Carlson", role="ctb"),
@@ -49,7 +49,6 @@ VignetteBuilder: knitr
 Collate:
     Message-class.R
     ImportPreparer-class.R
-    test_AnnotationHubData_package.R
     makeAnnotationHubResource.R
     EnsemblImportPreparer-utils.R
     EnsemblFastaImportPreparer-class.R
@@ -62,14 +61,8 @@ Collate:
     extendedBedWithAuxiliaryTableToGRangesRecipe.R
     trackToGRangesRecipe.R
     trackWithAuxiliaryTableToGRangesRecipe.R
-    fakedata.R
-    importBedFiles.R
     importFastaFiles.R
-    genericRtracklayer.R
     UCSCTrackUpdateChecker.R
-    nullRecipe.R
-    testutils.R
-    tsvToRefnet.R
     utils.R
     makeBioPaxImporter.R
     makeChEA.R
