@@ -121,23 +121,11 @@
 
 ## currently not in use - used to parse a http page and get the file size 
 ## and file's date last modified. 
-.get1Resource <- function(url, fileName, genome, verbose=FALSE) {
+.fileInfoRCurl <- function(url, verbose=FALSE) {
     require(XML)
     tryCatch({
-        if (verbose)
-            message(basename(dirname(url)))
-        
-        html <- htmlParse(url)
-        fls <- sapply(html["//pre[2]/a/text()"], xmlValue)
-        if(length(fls)==0)
-            fls <- sapply(html["//pre[1]/a/text()"], xmlValue)
-        
-        ## extract the file name
-        url <- sprintf("%s/%s", url, fls)
-        keep <- grepl(paste0(fileName, "$"), fls)
-        url <- url[keep]
-        
         result <- lapply(url, function(f) {
+            message(basename(f))
             h <- basicTextGatherer()
             ok <- curlPerform(url=f,
                               nobody=TRUE, headerfunction=h$update)
@@ -152,7 +140,7 @@
         data.frame(url, date, size, stringsAsFactors=FALSE)
     }, error=function(err) {
         warning(basename(dirname(url)), ": ", conditionMessage(err))
-        data.frame(url=character(), version=character(), 
+        data.frame(url=character(), date=character(), size=character(),
                    stringsAsFactors=FALSE)
     })
 }
