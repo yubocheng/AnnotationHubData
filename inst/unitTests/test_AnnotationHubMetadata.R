@@ -270,3 +270,25 @@ test_ChEAPreparer_recipe <- function() {
     checkTrue(class(ahms[[1]])=="AnnotationHubMetadata")
 }
 
+
+test_Inparanoid8ImportPreparer_recipe <- function() {
+    .recipeSetup()
+    suppresWarnings({
+    ahms = updateResources(ahroot, BiocVersion,
+                           preparerClasses = "Inparanoid8ImportPreparer",
+                           insert = FALSE, metadataOnly=TRUE,
+                           justRunUnitTest=TRUE)
+    })
+    checkTrue(class(ahms[[1]])=="AnnotationHubMetadata")
+}
+
+test_NCBIImportPreparer_recipe <- function() {
+    .recipeSetup()
+    ahms = updateResources(ahroot, BiocVersion,
+                               preparerClasses = "NCBIImportPreparer",
+                               insert = FALSE, metadataOnly=TRUE,
+                               justRunUnitTest=TRUE)
+    checkTrue(class(ahms[[1]])=="AnnotationHubMetadata")
+}
+
+
