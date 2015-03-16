@@ -4,10 +4,13 @@
 
 
 ## helper to make metadata list from the data
-.NCBIMetadataFromUrl <- function(baseUrl) {    
+.NCBIMetadataFromUrl <- function(baseUrl, justRunUnitTest) {    
     ## These are the IDs (prescreened) for us to process
     load(system.file('extdata','viableIDs.rda', package='AnnotationForge'))
     ids <- names(results)[results]
+
+    if(justRunUnitTest)
+	ids <- head(ids)
     
     ## old school table of tax Ids
     load(system.file('extdata','taxNames.rda', package='AnnotationForge'))
@@ -56,16 +59,12 @@
 #     sourceUrl <- rep(baseUrl,length(fullSpecies))
     sourceUrls <- c(baseUrl,"http://www.blast2go.de/")
     sourceUrl <- rep(list(sourceUrls), length(fullSpecies))
-#     sourceFile <- rep("gene_info.gz",length(fullSpecies))
-    sourceFiles <- c("gene_info.gz", "gene2go.gz", "gene2accession.gz", 
-                     "gene2pubmed.gz", "gene2refseq.gz", "gene2unigene") 
-    sourceFile <- rep(list(sourceFiles), length(fullSpecies))
     rDataPath <- paste0("ncbi/",title)
     ## return as a list
     list(##annotationHubRoot = root,
         title=title, species = oriSpecies,
         taxonomyId = taxonomyId, genome = genome, sourceUrl=sourceUrl,
-        sourceFile = sourceFile, sourceVersion = sourceVersion,
+        sourceVersion = sourceVersion,
         description=description, rDataPath=rDataPath)
 }
 
@@ -73,16 +72,15 @@
 ## STEP 1: make function to process metadata into AHMs
 ## This function will return the AHMs and takes no args.
 ## It also must specify a recipe function.
-makeNCBIToAHMs <- function(currentMetadata){
+makeNCBIToAHMs <- function(currentMetadata, justRunUnitTest=FALSE){
     baseUrl <- 'ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/'
     ## Then make the metadata for these
-    meta <- .NCBIMetadataFromUrl(baseUrl)
+    meta <- .NCBIMetadataFromUrl(baseUrl, justRunUnitTest)
     ## then make AnnotationHubMetadata objects.
     Map(AnnotationHubMetadata,
         ## AnnotationHubRoot=meta$annotationHubRoot,
         Description=meta$description,
         Genome=meta$genome,
-        SourceFile=meta$sourceFile, 
         SourceUrl=meta$sourceUrl,
         SourceVersion=meta$sourceVersion,
         Species=meta$species,
@@ -93,10 +91,11 @@ makeNCBIToAHMs <- function(currentMetadata){
             Coordinate_1_based = TRUE, ## TRUE unless it "needs" to be FALSE
             DataProvider = baseUrl,
             Maintainer = "Marc Carlson <mcarlson@fhcrc.org>",
-            RDataClass = "SQLiteFile",
+            RDataClass = "OrgDb",
+            DispatchClass = "SQLiteFile",
+            SourceType="NCBI/blast2GO",
             RDataDateAdded = Sys.time(),
-            RDataVersion = "3.0.0",
-            Recipe = c("NCBIToOrgDbsRecipe", package="AnnotationHubData"),
+            Recipe = "AnnotationHUbData:::NCBIToOrgDbsRecipe",
             Tags = c("NCBI", "Gene", "Annotation")))
 }
 
@@ -117,7 +116,6 @@ NCBIToOrgDbsRecipe <- function(ahm){
     dbname <- makeOrgPackageFromNCBI(tax_id=ahm@TaxonomyId,
                                      genus=genus,
                                      species=species,
-                                     version=as.character(ahm@RDataVersion),
                                      author=ahm@Maintainer,
                                      maintainer=ahm@Maintainer,
                                      databaseOnly=TRUE,

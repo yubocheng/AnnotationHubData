@@ -121,7 +121,8 @@ setClass("AnnotationHubMetadata",
 
 AnnotationHubMetadata <-
     function(AnnotationHubRoot,  SourceUrl, SourceType, SourceVersion,
-        SourceLastModifiedDate, SourceMd5=NA_character_, SourceSize,
+        SourceLastModifiedDate= as.POSIXct(NA_character_), 
+        SourceMd5=NA_character_, SourceSize=NA_real_,
         DataProvider, Title, Description,
         Species, TaxonomyId, Genome, Tags, Recipe,
         RDataClass, RDataDateAdded, RDataPath,
@@ -131,19 +132,19 @@ AnnotationHubMetadata <-
 {
     #######################################################################
     ## Try to derive some of this stuff 
-    if (missing(SourceLastModifiedDate) & missing(SourceSize)) {
-        res <- .httrFileInfo(SourceUrl)
-        size <- res$size
-	date <- res$date
-        if(!all(is.na(date)))
-            SourceLastModifiedDate <- as.POSIXct(date)
-	else
-	    SourceLastModifiedDate <- as.POSIXct(NA_character_) 
-        if(!all(is.na(size)))
-            SourceSize <- as.double(size)
-	else
-            SourceSize <- NA_real_
-    }
+    #if (missing(SourceLastModifiedDate) & missing(SourceSize)) {
+    #    res <- .httrFileInfo(SourceUrl)
+    #    size <- res$size
+    #	date <- res$date
+    #    if(!all(is.na(date)))
+    #        SourceLastModifiedDate <- as.POSIXct(date)
+    #	else
+    #	    SourceLastModifiedDate <- as.POSIXct(NA_character_) 
+    #    if(!all(is.na(size)))
+    #        SourceSize <- as.double(size)
+    #	else
+    #        SourceSize <- NA_real_
+    #}
     if (missing(TaxonomyId))
     {
         if (!is.na(Species) &&
@@ -194,16 +195,16 @@ AnnotationHubMetadata <-
                          " contain NAs")))}
 
     ## SourceSize must be a single number (or NA) (no commas you get for free)
-    if((!isSingleNumberOrNA(SourceSize))){
-        stop(wmsg(paste0("AnnotationHubMetdata SourceSize slot must",
-                         " contain a single number (with no commas)",
-                         " or an NA")))}
+    #if((!isSingleNumberOrNA(SourceSize))){
+    #    stop(wmsg(paste0("AnnotationHubMetdata SourceSize slot must",
+    #                     " contain a single number (with no commas)",
+    #                     " or an NA")))}
 
     ## sourceLastModifiedDate must be only one thing (no commas is free)
-    if(length(SourceLastModifiedDate) > 1){
-        stop(wmsg(paste0("AnnotationHubMetdata SourceLastModifiedDate slot",
-                         " must contain a single date (with no commas)",
-                         " or an NA")))}
+    #if(length(SourceLastModifiedDate) > 1){
+    #    stop(wmsg(paste0("AnnotationHubMetdata SourceLastModifiedDate slot",
+    #                     " must contain a single date (with no commas)",
+    #                     " or an NA")))}
 
     
     #######################################################################
