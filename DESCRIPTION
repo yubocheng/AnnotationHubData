@@ -1,7 +1,7 @@
 Package: AnnotationHubData
 Type: Package
 Title: Transform public data resources into Bioconductor Data Structures
-Version: 0.0.199
+Version: 0.0.200
 Authors@R:
     c(person("Martin", "Morgan", role="ctb"),
       person("Marc", "Carlson", role="ctb"),
@@ -50,11 +50,9 @@ Collate:
     Message-class.R
     ImportPreparer-class.R
     makeAnnotationHubResource.R
-    EnsemblGtfImportPreparer-class.R
     UCSCTrackImport-utils.R
     UCSCTrackImportPreparer-class.R
     AnnotationHubMetadata-class.R
-    ensemblGtfToGRanges.R
     trackToGRangesRecipe.R
     trackWithAuxiliaryTableToGRangesRecipe.R
     importFastaFiles.R
