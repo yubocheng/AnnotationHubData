@@ -4,52 +4,68 @@
 
 ## Helper to retrieve GTF file urls from Ensembl
 .ensemblGtfSourceUrls <-
-    function(baseUrl)
+    function(baseUrl, justRunUnitTest)
 {
-    want <- .ensemblDirUrl(baseUrl, "gtf/")
+    regex <- ".*release-(73|74|75|76|77|78)"
+    want <- .ensemblDirUrl(baseUrl, "gtf/", regex)
+    
+    if(justRunUnitTest)
+        want <- want[1]
+    
     ## files in release
-    unlist(lapply(want, function(url) {
+    urls <- unlist(lapply(want, function(url) {
         listing <- getURL(url=url, followlocation=TRUE, customrequest="LIST -R")
         listing<- strsplit(listing, "\n")[[1]]
         subdir <- sub(".* ", "", listing[grep("^drwx", listing)])
-        gtfGz <- sub(".* ", "", listing[grep(".*gtf.gz$", listing)])
-        sprintf("%s%s/%s", url, subdir, gtfGz)
+        #gtfGz <- sub(".* ", "", listing[grep(".*gtf.gz$", listing)])
+        #sprintf("%s%s/%s", url, subdir, gtfGz)
+        paste0(url, subdir, "/")
     }), use.names=FALSE)
+
+    if(justRunUnitTest)
+        urls <- urls[1:5] 
+ 
+    df <- do.call(rbind, 
+                Map(AnnotationHubData:::.ftpFileInfo, urls, filename="gtf.gz", tag=basename(urls)))   
+   rownames(df) <- NULL
+   df
 }
 
 ## STEP 1: make function to process metadata into AHMs
 ## This function will return the AHMs and takes no args.
 ## It also must specify a recipe function.
-makeEnsemblGTFsToAHMs <- function(currentMetadata){
+makeEnsemblGTFsToAHMs <- function(currentMetadata, justRunUnitTest){
     ## get possible sources
-    sourceUrls <- .ensemblGtfSourceUrls(.ensemblBaseUrl)
-
-    ## pre-filter known
-    knownUrls <- sapply(currentMetadata, function(elt) {
-        metadata(elt)$SourceUrl
-    })
-    sourceUrls <- sourceUrls[!(sourceUrls %in% knownUrls)]
-    if(length(sourceUrls)==0){return(list())} ## nothing to update
-
-    ## otherwise assemble AHMs from these
-    sourceFile <- .ensemblSourcePathFromUrl(.ensemblBaseUrl, sourceUrls)
+    df <- .ensemblGtfSourceUrls(.ensemblBaseUrl, justRunUnitTest)
+    sourceUrls <- df$fileurl
+    
+    ## construct datapath for the saved GRanges
+    rd <- gsub(.ensemblBaseUrl, "", sourceUrls)
+    rdata <- sub(".gz$", ".RData", rd)
+    rdata <- paste0("ensembl/", rdata)
+    
     meta <- .ensemblMetadataFromUrl(sourceUrls)
-    rdata <- sub(".gz$", ".RData", sourceFile)
     description <- paste("Gene Annotation for", meta$species)
 
     Map(AnnotationHubMetadata,
         Description=description, Genome=meta$genome,
-        SourceFile=sourceFile, SourceUrl=sourceUrls,
-        SourceVersion=meta$sourceVersion, Species=meta$species,
+        SourceUrl=sourceUrls,
+	SourceSize=as.numeric(df$size),
+	SourceLastModifiedDate=df$date,
+        SourceVersion=meta$sourceVersion, 
+        Species=meta$species,
+        RDataPath=rdata,
         TaxonomyId=meta$taxonomyId, Title=meta$title,
         MoreArgs=list(
           Coordinate_1_based = TRUE,
-          DataProvider = "ftp.ensembl.org",
-          Maintainer = "Martin Morgan <mtmorgan@fhcrc.org>",
+          DataProvider = "Ensembl",
+          Maintainer = "Martin Morgan <mtmorgan@fredhutch.org>",
           RDataClass = "GRanges",
+	  DispatchClass="GRanges",
+          SourceType="GTF",  
+          Location_Prefix=.ensemblBaseUrl, 
           RDataDateAdded = Sys.time(),
-          RDataVersion = "0.0.1",
-          Recipe = c("ensemblGTFToGRangesRecipe", package="AnnotationHubData"),
+          Recipe = "AnnotationHubData:::ensemblGTFToGRangesRecipe", 
           Tags = c("GTF", "ensembl", "Gene", "Transcript", "Annotation")))
 }
 
@@ -59,130 +75,34 @@ makeEnsemblGTFsToAHMs <- function(currentMetadata){
 ## object.
 ensemblGTFToGRangesRecipe <- function(ahm){
     require(rtracklayer)
-    gz.inputFile <- inputFiles(ahm)[1] ## DOES This work as written? - yes but 'convencience' method now requires extra exposition so perhaps it is better to not even use it? or to switch to the org package (or inp package) for an example?
-    con <- gzfile(gz.inputFile)
-    on.exit(close(con))
-    gr <- import(con, "gtf", asRangedData=FALSE)
-    save(gr, file=outputFile(ahm))
-    outputFile(ahm)
+    message()
+    message("###############################################################") 
+    
+    ahmroot <- metadata(ahm)$AnnotationHubRoot  # path on localDir
+    
+    ## contains truncated path to .Rda file on localDir
+    rdatapath <- metadata(ahm)$RDataPath
+
+    ## path to original Biopax file on the web
+    originalFile <- basename(metadata(ahm)$SourceUrl)  
+
+    ## contains truncated path to original file on localDir
+    originalPath <- gsub(basename(rdatapath), originalFile, rdatapath) 
+
+    faIn <- file.path(ahmroot, originalPath)
+    faOut <- file.path(ahmroot, rdatapath)
+   
+    message("faIn:", faIn)
+    message("faOut:", faOut)
+
+    if(!file.exists(faOut)) {   
+        gr <- import(faIn, "gtf", asRangedData=FALSE)
+        save(gr, file=faOut)
+    } 
+    faOut
 }
-
-
 
 ## STEP 3:  Call the helper to set up the newResources() method
 makeAnnotationHubResource("EnsemblGtfImportPreparer",
                           makeEnsemblGTFsToAHMs)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#######################################################################
-## Next:
-## 1) Beef up the constructor for AnnotationHub objects
-## 2) Create a vignette explaining this stuff.
-#######################################################################
-
-
-
-
-#######################################################################
-## test that this worked is whether the method is available after
-## loading package (it is)
-## library(AnnotationHubData);getMethod(f='newResources' ,signature='EnsemblGtfImportPreparer'); getClass('EnsemblGtfImportPreparer')
-## BUT it may not 'actually' work since the class is not exported from
-## the NAMESPACE in this case...
-## more tests
-## foo <- new('EnsemblGtfImportPreparer')
-## BiocVersion <- c("2.12", "2.13", "2.14")
-## cm <- AnnotationHubServer:::getExistingResources(BiocVersion)
-## res <- newResources(foo, currentMetadata=cm)
-## This works!
-
-##############################################################################
-## NEXT: make a long-form call and skip the AHM function helper
-## function (step 2) entirely.
-## RESULT: a THREE step process that eliminates the need for users to
-## know about AHMs
-
-## makeAnnotationHubResourceFromParams("EnsemblGtfImportPreparer",
-##                                     AnnotationHubRoot,
-##                                     BiocVersion,
-##                                     Coordinate_1_based,
-##                                     DataProvider,
-##                                     DerivedMd5,
-##                                     Description,
-##                                     Genome,
-##                                     Maintainer,
-##                                     Notes,
-##                                     RDataClass,
-##                                     RDataDateAdded,
-##                                     RDataLastModifiedDate,
-##                                     RDataPath,
-##                                     RDataSize,
-##                                     RDataVersion,
-##                                   Recipe,
-##                                     RecipeArgs,
-##                                     SourceFile,
-##                                     SourceLastModifiedDate,
-##                                     SourceMd5,
-##                                     SourceSize,
-##                                     SourceUrl,
-##                                     SourceVersion,
-##                                     Species,
-##                                     Tags,
-##                                     TaxonomyId,
-##                                     Title)
-
-
-## TODO:
-## put metadata args above into a more sensible order
-## look at match.call() and formals() for ways to get the arguments
-
-
-
-
-
-
-
-##############################################################################
-## 'NEXT' NEXT: Factor out the need for the user to know about
-## AnnotationHubRecipe objects by making a wrapper for creating
-## recipes? OR just explain what an AnnotationHubRecipe is...
-
-## Right now I am leaning towards factoring it out.  Because I would
-## rather just describe 4 arguments than explain this new class to
-## users...  And this class contains no info that is not already
-## derived from an AHM (along with an AHM).
-
-## BUT LURKING in the code the recipes are all expecting an AHMR, so I
-## will have to change all that to get rid of it?  Nope.  I can leave
-## it and just not require it here.  But I will have to enable AHMs
-## that can point to recipes that require 4 args instead of this
-## object...
-
-## OR if I explain it, users have to understand that there is this
-## object that has methods they can call to get inputFile, recipeName
-## and outputFile
-
-## So maybe I will just explain it...  This is NOT an easy decision for me.
