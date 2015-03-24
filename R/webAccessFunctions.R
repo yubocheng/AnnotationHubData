@@ -43,7 +43,7 @@
 ## Using this function, once can read all the filenames or filenames ending with a 
 ## cetrain extension on an FTP page, it also gets the date the file was last 
 ## modified and the file size. 
-.ftpFileInfo <- function(url, filename, tag) {
+.ftpFileInfo <- function(url, filename, tag, verbose=TRUE) {
     tryCatch({
         df2 <- strsplit(getURL(url, dirlistonly=TRUE), "\n")[[1]]
         
@@ -53,6 +53,8 @@
         df2 <- paste0(url, df2)
         
         result <- lapply(df2, function(x){
+            if(verbose)
+                message(basename(x))
             h = suppressWarnings(
                 GET(x, config=config(nobody=TRUE, filetime=TRUE)))
             headers(h)[c("last-modified", "content-length")] 
