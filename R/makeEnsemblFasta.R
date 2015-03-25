@@ -81,12 +81,15 @@
 
 ## AHM generator
 makeEnsemblFastaToAHMs <-
-    function(currentMetadata)
+    function(currentMetadata, justRunUnitTest)
 {
     time1 <- Sys.time()
     baseUrl = .ensemblBaseUrl
     ## get all possible sourceUrls
     sourceUrl <- .ensemblFastaSourceUrls(.ensemblBaseUrl) 
+    
+    if(justRunUnitTest)
+        sourceUrl <- sourceUrl[1:5]
     
     sourceFile <- .ensemblSourcePathFromUrl(baseUrl, sourceUrl)
     meta <- .ensemblMetadataFromUrl(  ## BUG
@@ -111,7 +114,6 @@ makeEnsemblFastaToAHMs <-
         Description=description,
         Genome=meta$genome,
         RDataPath=rdatapaths,
-        SourceFile=sourceFile,
         SourceUrl=sourceUrl,
         SourceVersion=meta$sourceVersion,
         Species=meta$species,
@@ -119,13 +121,15 @@ makeEnsemblFastaToAHMs <-
         Title=meta$title,
         MoreArgs=list(
           Coordinate_1_based = TRUE,
-          DataProvider = "ftp.ensembl.org",
-          Maintainer = "Martin Morgan <mtmorgan@fhcrc.org>",
+          DataProvider = "Ensembl",
+          Location_prefix = .amazonBaseUrl, 
+          Maintainer = "Martin Morgan <mtmorgan@fredhutch.org>",
+          SourceType="FASTA",
+          DispactchClass="FaFile", 
           RDataClass = c("FaFile", "FaFile"),
           RDataDateAdded = Sys.time(),
           RDataSize = c(NA_real_,NA_real_),
           RDataLastModifiedDate = c(Sys.time(),Sys.time()),
-          RDataVersion = "0.0.1",
           Recipe = "AnnotationHubData:::ensemblFastaToFaFile",
           Tags = c("FASTA", "ensembl", "sequence")))
 }
