@@ -1,7 +1,7 @@
 Package: AnnotationHubData
 Type: Package
 Title: Transform public data resources into Bioconductor Data Structures
-Version: 0.0.203
+Version: 0.0.204
 Authors@R:
     c(person("Martin", "Morgan", role="ctb"),
       person("Marc", "Carlson", role="ctb"),
@@ -50,14 +50,11 @@ Collate:
     Message-class.R
     ImportPreparer-class.R
     makeAnnotationHubResource.R
-    UCSCTrackImport-utils.R
-    UCSCTrackImportPreparer-class.R
     AnnotationHubMetadata-class.R
-    trackToGRangesRecipe.R
-    trackWithAuxiliaryTableToGRangesRecipe.R
-    importFastaFiles.R
-    UCSCTrackUpdateChecker.R
     utils.R
+    updateResources.R
+    ahmToJson.R
+    webAccessFunctions.R
     makeBioPaxImporter.R
     makeChEA.R
     makedbSNPVCF.R
@@ -73,8 +70,8 @@ Collate:
     makeRefNet.R
     makeUCSCChain.R
     makeUCSC2Bit.R
-    updateResources.R
-    ahmToJson.R
-    webAccessFunctions.R 
+    makeUCSCTracks.R
+    trackWithAuxiliaryTableToGRangesRecipe.R
+    UCSCTrackUpdateChecker.R
     
     
