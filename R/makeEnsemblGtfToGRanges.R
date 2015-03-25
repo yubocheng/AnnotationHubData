@@ -63,7 +63,7 @@ makeEnsemblGTFsToAHMs <- function(currentMetadata, justRunUnitTest){
           RDataClass = "GRanges",
 	  DispatchClass="GRanges",
           SourceType="GTF",  
-          Location_Prefix=.ensemblBaseUrl, 
+          Location_Prefix=.amazonBaseUrl, 
           RDataDateAdded = Sys.time(),
           Recipe = "AnnotationHubData:::ensemblGTFToGRangesRecipe", 
           Tags = c("GTF", "ensembl", "Gene", "Transcript", "Annotation")))
