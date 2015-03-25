@@ -44,32 +44,34 @@
 ## cetrain extension on an FTP page, it also gets the date the file was last 
 ## modified and the file size. 
 .ftpFileInfo <- function(url, filename, tag, verbose=TRUE) {
-    tryCatch({
-        df2 <- strsplit(getURL(url, dirlistonly=TRUE), "\n")[[1]]
-        
-        df2 <- df2[grep(paste0(filename, "$"), df2)]
-        drop <-  grepl("latest", df2) | grepl("00-", df2)
-        df2 <- df2[!drop]
-        df2 <- paste0(url, df2)
-        
-        result <- lapply(df2, function(x){
-            if(verbose)
-                message(basename(x))
+    df2 <- strsplit(getURL(url, dirlistonly=TRUE), "\n")[[1]]
+    df2 <- df2[grep(paste0(filename, "$"), df2)]
+    drop <-  grepl("latest", df2) | grepl("00-", df2)
+    df2 <- df2[!drop]
+    df2 <- paste0(url, df2)
+    
+    result <- lapply(df2, function(x){
+        if(verbose)
+            message(basename(x))
+        tryCatch({
             h = suppressWarnings(
                 GET(x, config=config(nobody=TRUE, filetime=TRUE)))
-            headers(h)[c("last-modified", "content-length")] 
+            nams <- names(headers(h))
+            if("last-modified" %in% nams)
+                headers(h)[c("last-modified", "content-length")] 
+            else
+                c("last-modified"=NA, "content-length"=NA)	
+        }, error=function(err) {
+        warning(basename(x), ": ", conditionMessage(err))
+            list("last-modified"=character(), "content-length"=character())
         })
+    }) 
+      
+    size <- as.numeric(sapply(result, "[[", "content-length"))
+    date <- strptime(sapply(result, "[[", "last-modified"),
+                     "%a, %d %b %Y %H:%M:%S", tz="GMT")
         
-        size <- as.numeric(sapply(result, "[[", "content-length"))
-        date <- strptime(sapply(result, "[[", "last-modified"),
-                         "%a, %d %b %Y %H:%M:%S", tz="GMT")
-        
-        data.frame(fileurl=df2, date, size, genome=tag, stringsAsFactors=FALSE)
-    }, error=function(err) {
-        warning(basename(dirname(url)), ": ", conditionMessage(err))
-        data.frame(url=character(), version=character(), 
-                   stringsAsFactors=FALSE)
-    })
+    data.frame(fileurl=url, date, size, genome=tag, stringsAsFactors=FALSE)
 }
 
 ## remove leading and trailing white spaces
