@@ -6,7 +6,7 @@
 .ensemblGtfSourceUrls <-
     function(baseUrl, justRunUnitTest)
 {
-    regex <- ".*release-(73|74|75|76|77|78)"
+    regex <- ".*release-(73|74|75|76|77|78)"  ## temporary
     want <- .ensemblDirUrl(baseUrl, "gtf/", regex)
     
     if(justRunUnitTest)
@@ -26,9 +26,9 @@
         urls <- urls[1:5] 
  
     df <- do.call(rbind, 
-                Map(AnnotationHubData:::.ftpFileInfo, urls, filename="gtf.gz", tag=basename(urls)))   
-   rownames(df) <- NULL
-   df
+                Map(.ftpFileInfo, urls, filename="gtf.gz", tag=basename(urls)))   
+    rownames(df) <- NULL
+    df
 }
 
 ## STEP 1: make function to process metadata into AHMs
