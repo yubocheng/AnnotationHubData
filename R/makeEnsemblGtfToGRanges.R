@@ -14,7 +14,8 @@
     
     ## files in release
     urls <- unlist(lapply(want, function(url) {
-        listing <- getURL(url=url, followlocation=TRUE, customrequest="LIST -R")
+        listing <- getURL(url=url, followlocation=TRUE, customrequest="LIST -R",
+                          curl=handle_find(url)$handle)
         listing<- strsplit(listing, "\n")[[1]]
         subdir <- sub(".* ", "", listing[grep("^drwx", listing)])
         #gtfGz <- sub(".* ", "", listing[grep(".*gtf.gz$", listing)])

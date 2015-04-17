@@ -44,7 +44,8 @@
 ## cetrain extension on an FTP page, it also gets the date the file was last 
 ## modified and the file size. 
 .ftpFileInfo <- function(url, filename, tag, verbose=TRUE) {
-    df2 <- strsplit(getURL(url, dirlistonly=TRUE), "\n")[[1]]
+    txt <- getURL(url, dirlistonly=TRUE, curl=handle_find(url))
+    df2 <- strsplit(txt, "\n")[[1]]
     df2 <- df2[grep(paste0(filename, "$"), df2)]
     drop <-  grepl("latest", df2) | grepl("00-", df2)
     df2 <- df2[!drop]

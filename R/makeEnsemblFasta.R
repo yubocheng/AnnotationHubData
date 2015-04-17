@@ -6,7 +6,8 @@
 .ensemblDirUrl <-
     function(url, dir, regex = .ensemblReleaseRegex)
 {
-    lst <- getURL(url=url, dirlistonly=TRUE, followlocation=TRUE)
+    lst <- getURL(url=url, dirlistonly=TRUE, followlocation=TRUE,
+                  curl=handle_find(url)$handle)
     lst <- strsplit(lst, "\n")[[1]]
     releases <- paste0(url, lst)
     paste(grep(regex, releases, value=TRUE), dir, sep="/")
@@ -50,7 +51,8 @@
     ## files in release ## BOOM
 
     .processUrl <- function(url) {
-        listing <- getURL(url=url, followlocation=TRUE, customrequest="LIST -R")
+        listing <- getURL(url=url, followlocation=TRUE, customrequest="LIST -R",
+                          curl=handle_find(url)$handle)
         listing<- strsplit(listing, "\n")[[1]]
 
         subdirIdx <- grepl(".*/.*:", listing)  

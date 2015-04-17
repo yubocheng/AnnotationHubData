@@ -28,7 +28,8 @@
 ###############################################
 ## need to get symlinks
 .getGenomeAbbrevs <- function(genomes){
-    baseList <- getURL(url="ftp://hgdownload.cse.ucsc.edu/goldenPath/")
+    baseList <- getURL(url="ftp://hgdownload.cse.ucsc.edu/goldenPath/",
+                       curl=handle_find(url)$handle)
     baseList <- strsplit(baseList,"\n")[[1]]
     ## baseList[grep('cb1',baseList)]
     ## baseList[grep(genome[1],baseList)] ## a normal one
