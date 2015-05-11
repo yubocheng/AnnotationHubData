@@ -31,7 +31,7 @@
     species <- gsub("_", " ", sub(sgRegex, "\\1", title), fixed=TRUE)
     taxonomyId <- local({
         uspecies <- unique(species)
-        .taxonomyId(uspecies)[match(species, uspecies)]
+        GenomeInfoDb:::.taxonomyId(uspecies)[match(species, uspecies)]
     })
     list(annotationHubRoot = root, title=title, species = species,
          taxonomyId = as.integer(taxonomyId), genome = sub(sgRegex, "\\2", title),

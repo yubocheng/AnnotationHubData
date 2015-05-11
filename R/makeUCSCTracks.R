@@ -216,7 +216,7 @@ UCSCFullTrackImportPreparer <-
     tags <- lapply(track, c, stockTags)
 
     uspecies <- unique(species)
-    taxonomyId <- .taxonomyId(uspecies)[match(species, uspecies)]
+    taxonomyId <- GenomeInfoDb:::.taxonomyId(uspecies)[match(species, uspecies)]
 
     ## use Map to make all these from vectors
 

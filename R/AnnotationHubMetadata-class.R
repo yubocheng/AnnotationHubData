@@ -149,7 +149,7 @@ AnnotationHubMetadata <-
     {
         if (!is.na(Species) &&
             requireNamespace("AnnotationHubData", quietly=TRUE))
-            TaxonomyId <- .taxonomyId(Species)
+            TaxonomyId <- GenomeInfoDb:::.taxonomyId(Species)
         else
             TaxonomyId <- NA_integer_
     }
@@ -326,22 +326,6 @@ if(!(sourcetype %in% expectedSourceTypes)){
 }
 
 
-.checkForAValidTaxonomyId <- function(taxId){
-## TODO: precompute the list of valid tax Ids
-if (!exists("validTaxIds")) {
-     data(validTaxIds, package = "AnnotationHubData")
-}
-validTaxIds <- c(validTaxIds, NA_integer_)
-if(!(taxId %in% validTaxIds)){
-      stop(wmsg(paste0("The taxonomy Id you have provided (",taxId,")",
-                       " is not in our list of valid Tax Ids.",
-                       ". Please check to make sure that your tax ID",
-                       " is really legitimate and if so, then please tell",
-                       " us about it so that we can update our list."))) 
-  }
-}
-    
-
 .checkThatRDataPathIsOK <- function(rdatapath){
     ## no spaces are allowed int he RDataPath field
     if(grepl(" ", rdatapath)){
@@ -377,7 +361,7 @@ setValidity("AnnotationHubMetadata",function(object) {
     .checkThatGenomeLooksReasonable(object@Genome)
     .checkRdataclassIsReal(object@RDataClass)
     .checkThatSourceTypeSoundsReasonable(object@SourceType)
-    .checkForAValidTaxonomyId(object@TaxonomyId)
+    GenomeInfoDb:::.checkForAValidTaxonomyId(object@TaxonomyId)
     .checkThatRDataPathIsOK(object@RDataPath)
 })
 
@@ -395,20 +379,6 @@ setValidity("AnnotationHubMetadata",function(object) {
     if (is(x, "character"))
         x[x == "unknown"] <- as.character(.NA_version_)
     base::as.numeric_version(x)
-}
-
-.taxonomyId <-
-    function(species)
-{
-    if (!exists("speciesMap"))
-        data(speciesMap, package="AnnotationHubData")
-    species <- gsub(" {2,}", " ", species)
-    species <- gsub(",", " ", species, fixed=TRUE)
-    idx <- match(species, speciesMap$species)
-    if (any(is.na(idx)))
-        stop(sum(is.na(idx)), " unknown species: ",
-             paste(sQuote(head(species[is.na(idx)])), collapse=" "))
-    as.character(speciesMap$taxon[idx])
 }
 
 
@@ -434,7 +404,7 @@ setValidity("AnnotationHubMetadata",function(object) {
                   paste(sQuote(requiredFields[idx]), collapse=", "))
 
     ## look up species id in data table
-    taxonomyId <- .taxonomyId(metadata(object)$Species)
+    taxonomyId <- GenomeInfoDb:::.taxonomyId(metadata(object)$Species)
     if (!length(taxonomyId))
         rc$append("'Species' unknown: %s", sQuote(metadata(object)$Species))
 
