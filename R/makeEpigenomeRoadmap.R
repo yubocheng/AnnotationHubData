@@ -22,36 +22,41 @@
     read.delim(paste0(.EpigenomeRoadMap, metafname))
 }
 
-.EpiFilesTags <- function(url) {
+.EpiFilesTags <- function(url, pattern="-") {
     ## get columns F,O,D from metadata
     metadata <- .EpiFilesMetadata()
     filename <- basename(url)
-    celltype <- gsub("-.*","", filename)
+     celltype <- gsub(paste0(pattern,".*"),"", filename)
     idx <- match(celltype, metadata[,"EID"])
-    metadata <- metadata[,c("EID", "GROUP","MNEMONIC", "STD_NAME")]
-    fod <- vapply(idx, function(x) 
-        paste0(as.character(unlist(metadata[x,])), collapse=", ")
-        , character(1))
-    fod <- gsub("[\x01-\x1f\x7f-\xff]", "", fod) # remove \xa0
+    
     ## parse the url to get which kind of  files
     tempurl <- gsub(.EpigenomeRoadMap, "", url)
     out <- strsplit(tempurl, "/")
     mat <- do.call(rbind, out)
     matTags <- apply(mat, 1, function(x) paste0(x[1:3], collapse=", "))
     
-    paste("EpigenomeRoadMap", matTags, fod, sep=", ")
+    tags <- paste("EpigenomeRoadMap", matTags, sep=", ")
+    
+    if(any(!is.na(unique(idx)))) {
+        metadata <- metadata[,c("EID", "GROUP","MNEMONIC", "STD_NAME")]
+        fod <- vapply(idx, function(x) 
+            paste0(as.character(unlist(metadata[x,])), collapse=", ")
+            , character(1))
+        fod <- gsub("[\x01-\x1f\x7f-\xff]", "", fod) # remove \xa0
+        tags <- paste(tags, fod, sep=", ")
+    }
+    tags
 }
 
-
-.MiscEpiFiles <- function(fileurls) {
+.MiscEpiFiles <- function(fileurls, pattern="-") {
     ## get the file size and  the file info 
     df <- .httrFileInfo(fileurls, verbose=TRUE) 
-    
+
     ## these files are downloaded from the web 
     rdatapath <- sub(.EpigenomeRoadMap, "", fileurls)
   
     ## add tags
-    tags <- .EpiFilesTags(fileurls)
+    tags <- .EpiFilesTags(fileurls, pattern)
     
     ## description 
     description <- .EpiFilesDescription(fileurls)
@@ -90,7 +95,11 @@
          fc.signal.bigwig=.expandLine("Bigwig File containing  fold enrichment 
             signal tracks from EpigenomeRoadMap Project"),
         pval.signal.bigwig=.expandLine("Bigwig File containing -log10(p-value) 
-            signal tracks from EpigenomeRoadMap Project"))        
+            signal tracks from EpigenomeRoadMap Project"),
+   
+        ## chmm Models
+        coreMarks_mnemonics.bed.gz=.expandLine("15 state chromatin 
+        segmentations from EpigenomeRoadMap Project"))        
         
     description <- character(length(fileurls))
     for (i in seq_along(map))
@@ -99,21 +108,28 @@
     description
 }
 
-## PEAK CONSOLIDATED FILES
-## these files are to be re-inserted 
-.peakConsolidatedEpiFiles <- function(justRunUnitTest) {
-    paths <- c(broadPeaks="peaks/consolidated/broadPeak/",
+.peakEpiFiles <- function(justRunUnitTest) {
+   paths <- c(broadPeaks="peaks/consolidated/broadPeak/",
                narrowPeaks="peaks/consolidated/narrowPeak/", 
-               gappedPeaks="peaks/consolidated/gappedPeak/" )
-    fileurls <- lapply(paste0(.EpigenomeRoadMap, paths), function(x) {
+               gappedPeaks="peaks/consolidated/gappedPeak/" ,
+               unbroadPeaks="peaks/unconsolidated/broadPeak/",
+               unnarrowPeaks="peaks/unconsolidated/narrowPeak/",
+               ungappedPeaks="peaks/unconsolidated/gappedPeak/" )
+    fileurls <- sapply(paste0(.EpigenomeRoadMap, paths), function(x) {
         .readEpiFilesFromWebUrl(x, "gz", justRunUnitTest)
     })
-    .MiscEpiFiles(unlist(fileurls))
+    if(justRunUnitTest)
+         fileurls <- fileurls[1:2]
+    df <- .MiscEpiFiles(fileurls)
+    dispatchClass <- rep("EpigenomeRoadmapFile" , length(fileurls))
+    sourcetype <- rep("BED" , length(fileurls))
+    rdataclass <- rep("GRanges" , length(fileurls))
+    
+    cbind(df, dispatchClass, sourcetype, rdataclass, stringsAsFactors=FALSE)
 }
 
 .signalEpiFiles <- function(justRunUnitTest) {   
-    
-    ## consolidated BigWifg Files
+    ## consolidated & unconsolidated BigWig Files
     paths <- 
         c(consolidated_foldChange="signal/consolidated/macs2signal/foldChange/", 
         consolidated_pval="signal/consolidated/macs2signal/pval/",
@@ -131,10 +147,13 @@
     baseDirs <- paste0(conImpUrl, baseDirs)
     dirurl <- c(dirurl, baseDirs)
     
-    fileurls <- lapply(dirurl, function(x) {
+    fileurls <- sapply(dirurl, function(x) {
         .readEpiFilesFromWebUrl(x, "bigwig", justRunUnitTest)
     })
-    fileurls <- unlist(fileurls)
+    
+    if(justRunUnitTest)
+        fileurls <- fileurls[1:2]    
+
     df <- .MiscEpiFiles(fileurls)
     # # add dispatch class, sourcetype and Rdataclass
     dispatchClass <- rep("BigWigFile" , length(fileurls))
@@ -149,20 +168,38 @@
     fileurl <- paste0(.EpigenomeRoadMap, metafname)
     description <- "Metadata for EpigenomeRoadMap Project"
     df <-.httrFileInfo(fileurl)
-    tag <- paste("EpigenomeRoadMap", "Metadata", sep=", ")
+    tags <- paste("EpigenomeRoadMap", "Metadata", sep=", ")
     rdataclass <- "data.frame"
     sourcetype <- "tab"
     dispatchClass <- "data.frame"
     rdatapath <- sub(.EpigenomeRoadMap, "", fileurl)
-    cbind(df, description, tag,  dispatchClass, sourcetype, rdataclass, 
-        rdatapath, stringsAsFactors=FALSE)
+    cbind(df, rdatapath, tags, description, dispatchClass, sourcetype, 
+        rdataclass, stringsAsFactors=FALSE)
 }
 
-makeEpigenomeRoadmap <- function(currentMetadata, justRunUnitTest=FALSE) {
-    rsrc <- .peakConsolidatedEpiFiles(justRunUnitTest)
-    #rsrc <- .signalEpiFiles(justRunUnitTest)
-    #rsrc <-  .EpiMetadataFile()
+.chmmModels <- function(justRunUnitTest) {
+    dirurl <- paste0(.EpigenomeRoadMap, 
+        "chromhmmSegmentations/ChmmModels/coreMarks/jointModel/final/")
+    fileurls <- .readEpiFilesFromWebUrl(dirurl, "mnemonics.bed.gz", 
+                                        justRunUnitTest=FALSE)
+    if (justRunUnitTest)
+         fileurls <- fileurls[1:2]
+    df <- .MiscEpiFiles(fileurls, pattern="_")
     
+    dispatchClass <- rep("EpichmmModels" , length(fileurls))
+    rdataclass <- rep("GRanges" , length(fileurls))
+    sourcetype <- rep("BED" , length(fileurls))
+    cbind(df, dispatchClass, sourcetype, rdataclass, stringsAsFactors=FALSE)
+}
+
+
+makeEpigenomeRoadmap <- function(currentMetadata, justRunUnitTest=FALSE) {
+    peak <- .peakEpiFiles(justRunUnitTest)
+    signal <- .signalEpiFiles(justRunUnitTest)
+    metadata <-  .EpiMetadataFile()
+    seg <- .chmmModels(justRunUnitTest)
+    rsrc <- rbind(peak, signal, metadata, seg, stringsAsFactors=FALSE)    
+
     description <- rsrc$description
     title <- basename(rsrc$fileurl)
     sourceUrls <- rsrc$fileurl
