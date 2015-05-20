@@ -3,18 +3,31 @@ library(AnnotationHubData)
 ahroot <- "/var/FastRWeb/web"
 BiocVersion <- c("3.1")  
 
+## new recipe for packages.
+ahms = updateResources(ahroot, BiocVersion,
+  preparerClasses = "OrgDbFromPkgsImportPreparer",
+  insert = FALSE, metadataOnly=TRUE)
+
+
+
+## This is WAY too slow
+## ahms = updateResources(ahroot, BiocVersion,
+##   preparerClasses = "NCBIImportPreparer",
+##   insert = FALSE, metadataOnly=TRUE)
+
+
 ##debug(AnnotationHubData:::.generalNewResources)
 ##debug(AnnotationHubData:::ahmToJson)
 ## debug(AnnotationHubData:::.checkRdataclassIsReal)
 ## debug(AnnotationHubData:::AnnotationHubMetadata)
 
-ahms = updateResources(ahroot, BiocVersion,
-  preparerClasses = "HaemCodeImportPreparer",
-  insert = FALSE, metadataOnly=TRUE)
-
 ## ahms = updateResources(ahroot, BiocVersion,
-##   preparerClasses = "EncodeImportPreparer",
+##   preparerClasses = "HaemCodeImportPreparer",
 ##   insert = FALSE, metadataOnly=TRUE)
+
+ahms = updateResources(ahroot, BiocVersion,
+  preparerClasses = "EncodeImportPreparer",
+  insert = FALSE, metadataOnly=TRUE)
 
 ## Some bad juju in this one too:
 ## ahms = updateResources(ahroot, BiocVersion,
@@ -22,9 +35,9 @@ ahms = updateResources(ahroot, BiocVersion,
 ##   insert = FALSE, metadataOnly=TRUE)
 
 ## lets try a simple one
-## ahms = updateResources(ahroot, BiocVersion,
-##   preparerClasses = "UCSCChainPreparer",
-##   insert = FALSE, metadataOnly=TRUE)
+ahms = updateResources(ahroot, BiocVersion,
+  preparerClasses = "UCSCChainPreparer",
+  insert = FALSE, metadataOnly=TRUE)
 
 
 
