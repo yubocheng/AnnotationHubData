@@ -101,7 +101,7 @@ PackagedOrgDbsRecipe <- function(ahm){
     dbFile <- metadata(ahm)$Title
     orgDbName <- sub('.sqlite','',dbFile)
     orgDbs <- .GetOrgDbs()
-    orgDb <- orgDbs[orgDbName]
+    orgDb <- orgDbs[[orgDbName]]
     outputPath <- file.path(metadata(ahm)$AnnotationHubRoot,
                             metadata(ahm)$RDataPath)
     saveDb(orgDb, file=outputPath)
