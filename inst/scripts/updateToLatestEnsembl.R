@@ -1,12 +1,17 @@
 ## Test of new constructor for an updated recipe
 library(AnnotationHubData)
 ahroot <- "/var/FastRWeb/web"
-BiocVersion <- c("3.1")  
+BiocVersion <- c("3.1","3.2")  
 
-## new recipe for packages.
+## ## new recipe for packages.
+## ahms = updateResources(ahroot, BiocVersion,
+##   preparerClasses = "OrgDbFromPkgsImportPreparer",
+##   insert = FALSE, metadataOnly=TRUE)
+
+## For reals
 ahms = updateResources(ahroot, BiocVersion,
   preparerClasses = "OrgDbFromPkgsImportPreparer",
-  insert = FALSE, metadataOnly=TRUE)
+  insert = TRUE, metadataOnly=FALSE)
 
 
 

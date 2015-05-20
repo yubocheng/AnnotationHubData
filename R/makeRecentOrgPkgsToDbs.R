@@ -88,7 +88,7 @@ makeOrgDbPkgsToAHMs <- function(currentMetadata, justRunUnitTest) {
             DispatchClass = "SQLiteFile",
             SourceType="NCBI/ensembl",
             RDataDateAdded = Sys.time(),
-            Recipe = "AnnotationHUbData:::PackagedOrgDbsRecipe",
+            Recipe = "AnnotationHubData:::PackagedOrgDbsRecipe",
             Tags = c("NCBI", "Gene", "Annotation")))    
 }
 

@@ -95,7 +95,7 @@ makeNCBIToAHMs <- function(currentMetadata, justRunUnitTest=FALSE){
             DispatchClass = "SQLiteFile",
             SourceType="NCBI/blast2GO",
             RDataDateAdded = Sys.time(),
-            Recipe = "AnnotationHUbData:::NCBIToOrgDbsRecipe",
+            Recipe = "AnnotationHubData:::NCBIToOrgDbsRecipe",
             Tags = c("NCBI", "Gene", "Annotation")))
 }
 
