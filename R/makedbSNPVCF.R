@@ -1,10 +1,19 @@
+### link to data description:
+### http://www.ncbi.nlm.nih.gov/variation/docs/human_variation_vcf/
+
+
 .dbSNPBaseUrl <-"ftp://ftp.ncbi.nih.gov/"
 
 .getdbSNP <- function(justRunUnitTest) {
     paths <- c(GRCh37="human_9606/VCF/", 
+               GRCh37clinical ="human_9606/VCF/clinical_vcf_set/",
+               GRCh37_b141 = "human_9606_b141_GRCh37p13/VCF/",
+               GRCh37_b142= "human_9606_b142_GRCh37p13/VCF/",
+               GRCh37_b142clinical ="human_9606_b142_GRCh37p13/VCF/clinical_vcf_set/",
                GRCh38_b142="human_9606_b142_GRCh38/VCF/",
+               GRCh38_b142clinical="human_9606_b142_GRCh38/VCF/clinical_vcf_set/",
                GRCh38_b141="human_9606_b141_GRCh38/VCF/")
-    
+         
     baseUrl <- paste0(.dbSNPBaseUrl, "snp/organisms/")
         
     urls <- setNames(paste0(baseUrl, paths), names(paths))
@@ -12,10 +21,13 @@
     if(justRunUnitTest)
 	urls <- urls[1]
 
-    df <- do.call(rbind, 
-                Map(.ftpFileInfo, urls, filename="vcf.gz", tag=names(urls)))
-    title <- basename(df$fileurl)
-        
+    df <- do.call(rbind, Map(.ftpFileInfo, urls, filename="vcf.gz", 
+        tag=names(urls)))
+    df$genome <- gsub("GRCh37clinical", "GRCh37", df$genome)
+    df <- cbind(df, title=basename(df$fileurl), stringsAsFactors = FALSE)
+    rownames(df) <- NULL
+    df <- df[-grep("[0-9]", df$title),]
+
     n <- length(title)
         
     map <- c(`All` = .expandLine("VCF of all variations that meet the criteria
@@ -44,9 +56,9 @@
     
     description <- character(n)
     for (i in seq_along(map))
-        description[grep(names(map)[i], title)] <- map[[i]]
+        description[grep(names(map)[i], df$title)] <- map[[i]]
     
-    cbind(df, title, description, stringsAsFactors = FALSE)
+    cbind(df, description, stringsAsFactors = FALSE)
 }
 
 makedbSNPVCF <- function(currentMetadata, justRunUnitTest=FALSE) {

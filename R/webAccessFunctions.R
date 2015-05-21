@@ -47,7 +47,7 @@
     txt <- getURL(url, dirlistonly=TRUE, curl=handle_find(url))
     df2 <- strsplit(txt, "\n")[[1]]
     df2 <- df2[grep(paste0(filename, "$"), df2)]
-    drop <-  grepl("latest", df2) | grepl("00-", df2)
+    drop <- grepl("00-", df2)
     df2 <- df2[!drop]
     df2 <- paste0(url, df2)
     
@@ -72,7 +72,7 @@
     date <- strptime(sapply(result, "[[", "last-modified"),
                      "%a, %d %b %Y %H:%M:%S", tz="GMT")
         
-    data.frame(fileurl=url, date, size, genome=tag, stringsAsFactors=FALSE)
+    data.frame(fileurl=df2, date, size, genome=tag, stringsAsFactors=FALSE)
 }
 
 ## remove leading and trailing white spaces
