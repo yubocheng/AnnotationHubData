@@ -157,7 +157,7 @@
     df <- .MiscEpiFiles(fileurls)
     # # add dispatch class, sourcetype and Rdataclass
     dispatchClass <- rep("BigWigFile" , length(fileurls))
-    rdataclass <- rep("GRanges" , length(fileurls))
+    rdataclass <- rep("BigWigFile" , length(fileurls))
     sourcetype <- rep("BigWig" , length(fileurls))
     
     cbind(df, dispatchClass, sourcetype, rdataclass, stringsAsFactors=FALSE)

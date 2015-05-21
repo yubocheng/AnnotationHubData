@@ -62,9 +62,14 @@
     sourcetype <- sapply(type, function(x) 
         switch(x, bw="BigWig", bed="BED", csv="CSV"), 
         USE.NAMES =FALSE)
-    
+   
+    rdataclass <- sapply(type, function(x)
+        switch(x, bw="BigWigFile", bed="GRanges", csv="GRanges"),
+        USE.NAMES =FALSE)
+   
+  
     cbind(df, title,  description, fileType, tags, dispatchclass,
-          sourcetype, stringsAsFactors=FALSE)
+          sourcetype, rdataclass, stringsAsFactors=FALSE)
     
 }
 
@@ -77,7 +82,8 @@ makeHaemCodeImporter <- function(currentMetadata, justRunUnitTest=FALSE) {
     sourceVersion <- gsub(" ", "_", rsrc$date) # should be character
     SourceLastModifiedDate <- rsrc$date  # should be "POSIXct" "POSIXt"
     sourceType <- rsrc$sourcetype
-    
+    rdataclass <- rsrc$rdataclass     
+
     ## resources table
     title <- rsrc$title
     # dataprovider, species, taxonomyid, genome are same for all files
@@ -103,7 +109,8 @@ makeHaemCodeImporter <- function(currentMetadata, justRunUnitTest=FALSE) {
                 
         RDataPath=rdatapath,
         DispatchClass = dispatchclass,
-        
+        RDataClass = rdataclass,        
+
         Tags=tags,
         
         MoreArgs=list(
@@ -115,7 +122,6 @@ makeHaemCodeImporter <- function(currentMetadata, justRunUnitTest=FALSE) {
             Coordinate_1_based = FALSE,
             Location_Prefix = .haemcodeBaseUrl,
             RDataDateAdded = Sys.time(),
-            RDataClass ="GRanges",
             Recipe = NA_character_)
             )
 }
