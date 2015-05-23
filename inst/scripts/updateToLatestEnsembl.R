@@ -3,15 +3,28 @@ library(AnnotationHubData)
 ahroot <- "/var/FastRWeb/web"
 BiocVersion <- c("3.1","3.2")  
 
+
+ahms = updateResources(ahroot, BiocVersion,
+  preparerClasses = "EnsemblFastaImportPreparer",
+  insert = FALSE, metadataOnly=TRUE)
+
+
+
 ## ## new recipe for packages.
 ## ahms = updateResources(ahroot, BiocVersion,
 ##   preparerClasses = "OrgDbFromPkgsImportPreparer",
 ##   insert = FALSE, metadataOnly=TRUE)
 
-## For reals
-ahms = updateResources(ahroot, BiocVersion,
-  preparerClasses = "OrgDbFromPkgsImportPreparer",
-  insert = TRUE, metadataOnly=FALSE)
+## ## For reals
+## ahms = updateResources(ahroot, BiocVersion,
+##   preparerClasses = "OrgDbFromPkgsImportPreparer",
+##   insert = TRUE, metadataOnly=FALSE)
+
+
+## ahms = updateResources(ahroot, BiocVersion,
+##   preparerClasses = "OrgDbFromPkgsImportPreparer",
+##   insert = FALSE, metadataOnly=TRUE)
+
 
 
 

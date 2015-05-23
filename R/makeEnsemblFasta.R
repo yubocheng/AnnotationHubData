@@ -1,6 +1,6 @@
 .ensemblBaseUrl <- "ftp://ftp.ensembl.org/pub/"
 
-.ensemblReleaseRegex <- ".*release-(69|7[[:digit:]])"
+.ensemblReleaseRegex <- ".*release-(69|7[[:digit:]]|8[[:digit:]])"
 
 ## list directories below url/dir satisfying regex
 .ensemblDirUrl <-
@@ -127,7 +127,7 @@ makeEnsemblFastaToAHMs <-
           Location_prefix = .amazonBaseUrl, 
           Maintainer = "Martin Morgan <mtmorgan@fredhutch.org>",
           SourceType="FASTA",
-          DispactchClass="FaFile", 
+          DispatchClass="FaFile", 
           RDataClass = c("FaFile", "FaFile"),
           RDataDateAdded = Sys.time(),
           RDataSize = c(NA_real_,NA_real_),
