@@ -44,36 +44,47 @@
 ## cetrain extension on an FTP page, it also gets the date the file was last 
 ## modified and the file size. 
 .ftpFileInfo <- function(url, filename, tag, verbose=TRUE) {
-    txt <- getURL(url, dirlistonly=TRUE, curl=handle_find(url))
-    df2 <- strsplit(txt, "\n")[[1]]
-    df2 <- df2[grep(paste0(filename, "$"), df2)]
-    drop <- grepl("00-", df2)
-    df2 <- df2[!drop]
-    df2 <- paste0(url, df2)
+    ## set the curl handle
+    firsturl <- ifelse(length(url)>1, url[1], url)
+    curl = httr::handle_find(firsturl)$handle
     
-    result <- lapply(df2, function(x){
+    ## make a list of filenames from each url
+    allurls <- lapply(url, function(ul){
+        txt <- getURL(ul, dirlistonly=TRUE,curl=curl)
+        df2 <- strsplit(txt, "\n")[[1]]
+        df2 <- df2[grep(paste0(filename, "$"), df2)]
+        drop <- grepl("00-", df2)
+        df2 <- df2[!drop]        
+        temp <- unlist(strsplit(df2, " "))
+        df2 <- temp[length(temp)]
+        paste0(ul, df2)
+    })
+    allurls <- unlist(allurls)
+    
+    ## use httr to get date and size for each file. 
+    result <- lapply(allurls, function(y){
         if(verbose)
-            message(basename(x))
+            message(basename(y))
         tryCatch({
             h = suppressWarnings(
-                GET(x, config=config(nobody=TRUE, filetime=TRUE)))
+                GET(y, config=config(nobody=TRUE, filetime=TRUE)))
             nams <- names(headers(h))
             if("last-modified" %in% nams)
-                headers(h)[c("last-modified", "content-length")] 
+                headers(h)[c("last-modified", "content-length")]
             else
-                c("last-modified"=NA, "content-length"=NA)	
-        }, error=function(err) {
-        warning(basename(x), ": ", conditionMessage(err))
+                c("last-modified"=NA, "content-length"=NA)
+            }, error=function(err) {
+            warning(basename(y), ": ", conditionMessage(err))
             list("last-modified"=character(), "content-length"=character())
         })
-    }) 
-      
+    })
     size <- as.numeric(sapply(result, "[[", "content-length"))
     date <- strptime(sapply(result, "[[", "last-modified"),
                      "%a, %d %b %Y %H:%M:%S", tz="GMT")
-        
-    data.frame(fileurl=df2, date, size, genome=tag, stringsAsFactors=FALSE)
+    
+    data.frame(fileurl=allurls, date, size, genome=tag, stringsAsFactors=FALSE)
 }
+
 
 ## remove leading and trailing white spaces
 .trim <- function (x) gsub("^\\s+|\\s+$", "", x)
