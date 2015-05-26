@@ -66,35 +66,6 @@
     cbind(df, genome=tag, stringsAsFactors=FALSE)
 }
 
-
-.fileInfo <- function(allurls, verbose=TRUE) {
-                     
-    result <- lapply(allurls, function(y){
-        if(verbose)
-            message(basename(y))
-        tryCatch({
-            h = suppressWarnings(
-                GET(y, config=config(nobody=TRUE, filetime=TRUE)))
-            nams <- names(headers(h))
-            if("last-modified" %in% nams)
-                headers(h)[c("last-modified", "content-length")]
-            else
-                c("last-modified"=NA, "content-length"=NA)
-            }, error=function(err) {
-            warning(basename(y), ": ", conditionMessage(err))
-            list("last-modified"=character(), "content-length"=character())
-        })
-    })
-    size <- as.numeric(sapply(result, "[[", "content-length"))
-    date <- strptime(sapply(result, "[[", "last-modified"),
-                     "%a, %d %b %Y %H:%M:%S", tz="GMT")
-
-    data.frame(fileurl=allurls, date, size)    
-}
-
-
-
-## remove leading and trailing white spaces
 .trim <- function (x) gsub("^\\s+|\\s+$", "", x)
 
 
@@ -109,8 +80,9 @@
         if(verbose)
             message(basename(f))
         tryCatch({    
-            h = GET(f, config=config(nobody=TRUE, filetime=TRUE))
-            stop_for_status(h)
+            h = suppressWarnings(
+              GET(f, config=config(nobody=TRUE, filetime=TRUE)))
+            
             nams <- names(headers(h))
             if("last-modified" %in% nams)
                  headers(h)[c("last-modified", "content-length")] 
@@ -121,7 +93,6 @@
         list("last-modified"=character(), "content-length"=character())
         }) 
     })
-    
     
     size <- as.numeric(sapply(result, "[[", "content-length")) 
     date <- strptime(sapply(result, "[[", "last-modified"),
