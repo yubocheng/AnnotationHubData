@@ -2,7 +2,7 @@
 ## simpler and also provides a test case for how we can parse ensembl
 ## GTF files into GRanges objects.
 
-## Helper to retrieve GTF file urls from Ensembl
+## Helper to retrieve GTF file urls from Ensembl 
 .ensemblGtfSourceUrls <-
     function(baseUrl, justRunUnitTest)
 {

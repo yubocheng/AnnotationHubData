@@ -1,13 +1,15 @@
 .ensemblBaseUrl <- "ftp://ftp.ensembl.org/pub/"
 
-.ensemblReleaseRegex <- ".*release-(69|7[[:digit:]]|8[[:digit:]])"
+## Adjust this expression in order to save painful-reprocessing of older files.
+## .ensemblReleaseRegex <- ".*release-(69|7[[:digit:]]|8[[:digit:]])"
+.ensemblReleaseRegex <- ".*release-(79|8[[:digit:]])"
 
 ## list directories below url/dir satisfying regex
 .ensemblDirUrl <-
-    function(url, dir, regex = .ensemblReleaseRegex)
+    function(url, dir, curlHand, regex = .ensemblReleaseRegex)
 {
     lst <- getURL(url=url, dirlistonly=TRUE, followlocation=TRUE,
-                  curl=handle_find(url)$handle)
+                  curl=curlHand)
     lst <- strsplit(lst, "\n")[[1]]
     releases <- paste0(url, lst)
     paste(grep(regex, releases, value=TRUE), dir, sep="/")
@@ -22,19 +24,27 @@
 
 ## mangle url to metadata where possible
 .ensemblMetadataFromUrl <-
-    function(sourceUrl,
-             sgRegex="^([[:alpha:]_]+)\\.(.*)\\.[[:digit:]]+\\.[[:alpha:]]+")
-{
+    function(sourceUrl){
     releaseRegex <- ".*(release-[[:digit:]]+).*"
     title <- sub(".gz$", "", basename(sourceUrl))
     root <- setNames(rep(NA_character_, length(sourceUrl)), title)
-    species <- gsub("_", " ", sub(sgRegex, "\\1", title), fixed=TRUE)
+    species <- gsub("_", " ", sub("^([[:alpha:]_]+)\\.(.*)", "\\1", title),
+                    fixed=TRUE)
     taxonomyId <- local({
         uspecies <- unique(species)
         GenomeInfoDb:::.taxonomyId(uspecies)[match(species, uspecies)]
     })
+    ## extract info about source size and source mod date etc.
+    ftpInfo <- .httrFileInfo(files=sourceUrl) 
+    sourceSize <- ftpInfo$size
+    sourceLastModDate <- ftpInfo$date
+    
     list(annotationHubRoot = root, title=title, species = species,
-         taxonomyId = as.integer(taxonomyId), genome = sub(sgRegex, "\\2", title),
+         taxonomyId = as.integer(taxonomyId),
+         genome = sub("^([[:alpha:]_]+)\\.(\\w*)\\.(.*)", "\\2", title,
+           perl=TRUE),
+         sourceSize=sourceSize,
+         sourceLastModifiedDate=sourceLastModDate,
          sourceVersion = sub(releaseRegex, "\\1", sourceUrl))
 }
 
@@ -47,12 +57,16 @@
 .ensemblFastaSourceUrls <-
     function(baseUrl)
 {
-    want <- .ensemblDirUrl(baseUrl, "fasta/")
+    ## handle pointer must exist in external scope.
+    require(httr)
+    curlHand <- httr::handle_find(baseUrl)$handle
+
+    want <- .ensemblDirUrl(baseUrl, "fasta/", curlHand)
     ## files in release ## BOOM
 
     .processUrl <- function(url) {
         listing <- getURL(url=url, followlocation=TRUE, customrequest="LIST -R",
-                          curl=handle_find(url)$handle)
+                          curl=curlHand)
         listing<- strsplit(listing, "\n")[[1]]
 
         subdirIdx <- grepl(".*/.*:", listing)  
@@ -79,7 +93,7 @@
     res
 }
 
-## This recips is 'tricky' because it has to include an extra row for the extra index file in the database.  That means that all relevant rows for the rdatapaths table needed to have extra elements in their slots...  So below you can see extra work done for RDataPath, RDataClass, RDataSize and RDataLastModifiedDate
+## This recipe is 'tricky' because it has to include an extra row for the extra index file in the database.  That means that all relevant rows for the rdatapaths table needed to have extra elements in their slots...  So below you can see extra work done for RDataPath, RDataClass, RDataSize and RDataLastModifiedDate
 
 ## AHM generator
 makeEnsemblFastaToAHMs <-
@@ -94,9 +108,7 @@ makeEnsemblFastaToAHMs <-
         sourceUrl <- sourceUrl[1:5]
     
     sourceFile <- .ensemblSourcePathFromUrl(baseUrl, sourceUrl)
-    meta <- .ensemblMetadataFromUrl(  ## BUG
-        sourceUrl,
-          "^([[:alpha:]_]+)\\.(.*)")
+    meta <- .ensemblMetadataFromUrl(sourceUrl) 
     dnaType <- local({
         x <- basename(dirname(sourceFile))
         sub("(dna|rna)", "\\U\\1", x, perl=TRUE)
@@ -121,17 +133,16 @@ makeEnsemblFastaToAHMs <-
         Species=meta$species,
         TaxonomyId=meta$taxonomyId,
         Title=meta$title,
+        SourceSize=meta$sourceSize,
+        SourceLastModifiedDate=meta$sourceLastModifiedDate,
         MoreArgs=list(
           Coordinate_1_based = TRUE,
           DataProvider = "Ensembl",
-          Location_prefix = .amazonBaseUrl, 
           Maintainer = "Martin Morgan <mtmorgan@fredhutch.org>",
           SourceType="FASTA",
           DispatchClass="FaFile", 
           RDataClass = c("FaFile", "FaFile"),
           RDataDateAdded = Sys.time(),
-          RDataSize = c(NA_real_,NA_real_),
-          RDataLastModifiedDate = c(Sys.time(),Sys.time()),
           Recipe = "AnnotationHubData:::ensemblFastaToFaFile",
           Tags = c("FASTA", "ensembl", "sequence")))
 }
@@ -153,3 +164,14 @@ ensemblFastaToFaFile <- function(ahm)
 
 makeAnnotationHubResource("EnsemblFastaImportPreparer",
                           makeEnsemblFastaToAHMs)
+
+
+## > ahms = updateResources(ahroot, BiocVersion,
+## +   preparerClasses = "EnsemblFastaImportPreparer",
+## +   insert = FALSE, metadataOnly=TRUE)
+## INFO [2015-05-22 17:20:06] Preparer Class: EnsemblFastaImportPreparer
+## Error in initialize(value, ...) : 
+##   invalid names for slots of class “AnnotationHubMetadata”: Location_prefix, RDataSize, RDataLastModifiedDate
+## In addition: Warning message:
+## In if (is.na(species)) { :
+##   the condition has length > 1 and only the first element will be used

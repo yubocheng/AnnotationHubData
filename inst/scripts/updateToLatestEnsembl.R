@@ -3,6 +3,8 @@ library(AnnotationHubData)
 ahroot <- "/var/FastRWeb/web"
 BiocVersion <- c("3.1","3.2")  
 
+debug(AnnotationHubData:::.ensemblMetadataFromUrl)
+#debug(AnnotationHubData:::makeEnsemblFastaToAHMs)
 
 ahms = updateResources(ahroot, BiocVersion,
   preparerClasses = "EnsemblFastaImportPreparer",
