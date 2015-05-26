@@ -62,6 +62,13 @@
     allurls <- unlist(allurls)
     
     ## use httr to get date and size for each file. 
+    df <- .httrFileInfo(allurls, verbose=TRUE)
+    cbind(df, genome=tag, stringsAsFactors=FALSE)
+}
+
+
+.fileInfo <- function(allurls, verbose=TRUE) {
+                     
     result <- lapply(allurls, function(y){
         if(verbose)
             message(basename(y))
@@ -81,9 +88,10 @@
     size <- as.numeric(sapply(result, "[[", "content-length"))
     date <- strptime(sapply(result, "[[", "last-modified"),
                      "%a, %d %b %Y %H:%M:%S", tz="GMT")
-    
-    data.frame(fileurl=allurls, date, size, genome=tag, stringsAsFactors=FALSE)
+
+    data.frame(fileurl=allurls, date, size)    
 }
+
 
 
 ## remove leading and trailing white spaces
