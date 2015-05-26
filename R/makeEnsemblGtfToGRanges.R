@@ -6,28 +6,26 @@
 .ensemblGtfSourceUrls <-
     function(baseUrl, justRunUnitTest)
 {
-    regex <- ".*release-(73|74|75|76|77|78)"  ## temporary
+    regex <- ".*release-(73|74|75|76|77|78|79|80)"  
     want <- .ensemblDirUrl(baseUrl, "gtf/", regex)
     
     if(justRunUnitTest)
         want <- want[1]
     
     ## files in release
+    curl = handle_find(want)$handle
     urls <- unlist(lapply(want, function(url) {
         listing <- getURL(url=url, followlocation=TRUE, customrequest="LIST -R",
-                          curl=handle_find(url)$handle)
+                          curl=curl)
         listing<- strsplit(listing, "\n")[[1]]
         subdir <- sub(".* ", "", listing[grep("^drwx", listing)])
-        #gtfGz <- sub(".* ", "", listing[grep(".*gtf.gz$", listing)])
-        #sprintf("%s%s/%s", url, subdir, gtfGz)
         paste0(url, subdir, "/")
     }), use.names=FALSE)
 
     if(justRunUnitTest)
         urls <- urls[1:5] 
  
-    df <- do.call(rbind, 
-                Map(.ftpFileInfo, urls, filename="gtf.gz", tag=basename(urls)))   
+    df <- .ftpFileInfo(url=urls, filename="gtf.gz", tag=basename(urls))  
     rownames(df) <- NULL
     df
 }
