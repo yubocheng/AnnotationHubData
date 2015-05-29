@@ -78,7 +78,6 @@ makeNCBIToAHMs <- function(currentMetadata, justRunUnitTest=FALSE){
     meta <- .NCBIMetadataFromUrl(baseUrl, justRunUnitTest)
     ## then make AnnotationHubMetadata objects.
     Map(AnnotationHubMetadata,
-        ## AnnotationHubRoot=meta$annotationHubRoot,
         Description=meta$description,
         Genome=meta$genome,
         SourceUrl=meta$sourceUrl,

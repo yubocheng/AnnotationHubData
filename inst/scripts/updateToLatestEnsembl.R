@@ -3,12 +3,23 @@ library(AnnotationHubData)
 ahroot <- "/var/FastRWeb/web"
 BiocVersion <- c("3.1","3.2")  
 
-debug(AnnotationHubData:::.ensemblMetadataFromUrl)
+#debug(AnnotationHubData:::.ensemblMetadataFromUrl)
 #debug(AnnotationHubData:::makeEnsemblFastaToAHMs)
 
+## ahms = updateResources(ahroot, BiocVersion,
+##   preparerClasses = "EnsemblFastaImportPreparer",
+##   insert = FALSE, metadataOnly=TRUE)
+## save(ahms, file='FastaAhms.Rda')
+
+## ahms = updateResources(ahroot, BiocVersion,
+##   preparerClasses = "EnsemblFastaImportPreparer",
+##   insert = TRUE, metadataOnly=FALSE)
+
+## above command worked for the metadata (but not for the recipe so)
+debug(AnnotationHubData:::ensemblFastaToFaFile)
 ahms = updateResources(ahroot, BiocVersion,
   preparerClasses = "EnsemblFastaImportPreparer",
-  insert = FALSE, metadataOnly=TRUE)
+  insert = FALSE, metadataOnly=FALSE)
 
 
 

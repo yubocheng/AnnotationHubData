@@ -2,7 +2,12 @@
 
 ## Adjust this expression in order to save painful-reprocessing of older files.
 ## .ensemblReleaseRegex <- ".*release-(69|7[[:digit:]]|8[[:digit:]])"
-.ensemblReleaseRegex <- ".*release-(79|8[[:digit:]])"
+
+##.ensemblReleaseRegex <- ".*release-(79|8[[:digit:]])"
+
+## for a speed run just do one set
+.ensemblReleaseRegex <- ".*release-80"
+
 
 ## list directories below url/dir satisfying regex
 .ensemblDirUrl <-
@@ -124,7 +129,6 @@ makeEnsemblFastaToAHMs <-
                          function(x){x[2] <- paste0(x[2],".fai") ; return(x)})
     
     Map(AnnotationHubMetadata,
-        AnnotationHubRoot=meta$annotationHubRoot,
         Description=description,
         Genome=meta$genome,
         RDataPath=rdatapaths,
@@ -151,13 +155,12 @@ makeEnsemblFastaToAHMs <-
 ensemblFastaToFaFile <- function(ahm)
 {
     require(Rsamtools)
-    faIn <- normalizePath(inputFiles(ahm))
-    faOut <- normalizePath(outputFile(ahm))
-
-    tmp <- tempfile()
-    system2("zcat", sprintf("%s > %s", faIn, tmp))
-    razip(tmp, faOut)
-    indexFa(faOut)
+    ## faOut is target .rz file name
+    faOut <- normalizePath(outputFile(ahm)[[1]] )
+    ## from which we 'know' the name of the source file that will be present...
+    srcFile <- sub('.rz$','.gz',faOut)
+    razip(srcFile)    ## which we unzip
+    indexFa(faOut)    ## and index
 }
 
 
