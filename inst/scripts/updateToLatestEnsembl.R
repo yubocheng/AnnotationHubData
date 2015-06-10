@@ -16,7 +16,7 @@ BiocVersion <- c("3.1","3.2")
 ##   insert = TRUE, metadataOnly=FALSE)
 
 ## above command worked for the metadata (but not for the recipe so)
-debug(AnnotationHubData:::ensemblFastaToFaFile)
+## debug(AnnotationHubData:::ensemblFastaToFaFile)
 ahms = updateResources(ahroot, BiocVersion,
   preparerClasses = "EnsemblFastaImportPreparer",
   insert = FALSE, metadataOnly=FALSE)
