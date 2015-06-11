@@ -202,3 +202,25 @@ select * from biocversions where resource_id='47524' limit 4;
 
 select * from biocversions where resource_id='47109' limit 4;
 select * from biocversions where resource_id='47110' limit 4;
+
+
+
+
+## Need to also update new OrgDbs (the new package ones) to support '3.1' (for course)
+
+## I want to change for these records here
+SELECT * FROM rdatapaths WHERE rdataclass='OrgDb' AND resource_id > 46983;
+
+## SO:
+INSERT INTO biocversions (biocversion, resource_id)
+SELECT DISTINCT '3.1' AS biocversion, resource_id FROM rdatapaths WHERE rdataclass='OrgDb' AND resource_id > 46982;
+
+
+## Then test some
+
+## older 
+select * from biocversions where resource_id=13962;
+
+## newer (should have two now)
+select * from biocversions where resource_id=46983;
+select * from biocversions where resource_id=47001;
