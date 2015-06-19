@@ -314,7 +314,7 @@ expectedSourceTypes <- c("BED",
                          "Zip",
                          "RData",
                          "tar.gz", 
-                         "tab" )
+                         "tab", "mzML", "mzTab", "mzid" )
 if(!(sourcetype %in% expectedSourceTypes)){
       stop(wmsg(paste0("The source type you have provided (",sourcetype,")",
                        " looks unusual.  We were expecting one of these",
