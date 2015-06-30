@@ -224,3 +224,68 @@ select * from biocversions where resource_id=13962;
 ## newer (should have two now)
 select * from biocversions where resource_id=46983;
 select * from biocversions where resource_id=47001;
+
+
+
+################################################################################
+## It seems I also have duplicated rows in the input_sources table
+## See this example 
+## SELECT * FROM input_sources WHERE resource_id = 13173; 
+
+## And what is interesting about these records is that for any
+## resource_id, the records were pretty clearly all inserted
+## together...  (And that really feels like maybe something funny was
+## happening with the recipe or how it was processed at that time)
+
+## Something like this would work for mysql to get the records we want to keep
+## SELECT * FROM input_sources  WHERE resource_id = 12818 order by id DESC limit 2;
+
+## So this would let us delete the things we want to toss out:
+## SELECT * FROM input_sources  WHERE resource_id = 12818 order by id limit 4;
+
+
+## So now all that remains is to formulate a query that drops for each of these...
+
+## This doesn't work well at all
+## SELECT * FROM input_sources  WHERE resource_id in('12818','12829') order by id limit 4;
+
+## Its actually stupidly easy to loop along like this from R.  Maybe I should do that?
+
+## library(AnnotationHub)
+## ah = AnnotationHub()
+## orgs <- subset(ah, ah$sourcetype=='NCBI/blast2GO')
+
+
+## So this will work (and can be modded to remove records)
+library(RMySQL)
+con <- dbConnect(dbDriver('MySQL'),
+                 host='localhost',  ## we always will run this locally anyhow
+                 dbname='annotationhub',
+                 user='ahuser',
+                 pass='tickytacky')
+
+## query to get offending IDs
+idSQL <- paste0("SELECT DISTINCT resource_id FROM input_sources WHERE sourcetype = 'NCBI/blast2GO'")
+resIds <- dbGetQuery(con, idSQL)$resource_id
+
+
+##ids <- c('12818','12829') ## what we want
+##ids <- c('46983','46984') ## not what we want
+
+
+## And I cannot even combine the DELETE statement with this because
+## MySQL does not allow my to use limit in a subquery.  LAME.
+getIds <- function(id,con){
+    sql <- paste0("SELECT id FROM input_sources  WHERE resource_id = ",id,
+                  " order by id limit 4;")
+    dbGetQuery(con, sql)$id
+}
+badIds <- lapply(resIds, getIds, con)
+## table(unlist(lapply(badIds, length)))  ## all should be length == 4
+badIds <- unlist(badIds)
+badIds <- paste(badIds, collapse="','")
+
+## then remove all these records
+rmSQL <- paste0("DELETE FROM input_sources WHERE id IN ('",badIds,"')")
+dbGetQuery(con, rmSQL)
+
