@@ -6,17 +6,16 @@
 .ensemblGtfSourceUrls <-
     function(baseUrl, justRunUnitTest)
 {
-    regex <- ".*release-(73|74|75|76|77|78|79|80)"  
+    regex <- ".*release-(81)" 
     want <- .ensemblDirUrl(baseUrl, "gtf/", regex)
     
     if(justRunUnitTest)
         want <- want[1]
     
     ## files in release
-    curl = handle_find(want)$handle
+    
     urls <- unlist(lapply(want, function(url) {
-        listing <- getURL(url=url, followlocation=TRUE, customrequest="LIST -R",
-                          curl=curl)
+        listing <- getURL(url=url, followlocation=TRUE, customrequest="LIST -R")
         listing<- strsplit(listing, "\n")[[1]]
         subdir <- sub(".* ", "", listing[grep("^drwx", listing)])
         paste0(url, subdir, "/")

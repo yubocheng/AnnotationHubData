@@ -46,11 +46,11 @@
 .ftpFileInfo <- function(url, filename, tag, verbose=TRUE) {
     ## set the curl handle
     firsturl <- ifelse(length(url)>1, url[1], url)
-    curl = httr::handle_find(firsturl)$handle
-    
+    #curl = httr::handle_find(firsturl)$handle
+     curl = RCurl::getCurlHandle(firsturl)
     ## make a list of filenames from each url
     allurls <- lapply(url, function(ul){
-        txt <- getURL(ul, dirlistonly=TRUE,curl=curl)
+        txt <- getURL(ul, dirlistonly=TRUE, curl=curl)
         df2 <- strsplit(txt, "\n")[[1]]
         df2 <- df2[grep(paste0(filename, "$"), df2)]
         drop <- grepl("00-", df2)
