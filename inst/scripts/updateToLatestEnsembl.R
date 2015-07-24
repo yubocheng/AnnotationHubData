@@ -1,7 +1,32 @@
 ## Test of new constructor for an updated recipe
 library(AnnotationHubData)
 ahroot <- "/var/FastRWeb/web"
-BiocVersion <- c("3.1","3.2")  
+#BiocVersion <- c("3.1","3.2")  
+BiocVersion <- c("3.2")
+
+
+## BEFORE YOU RUN THIS REMOVE these records from the biocversions table.
+## ALSO: double check that the biocversions are acting as expected...
+## DELETE FROM biocversions WHERE biocversion='3.2' AND resource_id IN (SELECT DISTINCT resource_id FROM input_sources WHERE sourcetype='NCBI/blast2GO');
+
+## First do a dry run on the metadata
+ahms = updateResources(ahroot, BiocVersion,
+  preparerClasses = "NCBIImportPreparer",
+  insert = FALSE, metadataOnly=TRUE)
+
+## Then really insert the metadata and also run the recipe.
+ahms = updateResources(ahroot, BiocVersion,
+  preparerClasses = "NCBIImportPreparer",
+  insert = TRUE, metadataOnly=FALSE)
+
+## There was an issue with gettting the files 'made' (but metadata went through)
+## So now I need to do it this way...
+## Then really insert the metadata and also run the recipe.
+ahms = updateResources(ahroot, BiocVersion,
+  preparerClasses = "NCBIImportPreparer",
+  insert = FALSE, metadataOnly=FALSE)
+
+
 
 #debug(AnnotationHubData:::.ensemblMetadataFromUrl)
 #debug(AnnotationHubData:::makeEnsemblFastaToAHMs)
