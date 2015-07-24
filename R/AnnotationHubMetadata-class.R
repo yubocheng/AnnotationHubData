@@ -317,7 +317,7 @@ expectedSourceTypes <- c("BED",
                          "tar.gz", 
                          "tab", "mzML", "mzTab", "mzid" )
 if(!(sourcetype %in% expectedSourceTypes)){
-      stop(wmsg(paste0("The source type you have provided (",sourcetype,")",
+      warning(wmsg(paste0("The source type you have provided (",sourcetype,")",
                        " looks unusual.  We were expecting one of these",
                        " values: ",paste(expectedSourceTypes, collapse=", "),
                        ". Please check to make sure that yoour source type",
@@ -330,7 +330,7 @@ if(!(sourcetype %in% expectedSourceTypes)){
 
 .checkThatRDataPathIsOK <- function(rdatapath){
     ## no spaces are allowed int he RDataPath field
-    if(grepl(" ", rdatapath)){
+    if(any(grepl(" ", rdatapath))){
         stop(wmsg("The string for RDataPath cannot contain spaces."))
     }
     protocolPrefixes <- c('^http://','^https://','^ftp://','^rtracklayer://')
@@ -351,6 +351,7 @@ setValidity("AnnotationHubMetadata",function(object) {
     ## then we need to add a message and fail out
     standardLocationPrefix <- 'http://s3.amazonaws.com/annotationhub/'
     if(object@Location_Prefix != standardLocationPrefix){
+        object@RDataPath <- object@RDataPath[1]
         if(object@RDataPath != object@SourceUrl){
             msg <- c(msg, "the string for RDataPath must match the SourceUrl.")
         }

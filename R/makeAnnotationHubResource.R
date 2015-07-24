@@ -21,18 +21,19 @@
 makeAnnotationHubResource <-
     function(objName,
              makeAnnotationHubMetadataFunction,
-             ...)
+             ..., where=topenv(parent.frame()))
 {
     setClass(objName,
              contains="ImportPreparer",
-             package="AnnotationHubData")
+             package="AnnotationHubData",
+             where=where)
     
     ## Create a newResources Method for the object type passed in.
     ## The job of this method is to only get resources that are "new"
     ## It takes an arg of "old" AHMs that can be used for filtering.    
     ## So it will call the makeAnnotationHubMetadataFunction, and then
     ## toss out any currentMetadata() AHMs that are already present.
-    setMethod(newResources, objName,
+    setMethod(newResources, objName, where=where,
               function(importPreparer, currentMetadata=list(),
                        justRunUnitTest=FALSE, ...){
          .generalNewResources(importPreparer, currentMetadata,

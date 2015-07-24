@@ -1,8 +1,9 @@
 test_EnsemblImportPreparer_genomeFromUrl <- function() {
     FUN <- AnnotationHubData:::.ensemblMetadataFromUrl
 
-    exp <- c("ailMel1", "AnoCar2.0", "UMD3.1", "WBcel215",
-             "C_jacchus3.2.1", "CanFam3.1")
+    exp <- c("ailMel1", "AnoCar2", "UMD3", "WBcel215",
+             "C_jacchus3.2.1", "CanFam3")
+
     urls0 <-
         c("ailuropoda_melanoleuca/Ailuropoda_melanoleuca.ailMel1.69.gtf.gz", 
           "anolis_carolinensis/Anolis_carolinensis.AnoCar2.0.69.gtf.gz", 

@@ -45,7 +45,7 @@
     if(length(haemfiles)==0) 
         stop(" File List not found! ")
     
-    df <- .fileInfoRCurl(haemfiles, verbose=TRUE)
+    df <- .httrFileInfo(haemfiles, verbose=TRUE)
     title <- basename(haemfiles)
     type <- tools::file_ext(title)
     

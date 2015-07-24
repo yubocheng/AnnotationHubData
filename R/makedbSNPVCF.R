@@ -26,8 +26,7 @@
     df$genome <- gsub("GRCh37clinical", "GRCh37", df$genome)
     df <- cbind(df, title=basename(df$fileurl), stringsAsFactors = FALSE)
     rownames(df) <- NULL
-    df <- df[-grep("[0-9]", df$title),]
-
+    
     n <- length(title)
         
     map <- c(`All` = .expandLine("VCF of all variations that meet the criteria
@@ -61,7 +60,7 @@
     cbind(df, description, stringsAsFactors = FALSE)
 }
 
-makedbSNPVCF <- function(currentMetadata, justRunUnitTest=FALSE) {
+makedbSNPVCF <- function(currentMetadata, justRunUnitTest=TRUE) {
     rsrc <- .getdbSNP(justRunUnitTest)
    
     ## input_sources table

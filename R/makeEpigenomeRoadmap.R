@@ -198,14 +198,18 @@ makeEpigenomeRoadmap <- function(currentMetadata, justRunUnitTest=FALSE) {
     signal <- .signalEpiFiles(justRunUnitTest)
     metadata <-  .EpiMetadataFile()
     seg <- .chmmModels(justRunUnitTest)
-    rsrc <- rbind(peak, signal, metadata, seg, stringsAsFactors=FALSE)    
-
+    rsrc <- rbind(peak[, !names(peak)%in% "date"], 
+                  signal[, !names(signal)%in% "date"], 
+                  metadata[, !names(metadata)%in% "date"], 
+                  seg[, !names(seg)%in% "date"])
+    date <- c(peak$date, signal$date, metadata$date, seg$date)    
+  
     description <- rsrc$description
     title <- basename(rsrc$fileurl)
     sourceUrls <- rsrc$fileurl
-    sourceVersion <- gsub(" ","_",rsrc$date) 
+    sourceVersion <- gsub(" ","_",date) 
         ## should be character
-    SourceLastModifiedDate <- rsrc$date  ## should be "POSIXct" "POSIXt"
+    SourceLastModifiedDate <- date  ## should be "POSIXct" "POSIXt"
     SourceSize <- as.numeric(rsrc$size)
     Tags <- strsplit(rsrc$tag, ", ") 
     rdatapath <- rsrc$rdatapath
