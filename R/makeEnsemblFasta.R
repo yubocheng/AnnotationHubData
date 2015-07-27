@@ -63,7 +63,7 @@
     function(baseUrl)
 {
     ## handle pointer must exist in external scope.
-    require(httr)
+    
     curlHand <- httr::handle_find(baseUrl)$handle
 
     want <- .ensemblDirUrl(baseUrl, "fasta/", curlHand)
@@ -154,7 +154,7 @@ makeEnsemblFastaToAHMs <-
 ## recipe
 ensemblFastaToFaFile <- function(ahm)
 {
-    require(Rsamtools)
+    
     ## faOut is target .rz file name
     faOut <- normalizePath(outputFile(ahm)[[1]] )
     ## from which we 'know' the name of the source file that will be present...

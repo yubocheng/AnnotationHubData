@@ -4,7 +4,7 @@ makeChEAImporter <- function(currentMetadata, justRunUnitTest=FALSE) {
     files <- "result/kea/chea-background.zip"
 
     files <- paste0(.mssmBaseUrl, files)
-    rsrc <- AnnotationHubData:::.httrFileInfo(files, verbose=FALSE)
+    rsrc <- .httrFileInfo(files, verbose=FALSE)
     title <- basename(rsrc$fileurl)
         
     ## input_sources table

@@ -41,7 +41,7 @@ cleanupLst <- function(lst){
 ## Dan suggests jsonlite
 ahmToJson <- function(ahm){
     lst <- metadata(ahm)    
-    require('jsonlite')
+    
     ## casting on elements that toJSON can't handle
     lst[['BiocVersion']] <- as.character(lst[['BiocVersion']])
     lst[['SourceLastModifiedDate']] <- as.character(lst[['SourceLastModifiedDate']])

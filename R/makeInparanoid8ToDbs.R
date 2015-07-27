@@ -75,7 +75,7 @@ makeinparanoid8ToAHMs <- function(currentMetadata, justRunUnitTest) {
 ## STEP 2: Make a recipe function that takes an AnnotationHubRecipe
 ## object.
 inparanoid8ToDbsRecipe <- function(ahm){
-    require(AnnotationForge)
+    
     inputFiles <- metadata(ahm)$SourceFile 
     dbname <- makeInpDb(dir=file.path(inputFiles,""),
                         dataDir=tempdir())

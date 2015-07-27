@@ -45,7 +45,7 @@ trackWithAuxiliaryTablesToGRanges <- function(ahm)
                        all.x=TRUE)  
      }
      
-     tbl <- AnnotationHubData:::.sortTableByChromosomalLocation(tbl)
+     tbl <- .sortTableByChromosomalLocation(tbl)
      colnames <- colnames(tbl)
      requiredColnames <- c("seqname", "start", "end")
      stopifnot(all(requiredColnames %in% colnames))
@@ -113,7 +113,7 @@ trackWithAuxiliaryTablesToGRanges <- function(ahm)
     colnames(tbl)[colnames(tbl) %in% "chromStart"] <- "start"
     colnames(tbl)[colnames(tbl) %in% "chromEnd"] <- "end"
     
-    tbl <- AnnotationHubData:::.sortTableByChromosomalLocation(tbl)
+    tbl <-.sortTableByChromosomalLocation(tbl)
     colnames <- colnames(tbl)
     requiredColnames <- c("seqname", "start", "end")
     stopifnot(all(requiredColnames %in% colnames))

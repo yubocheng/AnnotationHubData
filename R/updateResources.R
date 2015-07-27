@@ -191,7 +191,7 @@ updateResources <- function(AnnotationHubRoot, BiocVersion,
 ## 'new' version of AnnotationHub (and possibly both versions?)...
 getCurrentResources <- function(version){
     ## Call the thing in AnnotationHub that gets a DB conn to the cached meta
-    require(RSQLite) 
+     
     ah <- AnnotationHub()
     con <- AnnotationHub:::.db_connection(ah)
     ## Then send a massive SQL query to extract all the metadata as 
@@ -271,7 +271,7 @@ deleteResources <- function(id) {
     if(!exists('pswd')){
         stop("You need to set a password for the issue tracker in .Rprofile")
     }
-    require(RMySQL)
+    
     dbConnect(dbDriver('MySQL'),
               host='localhost',  ## we always will run this locally anyhow
               dbname='annotationhub',

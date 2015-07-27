@@ -72,7 +72,7 @@ makeEnsemblGTFsToAHMs <- function(currentMetadata, justRunUnitTest){
 ## STEP 2: Make a recipe function that takes an AnnotationHubMetadata
 ## object.
 ensemblGTFToGRangesRecipe <- function(ahm){
-    require(rtracklayer)
+    
     message()
     message("###############################################################") 
     

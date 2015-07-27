@@ -1,36 +1,68 @@
-import(jsonlite)
 
-import(httr)
+importClassesFrom(methods, character, environment, envRefClass,
+                  integer, list, logical, numeric, oldClass, POSIXct)
+importMethodsFrom(AnnotationDbi, exists, get, saveDb)
+importMethodsFrom(BiocGenerics, mapply)
+importMethodsFrom(Biostrings, head, substr)
+importMethodsFrom(DBI, dbDriver)
+importMethodsFrom(GenomicRanges, mcols, "mcols<-", seqinfo,
+                  "seqinfo<-", strand)
+importMethodsFrom(IRanges,  append, as.data.frame, cbind,
+                  colnames, "colnames<-", duplicated, end, gsub,
+                  intersect, lapply, match, merge, nchar, ncol, order,
+                  rbind, rownames, "rownames<-", setdiff, sort,
+                  split, splitAsList, start, sub, t, table, tolower,
+                  unique, unlist, which)
+importMethodsFrom(methods, show)
+importMethodsFrom(Rsamtools, indexFa)
+importMethodsFrom(RSQLite, dbConnect, dbGetQuery)
+importMethodsFrom(rtracklayer, browserSession, "genome<-", getTable,
+                  import, "tableName<-", tableNames, track,
+                  "trackName<-", trackNames, ucscTableQuery)
+importMethodsFrom(S4Vectors, as.factor, complete.cases, do.call, grep,
+                  grepl, ifelse, levels, Map, metadata, "metadata<-",
+                  Reduce, sapply)
 
-import(methods)
 
-import(IRanges)
 
-import(GenomicRanges)
 
+importFrom(BiocInstaller, biocLite, biocVersion)
+importFrom(Biobase, AnnotatedDataFrame, ExpressionSet)
+importFrom(S4Vectors, DataFrame, isSingleInteger, isSingleString,
+           isSingleStringOrNA, wmsg)
+importFrom(IRanges, IRanges)
+importFrom(GenomeInfoDb, Seqinfo)
+importFrom(GenomicRanges, GRanges)
 import(GenomicFeatures)
-
+importFrom(GEOquery, getGEOSuppFiles)
+import(OrganismDbi)
+importFrom(rBiopaxParser, readBiopax)
+importFrom(rtracklayer, GRangesForUCSCGenome, ucscGenomes)
+importFrom(Rsamtools, razip)
 import(AnnotationHub)
+importFrom(AnnotationForge, makeInpDb,
+           makeOrgPackageFromNCBI)
+importFrom(AnnotationDbi, loadDb)
 
-import(futile.logger)
 
-importFrom(RCurl, getURL, getBinaryURL)
-
+importFrom(methods, as, getClassDef, is, isClass, new, setClass,
+           setMethod, slot, slotNames)
 importFrom(tools, file_ext)
+importFrom(futile.logger, ERROR, INFO, TRACE)
+importFrom(futile.logger, appender.file, flog.appender, flog.threshold)
+importFrom(jsonlite, fromJSON, toJSON)
+importFrom(httr, config, content, DELETE, GET, handle, handle_find,
+           HEAD, headers, POST, stop_for_status)
+importFrom(RCurl, basicTextGatherer, curlPerform, getBinaryURL,
+           getCurlHandle, getURL)
+importFrom(parallel, detectCores)
+importFrom(utils, data, download.file, read.delim, read.table, untar)
+importFrom(stats, setNames)
+importFrom(XML, readHTMLTable, xmlParse, xmlValue)
+importFrom(RSQLite, SQLite)
+importFrom(graphics, title)
 
-importFrom(XML, xmlValue)
 
-importFrom(BiocInstaller, biocVersion)
-
-importFrom(S4Vectors, metadata, "metadata<-", isSingleString, isTRUEorFALSE, isSingleNumber, isSingleInteger, isSingleNumberOrNA, isSingleStringOrNA)
-
-importFrom(Rsamtools, indexFa)
-
-importFrom(VariantAnnotation, readVcf)
-
-importFrom(rtracklayer, import, ucscGenomes)
-
-importFrom(AnnotationForge, makeInpDb)
 
 exportClasses(AnnotationHubMetadata,
               ImportPreparer,

@@ -117,7 +117,7 @@
 ## currently not in use - used to parse a http page and get the file size 
 ## and file's date last modified. 
 .fileInfoRCurl <- function(url, verbose=FALSE) {
-    require(XML)
+    
     tryCatch({
         result <- lapply(url, function(f) {
             message(basename(f))

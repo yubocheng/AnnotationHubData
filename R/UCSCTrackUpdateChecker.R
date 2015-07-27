@@ -142,8 +142,8 @@
 ## latest date information from the FTP site.
 getLatestTableDates <- function(){
     listing <- .getListing()
-    allTracks <- AnnotationHubData:::.cachedTracks("allPossibleTracks.rda") 
-    badTracks <- AnnotationHubData:::.cachedTracks("allBadTracks.rda")
+    allTracks <- .cachedTracks("allPossibleTracks.rda") 
+    badTracks <- .cachedTracks("allBadTracks.rda")
     goodTracks <- mapply(.filter, allTracks, badTracks)
     genomes <- names(goodTracks)
     genomes2 <- .getGenomeAbbrevs(genomes)
@@ -221,7 +221,7 @@ getLatestTableDates <- function(){
 getLatestTrackDates <- function(){
     curTables <- getLatestTableDates()
     genomeTrackTable <-
-        AnnotationHubData:::.cachedTracks("genomeTrackTable.Rda") 
+        .cachedTracks("genomeTrackTable.Rda") 
     ## rough sketch (for now)
     trackDates <- list()
     for(i in seq_along(names(genomeTrackTable))){

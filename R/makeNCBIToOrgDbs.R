@@ -108,7 +108,7 @@ makeNCBIToAHMs <- function(currentMetadata, justRunUnitTest=FALSE){
 ## (from the AHM)
 ## and outputFile will be file.path(AnnotationHubRoot,RDataPath)
 NCBIToOrgDbsRecipe <- function(ahm){
-    require(AnnotationForge)
+    
     ## make use of file.path to put on a trailing slash of the appropriate kind
     ## dbname <- makeInpDb(dir=file.path(inputFiles(ahm, useRoot=FALSE),""),
     ##                     dataDir=tempdir())
@@ -304,7 +304,7 @@ makeAnnotationHubResource("NCBIImportPreparer",
 ## This helper will just get the taxIDs that we already have GO data for.
 .getCoreTaxIds <- function(NCBIFilesDir=getwd()){
     ## connect to the DB
-    require(RSQLite)
+
     NCBIcon <- dbConnect(SQLite(), dbname = "NCBI.sqlite")
     dbGetQuery(NCBIcon, "SELECT DISTINCT tax_id FROM gene2go;")[[1]]
 }
@@ -315,7 +315,7 @@ makeAnnotationHubResource("NCBIImportPreparer",
 
 ## Step 2:
 .getAltTaxIds <- function(NCBIFilesDir=getwd()){
-    require(RSQLite)
+    
     NCBIcon <- dbConnect(SQLite(), dbname = "NCBI.sqlite")
     ## Then get the go related Tax Ids
     sql <- paste0("SELECT distinct NCBItaxon FROM altGO")
@@ -329,7 +329,7 @@ makeAnnotationHubResource("NCBIImportPreparer",
 
 ## Step 3: combine all those taxIds... and remove ones that we already have as packages:
 .getPackageOrgDbTaxIds <- function(){
-    orgDbs <- AnnotationHubData:::.GetOrgDbs()
+    orgDbs <- .GetOrgDbs()
     as.integer(unlist(lapply(orgDbs,
                 function(x){m <- metadata(x); m[m$name=='TAXID', 2] })))
 }
@@ -339,7 +339,7 @@ makeAnnotationHubResource("NCBIImportPreparer",
 
 ## Step 4: sort the taxIds by the coverage for genes...
 .getSortedTaxIds <- function(allIds, NCBIFilesDir=getwd()){
-    require(RSQLite)
+    
     NCBIcon <- dbConnect(SQLite(), dbname = "NCBI.sqlite")
     ## ## Then get the go related Tax Ids
     idStr <- paste(allIds,collapse="','")
