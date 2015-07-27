@@ -16,9 +16,6 @@
      
     df <- do.call(rbind, Map(.getBioPax, urls))
     
-    dropbp3 <- grep("bp3", basename(df$fileurl))
-    df <- df[-dropbp3,]
-
     if(justRunUnitTest)
         df <- df[1:2, ]  ## just first 2 files from first url.
        

@@ -6,9 +6,9 @@
 .ensemblGtfSourceUrls <-
     function(baseUrl, justRunUnitTest)
 {
-    regex <- ".*release-(81)" 
-    want <- .ensemblDirUrl(baseUrl, "gtf/", regex)
-    
+    rel <- seq(69,81,1) 
+    want <- paste0(.ensemblBaseUrl, "release-", rel, "/gtf/")
+     
     if(justRunUnitTest)
         want <- want[1]
     

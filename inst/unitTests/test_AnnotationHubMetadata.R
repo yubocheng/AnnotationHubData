@@ -272,14 +272,14 @@ test_ChEAPreparer_recipe <- function() {
 
 
 test_Inparanoid8ImportPreparer_recipe <- function() {
-    .recipeSetup()
-    suppresWarnings({
-    ahms = updateResources(ahroot, BiocVersion,
-                           preparerClasses = "Inparanoid8ImportPreparer",
-                           insert = FALSE, metadataOnly=TRUE,
-                           justRunUnitTest=TRUE)
-    })
-    checkTrue(class(ahms[[1]])=="AnnotationHubMetadata")
+    #.recipeSetup()
+    #suppresWarnings({
+    #ahms = updateResources(ahroot, BiocVersion,
+    #                       preparerClasses = "Inparanoid8ImportPreparer",
+    #                       insert = FALSE, metadataOnly=TRUE,
+    #                       justRunUnitTest=TRUE)
+    #})
+    #checkTrue(class(ahms[[1]])=="AnnotationHubMetadata")
 }
 
 test_NCBIImportPreparer_recipe <- function() {
@@ -291,4 +291,29 @@ test_NCBIImportPreparer_recipe <- function() {
     checkTrue(class(ahms[[1]])=="AnnotationHubMetadata")
 }
 
+t_GSE62944_recipe <- function() {
+    .recipeSetup()
+    ahms = updateResources(ahroot, BiocVersion,
+                           preparerClasses = "GSE62944ToExpressionSetPreparer",
+                           insert = FALSE, metadataOnly=TRUE,
+                           justRunUnitTest=TRUE)
+    checkTrue(class(ahms[[1]])=="AnnotationHubMetadata")
+}
 
+test_Grasp2Db_recipe <- function() {
+    .recipeSetup()
+    ahms = updateResources(ahroot, BiocVersion,
+                           preparerClasses = "Grasp2ImportPreparer",
+                           insert = FALSE, metadataOnly=TRUE,
+                           justRunUnitTest=TRUE)
+    checkTrue(class(ahms[[1]])=="AnnotationHubMetadata")
+}
+
+test_EnsemblGtfToGRanges_recipe <- function() {
+    .recipeSetup()
+    ahms = updateResources(ahroot, BiocVersion,
+                           preparerClasses = "EnsemblGtfImportPreparer",
+                           insert = FALSE, metadataOnly=TRUE,
+                           justRunUnitTest=TRUE)
+    checkTrue(class(ahms[[1]])=="AnnotationHubMetadata")
+}

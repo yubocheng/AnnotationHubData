@@ -66,7 +66,7 @@ makeinparanoid8ToAHMs <- function(currentMetadata, justRunUnitTest) {
           RDataClass = "Inparanoid8Db",
 	  DispatchClass="SQLiteFile",	
           RDataDateAdded = Sys.time(),
-          Recipe = c("inparanoid8ToDbsRecipe", package="AnnotationHubData"),
+          Recipe = "AnnotationHubData:::inparanoid8ToDbsRecipe",
           Tags = c("Inparanoid", "Gene", "Homology", "Annotation")))
 }
 

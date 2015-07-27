@@ -1,9 +1,0 @@
-machine ftp.ensembl.org
-    login anonymous
-    password dtenenba@fhcrc.org
-
-macdef getdirlist
-    cd /pub/release-70/fasta
-    ls -R
-    quit
-
