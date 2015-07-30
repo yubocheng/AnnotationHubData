@@ -344,6 +344,14 @@ really use 'aws s3 sync' instead of 'aws s3 cp'.
 aws s3 sync help
 ```
 
+## The AnnotationHub Server
+
+The server is implemented in Ruby. Its code is 
+[here](https://github.com/Bioconductor/AnnotationHubServer3.0)
+with a README that explains how to install it.
+
+(more to come...)
+
 
 
 
