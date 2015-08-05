@@ -354,7 +354,6 @@ makeAnnotationHubResource("NCBIImportPreparer",
 ## save(results, file='viableIDs.rda')
 ## Then copy that file to AnnotationForge/inst/extdata/ (and then reinstall)
 
-
 ## NCBIcon <- dbConnect(SQLite(), dbname = "NCBI.sqlite")
 ## ## Then get the go related Tax Ids
 ## idStr <- paste(allIds,collapse="','")

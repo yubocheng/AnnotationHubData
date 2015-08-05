@@ -4,6 +4,17 @@ ahroot <- "/var/FastRWeb/web"
 #BiocVersion <- c("3.1","3.2")  
 BiocVersion <- c("3.2")
 
+## ReRun FASTA files for AnnotationHub
+
+ahms = updateResources(ahroot, BiocVersion,
+  preparerClasses = "EnsemblFastaImportPreparer",
+  insert = FALSE, metadataOnly=TRUE)
+
+## debug(AnnotationHubData:::.ensemblDirUrl)
+
+## save(ahms, file='FastaAhms.Rda')
+
+
 
 ## BEFORE YOU RUN THIS REMOVE these records from the biocversions table.
 ## ALSO: double check that the biocversions are acting as expected...
@@ -25,6 +36,12 @@ ahms = updateResources(ahroot, BiocVersion,
 ahms = updateResources(ahroot, BiocVersion,
   preparerClasses = "NCBIImportPreparer",
   insert = FALSE, metadataOnly=FALSE)
+
+
+## Then ONLY insert the metadata into the DB
+ahms = updateResources(ahroot, BiocVersion,
+  preparerClasses = "NCBIImportPreparer",
+  insert = TRUE, metadataOnly=TRUE)
 
 
 

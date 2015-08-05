@@ -11,10 +11,9 @@
 
 ## list directories below url/dir satisfying regex
 .ensemblDirUrl <-
-    function(url, dir, curlHand, regex = .ensemblReleaseRegex)
+    function(url, dir,  regex = .ensemblReleaseRegex)
 {
-    lst <- getURL(url=url, dirlistonly=TRUE, followlocation=TRUE,
-                  curl=curlHand)
+    lst <- getURL(url=url, dirlistonly=TRUE, followlocation=TRUE) 
     lst <- strsplit(lst, "\n")[[1]]
     releases <- paste0(url, lst)
     paste(grep(regex, releases, value=TRUE), dir, sep="/")
@@ -64,14 +63,12 @@
 {
     ## handle pointer must exist in external scope.
     
-    curlHand <- httr::handle_find(baseUrl)$handle
 
-    want <- .ensemblDirUrl(baseUrl, "fasta/", curlHand)
+    want <- .ensemblDirUrl(baseUrl, "fasta/")
     ## files in release ## BOOM
 
     .processUrl <- function(url) {
-        listing <- getURL(url=url, followlocation=TRUE, customrequest="LIST -R",
-                          curl=curlHand)
+        listing <- getURL(url=url, followlocation=TRUE, customrequest="LIST -R")
         listing<- strsplit(listing, "\n")[[1]]
 
         subdirIdx <- grepl(".*/.*:", listing)  
