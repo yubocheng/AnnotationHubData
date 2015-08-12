@@ -6,12 +6,23 @@ BiocVersion <- c("3.2")
 
 ## ReRun FASTA files for AnnotationHub
 
+## debug(AnnotationHubData:::.ensemblFastaSourceUrls)
+## this works
 ahms = updateResources(ahroot, BiocVersion,
   preparerClasses = "EnsemblFastaImportPreparer",
   insert = FALSE, metadataOnly=TRUE)
 
-## debug(AnnotationHubData:::.ensemblDirUrl)
 
+## debug(AnnotationHubData:::downloadResource)
+## this doesn't
+ahms = updateResources(ahroot, BiocVersion,
+  preparerClasses = "EnsemblFastaImportPreparer",
+  insert = TRUE, metadataOnly=FALSE)
+
+
+
+
+## debug(AnnotationHubData:::.ensemblDirUrl)
 ## save(ahms, file='FastaAhms.Rda')
 
 

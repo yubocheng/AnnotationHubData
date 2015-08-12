@@ -374,9 +374,10 @@ downloadResource <- function(ahm, downloadIfExists)
         ## have the same protocol:
         protocol <- tolower(URL_parts(SourceUrl)[,'protocol'])[1]
         filename <- basename(URL_parts(SourceUrl)[,'path'])
-        dest0 <- file.path(tempdir(), AnnotationHubRoot, RDataPath)
-        destdir <- dirname(dest0)
-        dir.create(destdir, recursive=TRUE)
+##      dest0 <- file.path(tempdir(), AnnotationHubRoot, RDataPath) ## new
+        dest0 <- file.path(AnnotationHubRoot, RDataPath) ## ori/works
+        destdir <- dirname(dest0) 
+        dir.create(unique(destdir), recursive=TRUE) ## new
         destfile <- file.path(destdir, filename)
 
         if (file.exists(destfile) && (!downloadIfExists))

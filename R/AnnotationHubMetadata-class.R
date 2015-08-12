@@ -160,7 +160,7 @@ AnnotationHubMetadata <-
         RDataPath <- substr(SourceUrl, clipChars, nchar(SourceUrl))
     }
     if (missing(AnnotationHubRoot)){
-        AnnotationHubRoot <- "/var/FastRWeb/web" ## Dans preferred default
+        AnnotationHubRoot <- "/var/FastRWeb/web" 
     }
     
     RDataDateAdded <-

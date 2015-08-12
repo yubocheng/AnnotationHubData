@@ -6,7 +6,7 @@
 ##.ensemblReleaseRegex <- ".*release-(79|8[[:digit:]])"
 
 ## for a speed run just do one set
-.ensemblReleaseRegex <- ".*release-80"
+.ensemblReleaseRegex <- ".*release-81"
 
 
 ## list directories below url/dir satisfying regex
@@ -87,6 +87,10 @@
     }
     
     res <- unlist(lapply(want, .processUrl), use.names=FALSE)
+
+## TEMP HACK to allow faster testing by only doing the 1st couple records
+##   res <- res[1:2]
+    
     if (length(res) == 0) {
         txt <- sprintf("no fasta files at %s",
                        paste(sQuote(want), collapse=", "))
@@ -151,7 +155,6 @@ makeEnsemblFastaToAHMs <-
 ## recipe
 ensemblFastaToFaFile <- function(ahm)
 {
-    
     ## faOut is target .rz file name
     faOut <- normalizePath(outputFile(ahm)[[1]] )
     ## from which we 'know' the name of the source file that will be present...
