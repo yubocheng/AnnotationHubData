@@ -1,4 +1,5 @@
 .EpigenomeRoadMap <- "http://egg2.wustl.edu/roadmap/data/byFileType/"
+.EpigenomeRoadMapMain <- "http://egg2.wustl.edu/roadmap/data/"
 
 .readEpiFilesFromWebUrl <- function(url, fileType, justRunUnitTest) {
     tryCatch ({
@@ -18,8 +19,8 @@
 }
 
 .EpiFilesMetadata <- function() {
-    metafname <-"metadata/EID_metadata.tab"
-    read.delim(paste0(.EpigenomeRoadMap, metafname))
+    metafname <-"byFileType/metadata/EID_metadata.tab"
+    read.delim(paste0(.EpigenomeRoadMapMain, metafname))
 }
 
 .EpiFilesTags <- function(url, pattern="-") {
@@ -109,13 +110,13 @@
 }
 
 .peakEpiFiles <- function(justRunUnitTest) {
-   paths <- c(broadPeaks="peaks/consolidated/broadPeak/",
-               narrowPeaks="peaks/consolidated/narrowPeak/", 
-               gappedPeaks="peaks/consolidated/gappedPeak/" ,
-               unbroadPeaks="peaks/unconsolidated/broadPeak/",
-               unnarrowPeaks="peaks/unconsolidated/narrowPeak/",
-               ungappedPeaks="peaks/unconsolidated/gappedPeak/" )
-    fileurls <- sapply(paste0(.EpigenomeRoadMap, paths), function(x) {
+   paths <- c(broadPeaks="byFileType/peaks/consolidated/broadPeak/",
+               narrowPeaks="byFileType/peaks/consolidated/narrowPeak/", 
+               gappedPeaks="byFileType/peaks/consolidated/gappedPeak/" ,
+               unbroadPeaks="byFileType/peaks/unconsolidated/broadPeak/",
+               unnarrowPeaks="byFileType/peaks/unconsolidated/narrowPeak/",
+               ungappedPeaks="byFileType/peaks/unconsolidated/gappedPeak/" )
+    fileurls <- sapply(paste0(.EpigenomeRoadMapMain, paths), function(x) {
         .readEpiFilesFromWebUrl(x, "gz", justRunUnitTest)
     })
     if(justRunUnitTest)
@@ -131,14 +132,14 @@
 .signalEpiFiles <- function(justRunUnitTest) {   
     ## consolidated & unconsolidated BigWig Files
     paths <- 
-        c(consolidated_foldChange="signal/consolidated/macs2signal/foldChange/", 
-        consolidated_pval="signal/consolidated/macs2signal/pval/",
-        un_consolidated_foldChange="signal/unconsolidated/foldChange/", 
-        un_consolidated_pval="signal/unconsolidated/pval/")
-    dirurl <- paste0(.EpigenomeRoadMap, paths)
+        c(consolidated_foldChange="byFileType/signal/consolidated/macs2signal/foldChange/", 
+        consolidated_pval="byFileType/signal/consolidated/macs2signal/pval/",
+        un_consolidated_foldChange="byFileType/signal/unconsolidated/foldChange/", 
+        un_consolidated_pval="byFileType/signal/unconsolidated/pval/")
+    dirurl <- paste0(.EpigenomeRoadMapMain, paths)
     
     ## consolidated Imputed Files
-    conImpUrl <- paste0(.EpigenomeRoadMap, "signal/consolidatedImputed/")
+    conImpUrl <- paste0(.EpigenomeRoadMapMain, "byFileType/signal/consolidatedImputed/")
     table <- XML::readHTMLTable(conImpUrl)[[1]]
     baseDirs<- levels(table$Name)
     idx <- match(c("Parent Directory", "RNAseq/", "DNase/", "DNAMethylSBS/"),
@@ -164,22 +165,22 @@
 }
 
 .EpiMetadataFile <- function() {
-    metafname <-"metadata/EID_metadata.tab"
-    fileurl <- paste0(.EpigenomeRoadMap, metafname)
+    metafname <-"byFileType/metadata/EID_metadata.tab"
+    fileurl <- paste0(.EpigenomeRoadMapMain, metafname)
     description <- "Metadata for EpigenomeRoadMap Project"
     df <-.httrFileInfo(fileurl)
     tags <- paste("EpigenomeRoadMap", "Metadata", sep=", ")
     rdataclass <- "data.frame"
     sourcetype <- "tab"
     dispatchClass <- "data.frame"
-    rdatapath <- sub(.EpigenomeRoadMap, "", fileurl)
+    rdatapath <- sub(.EpigenomeRoadMapMain, "", fileurl)
     cbind(df, rdatapath, tags, description, dispatchClass, sourcetype, 
         rdataclass, stringsAsFactors=FALSE)
 }
 
 .chmmModels <- function(justRunUnitTest) {
-    dirurl <- paste0(.EpigenomeRoadMap, 
-        "chromhmmSegmentations/ChmmModels/coreMarks/jointModel/final/")
+    dirurl <- paste0(.EpigenomeRoadMapMain, 
+        "byFileType/chromhmmSegmentations/ChmmModels/coreMarks/jointModel/final/")
     fileurls <- .readEpiFilesFromWebUrl(dirurl, "mnemonics.bed.gz", 
                                         justRunUnitTest=FALSE)
     if (justRunUnitTest)
@@ -192,22 +193,100 @@
     cbind(df, dispatchClass, sourcetype, rdataclass, stringsAsFactors=FALSE)
 }
 
+.expressionTextFiles <- function(justRunUnitTest=FALSE) {
+   dirurl <- paste0(.EpigenomeRoadMapMain,"byDataType/rna/expression/")
+
+   ## collect file name from page
+   fileurls <- .readEpiFilesFromWebUrl(dirurl,"gz", FALSE)
+    
+   ## get the file size and  the file info
+   df <- .httrFileInfo(fileurls, verbose=TRUE)
+
+   ## these files are downloaded from the web
+   rdatapath <- sub(.EpigenomeRoadMapMain, "", fileurls)
+
+    ## add description.
+    map <- c(
+       "57epigenomes.RPKM.pc" = "RPKM expression matrix for protein coding genes",
+       "57epigenomes.N.pc"= "RNA-seq read counts matrix for protein coding genes",
+       "57epigenomes.exon.RPKM.pc"= "RPKM expression matrix for protein coding exons",
+       "57epigenomes.RPKM.intronic.pc"="RNA-seq read count matrix for intronic protein-coding RNA elements",
+       "57epigenomes.exon.N.pc"="RNA-seq read counts matrix for protein coding exons",
+       "57epigenomes.N.intronic.pc"="RNA-seq read count matrix for intronic protein-coding RNA elements",
+       "57epigenomes.RPKM.nc"="RPKM expression matrix for non-coding RNAs",
+       "57epigenomes.N.nc"="RNA-seq read counts matrix for non-coding RNAs",
+       "57epigenomes.N.rb"="RNA-seq read counts matrix for ribosomal genes",
+       "57epigenomes.RPKM.rb"="RPKM expression matrix for ribosomal RNAs",
+       "57epigenomes.exn.RPKM.rb"="RPKM expression matrix for ribosomal gene exons",
+       "57epigenomes.exn.N.rb"="RNA-seq read counts matrix for ribosomal gene exons",
+       "57epigenomes.exon.N.nc.gz"="RNA-seq read counts matrix for ribosomal gene exons", 
+       "57epigenomes.exon.RPKM.nc.gz"="RPKM expression matrix for ribosomal gene exons")
+    description <- character(length(fileurls))
+    for (i in seq_along(map))
+       description[grep(names(map)[i], basename(fileurls))] <- map[[i]]
+
+    ## add tags
+    tags <- rep("EpigenomeRoadMap, expression, quantification, hg19",
+        length(fileurls))
+
+    dispatchClass <- rep("EpiExpressionText" , length(fileurls))
+    rdataclass <- rep("data.frame", length(fileurls))
+    sourcetype <- rep("Zip", length(fileurls))
+    cbind(df, rdatapath, description, tags, dispatchClass,
+        sourcetype, rdataclass, stringsAsFactors=FALSE)
+
+}
+
+.expressionAnnotationGtf <- function(justRunUnitTest=FALSE) {
+    dirurl <- paste0(.EpigenomeRoadMapMain,"byDataType/rna/annotations/")
+    
+    ## collect file name from page
+    fileurls <- .readEpiFilesFromWebUrl(dirurl,"gtf.gz", FALSE)
+    
+    ## get the file size and  the file info
+    df <- .httrFileInfo(fileurls, verbose=TRUE)
+
+    ## these files are downloaded from the web
+    rdatapath <- sub(.EpigenomeRoadMapMain, "", fileurls)
+    
+    ## add description. 
+    description <- rep(.expandLine("GencodeV10 gene/transcript coordinates
+    and annotations corresponding to hg19 version of the human genome"),
+        length(fileurls))
+    ## add tags
+    tags <- rep("EpigenomeRoadMap, annotations, genecodeV10, hg19", 
+        length(fileurls))
+    dispatchClass <- rep("GTFFile" , length(fileurls))
+    rdataclass <- rep("GRanges", length(fileurls))
+    sourcetype <- rep("GTF", length(fileurls))
+    cbind(df, rdatapath, description, tags, dispatchClass, 
+        sourcetype, rdataclass, stringsAsFactors=FALSE)
+}
 
 makeEpigenomeRoadmap <- function(currentMetadata, justRunUnitTest=FALSE) {
     peak <- .peakEpiFiles(justRunUnitTest)
     signal <- .signalEpiFiles(justRunUnitTest)
     metadata <-  .EpiMetadataFile()
     seg <- .chmmModels(justRunUnitTest)
+    expr_gtf <- .expressionAnnotationGtf(justRunUnitTest)
+    expr_text <- .expressionTextFiles(justRunUnitTest)
     rsrc <- rbind(peak[, !names(peak)%in% "date"], 
                   signal[, !names(signal)%in% "date"], 
                   metadata[, !names(metadata)%in% "date"], 
-                  seg[, !names(seg)%in% "date"])
-    date <- c(peak$date, signal$date, metadata$date, seg$date)    
-  
+                  seg[, !names(seg)%in% "date"], 
+                  expr_gtf[, !names(expr_gtf)%in% "date"],  
+                  expr_text[, !names(expr_text)%in% "date"] )
+    date <- c(peak$date, signal$date, metadata$date, seg$date,
+             expr_gtf, expr_text)    
+    
+    #rsrc <- .expressionAnnotationGtf(justRunUnitTest)
+    #rsrc <- .expressionTextFiles(justRunUnitTest)
+    #date <- rsrc$date
+
     description <- rsrc$description
     title <- basename(rsrc$fileurl)
     sourceUrls <- rsrc$fileurl
-    sourceVersion <- gsub(" ","_",date) 
+    sourceVersion <- as.character(date) #gsub(" ","_",date) 
         ## should be character
     SourceLastModifiedDate <- date  ## should be "POSIXct" "POSIXt"
     SourceSize <- as.numeric(rsrc$size)
@@ -234,7 +313,7 @@ makeEpigenomeRoadmap <- function(currentMetadata, justRunUnitTest=FALSE) {
             TaxonomyId=9606L,
             Coordinate_1_based = FALSE,
             DataProvider = "BroadInstitute",
-            Location_Prefix = .EpigenomeRoadMap,
+            Location_Prefix = .EpigenomeRoadMapMain,
             Maintainer = "Sonali Arora <sarora@fredhutch.org>",
             RDataDateAdded = Sys.time(),
             Recipe = NA_character_))
