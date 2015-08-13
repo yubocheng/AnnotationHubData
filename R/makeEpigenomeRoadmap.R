@@ -31,7 +31,9 @@
     idx <- match(celltype, metadata[,"EID"])
     
     ## parse the url to get which kind of  files
-    tempurl <- gsub(.EpigenomeRoadMap, "", url)
+    tempurl <- gsub(.EpigenomeRoadMapMain, "", url)
+    tempurl <- sub("byDataType/","", tempurl)  
+    tempurl <- sub("byFileType/","", tempurl)
     out <- strsplit(tempurl, "/")
     mat <- do.call(rbind, out)
     matTags <- apply(mat, 1, function(x) paste0(x[1:3], collapse=", "))
@@ -54,7 +56,7 @@
     df <- .httrFileInfo(fileurls, verbose=TRUE) 
 
     ## these files are downloaded from the web 
-    rdatapath <- sub(.EpigenomeRoadMap, "", fileurls)
+    rdatapath <- sub(.EpigenomeRoadMapMain, "", fileurls)
   
     ## add tags
     tags <- .EpiFilesTags(fileurls, pattern)
@@ -100,7 +102,16 @@
    
         ## chmm Models
         coreMarks_mnemonics.bed.gz=.expandLine("15 state chromatin 
-        segmentations from EpigenomeRoadMap Project"))        
+        segmentations from EpigenomeRoadMap Project"),
+
+
+        ## dna methylation files
+        mCRF_FractionalMethylation.bigwig=.expandLine("MeDIP/MRE(mCRF) 
+        fractional methylation calls from EpigenomeRoadMap Project"),
+        RRBS_FractionalMethylation.bigwig=.expandLine("RRBS
+        fractional methylation calls from EpigenomeRoadMap Project "),
+        WGBS_FractionalMethylation.bigwig=.expandLine("Whole genome bisulphite
+        fractional methylation calls from EpigenomeRoadMap Project") )        
         
     description <- character(length(fileurls))
     for (i in seq_along(map))
@@ -263,25 +274,44 @@
         sourcetype, rdataclass, stringsAsFactors=FALSE)
 }
 
+
+.dnaMethylation <- function(justRunUnitTest=FALSE) {
+    dirurl <- paste0(.EpigenomeRoadMapMain,"byDataType/dnamethylation/")
+    dirurl2 <- paste0(dirurl, c("RRBS/FractionalMethylation_bigwig/", 
+                    "WGBS/FractionalMethylation_bigwig/",
+                    "mCRF/FractionalMethylation_bigwig/"))
+    fileurls <- unlist(sapply(dirurl2, function(x) 
+       .readEpiFilesFromWebUrl(x,"bigwig", FALSE), USE.NAMES=FALSE))
+    ## add decription, tags, rdatapath, date, size
+    df <- .MiscEpiFiles(fileurls, pattern="_")
+    ## add dispatch class, sourcetype and Rdataclass
+    dispatchClass <- rep("BigWigFile" , length(fileurls))
+    rdataclass <- rep("BigWigFile" , length(fileurls))
+    sourcetype <- rep("BigWig" , length(fileurls))
+    cbind(df, dispatchClass, sourcetype, rdataclass, stringsAsFactors=FALSE)
+}
+
+
 makeEpigenomeRoadmap <- function(currentMetadata, justRunUnitTest=FALSE) {
-    peak <- .peakEpiFiles(justRunUnitTest)
-    signal <- .signalEpiFiles(justRunUnitTest)
-    metadata <-  .EpiMetadataFile()
-    seg <- .chmmModels(justRunUnitTest)
-    expr_gtf <- .expressionAnnotationGtf(justRunUnitTest)
-    expr_text <- .expressionTextFiles(justRunUnitTest)
-    rsrc <- rbind(peak[, !names(peak)%in% "date"], 
-                  signal[, !names(signal)%in% "date"], 
-                  metadata[, !names(metadata)%in% "date"], 
-                  seg[, !names(seg)%in% "date"], 
-                  expr_gtf[, !names(expr_gtf)%in% "date"],  
-                  expr_text[, !names(expr_text)%in% "date"] )
-    date <- c(peak$date, signal$date, metadata$date, seg$date,
-             expr_gtf, expr_text)    
-    
-    #rsrc <- .expressionAnnotationGtf(justRunUnitTest)
-    #rsrc <- .expressionTextFiles(justRunUnitTest)
-    #date <- rsrc$date
+    #peak <- .peakEpiFiles(justRunUnitTest)
+    #signal <- .signalEpiFiles(justRunUnitTest)
+    #metadata <-  .EpiMetadataFile()
+    #seg <- .chmmModels(justRunUnitTest)
+    #expr_gtf <- .expressionAnnotationGtf(justRunUnitTest)
+    #expr_text <- .expressionTextFiles(justRunUnitTest)
+    #dnamethyl <- .dnaMethylation(justRunUnitTest)
+    #rsrc <- rbind(peak[, !names(peak)%in% "date"], 
+    #              signal[, !names(signal)%in% "date"], 
+    #              metadata[, !names(metadata)%in% "date"], 
+    #              seg[, !names(seg)%in% "date"], 
+    #              expr_gtf[, !names(expr_gtf)%in% "date"],  
+    #              expr_text[, !names(expr_text)%in% "date"],
+    #              dnamethyl[, !names(dnamethyl)%in% "date"]  )
+    #date <- c(peak$date, signal$date, metadata$date, seg$date,
+    #         expr_gtf$date, expr_text$date, dnamethyl$date)    
+        
+    rsrc <- .dnaMethylation(justRunUnitTest)
+    date <- rsrc$date
 
     description <- rsrc$description
     title <- basename(rsrc$fileurl)
