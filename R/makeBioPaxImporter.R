@@ -43,7 +43,8 @@
     cbind(df, title,tags, sourceType, description, stringsAsFactors=FALSE)
 }
 
-makeBioPaxImporter <- function(currentMetadata, justRunUnitTest=FALSE) {
+makeBioPaxImporter <- function(currentMetadata, justRunUnitTest=FALSE,
+                               BiocVersion=biocVersion()) {
     rsrc <- .getBioPaxFilesNIH(justRunUnitTest)
     
     ## input_sources table
@@ -78,6 +79,7 @@ makeBioPaxImporter <- function(currentMetadata, justRunUnitTest=FALSE) {
         Tags=tags,
         
         MoreArgs=list(
+            BiocVersion=BiocVersion,
             DataProvider = "NIH Pathway Interaction Database",
             Species="Homo sapiens",
             TaxonomyId=9606L,

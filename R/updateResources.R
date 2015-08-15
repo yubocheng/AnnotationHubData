@@ -97,7 +97,7 @@ getImportPreparerClasses <- function()
 ## 3) send metadata off to the back end
 ## 4) call the recipe and push the results of that off to the right place
 
-updateResources <- function(AnnotationHubRoot, BiocVersion,
+updateResources <- function(AnnotationHubRoot, BiocVersion=biocVersion(),
                             preparerClasses=getImportPreparerClasses(),
                             insert=FALSE, metadataOnly=TRUE,
                             justRunUnitTest=FALSE){
@@ -108,6 +108,7 @@ updateResources <- function(AnnotationHubRoot, BiocVersion,
     ## not spawn (and it returns the list of AHMs that don't exist
     ## already).
     ## So should look like this
+    BiocVersion <- package_version(BiocVersion)
     allAhms <- list()
     for (preparerClass in preparerClasses)
     {
@@ -122,7 +123,8 @@ updateResources <- function(AnnotationHubRoot, BiocVersion,
         } else {
             preparerInstance <- do.call(new, list(preparerClass))
             ahms <- newResources(preparerInstance, listOfExistingResources,
-                                 justRunUnitTest=justRunUnitTest)
+                                 justRunUnitTest=justRunUnitTest,
+                                 BiocVersion=BiocVersion)
             allAhms <- append(allAhms, ahms)
         }
     }

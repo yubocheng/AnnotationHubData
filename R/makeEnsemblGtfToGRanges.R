@@ -32,7 +32,7 @@
 ## STEP 1: make function to process metadata into AHMs
 ## This function will return the AHMs and takes no args.
 ## It also must specify a recipe function.
-makeEnsemblGTFsToAHMs <- function(currentMetadata, justRunUnitTest){
+makeEnsemblGTFsToAHMs <- function(currentMetadata, justRunUnitTest, BiocVersion){
     ## get possible sources
     df <- .ensemblGtfSourceUrls(.ensemblBaseUrl, justRunUnitTest)
     sourceUrls <- df$fileurl
@@ -55,6 +55,7 @@ makeEnsemblGTFsToAHMs <- function(currentMetadata, justRunUnitTest){
         RDataPath=rdata,
         TaxonomyId=meta$taxonomyId, Title=meta$title,
         MoreArgs=list(
+          BiocVersion=BiocVersion,
           Coordinate_1_based = TRUE,
           DataProvider = "Ensembl",
           Maintainer = "Martin Morgan <mtmorgan@fredhutch.org>",

@@ -177,7 +177,7 @@ UCSCFullTrackImportPreparer <-
 
 
 
-
+## FIXME: does not pass BiocVersion
 ## STEP 1: make a function to process metadata into AHMs
 .UCSCTrackMetadata <-
     function(type = c("FULL", "TRACKONLY"))

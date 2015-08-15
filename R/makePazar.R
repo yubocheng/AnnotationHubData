@@ -32,7 +32,8 @@
     cbind(df, title, description, sourceUrl, stringsAsFactors=FALSE)
 }
 
-makePazarImporter <- function(currentMetadata, justRunUnitTest=FALSE) {
+makePazarImporter <- function(currentMetadata, justRunUnitTest=FALSE, 
+                              BiocVersion=biocVersion()) {
     rsrc <- .getPazarFiles(justRunUnitTest)
     
     ## input_sources table
@@ -57,6 +58,7 @@ makePazarImporter <- function(currentMetadata, justRunUnitTest=FALSE) {
         RDataPath = gsub(.pazarBaseUrl, "", sourceUrls),
         
         MoreArgs=list(
+            BiocVersion=BiocVersion,
             # input sources 
             SourceType = "CSV",
             

@@ -43,7 +43,7 @@
 ## STEP 1: make function to process metadata into AHMs
 ## This function will return the AHMs and takes no args.
 ## It also must specify a recipe function.
-makeinparanoid8ToAHMs <- function(currentMetadata, justRunUnitTest) {
+makeinparanoid8ToAHMs <- function(currentMetadata, justRunUnitTest, BiocVersion) {
     baseUrl <- 'http://inparanoid.sbc.su.se/download/current/Orthologs_other_formats'
     ## Then make the metadata for these
     meta <- .inparanoidMetadataFromUrl(baseUrl, justRunUnitTest)
@@ -59,6 +59,7 @@ makeinparanoid8ToAHMs <- function(currentMetadata, justRunUnitTest) {
         Title=meta$title,
         RDataPath=meta$rDataPath,
         MoreArgs=list(
+          BiocVersion=BiocVersion,
 	  SourceType="Inparanoid",
           Coordinate_1_based = TRUE, ## TRUE unless it "needs" to be FALSE
           DataProvider = "Inparanoid8",

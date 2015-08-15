@@ -292,7 +292,8 @@
 }
 
 
-makeEpigenomeRoadmap <- function(currentMetadata, justRunUnitTest=FALSE) {
+makeEpigenomeRoadmap <- function(currentMetadata, justRunUnitTest=FALSE,
+                                 BiocVersion=biocVersion()) {
     #peak <- .peakEpiFiles(justRunUnitTest)
     #signal <- .signalEpiFiles(justRunUnitTest)
     #metadata <-  .EpiMetadataFile()
@@ -338,6 +339,7 @@ makeEpigenomeRoadmap <- function(currentMetadata, justRunUnitTest=FALSE) {
         DispatchClass = DispatchClass,
         RDataClass = RDataClass,
         MoreArgs=list(
+            BiocVersion=BiocVersion,
             Genome="hg19",
             Species="Homo sapiens",
             TaxonomyId=9606L,

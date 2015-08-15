@@ -127,7 +127,8 @@
     do.call(rbind, Map(.subDir, urls, verbose=TRUE))
 }
 
-makeEncodeImporter <- function(currentMetadata, justRunUnitTest=FALSE) {
+makeEncodeImporter <- function(currentMetadata, justRunUnitTest=FALSE,
+                               BiocVersion=biocVersion()) {
     rsrc <- .encodeFiles(justRunUnitTest)
     
     ## input_sources table
@@ -178,6 +179,7 @@ makeEncodeImporter <- function(currentMetadata, justRunUnitTest=FALSE) {
         Tags=tags,
         
         MoreArgs=list(
+            BiocVersion=BiocVersion,
             # resources
             DataProvider = "UCSC",
             Species="Homo sapiens",

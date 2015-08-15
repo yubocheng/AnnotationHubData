@@ -27,7 +27,8 @@
 }
 
 
-makeRefNetImporter <- function(currentMetadata, justRunUnitTest=FALSE) {
+makeRefNetImporter <- function(currentMetadata, justRunUnitTest=FALSE,
+                               BiocVersion=biocVersion()) {
     rsrc <- .refnetFiles()
     
     ## input_sources table
@@ -58,6 +59,7 @@ makeRefNetImporter <- function(currentMetadata, justRunUnitTest=FALSE) {
         RDataPath = gsub(.amazonBaseUrl, "",sourceUrls),
         
         MoreArgs=list(
+            BiocVersion=BiocVersion,
             # input sources 
             SourceType = "RData",
             

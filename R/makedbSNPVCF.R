@@ -60,7 +60,8 @@
     cbind(df, description, stringsAsFactors = FALSE)
 }
 
-makedbSNPVCF <- function(currentMetadata, justRunUnitTest=TRUE) {
+makedbSNPVCF <- function(currentMetadata, justRunUnitTest=TRUE,
+                         BiocVersion=biocVersion()) {
     rsrc <- .getdbSNP(justRunUnitTest)
    
     ## input_sources table
@@ -97,6 +98,7 @@ makedbSNPVCF <- function(currentMetadata, justRunUnitTest=TRUE) {
         RDataPath=rdatapaths,
                  
         MoreArgs=list(
+            BiocVersion=BiocVersion,
             # input sources 
             SourceType= "VCF",
                               

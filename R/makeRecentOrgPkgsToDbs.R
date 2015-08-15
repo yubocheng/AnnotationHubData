@@ -62,7 +62,7 @@
 ## STEP 1: make function to process metadata into AHMs
 ## This function will return the AHMs and takes no args.
 ## It also must specify a recipe function.
-makeOrgDbPkgsToAHMs <- function(currentMetadata, justRunUnitTest) {
+makeOrgDbPkgsToAHMs <- function(currentMetadata, justRunUnitTest, BiocVersion) {
 
     ## 1st get the OrgDbObjects as I want to get most of the metadata from those
     orgDbs <- .GetOrgDbs()
@@ -81,6 +81,7 @@ makeOrgDbPkgsToAHMs <- function(currentMetadata, justRunUnitTest) {
         Title=meta$title,
         RDataPath=meta$rDataPath,
         MoreArgs=list(
+            BiocVersion=BiocVersion,
             Coordinate_1_based = TRUE, ## TRUE unless it "needs" to be FALSE
             DataProvider = "ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/",
             Maintainer = "Marc Carlson <mcarlson@fhcrc.org>",

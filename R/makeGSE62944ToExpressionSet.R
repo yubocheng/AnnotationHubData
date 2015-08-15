@@ -1,10 +1,11 @@
-AHMRecord <- function(currentMetadata, justRunUnitTest) {
+AHMRecord <- function(currentMetadata, justRunUnitTest, BiocVersion) {
     list(AnnotationHubMetadata(
         Title="RNA-Sequencing and clinical data for 7706 tumor samples from The Cancer Genome Atlas",
         Description=.expandLine("TCGA RNA-seq Rsubread-summarized raw count data for 7706 tumor
                  samples, represented as an R / Bioconductor Biobase
                  ExpressionSet. R data representation derived from GEO accession
                  GSE62944."),
+        BiocVersion=BiocVersion,
         Genome="hg19",
         SourceType="tar.gz",
         SourceUrl="http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE62944",

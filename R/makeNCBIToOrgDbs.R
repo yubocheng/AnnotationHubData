@@ -75,7 +75,7 @@
 ## STEP 1: make function to process metadata into AHMs
 ## This function will return the AHMs and takes no args.
 ## It also must specify a recipe function.
-makeNCBIToAHMs <- function(currentMetadata, justRunUnitTest=FALSE){
+makeNCBIToAHMs <- function(currentMetadata, justRunUnitTest=FALSE, BiocVersion){
     baseUrl <- 'ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/'
     ## Then make the metadata for these
     meta <- .NCBIMetadataFromUrl(baseUrl, justRunUnitTest)
@@ -90,6 +90,7 @@ makeNCBIToAHMs <- function(currentMetadata, justRunUnitTest=FALSE){
         Title=meta$title,
         RDataPath=meta$rDataPath,
         MoreArgs=list(
+            BiocVersion=BiocVersion,
             Coordinate_1_based = TRUE, ## TRUE unless it "needs" to be FALSE
             DataProvider = baseUrl,
             Maintainer = "Marc Carlson <mcarlson@fhcrc.org>",

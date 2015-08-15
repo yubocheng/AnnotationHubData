@@ -94,7 +94,8 @@
     rsrc
 }
 
-makeUCSCChain <- function(currentMetadata, justRunUnitTest=FALSE) {
+makeUCSCChain <- function(currentMetadata, justRunUnitTest=FALSE, 
+                          BiocVersion=biocVersion()) {
     rsrc <- .getUCSCResources(fileType="chain", dirName="liftOver", 
         fileName="chain.gz", verbose=TRUE, justRunUnitTest)
     
@@ -131,6 +132,7 @@ makeUCSCChain <- function(currentMetadata, justRunUnitTest=FALSE) {
         RDataPath= rdatapaths,
         
         MoreArgs=list(
+            BiocVersion=BiocVersion,
             # input sources 
             SourceType= "Chain",
             

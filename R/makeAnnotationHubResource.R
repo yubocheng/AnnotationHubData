@@ -6,11 +6,11 @@
 
 .generalNewResources <- function(importPreparer, currentMetadata,
                                  makeAnnotationHubMetadataFunction,
-                                 justRunUnitTest, ...){
+                                 justRunUnitTest, BiocVersion, ...){
     ## The 1st function must return AHMs
     ahms <- makeAnnotationHubMetadataFunction(currentMetadata,
                                               justRunUnitTest=justRunUnitTest,
-                                              ...)
+                                              BiocVersion, ...)
 
     ## Then for each remaining AHM, add in the importPreparer information
     lapply(ahms, function(x){x@PreparerClass<-class(importPreparer)[1];
@@ -35,10 +35,10 @@ makeAnnotationHubResource <-
     ## toss out any currentMetadata() AHMs that are already present.
     setMethod(newResources, objName, where=where,
               function(importPreparer, currentMetadata=list(),
-                       justRunUnitTest=FALSE, ...){
+                       justRunUnitTest=FALSE, BiocVersion=biocVersion, ...){
          .generalNewResources(importPreparer, currentMetadata,
                               makeAnnotationHubMetadataFunction,
-                              justRunUnitTest, ...)})
+                              justRunUnitTest, BiocVersion, ...)})
 }
 
 

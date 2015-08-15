@@ -103,7 +103,7 @@
 
 ## AHM generator
 makeEnsemblFastaToAHMs <-
-    function(currentMetadata, justRunUnitTest)
+    function(currentMetadata, justRunUnitTest, BiocVersion)
 {
     time1 <- Sys.time()
     baseUrl = .ensemblBaseUrl
@@ -141,6 +141,7 @@ makeEnsemblFastaToAHMs <-
         SourceSize=meta$sourceSize,
         SourceLastModifiedDate=meta$sourceLastModifiedDate,
         MoreArgs=list(
+          BiocVersion=BiocVersion,
           Coordinate_1_based = TRUE,
           DataProvider = "Ensembl",
           Maintainer = "Martin Morgan <mtmorgan@fredhutch.org>",

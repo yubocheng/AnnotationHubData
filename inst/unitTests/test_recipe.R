@@ -8,9 +8,12 @@
     ahroot <- "/var/FastRWeb/web"
     BiocVersion <- c("3.1")      
 }
+ahroot <- "/var/FastRWeb/web"
+BiocVersion <- c("3.1")      
 
 test_HaemCodeImportPreparer_recipe <- function() {
     .recipeSetup()
+
     ahms = updateResources(ahroot, BiocVersion,
       preparerClasses = "HaemCodeImportPreparer",
       insert = FALSE, metadataOnly=TRUE, justRunUnitTest=TRUE)    
@@ -41,6 +44,7 @@ test_UCSC2BitPreparer_recipe <- function() {
     checkTrue(class(ahms[[1]])=="AnnotationHubMetadata")
 }
 
+## FIXME: can we shorten this test, ie, just a few files?
 test_EncodeImportPreparer_recipe <- function() {
     .recipeSetup()
     ahms = updateResources(ahroot, BiocVersion,
@@ -101,6 +105,7 @@ test_Inparanoid8ImportPreparer_recipe <- function() {
     #checkTrue(class(ahms[[1]])=="AnnotationHubMetadata")
 }
 
+## FIXME: throws warnings
 test_NCBIImportPreparer_recipe <- function() {
     .recipeSetup()
     ahms = updateResources(ahroot, BiocVersion,

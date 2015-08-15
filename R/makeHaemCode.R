@@ -73,7 +73,8 @@
     
 }
 
-makeHaemCodeImporter <- function(currentMetadata, justRunUnitTest=FALSE) {
+makeHaemCodeImporter <- function(currentMetadata, justRunUnitTest=FALSE,
+                                 BiocVersion=biocVersion()) {
     rsrc <- .getHaemCode(justRunUnitTest)
         
     ## input_sources table
@@ -114,6 +115,7 @@ makeHaemCodeImporter <- function(currentMetadata, justRunUnitTest=FALSE) {
         Tags=tags,
         
         MoreArgs=list(
+            BiocVersion=BiocVersion,
             DataProvider = "Haemcode",
             Species="Mus musculus",
             TaxonomyId=10090L,

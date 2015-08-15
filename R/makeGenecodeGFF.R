@@ -136,7 +136,7 @@
 
 
 ## STEP 1: make function to process metadata into AHMs
-makeGencodeGFFsToAHMs <- function(currentMetadata, justRunUnitTest){
+makeGencodeGFFsToAHMs <- function(currentMetadata, justRunUnitTest, BiocVersion){
 
     ## important - here you need to know which species and release you want to 
     ## add files for.  
@@ -167,6 +167,7 @@ makeGencodeGFFsToAHMs <- function(currentMetadata, justRunUnitTest){
         Title=title,
 	Tags=tags, 
         MoreArgs=list(
+          BiocVersion=BiocVersion,
           Coordinate_1_based = TRUE,
           DataProvider = "Gencode",
           Maintainer = "Sonali Arora <sarora@fredhutch.org>",

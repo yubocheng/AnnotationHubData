@@ -1,6 +1,7 @@
 .mssmBaseUrl <- "http://amp.pharm.mssm.edu/"
 
-makeChEAImporter <- function(currentMetadata, justRunUnitTest=FALSE) {
+makeChEAImporter <- function(currentMetadata, justRunUnitTest=FALSE,
+                             BiocVersion=biocVersion()) {
     files <- "result/kea/chea-background.zip"
 
     files <- paste0(.mssmBaseUrl, files)
@@ -29,6 +30,7 @@ makeChEAImporter <- function(currentMetadata, justRunUnitTest=FALSE) {
         RDataPath = gsub(.mssmBaseUrl, "", sourceUrls),
         
         MoreArgs=list(
+            BiocVersion=BiocVersion,
             # input sources 
             SourceType = "Zip",
             
