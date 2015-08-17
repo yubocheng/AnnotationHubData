@@ -48,7 +48,13 @@
        '3prime_overlapping_ncrna', 'antisense', 'non_coding', 
        'sense_intronic' , 'sense_overlapping' , 'TEC' , 'known_ncrna'."),
       tRNAs =.expandLine("tRNA structures predicted by tRNA-Scan on 
-      reference chromosomes") 
+      reference chromosomes"),  
+      transcripts.fa.gz=.expandLine("Protein-coding transcript sequences 
+      on reference chromosomes Fasta file"),
+      translations.fa.gz=.expandLine("Translations of protein-coding 
+      transcripts on reference chromosomes Fasta file"),
+      lncRNA_transcripts.fa.gz=.expandLine("Long non-coding RNA 
+      transcript sequences on reference chromosomes Fasta file.") 
       )
     description <- character(length(fileurls))
     for (i in seq_along(map))
@@ -79,7 +85,7 @@
 
 # Helper to retrieve GTF & GFF3 file urls from Gencode
 .gencodeGffSourceUrls <-
-    function(species, release, justRunUnitTest)
+    function(species, release, filetype, justRunUnitTest=FALSE)
 {
     speciesUrl <- ifelse(species=="Human", yes="Gencode_human/", no="Gencode_mouse/")
     dirurl = paste0(.gencodeBaseUrl, speciesUrl, "release_", release, "/")
@@ -95,11 +101,16 @@
         urls <- urls[1:5]
     
     # get only gff3 files from this list. 
-    idx <-  grep("gff3", fileurls)
+    if (tolower(filetype)=="gff")
+       idx <-  grep("gff3", fileurls)
+    
+    if(tolower(filetype)=="fasta")
+       idx <-  grep("fa.gz", fileurls)
+
     fileurls <- fileurls[idx] 
     
     if(length(idx)==0)
-     stop("No GFF3 files found.") 
+     stop("No files found.") 
 
     ## tags 
     filename <- basename(fileurls)
