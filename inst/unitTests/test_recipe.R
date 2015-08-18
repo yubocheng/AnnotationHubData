@@ -141,3 +141,22 @@ test_EnsemblGtfToGRanges_recipe <- function() {
                            justRunUnitTest=TRUE)
     checkTrue(class(ahms[[1]])=="AnnotationHubMetadata")
 }
+
+test_GencodeGFF <- function() {
+    .recipeSetup()
+    ahms = updateResources(ahroot, BiocVersion,
+                           preparerClasses = "GencodeGffImportPreparer",
+                           insert = FALSE, metadataOnly=TRUE,
+                           justRunUnitTest=TRUE)
+    checkTrue(class(ahms[[1]])=="AnnotationHubMetadata")
+}
+
+test_GencodeFasta <- function() {
+     .recipeSetup()
+    ahms = updateResources(ahroot, BiocVersion,
+                           preparerClasses = "GencodeFastaImportPreparer",
+                           insert = FALSE, metadataOnly=TRUE,
+                           justRunUnitTest=TRUE)
+    checkTrue(class(ahms[[1]])=="AnnotationHubMetadata")
+}
+
