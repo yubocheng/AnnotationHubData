@@ -181,7 +181,7 @@ makeGencodeGFFsToAHMs <- function(currentMetadata, justRunUnitTest, BiocVersion)
           BiocVersion=BiocVersion,
           Coordinate_1_based = TRUE,
           DataProvider = "Gencode",
-          Maintainer = "Sonali Arora <sarora@fredhutch.org>",
+          Maintainer = "Bioconductor Maintainer <maintainer@bioconductor.org>",
           RDataClass = "GRanges",
           DispatchClass="GFF3File",
           SourceType="GFF",

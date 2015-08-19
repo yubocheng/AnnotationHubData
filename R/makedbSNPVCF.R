@@ -21,8 +21,7 @@
     if(justRunUnitTest)
 	urls <- urls[1]
 
-    df <- do.call(rbind, Map(.ftpFileInfo, urls, filename="vcf.gz", 
-        tag=names(urls)))
+    df <- .ftpFileInfo(url=urls, filename="vcf.gz", tag=names(urls))
     df$genome <- gsub("GRCh37clinical", "GRCh37", df$genome)
     df <- cbind(df, title=basename(df$fileurl), stringsAsFactors = FALSE)
     rownames(df) <- NULL
@@ -107,7 +106,7 @@ makedbSNPVCF <- function(currentMetadata, justRunUnitTest=TRUE,
             Genome="hg19",
             TaxonomyId=9606L, 
             DataProvider = "dbSNP",
-            Maintainer =  "Sonali Arora <sarora@fredhutch.org>",
+            Maintainer = "Bioconductor Maintainer <maintainer@bioconductor.org>",
             Coordinate_1_based = FALSE,
             Location_Prefix = .dbSNPBaseUrl,
             RDataDateAdded = Sys.time(),

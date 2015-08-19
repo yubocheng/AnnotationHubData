@@ -40,7 +40,7 @@ make2bit <- function(currentMetadata, justRunUnitTest=FALSE,
             
             # resources
             DataProvider = "UCSC",
-            Maintainer =  "Sonali Arora <sarora@fredhutch.org>",         
+            Maintainer = "Bioconductor Maintainer <maintainer@bioconductor.org>",         
             Coordinate_1_based = FALSE,
             Location_Prefix = .ucscBase,
             RDataDateAdded = Sys.time(),

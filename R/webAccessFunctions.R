@@ -55,8 +55,6 @@
         df2 <- df2[grep(paste0(filename, "$"), df2)]
         drop <- grepl("00-", df2)
         df2 <- df2[!drop]        
-        temp <- unlist(strsplit(df2, " "))
-        df2 <- temp[length(temp)]
         paste0(ul, df2)
     })
     allurls <- unlist(allurls)

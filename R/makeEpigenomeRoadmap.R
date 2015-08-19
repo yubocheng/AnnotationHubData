@@ -346,7 +346,7 @@ makeEpigenomeRoadmap <- function(currentMetadata, justRunUnitTest=FALSE,
             Coordinate_1_based = FALSE,
             DataProvider = "BroadInstitute",
             Location_Prefix = .EpigenomeRoadMapMain,
-            Maintainer = "Sonali Arora <sarora@fredhutch.org>",
+            Maintainer = "Bioconductor Maintainer <maintainer@bioconductor.org>",
             RDataDateAdded = Sys.time(),
             Recipe = NA_character_))
 }
