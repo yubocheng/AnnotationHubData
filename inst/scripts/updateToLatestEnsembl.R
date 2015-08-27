@@ -68,28 +68,28 @@ ahms = updateResources(ahroot, BiocVersion,
 ##   preparerClasses = "EnsemblFastaImportPreparer",
 ##   insert = TRUE, metadataOnly=FALSE)
 
-## above command worked for the metadata (but not for the recipe so)
-## debug(AnnotationHubData:::ensemblFastaToFaFile)
-ahms = updateResources(ahroot, BiocVersion,
-  preparerClasses = "EnsemblFastaImportPreparer",
-  insert = FALSE, metadataOnly=FALSE)
-
-
-
-## ## new recipe for packages.
+## ## above command worked for the metadata (but not for the recipe so)
+## ## debug(AnnotationHubData:::ensemblFastaToFaFile)
 ## ahms = updateResources(ahroot, BiocVersion,
-##   preparerClasses = "OrgDbFromPkgsImportPreparer",
-##   insert = FALSE, metadataOnly=TRUE)
+##   preparerClasses = "EnsemblFastaImportPreparer",
+##   insert = FALSE, metadataOnly=FALSE)
+
+
+
+## new recipe for packages.
+ahms = updateResources(ahroot, BiocVersion,
+  preparerClasses = "OrgDbFromPkgsImportPreparer",
+  insert = FALSE, metadataOnly=TRUE)
 
 ## ## For reals
 ## ahms = updateResources(ahroot, BiocVersion,
 ##   preparerClasses = "OrgDbFromPkgsImportPreparer",
 ##   insert = TRUE, metadataOnly=FALSE)
 
-
-## ahms = updateResources(ahroot, BiocVersion,
-##   preparerClasses = "OrgDbFromPkgsImportPreparer",
-##   insert = FALSE, metadataOnly=TRUE)
+## to patch the DB (finally)
+ahms = updateResources(ahroot, BiocVersion,
+  preparerClasses = "OrgDbFromPkgsImportPreparer",
+  insert = TRUE, metadataOnly=TRUE)
 
 
 

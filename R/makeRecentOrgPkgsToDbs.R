@@ -23,7 +23,7 @@
 
 
 ## helper to make metadata list from the data
-.orgDbPkgMetadataFromObjs <- function(orgDbs){
+.orgDbPkgMetadataFromObjs <- function(orgDbs, version){
     ## title
     title <- paste0(names(orgDbs), '.sqlite')
     ## organism
@@ -44,7 +44,7 @@
     ## description 
     description <- paste("NCBI gene ID based annotations about", species)
     ## rDataPath
-    rDataPath <- paste0("ncbi/",title)
+    rDataPath <- paste0("ncbi/",version,"/",title)
     ## return as a list
     list(##annotationHubRoot = root,
          title=title,
@@ -68,7 +68,7 @@ makeOrgDbPkgsToAHMs <- function(currentMetadata, justRunUnitTest, BiocVersion) {
     orgDbs <- .GetOrgDbs()
 
     ## Then make the metadata for these
-    meta <- .orgDbPkgMetadataFromObjs(orgDbs)
+    meta <- .orgDbPkgMetadataFromObjs(orgDbs, version = BiocVersion[[1]])
 
     ## then make AnnotationHubMetadata objects.
     Map(AnnotationHubMetadata,
