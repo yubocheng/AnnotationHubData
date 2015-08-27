@@ -97,8 +97,6 @@
     ## get the fileurls for each dirurl
     fileurls <-.gencodeFileFromUrl(dirurl) 
    
-    if(justRunUnitTest)
-        urls <- urls[1:5]
     
     # get only gff3 files from this list. 
     if (tolower(filetype)=="gff")
@@ -107,11 +105,14 @@
     if(tolower(filetype)=="fasta")
        idx <-  grep("fa.gz", fileurls)
 
-    fileurls <- fileurls[idx] 
-    
+    fileurls <- fileurls[idx]
+
     if(length(idx)==0)
      stop("No files found.") 
 
+     if(justRunUnitTest)
+        fileurls <- fileurls[1:5]
+   
     ## tags 
     filename <- basename(fileurls)
     filename <- sub(".gz","", filename)
@@ -151,7 +152,8 @@ makeGencodeGFFsToAHMs <- function(currentMetadata, justRunUnitTest, BiocVersion)
 
     ## important - here you need to know which species and release you want to 
     ## add files for.  
-    rsrc <- .gencodeGffSourceUrls(species="Human", release="23", justRunUnitTest)
+    rsrc <- .gencodeGffSourceUrls(species="Human", release="23", filetype="gff", 
+         justRunUnitTest)
        
     description <- rsrc$description
     title <- basename(rsrc$fileurl)

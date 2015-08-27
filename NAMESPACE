@@ -94,10 +94,7 @@ export(AnnotationHubMetadata,
        tracksToUpdate,
        ahmToJson,
        updateResources,
-       deleteResources,
-       ## these functions below are used by slot recipe
-       makeBioPaxRdata, 
-       ncbi_dbSNPVCFFile)
+       deleteResources)
 
 exportMethods(
     show,

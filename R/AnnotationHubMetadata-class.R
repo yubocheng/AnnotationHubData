@@ -268,7 +268,7 @@ setMethod(show, "AnnotationHubMetadata",
 
 ## check function to ensure that we don't have double slashes in url
 .checkSourceurlsFreeOfDoubleSlashes <- function(url){
-    if(grepl("\\w//", url, perl=TRUE)){
+    if(any(grepl("\\w//", url, perl=TRUE))){
         stop(wmsg(paste0("sourceurl provided has a double slash outside of the ",
                          "protocol). Source urls should be working uris that ",
                          "point to the original resources used in a recipe.")))        

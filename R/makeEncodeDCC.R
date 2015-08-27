@@ -99,13 +99,13 @@
 
     if(length(files)!=0) {
         files <-  sprintf("%s%s", url, files)
-         #if(length(files)>5){
-         #    files<- files[1:5]
-         #    tags<- tags[1:5]
-         #    sourcemd5sum <- sourcemd5sum[1:5]
-         #    type <- type[1:5]
-         #    sourceVersion <- sourceVersion[1:5]
-         #}
+         if(length(files)>5){
+             files<- files[1:5]
+             tags<- tags[1:5]
+             sourcemd5sum <- sourcemd5sum[1:5]
+             type <- type[1:5]
+             sourceVersion <- sourceVersion[1:5]
+         }
             
         df <- .httrFileInfo(files, verbose)
         

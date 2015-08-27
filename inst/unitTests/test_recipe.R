@@ -44,7 +44,7 @@ test_UCSC2BitPreparer_recipe <- function() {
     checkTrue(class(ahms[[1]])=="AnnotationHubMetadata")
 }
 
-## FIXME: can we shorten this test, ie, just a few files?
+
 test_EncodeImportPreparer_recipe <- function() {
     .recipeSetup()
     ahms = updateResources(ahroot, BiocVersion,
