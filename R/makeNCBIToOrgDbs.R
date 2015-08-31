@@ -4,7 +4,7 @@
 
 
 ## helper to make metadata list from the data
-.NCBIMetadataFromUrl <- function(baseUrl, justRunUnitTest) {    
+.NCBIMetadataFromUrl <- function(baseUrl, justRunUnitTest, biocVersion) {    
     ## These are the IDs (prescreened) for us to process
     load(system.file('extdata','viableIDs.rda', package='AnnotationForge'))
     ids <- results
@@ -12,6 +12,8 @@
     if(justRunUnitTest)
 	ids <- head(ids)
 
+    if(length(biocVersion) > 1){stop("for this recipe, biocVersion must be a single value.  Also: be careful that you are putting newly minted OrgDbs into the CORRECT version of bioconductor!")}
+    
     ## need to find an alternative to this...
     ## old school table of tax Ids
     if (!exists("specData")) {
@@ -31,7 +33,7 @@
 ##    ids <- ids[!(ids %in% '4513')]
 
 ## TEMP HACK to avoid a 20 minute wait
-## ids <- ids[1:4]
+ids <- ids[79:1000] ##  
     ## This step takes a minute
     res <- lapply(ids,lookup)
     
@@ -62,7 +64,7 @@
 #     sourceUrl <- rep(baseUrl,length(fullSpecies))
     sourceUrls <- c(baseUrl,"ftp://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/idmapping/idmapping_selected.tab.gz")
     sourceUrl <- rep(list(sourceUrls), length(fullSpecies))
-    rDataPath <- paste0("ncbi/uniprot/",title)
+    rDataPath <- paste0("ncbi/uniprot/",biocVersion,"/",title)
     ## return as a list
     list(##annotationHubRoot = root,
         title=title, species = oriSpecies,
@@ -78,7 +80,8 @@
 makeNCBIToAHMs <- function(currentMetadata, justRunUnitTest=FALSE, BiocVersion){
     baseUrl <- 'ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/'
     ## Then make the metadata for these
-    meta <- .NCBIMetadataFromUrl(baseUrl, justRunUnitTest)
+    meta <- .NCBIMetadataFromUrl(baseUrl, justRunUnitTest,
+                                 biocVersion=BiocVersion[[1]])
     ## then make AnnotationHubMetadata objects.
     Map(AnnotationHubMetadata,
         Description=meta$description,

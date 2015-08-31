@@ -4,6 +4,54 @@ ahroot <- "/var/FastRWeb/web"
 #BiocVersion <- c("3.1","3.2")  
 BiocVersion <- c("3.2")
 
+
+
+## Just this once I need to remove the records from 3.2 that are currently stored for NCBImportPreparer
+## select count(*) from resources, biocversions WHERE resources.id=biocversions.resource_id AND biocversion='3.2' AND preparerclass='NCBIImportPreparer' limit 2;
+## SO:
+## delete from resources where id in (select * from (SELECT resources.id FROM resources, biocversions WHERE resources.id=biocversions.resource_id AND biocversion='3.2' AND preparerclass='NCBIImportPreparer') as results);
+
+## debug(AnnotationHubData:::.ensemblDirUrl)
+## save(ahms, file='FastaAhms.Rda')
+
+## BEFORE YOU RUN THIS REMOVE these records from the biocversions table.
+## ALSO: double check that the biocversions are acting as expected...
+## DELETE FROM biocversions WHERE biocversion='3.2' AND resource_id IN (SELECT DISTINCT resource_id FROM input_sources WHERE sourcetype='NCBI/blast2GO');
+
+## ## First do a dry run on the metadata
+## ahms = updateResources(ahroot, BiocVersion,
+##   preparerClasses = "NCBIImportPreparer",
+##   insert = FALSE, metadataOnly=TRUE)
+
+## ## Then really insert the metadata and also run the recipe.
+## ahms = updateResources(ahroot, BiocVersion,
+##   preparerClasses = "NCBIImportPreparer",
+##   insert = TRUE, metadataOnly=FALSE)
+
+## There was an issue with gettting the files 'made' (but metadata went through)
+## So now I need to do it this way...
+## Then really insert the metadata and also run the recipe.
+## debug(AnnotationHubData:::NCBIToOrgDbsRecipe)
+## debug(AnnotationForge:::makeOrgPackageFromNCBI)
+## debug(AnnotationForge:::NEW_makeOrgPackageFromNCBI)
+## debug(AnnotationForge:::prepareDataFromNCBI)
+debug(AnnotationForge:::.getAltGOData)
+
+
+ahms = updateResources(ahroot, BiocVersion,
+  preparerClasses = "NCBIImportPreparer",
+  insert = FALSE, metadataOnly=FALSE)
+
+
+## Then ONLY insert the metadata into the DB
+ahms = updateResources(ahroot, BiocVersion,
+  preparerClasses = "NCBIImportPreparer",
+  insert = TRUE, metadataOnly=TRUE)
+
+
+
+
+
 ## ReRun FASTA files for AnnotationHub
 
 ## debug(AnnotationHubData:::.ensemblFastaSourceUrls)
@@ -21,38 +69,6 @@ ahms = updateResources(ahroot, BiocVersion,
 
 
 
-
-## debug(AnnotationHubData:::.ensemblDirUrl)
-## save(ahms, file='FastaAhms.Rda')
-
-
-
-## BEFORE YOU RUN THIS REMOVE these records from the biocversions table.
-## ALSO: double check that the biocversions are acting as expected...
-## DELETE FROM biocversions WHERE biocversion='3.2' AND resource_id IN (SELECT DISTINCT resource_id FROM input_sources WHERE sourcetype='NCBI/blast2GO');
-
-## First do a dry run on the metadata
-ahms = updateResources(ahroot, BiocVersion,
-  preparerClasses = "NCBIImportPreparer",
-  insert = FALSE, metadataOnly=TRUE)
-
-## Then really insert the metadata and also run the recipe.
-ahms = updateResources(ahroot, BiocVersion,
-  preparerClasses = "NCBIImportPreparer",
-  insert = TRUE, metadataOnly=FALSE)
-
-## There was an issue with gettting the files 'made' (but metadata went through)
-## So now I need to do it this way...
-## Then really insert the metadata and also run the recipe.
-ahms = updateResources(ahroot, BiocVersion,
-  preparerClasses = "NCBIImportPreparer",
-  insert = FALSE, metadataOnly=FALSE)
-
-
-## Then ONLY insert the metadata into the DB
-ahms = updateResources(ahroot, BiocVersion,
-  preparerClasses = "NCBIImportPreparer",
-  insert = TRUE, metadataOnly=TRUE)
 
 
 
@@ -76,20 +92,20 @@ ahms = updateResources(ahroot, BiocVersion,
 
 
 
-## new recipe for packages.
-ahms = updateResources(ahroot, BiocVersion,
-  preparerClasses = "OrgDbFromPkgsImportPreparer",
-  insert = FALSE, metadataOnly=TRUE)
-
-## ## For reals
+## ## new recipe for packages.
 ## ahms = updateResources(ahroot, BiocVersion,
 ##   preparerClasses = "OrgDbFromPkgsImportPreparer",
-##   insert = TRUE, metadataOnly=FALSE)
+##   insert = FALSE, metadataOnly=TRUE)
 
-## to patch the DB (finally)
-ahms = updateResources(ahroot, BiocVersion,
-  preparerClasses = "OrgDbFromPkgsImportPreparer",
-  insert = TRUE, metadataOnly=TRUE)
+## ## ## For reals
+## ## ahms = updateResources(ahroot, BiocVersion,
+## ##   preparerClasses = "OrgDbFromPkgsImportPreparer",
+## ##   insert = TRUE, metadataOnly=FALSE)
+
+## ## to patch the DB (finally)
+## ahms = updateResources(ahroot, BiocVersion,
+##   preparerClasses = "OrgDbFromPkgsImportPreparer",
+##   insert = TRUE, metadataOnly=TRUE)
 
 
 
