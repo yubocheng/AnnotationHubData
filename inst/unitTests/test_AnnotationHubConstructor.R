@@ -112,4 +112,4 @@ test_multi_input <- function()
 ## Tests to just see if we can run all of our recipes
 ## 
 ## VO deleted these on Aug 14 2015 because they were duplicates of 
-## the tests in test_recipie.R
+## the tests in test_recipe.R

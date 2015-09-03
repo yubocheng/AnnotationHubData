@@ -2,18 +2,10 @@
 ################################################################################
 ## Tests to just see if we can run all of our recipes
 
-.recipeSetup <- function(){
-    require(RUnit)              ## just for convenience
-    require(AnnotationHubData)  ## just for convenience
-    ahroot <- "/var/FastRWeb/web"
-    BiocVersion <- c("3.1")      
-}
 ahroot <- "/var/FastRWeb/web"
 BiocVersion <- c("3.1")      
 
 test_HaemCodeImportPreparer_recipe <- function() {
-    .recipeSetup()
-
     ahms = updateResources(ahroot, BiocVersion,
       preparerClasses = "HaemCodeImportPreparer",
       insert = FALSE, metadataOnly=TRUE, justRunUnitTest=TRUE)    
@@ -21,15 +13,14 @@ test_HaemCodeImportPreparer_recipe <- function() {
 }
 
 test_BioPaxImportPreparer_recipe <- function() {
-    .recipeSetup()
     ahms = updateResources(ahroot, BiocVersion,
       preparerClasses = "BioPaxImportPreparer",
       insert = FALSE, metadataOnly=TRUE, justRunUnitTest=TRUE)
     checkTrue(class(ahms[[1]])=="AnnotationHubMetadata")
 }
 
+## too long
 test_UCSCChainPreparer_recipe <- function() {
-    .recipeSetup()
     ahms = updateResources(ahroot, BiocVersion,
         preparerClasses = "UCSCChainPreparer",
         insert = FALSE, metadataOnly=TRUE, justRunUnitTest=TRUE)
@@ -37,7 +28,6 @@ test_UCSCChainPreparer_recipe <- function() {
 }
     
 test_UCSC2BitPreparer_recipe <- function() {
-    .recipeSetup()
     ahms = updateResources(ahroot, BiocVersion,
         preparerClasses = "UCSC2BitPreparer",
         insert = FALSE, metadataOnly=TRUE, justRunUnitTest=TRUE)
@@ -46,15 +36,14 @@ test_UCSC2BitPreparer_recipe <- function() {
 
 
 test_EncodeImportPreparer_recipe <- function() {
-    .recipeSetup()
     ahms = updateResources(ahroot, BiocVersion,
         preparerClasses = "EncodeImportPreparer",
         insert = FALSE, metadataOnly=TRUE, justRunUnitTest=TRUE)
     checkTrue(class(ahms[[1]])=="AnnotationHubMetadata")
 }
 
+## too long
 test_EpigenomeRoadmapImportPreparer_recipe <- function() {
-    .recipeSetup()
     ahms = updateResources(ahroot, BiocVersion,
         preparerClasses = "EpigenomeRoadMapPreparer",
         insert = FALSE, metadataOnly=TRUE, justRunUnitTest=TRUE)
@@ -62,7 +51,6 @@ test_EpigenomeRoadmapImportPreparer_recipe <- function() {
 }
 
 test_dbSNPVCFPreparer_recipe <- function() {
-    .recipeSetup()
     ahms = updateResources(ahroot, BiocVersion,
         preparerClasses = "dbSNPVCFPreparer",
         insert = FALSE, metadataOnly=TRUE, justRunUnitTest=TRUE)
@@ -70,15 +58,14 @@ test_dbSNPVCFPreparer_recipe <- function() {
 }
     
 test_RefNetImportPreparer_recipe <- function() {
-    .recipeSetup()
     ahms = updateResources(ahroot, BiocVersion,
         preparerClasses = "RefNetImportPreparer",
         insert = FALSE, metadataOnly=TRUE)
      checkTrue(class(ahms[[1]])=="AnnotationHubMetadata")
 }
 
+## too long
 test_PazarImportPreparer_recipe <- function() {
-    .recipeSetup()
     ahms = updateResources(ahroot, BiocVersion,
         preparerClasses = "PazarImportPreparer",
         insert = FALSE, metadataOnly=TRUE)
@@ -86,7 +73,6 @@ test_PazarImportPreparer_recipe <- function() {
 }
 
 test_ChEAPreparer_recipe <- function() {
-    .recipeSetup()
     ahms = updateResources(ahroot, BiocVersion,
         preparerClasses = "ChEAImportPreparer",
         insert = FALSE, metadataOnly=TRUE)
@@ -95,7 +81,6 @@ test_ChEAPreparer_recipe <- function() {
 
 
 test_Inparanoid8ImportPreparer_recipe <- function() {
-    #.recipeSetup()
     #suppresWarnings({
     #ahms = updateResources(ahroot, BiocVersion,
     #                       preparerClasses = "Inparanoid8ImportPreparer",
@@ -105,18 +90,16 @@ test_Inparanoid8ImportPreparer_recipe <- function() {
     #checkTrue(class(ahms[[1]])=="AnnotationHubMetadata")
 }
 
-## FIXME: throws warnings
-test_NCBIImportPreparer_recipe <- function() {
-    .recipeSetup()
-    ahms = updateResources(ahroot, BiocVersion,
-                               preparerClasses = "NCBIImportPreparer",
-                               insert = FALSE, metadataOnly=TRUE,
-                               justRunUnitTest=TRUE)
-    checkTrue(class(ahms[[1]])=="AnnotationHubMetadata")
-}
+## FIXME: broken 
+#test_NCBIImportPreparer_recipe <- function() {
+#    ahms = updateResources(ahroot, BiocVersion,
+#                               preparerClasses = "NCBIImportPreparer",
+#                               insert = FALSE, metadataOnly=TRUE,
+#                               justRunUnitTest=TRUE)
+#    checkTrue(class(ahms[[1]])=="AnnotationHubMetadata")
+#}
 
 t_GSE62944_recipe <- function() {
-    .recipeSetup()
     ahms = updateResources(ahroot, BiocVersion,
                            preparerClasses = "GSE62944ToExpressionSetPreparer",
                            insert = FALSE, metadataOnly=TRUE,
@@ -125,7 +108,6 @@ t_GSE62944_recipe <- function() {
 }
 
 test_Grasp2Db_recipe <- function() {
-    .recipeSetup()
     ahms = updateResources(ahroot, BiocVersion,
                            preparerClasses = "Grasp2ImportPreparer",
                            insert = FALSE, metadataOnly=TRUE,
@@ -133,8 +115,9 @@ test_Grasp2Db_recipe <- function() {
     checkTrue(class(ahms[[1]])=="AnnotationHubMetadata")
 }
 
+## FIXME: add test_EnsemblFasta
+
 test_EnsemblGtfToGRanges_recipe <- function() {
-    .recipeSetup()
     ahms = updateResources(ahroot, BiocVersion,
                            preparerClasses = "EnsemblGtfImportPreparer",
                            insert = FALSE, metadataOnly=TRUE,
@@ -143,7 +126,6 @@ test_EnsemblGtfToGRanges_recipe <- function() {
 }
 
 test_GencodeGFF <- function() {
-    .recipeSetup()
     ahms = updateResources(ahroot, BiocVersion,
                            preparerClasses = "GencodeGffImportPreparer",
                            insert = FALSE, metadataOnly=TRUE,
@@ -152,7 +134,6 @@ test_GencodeGFF <- function() {
 }
 
 test_GencodeFasta <- function() {
-     .recipeSetup()
     ahms = updateResources(ahroot, BiocVersion,
                            preparerClasses = "GencodeFastaImportPreparer",
                            insert = FALSE, metadataOnly=TRUE,
