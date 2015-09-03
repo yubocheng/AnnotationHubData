@@ -19,8 +19,10 @@
     if(!identical(basename(sourceUrl), filenames))
          stop("Inconsistent FileNames and sourceUrls")
     
-    if(justRunUnitTest)
+    if(justRunUnitTest) {
 	filenames  <- filenames[1:5]
+	sourceUrl  <- sourceUrl[1:5]
+    }
         
     ## get the fileSize and 
     df <- .httrFileInfo(sourceUrl, verbose=TRUE)

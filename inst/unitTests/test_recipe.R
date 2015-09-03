@@ -1,14 +1,13 @@
-
 ################################################################################
 ## Tests to just see if we can run all of our recipes
 
 ahroot <- "/var/FastRWeb/web"
-BiocVersion <- c("3.1")      
+BiocVersion <- c("3.1") 
 
 test_HaemCodeImportPreparer_recipe <- function() {
     ahms = updateResources(ahroot, BiocVersion,
       preparerClasses = "HaemCodeImportPreparer",
-      insert = FALSE, metadataOnly=TRUE, justRunUnitTest=TRUE)    
+      insert = FALSE, metadataOnly=TRUE, justRunUnitTest=TRUE)
     checkTrue(class(ahms[[1]])=="AnnotationHubMetadata")
 }
 
@@ -19,21 +18,21 @@ test_BioPaxImportPreparer_recipe <- function() {
     checkTrue(class(ahms[[1]])=="AnnotationHubMetadata")
 }
 
-## too long
+## FIXME: may want to set a timeout on this one -
+##        web query takes awhile
 test_UCSCChainPreparer_recipe <- function() {
     ahms = updateResources(ahroot, BiocVersion,
         preparerClasses = "UCSCChainPreparer",
         insert = FALSE, metadataOnly=TRUE, justRunUnitTest=TRUE)
     checkTrue(class(ahms[[1]])=="AnnotationHubMetadata")
 }
-    
+ 
 test_UCSC2BitPreparer_recipe <- function() {
     ahms = updateResources(ahroot, BiocVersion,
         preparerClasses = "UCSC2BitPreparer",
         insert = FALSE, metadataOnly=TRUE, justRunUnitTest=TRUE)
     checkTrue(class(ahms[[1]])=="AnnotationHubMetadata")
 }
-
 
 test_EncodeImportPreparer_recipe <- function() {
     ahms = updateResources(ahroot, BiocVersion,
@@ -42,7 +41,6 @@ test_EncodeImportPreparer_recipe <- function() {
     checkTrue(class(ahms[[1]])=="AnnotationHubMetadata")
 }
 
-## too long
 test_EpigenomeRoadmapImportPreparer_recipe <- function() {
     ahms = updateResources(ahroot, BiocVersion,
         preparerClasses = "EpigenomeRoadMapPreparer",
@@ -56,7 +54,7 @@ test_dbSNPVCFPreparer_recipe <- function() {
         insert = FALSE, metadataOnly=TRUE, justRunUnitTest=TRUE)
     checkTrue(class(ahms[[1]])=="AnnotationHubMetadata")
 }
-    
+ 
 test_RefNetImportPreparer_recipe <- function() {
     ahms = updateResources(ahroot, BiocVersion,
         preparerClasses = "RefNetImportPreparer",
@@ -64,11 +62,10 @@ test_RefNetImportPreparer_recipe <- function() {
      checkTrue(class(ahms[[1]])=="AnnotationHubMetadata")
 }
 
-## too long
 test_PazarImportPreparer_recipe <- function() {
     ahms = updateResources(ahroot, BiocVersion,
         preparerClasses = "PazarImportPreparer",
-        insert = FALSE, metadataOnly=TRUE)
+        insert = FALSE, metadataOnly=TRUE, justRunUnitTest=TRUE)
      checkTrue(class(ahms[[1]])=="AnnotationHubMetadata")
 }
 
@@ -79,25 +76,24 @@ test_ChEAPreparer_recipe <- function() {
     checkTrue(class(ahms[[1]])=="AnnotationHubMetadata")
 }
 
-
-test_Inparanoid8ImportPreparer_recipe <- function() {
-    #suppresWarnings({
-    #ahms = updateResources(ahroot, BiocVersion,
-    #                       preparerClasses = "Inparanoid8ImportPreparer",
-    #                       insert = FALSE, metadataOnly=TRUE,
-    #                       justRunUnitTest=TRUE)
-    #})
-    #checkTrue(class(ahms[[1]])=="AnnotationHubMetadata")
-}
-
-## FIXME: broken 
-#test_NCBIImportPreparer_recipe <- function() {
+## FIXME: broken
+#test_Inparanoid8ImportPreparer_recipe <- function() {
+#    suppresWarnings({
 #    ahms = updateResources(ahroot, BiocVersion,
-#                               preparerClasses = "NCBIImportPreparer",
-#                               insert = FALSE, metadataOnly=TRUE,
-#                               justRunUnitTest=TRUE)
+#                           preparerClasses = "Inparanoid8ImportPreparer",
+#                           insert = FALSE, metadataOnly=TRUE,
+#                           justRunUnitTest=TRUE)
+#    })
 #    checkTrue(class(ahms[[1]])=="AnnotationHubMetadata")
 #}
+
+test_NCBIImportPreparer_recipe <- function() {
+    ahms = updateResources(ahroot, BiocVersion,
+                               preparerClasses = "NCBIImportPreparer",
+                               insert = FALSE, metadataOnly=TRUE,
+                               justRunUnitTest=TRUE)
+    checkTrue(class(ahms[[1]])=="AnnotationHubMetadata")
+}
 
 t_GSE62944_recipe <- function() {
     ahms = updateResources(ahroot, BiocVersion,

@@ -11,6 +11,9 @@
 
     if(justRunUnitTest)
 	ids <- head(ids)
+    ## FIXME: need different solution; this subset produces NAs
+    #else
+    #    ids <- ids[79:1000]  
 
     if(length(biocVersion) > 1){stop("for this recipe, biocVersion must be a single value.  Also: be careful that you are putting newly minted OrgDbs into the CORRECT version of bioconductor!")}
     
@@ -32,8 +35,6 @@
     ## general barley ID)
 ##    ids <- ids[!(ids %in% '4513')]
 
-## TEMP HACK to avoid a 20 minute wait
-ids <- ids[79:1000] ##  
     ## This step takes a minute
     res <- lapply(ids,lookup)
     

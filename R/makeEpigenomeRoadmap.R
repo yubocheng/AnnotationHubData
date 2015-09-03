@@ -282,6 +282,8 @@
                     "mCRF/FractionalMethylation_bigwig/"))
     fileurls <- unlist(sapply(dirurl2, function(x) 
        .readEpiFilesFromWebUrl(x,"bigwig", FALSE), USE.NAMES=FALSE))
+    if(justRunUnitTest)
+         fileurls <- fileurls[1:2]
     ## add decription, tags, rdatapath, date, size
     df <- .MiscEpiFiles(fileurls, pattern="_")
     ## add dispatch class, sourcetype and Rdataclass
