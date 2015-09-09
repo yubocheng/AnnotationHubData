@@ -167,7 +167,7 @@ trackandTablesToGRangesRecipe <- function(ahm)
     mainFile <- tableNames[1] ## always the 1st one to be 2main table 
     auxFiles <- tableNames[-1]    
     if(!(length(auxFiles) >= 1)) { ## this means we are done already
-        gr <- track(query, asRangedData = FALSE)
+        gr <- track(query)
     }else{ ## have to do a merge 1st
         ## have to "get" primary in table form to assure "id" will be present
         tbl <- getTable(ucscTableQuery(session, mainFile))
@@ -195,7 +195,7 @@ trackandTablesToGRangesRecipe <- function(ahm)
         }else{
             message("track schema is too complex: using basic track instead")
             query <- ucscTableQuery(session, track)
-            gr <- track(query, asRangedData = FALSE)
+            gr <- track(query)
         }
         
     }

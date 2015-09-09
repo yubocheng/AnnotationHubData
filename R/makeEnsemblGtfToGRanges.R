@@ -95,7 +95,7 @@ ensemblGTFToGRangesRecipe <- function(ahm){
     message("faOut:", faOut)
 
     if(!file.exists(faOut)) {   
-        gr <- import(faIn, "gtf", asRangedData=FALSE)
+        gr <- import(faIn, "gtf")
         save(gr, file=faOut)
     } 
     faOut

@@ -10,7 +10,7 @@ trackToGRangesRecipe <- function(ahm)
         session <- browserSession()
         genome(session) <- metadata(ahm)$Genome
         query <- ucscTableQuery(session, trackName)
-        gr <- track(query, asRangedData = FALSE)
+        gr <- track(query)
         save(gr, file=outputFile)
         ## if (!getOption("AnnotationHub_Use_Disk", FALSE)) {
         ##     upload_to_S3(outputFile, metadata(ahm)$RDataPath)
@@ -353,13 +353,13 @@ makeAnnotationHubResource("UCSCFullTrackImportPreparer",
 ## query <- ucscTableQuery(session, "Conservation",
 ##                         GRangesForUCSCGenome("mm9", "chr12",
 ##                                              IRanges(57795963, 57815592)))
-## track(query, asRangedData = FALSE)  # gets a GRanges object
+## track(query)  # gets a GRanges object
 
 
 ## So does this work with my example track?  Well only "kinda".
 ## You get the main table alright, but you don't get the rest.
 ## query <- ucscTableQuery(session, "oreganno")
-## foo = track(query, asRangedData = FALSE)  
+## foo = track(query)  
 
 
 ## But here is something that is more useful (potentially)

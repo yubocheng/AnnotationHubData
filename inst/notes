@@ -112,7 +112,7 @@
     chr1	Cufflinks	gene	16523	17364	757	-	.	gene_id "chr1.21"; IDR "."; FPKM1 "38.7913"; FPKM2 ".";
     chr1	Cufflinks	gene	17925	29343	897	-	.	gene_id "chr1.25"; IDR "."; FPKM1 "157.038"; FPKM2 ".";
 
-  x <- import('../extdata/goldenpath/hg19/encodeDCC/wgEncodeCshlLongRnaSeq/wgEncodeCshlLongRnaSeqHmecCellPamGeneDeNovo.gtf.gz', asRangedData=FALSE)
+  x <- import('../extdata/goldenpath/hg19/encodeDCC/wgEncodeCshlLongRnaSeq/wgEncodeCshlLongRnaSeqHmecCellPamGeneDeNovo.gtf.gz')
 
   --- create a json metadata file
      source('../scripts/createJsonForTesting.R')
