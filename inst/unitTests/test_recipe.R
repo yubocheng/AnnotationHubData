@@ -116,13 +116,11 @@ test_Grasp2Db_recipe <- function() {
 test_EnsemblGtfToGRanges_recipe <- function() {
     ## FIXME: Error in function (type, msg, asError = TRUE)  : <not set>
     ##        related to version of curl on windows builder?
-    if (.Platform$OS.type != "windows") {
-        ahms = updateResources(ahroot, BiocVersion,
-                               preparerClasses = "EnsemblGtfImportPreparer",
-                               insert = FALSE, metadataOnly=TRUE,
-                               justRunUnitTest=TRUE)
-        checkTrue(class(ahms[[1]])=="AnnotationHubMetadata")
-    } else TRUE
+    ahms = updateResources(ahroot, BiocVersion,
+                           preparerClasses = "EnsemblGtfImportPreparer",
+                           insert = FALSE, metadataOnly=TRUE,
+                           justRunUnitTest=TRUE)
+    checkTrue(class(ahms[[1]])=="AnnotationHubMetadata")
 }
 
 test_GencodeGFF <- function() {

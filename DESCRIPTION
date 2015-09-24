@@ -1,19 +1,19 @@
 Package: AnnotationHubData
 Type: Package
 Title: Transform public data resources into Bioconductor Data Structures
-Version: 0.1.2
+Version: 0.99.0
 Authors@R:
     c(person("Martin", "Morgan", role="ctb"),
       person("Marc", "Carlson", role="ctb"),
       person("Dan", "Tenenbaum", role="ctb"),
       person("Sonali", "Arora", role="ctb"),
-      person("Paul", "Shannon", email="pshannon@fhcrc.org", role="cre"))
-Maintainer: Bioconductor Package Maintainer <maintainer@bioconductor.org>
-Depends: R (>= 2.15.0), methods, S4Vectors (>= 0.0.2),
-    IRanges (>= 1.99.2), GenomicRanges (>= 1.17.7), AnnotationHub
+      person("Paul", "Shannon", role="ctb"),
+      person("Bioconductor Package Maintainer",
+             email="maintainer@bioconductor.org", role="cre"))
+Depends: R (>= 3.2.2), methods, S4Vectors,
+    IRanges, GenomicRanges, AnnotationHub
 Suggests: RUnit, knitr,RMySQL, BiocStyle, grasp2db
-Imports: GenomicFeatures (>= 1.17.3), Rsamtools (>= 1.17.4),
-    rtracklayer (>= 1.25.2), RCurl, BiocGenerics,
+Imports: GenomicFeatures, Rsamtools, rtracklayer, RCurl, BiocGenerics,
     jsonlite, BiocInstaller, httr,
     AnnotationDbi, Biobase, Biostrings, DBI, GEOquery,
     GenomeInfoDb, OrganismDbi, RSQLite, rBiopaxParser,
