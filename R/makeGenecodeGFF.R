@@ -23,7 +23,7 @@
 .gencodeFileFromUrl <- function(urls) {
     unlist(sapply(urls, function(url) {
         listing <- getURL(url=url, followlocation=TRUE, customrequest="LIST -R")
-        listing<- strsplit(listing, "\n")[[1]]
+        listing<- strsplit(listing, "\r*\n")[[1]]
         listing = listing[grep("gencode", listing)]
         paste0(url, "gencode", sub(".*gencode","", listing ))
     }, USE.NAMES=FALSE))

@@ -16,7 +16,7 @@
     
     urls <- unlist(lapply(want, function(url) {
         listing <- getURL(url=url, followlocation=TRUE, customrequest="LIST -R")
-        listing<- strsplit(listing, "\r+\n")[[1]]
+        listing<- strsplit(listing, "\r*\n")[[1]]
         subdir <- sub(".* ", "", listing[grep("^drwx", listing)])
         paste0(url, subdir, "/")
     }), use.names=FALSE)
