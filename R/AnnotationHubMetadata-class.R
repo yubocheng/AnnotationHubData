@@ -277,10 +277,10 @@ setMethod(show, "AnnotationHubMetadata",
 
 ## try to make sure genomes do not contain weird suffixes.. (should be short)
 .checkThatGenomeLooksReasonable <- function(genome){
-    if(nchar(genome)>30){
-        warning(wmsg(paste0("genome provided is suspiciously long. ",
+    if(!is.na(genome) && nchar(genome) > 30){
+        warning(wmsg("genome provided is suspiciously long. ",
                          "Check to make sure that the genome is legitimate and ",
-                         "does not contain unecessary extensions etc.")))        
+                         "does not contain unnecessary extensions etc."))
     }
 }
 
