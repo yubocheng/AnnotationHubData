@@ -1,0 +1,53 @@
+# Based on https://github.com/krlmlr/r-appveyor
+#
+# DO NOT CHANGE the "init" and "install" sections below
+#
+# Download script file from GitHub
+init:
+  ps: |
+        $ErrorActionPreference = "Stop"
+        Invoke-WebRequest http://raw.github.com/krlmlr/r-appveyor/master/scripts/appveyor-tool.ps1 -OutFile "..\appveyor-tool.ps1"
+        Import-Module '..\appveyor-tool.ps1'
+
+install:
+  ps: Bootstrap
+
+# Adapt as necessary starting from here
+build_script:
+  # The following configuration will use the development version of Bioconductor.  This
+  # is because under the hood, r-appveyor relies on r-travis, and r-travis sets an
+  # environment variable , BIOC_USE_DEVEL=${BIOC_USE_DEVEL:-"TRUE"}
+  #
+  # This is configurable, but devel is the default.  Here's the source:
+  #     https://github.com/craigcitro/r-travis/blob/master/scripts/travis-tool.sh#L11
+  #
+  # Notice: We'll need to decide on a workflow, if we want to provide CI builds of
+  # release versions in AppVeyor .
+  - Rscript -e "source('https://bioconductor.org/biocLite.R')"
+  - Rscript -e "devtools::install_svn('https://hedgehog.fhcrc.org/bioconductor', subdir = 'madman/Rpacks/grasp2db', args = '--username readonly --password readonly',  repos = BiocInstaller::biocinstallRepos())"
+  - travis-tool.sh install_deps
+
+test_script:
+  - travis-tool.sh run_tests
+
+on_failure:
+  - travis-tool.sh dump_logs
+
+artifacts:
+  - path: '*.Rcheck\**\*.log'
+    name: Logs
+
+  - path: '*.Rcheck\**\*.out'
+    name: Logs
+
+  - path: '*.Rcheck\**\*.fail'
+    name: Logs
+
+  - path: '*.Rcheck\**\*.Rout'
+    name: Logs
+
+  - path: '\*_*.tar.gz'
+    name: Bits
+
+  - path: '\*_*.zip'
+    name: Bits
