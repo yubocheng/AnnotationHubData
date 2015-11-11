@@ -8,7 +8,6 @@
 BiocStyle::markdown()
 ```
 
-
 # The AnnotationHubData Package
 
 **Package**: `r Biocpkg("AnnotationHubData")`<br />
@@ -16,76 +15,97 @@ BiocStyle::markdown()
 **Modified**: 11 October, 2014<br />
 **Compiled**: `r date()`
 
-
-
 ## Overview
 
-The AnnotationHubData package provides tools to acquire,
-annotate, convert and store data for use in Bioconductor's
-AnnotationHub. BED files from the Encode project, gtf
-files from Ensembl, or annotation tracks from UCSC, are
-examples of data that can be downloaded, described with metadata,
-transformed to standard Bioconductor data types, and stored so that
-they may be conveniently served up on demand to users via the
-AnnotationHub client.
+The AnnotationHubData package provides tools to acquire, annotate,
+convert and store data for use in Bioconductor's AnnotationHub. BED
+files from the Encode project, gtf files from Ensembl, or annotation
+tracks from UCSC, are examples of data that can be downloaded,
+described with metadata, transformed to standard Bioconductor data
+types, and stored so that they may be conveniently served up on demand
+to users via the AnnotationHub client.
 
 This document will deal with the nuts and bolts of how the back end of
-the AnnotationHub works and operates. 
-
-
+the AnnotationHub works and operates.
 
 ## How are recipes created and then run?
 
-For the 1st part of the description of how to put new data into the AnnotationHub, please see the vignette titled "How to write recipes for new resources for the AnnotationHub" in the AnnotationHub package.  This will explain how to create a recipe and an AnnotationHubMetadata generating function.  
+For the 1st part of the description of how to put new data into the
+AnnotationHub, please see the vignette titled "How to write recipes
+for new resources for the AnnotationHub" in the AnnotationHub package.
+This will explain how to create a recipe and an AnnotationHubMetadata
+generating function.
 
-After those initial two steps though, you will have to actually run the recipe.  This will require that you follow the instructions described here.
+After those initial two steps though, you will have to actually run
+the recipe.  This will require that you follow the instructions
+described here.
 
-### Calling the makeAnnotationHubResource helper 
+### Calling the makeAnnotationHubResource helper
 
-Once you have a recipe and an AnnotationHubMetadata generating functions you will need to call the makeAnnotationHubResource function to do some automatic setup.  This function only has two required arguments.  The 1st is basically the name of a class that describes the kind of resource you are writing code to import.  It just needs to be a unique class name and will be used internally to create a class for dispatch.  The 2nd argument is the name of your metadata processing function from the 1st step in the other vignette.  If this function name is NAMESPACED in another package (IOW if it's a contributed recipe) you might have to import it for the next step to work.  
+Once you have a recipe and an AnnotationHubMetadata generating
+functions you will need to call the makeAnnotationHubResource function
+to do some automatic setup.  This function only has two required
+arguments.  The 1st is basically the name of a class that describes
+the kind of resource you are writing code to import.  It just needs to
+be a unique class name and will be used internally to create a class
+for dispatch.  The 2nd argument is the name of your metadata
+processing function from the 1st step in the other vignette.  If this
+function name is NAMESPACED in another package (IOW if it's a
+contributed recipe) you might have to import it for the next step to
+work.
 
 ```{r, makeAnnotationHubResource, eval=FALSE}
 require(AnnotationHubData)
 makeAnnotationHubResource("Inparanoid8ImportPreparer",
-                          makeinparanoid8ToAHMs)
+makeinparanoid8ToAHMs)
 ```
 
-
-Once you have added this call to AnnnotationHubData, the only step left is to export the class name into the NAMESPACE (remember that this is that string you are providing as your 1st argument). Then reinstall AnnotationHubData and go to the next step. 
-
-
-
+Once you have added this call to AnnnotationHubData, the only step
+left is to export the class name into the NAMESPACE (remember that
+this is that string you are providing as your 1st argument). Then
+reinstall AnnotationHubData and go to the next step.
 
 ### Testing your new recipe
 
-Next install the modified AnnotationHubData package and see if the recipe works correctly. You just need to call the function that will try to update the resources for your recipe.  That function is called updateResources(). The updateResources() function takes several arguments.  These are:
+Next install the modified AnnotationHubData package and see if the
+recipe works correctly. You just need to call the function that will
+try to update the resources for your recipe.  That function is called
+updateResources(). The updateResources() function takes several
+arguments.  These are:
 
-* ahroot: represents the place where you would like any generated files go.
-* BiocVersion: character vector for versions of Bioc your objects will be compatible with
-* preparerClasses: vector of which classes you want to process recipes for.
-* insert: try to insert metadata into the DB? As a recipe author, you don't get to do this.  So it should be FALSE when you call this or you will get an error.
-* metadataOnly: should the recipes be run to create the processed files?
-* filtering: this is normally TRUE to indicate that we don't want to regenerate AHMs for records that are already in the local cached database.  However, you sometimes may want to set this to FALSE if you need to do some testing.
+* ahroot: represents the place where you would like any generated
+  files go.
+* BiocVersion: character vector for versions of Bioc your objects will
+  be compatible with
+* preparerClasses: vector of which classes you want to process recipes
+  for.
+* insert: try to insert metadata into the DB? As a recipe author, you
+  don't get to do this.  So it should be FALSE when you call this or
+  you will get an error.
+* metadataOnly: should the recipes be run to create the processed
+  files?
+* filtering: this is normally TRUE to indicate that we don't want to
+  regenerate AHMs for records that are already in the local cached
+  database.  However, you sometimes may want to set this to FALSE if
+  you need to do some testing.
 
 ```{r, updateResources, eval=FALSE}
-library(AnnotationHubData)  
+library(AnnotationHubData)
 
-mdinp = updateResources(ahroot=getwd(), 
+mdinp = updateResources(ahroot=getwd(),
                         BiocVersion=biocVersion(),
                         preparerClasses = "Inparanoid8ImportPreparer",
                         insert = FALSE,
-                        metadataOnly=TRUE)     
+                        metadataOnly=TRUE)
 ```
 
-When you call updateResources() like this, a set of AnnotationHubMetadata objects should be returned.  You should inspect those to make sure that they contain all the metadata that you intended to use.  And if you run it again with metadataOnly set to FALSE, then it should generate the final objects for you in the ahroot directory that you specified.  If both of these things happen to your satisfaction then your recipe is ready to be run.
-
-
-
-
-
-
-
-
+When you call updateResources() like this, a set of
+AnnotationHubMetadata objects should be returned.  You should inspect
+those to make sure that they contain all the metadata that you
+intended to use.  And if you run it again with metadataOnly set to
+FALSE, then it should generate the final objects for you in the ahroot
+directory that you specified.  If both of these things happen to your
+satisfaction then your recipe is ready to be run.
 
 ## How is the back end metadata stored?
 
@@ -101,18 +121,20 @@ implementation.  But the 'parent' database is the MySQL db (the sqlite
 ones are just cached copies of that).
 
 Normally when we work with this database we will 1st do testing on a
-local instance on "MachineName" and then update the production machine later.
+local instance on "MachineName" and then update the production machine
+later.
 
-To actually push data to this local database you need to set an option in your .Rprofile for where the json should be posted to.  That should look like this:
+To actually push data to this local database you need to set an option
+in your .Rprofile for where the json should be posted to.  That should
+look like this:
 
 ```{r}
 options("AH_SERVER_POST_URL"="http://<MachineName>:9393/resource")
 ```
 
-
-
 To log in to the database on "MachineName"" use this (you will need the
 ahuser password):
+
 ```{}
 mysql -p -u ahuser annotationhub
 ```
@@ -122,17 +144,19 @@ mysql -p -u ahuser annotationhub
 \end{verbatim}
 
 And for production you will need to connect here:
+
 ```{}
 ssh ubuntu@annotationhub.bioconductor.org
 ```
 
 And then connect to the database:
+
 ```{}
 mysql -p -u ahuser annotationhub
 ```
 
-Whenever you have updated the MySQL back end, a cron job should do
-the job of creating the locally cached sqlite database from the MySQL
+Whenever you have updated the MySQL back end, a cron job should do the
+job of creating the locally cached sqlite database from the MySQL
 source db.  This is done by a ruby script called convert_db.rb.  This
 file in part of code that is checked in at the following URL in
 github.
@@ -143,14 +167,16 @@ https://github.com/Bioconductor/AnnotationHubServer3.0
 
 ### How do we update the production database?
 
-The process of updating the production server should follow this process:
+The process of updating the production server should follow this
+process:
 
 #### run the recipe on gamay to generate and files and to insert into the local copy.
 
-You can run the recipe by calling updateResources with the insert and metadataOnly arguments set up like this:
+You can run the recipe by calling updateResources with the insert and
+metadataOnly arguments set up like this:
 
 ```{r, eval=FALSE}
-mdinp = updateResources(ahroot, 
+mdinp = updateResources(ahroot,
                         BiocVersion,
                         preparerClasses = "Inparanoid8ImportPreparer",
                         insert = TRUE,
@@ -158,12 +184,14 @@ mdinp = updateResources(ahroot,
 ```
 
 #### Test the AnnotationHub locally by pointing it to gamay like this:
+
 See section below titled "Final test that it works on gamay"
 
-#### make a dump of the DB from production and then copy it over to/set it up on gamay.
+#### Make a dump of the DB from production and then copy it over to/set it up on gamay.
 
-For this step you need to log in, and back up the database on production.  So that should look like this (use the ahuser password for this).
-Instead of 2014_11_05, use the current date.
+For this step you need to log in, and back up the database on
+production.  So that should look like this (use the ahuser password
+for this).  Instead of 2014_11_05, use the current date.
 
 ```{}
 ssh ubuntu@annotationhub.bioconductor.org
@@ -192,8 +220,8 @@ create database annotationhub;
 \q
 ```
 
-At this point there is no data in the database, so AnnotationHub
-is not working! So be sure and do the next step right away.
+At this point there is no data in the database, so AnnotationHub is
+not working! So be sure and do the next step right away.
 
 Then unpack the dump into the DB
 
@@ -201,46 +229,58 @@ Then unpack the dump into the DB
 zcat dbdump_2014_11_05_fromProd.sql.gz | mysql -p -u root annotationhub
 ```
 
-
-
-#### rerun the recipe on gamay to insert the rows into a clean copy of the data.
+#### Rerun the recipe on gamay to insert the rows into a clean copy of the data.
 
 ```{r, eval=FALSE}
-mdinp = updateResources(ahroot, 
+mdinp = updateResources(ahroot,
                         BiocVersion,
                         preparerClasses = "Inparanoid8ImportPreparer",
                         insert = TRUE,
-                        metadataOnly=FALSE)     
+                        metadataOnly=FALSE)
 ```
-
 
 ### Final test that it works on gamay
 
-The 1st part of this is that the server on gamay has to have produced the .sqlite version of the mySQL database we just modified.  To make that happen you can start by 1st impersonating dan and go to his directory with the ruby scripts:
+The 1st part of this is that the server on gamay has to have produced
+the .sqlite version of the mySQL database we just modified.  To make
+that happen you can start by 1st impersonating dan and go to his
+directory with the ruby scripts:
+
 ```{}
-sudo su - dtenenba 
+sudo su - dtenenba
 cd AnnotationHubServer3.0/
 ```
-From there you can look at his cron job to see how it runs every 10 mins...
+
+From there you can look at his cron job to see how it runs every 10
+mins...
+
 ```{}
 crontab -l
 ```
 
-But we don't want to wait ten minutes! So run the following ruby script to make the DB right now.
+But we don't want to wait ten minutes! So run the following ruby
+script to make the DB right now.
+
 ```{}
-ruby convert_db.rb 
+ruby convert_db.rb
 exit
 ```
 
-Sometimes if you are rolling back there may be an issue where the ruby conversion script doesn't run because it thinks the new DB has an older timestamp.  If that happens remove the timestamp file and run it again:
+Sometimes if you are rolling back there may be an issue where the ruby
+conversion script doesn't run because it thinks the new DB has an
+older timestamp.  If that happens remove the timestamp file and run it
+again:
+
 ```{}
 rm dbtimestamp.cache
-ruby convert_db.rb 
+ruby convert_db.rb
 exit
 ```
 
-
-Once this is done, you then have to actually test the client and make sure that your data is in there etc. This means that you need to launch AnnotationHub so that it points to gamay for metadata.  You can do that like this:
+Once this is done, you then have to actually test the client and make
+sure that your data is in there etc. This means that you need to
+launch AnnotationHub so that it points to gamay for metadata.  You can
+do that like this:
 
 ```{r, test_client, eval=FALSE}
 options(ANNOTATION_HUB_URL="http://gamay:9393")
@@ -251,14 +291,15 @@ tail(ah) ## should have some new records
 ```
 
 To manually test metadata you could just do this:
+
 ```{r, test_client2, eval=FALSE}
 foo = mcols(ah)
 ```
 
-And then Look for your data in 'foo'...  It's also a good idea to try and download that data with it's "AHID"
+And then Look for your data in 'foo'...  It's also a good idea to try
+and download that data with it's "AHID"
 
-
-#### And finally dump the database and copy it up to production where you will also have to unpack it etc.  
+#### Dump the database and copy it to production
 
 ```{}
 mysqldump -p -u ahuser annotationhub | gzip > dbdump_2014_11_05_fromGamay.sql.gz
@@ -290,8 +331,6 @@ Then unpack the dump into the DB
 zcat dbdump_2014_11_05_fromGamay.sql.gz | mysql -p -u root annotationhub
 ```
 
-
-
 ## Where is the actual file (cloud) data stored?
 
 Unlike the metadata, the data that it stored after a recipe is run is
@@ -300,59 +339,58 @@ stored in something that looks like a file system. When testing on
 stores and retrieves data from S3.  So to get the data moved up to
 production you need to have access to these S3 resources.
 
-
-
 To copy things up to the S3 buckets you need to use the aws command
 line tools. You can see help like this
+
 ```{}
 aws s3 help
 ```
 
 And you can get "copying" help like this
+
 ```{}
 aws s3 cp help
 ```
 
 And you can copy something to be read only by using the --acl argument
 like this:
+
 ```{}
 aws s3 cp --acl public-read hello.txt s3://annotationhub/foo/bar/hello.txt
 ```
 
-
 To sign in at the AWS console go here: (use your username and password
 the account is bioconductor)
+
 ```{}
 https://bioconductor.signin.aws.amazon.com/console
 ```
+
 And then click 'S3', 'annotationhub' etc.
 
 And to recursively copy back down from the S3 bucket do like this:
+
 ```{}
 aws s3 cp --dryrun --recursive s3://annotationhub/ensembl/release-75/fasta/ .
 ```
-
 And then to copy back up you could do it like this:
+
 ```{}
-aws s3 cp --dryrun --recursive --acl public-read ./fasta/ s3://annotationhub/ensembl/release-75/fasta/ 
+aws s3 cp --dryrun --recursive --acl public-read ./fasta/ s3://annotationhub/ensembl/release-75/fasta/
 ```
 
 But that will copy everything (not very efficient since some things
 may be the same and already there) So to actually copy back we should
 really use 'aws s3 sync' instead of 'aws s3 cp'.
+
 ```{}
 aws s3 sync help
 ```
 
 ## The AnnotationHub Server
 
-The server is implemented in Ruby. Its code is 
+The server is implemented in Ruby. Its code is
 [here](https://github.com/Bioconductor/AnnotationHubServer3.0)
 with a README that explains how to install it.
 
 (more to come...)
-
-
-
-
-
