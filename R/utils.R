@@ -45,23 +45,22 @@ flog <- function(level, ...)
 ## See: https://aws.amazon.com/cli/
 ## It should be configured with a user who can write to 
 ## the appropriate bucket. 
-upload_to_S3 <- function(file, remotename,
-    bucket=getOption("ANNOTATION_HUB_BUCKET_NAME", "annotationhub"),
-    profile, acl="public-read")
+upload_to_S3 <- 
+    function(file, remotename,
+             bucket = getOption("ANNOTATION_HUB_BUCKET_NAME", "annotationhub"),
+             profile, acl="public-read")
 {
     remotename <- sub("^\\/", "", remotename)
     #aws --profile ahs_content_uploader s3 cp --acl public-read test s3://annotationhub/loquat/vato/manichean/test
     profileStr <- " "
     if (!missing(profile))
-    {
         profileStr <- paste("--profile ", profile)
-    }
+
     cmd <- "aws"
     if (length(file) != length(remotename))
         stop("Length of file does not match length of remotename!")
 
-    for (i in 1:length(file))
-    {
+    for (i in 1:length(file)) {
         thisFile <- file[i]
         thisRemoteName <- remotename[i]
         quotes = getOption("useFancyQuotes")
@@ -71,10 +70,9 @@ upload_to_S3 <- function(file, remotename,
             profileStr, acl, dQuote(thisFile), bucket, dQuote(thisRemoteName))
         res <- system2(cmd, args)
         if (res != 0)
-        {
             stop(sprintf("Failed to upload %s to S3! Result was %s.", file, res))
-        }
     }
+    
     TRUE
 }
 

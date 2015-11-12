@@ -19,8 +19,7 @@
 ## location_prefix + rdatapath
 ################################################################################
 
-getImportPreparerClasses <- function()
-{
+getImportPreparerClasses <- function() {
     subclasses <- names(getClassDef("ImportPreparer")@subclasses)
     dont.use <- c("UCSCFullTrackImportPreparer") ## revisit this
     subclasses[!subclasses %in% dont.use]
@@ -28,14 +27,8 @@ getImportPreparerClasses <- function()
 }
 
 
-.pushMetadata <- function(jsons,
-                          url=getOption("AH_SERVER_POST_URL")){
-    if(is.null(getOption("AH_SERVER_POST_URL"))){
-        stop(wmsg(paste0("If you really want to push to the server then you",
-                         " need to set option AH_SERVER_POST_URL in .Rprofile",
-                         ", otherwise use insert=FALSE.")))
-    }
-    h = handle(url)
+.pushMetadata <- function(jsons, url) {
+    h <- handle(url)
     lapply(jsons, function(x) {
         result <- POST(handle=h, body=list(payload=x))
         print(result)
@@ -44,112 +37,141 @@ getImportPreparerClasses <- function()
     })
 }
 
-## this helper is adapted from formerly internal function 'processAhm'
-.runRecipes <- function(ahm){
-    metadata(ahm)$AnnotationHubRoot <- ahroot
-    needs.download <- TRUE ## FIXME
-    provider <- metadata(ahm)$DataProvider
-    ## Make sure we always have a local dir for saving too (based on
-    ## contents of the outputFile(ahm)
-    localDir <- unique(dirname(outputFile(ahm)))
-    if(!file.exists(localDir)) {
-        dir.create(localDir, recursive=TRUE)
+downloadResource <- function(ahm, downloadIfExists) {
+    SourceUrl <- metadata(ahm)$SourceUrl
+    RDataPath <- metadata(ahm)$RDataPath
+    AnnotationHubRoot <- metadata(ahm)$AnnotationHubRoot
+    flog(INFO, "in downloadResource(), url is : %s", SourceUrl)
+
+    ## the [1] assumes all files in this resource have the same protocol:
+    protocol <- tolower(URL_parts(SourceUrl)[,'protocol'])[1]
+    filename <- basename(URL_parts(SourceUrl)[,'path'])
+
+    ## create local directory
+    destdir <- dirname(outputFile(ahm)) 
+    for (dir in unique(destdir))
+        if (!dir.exists(dir))
+            dir.create(dir, recursive=TRUE)
+    destfile <- file.path(destdir, filename)
+
+    ## file exists
+    if (file.exists(destfile) && (!downloadIfExists)) {
+        flog(INFO, "%s exists, skipping...", destfile)
+        return()
     }
-    
+
+    if (protocol == "rtracklayer")
+        return ## recipe will download
+    if (protocol == "ftp") {
+        oldwd <- getwd()
+        on.exit(setwd(oldwd))
+        setwd(destdir)
+        ## FIXME: not documented, no arg for user to pass in,
+        ##        number of cores should not exceed number of files
+        pieces <- detectCores()
+        args <- sprintf("-e 'pget -n %s %s;quit'", pieces, SourceUrl)
+        tryCatch({
+            system2("lftp", args)
+        }, error=function(e){
+                flog(ERROR, "Error downloading %s: %s",
+                    SourceUrl, conditionMessage(e))
+        })
+    } else if (protocol %in% c("http", "https")) {
+        ## FIXME be more sophisticated in deciding how to download
+        ## (e.g. use parallel download for bigger files)
+        tryCatch(download.file(SourceUrl, destfile, quiet=TRUE),
+            error=function(e){
+                flog(ERROR, "Error downloading %s: %s",
+                    SourceUrl, conditionMessage(e))
+                })
+    }
+}
+
+## this helper is adapted from formerly internal function 'processAhm'
+.runRecipes <- function(ahm, ahroot) {
+    metadata(ahm)$AnnotationHubRoot <- ahroot
+    needs.download <- TRUE
+
     ## TODO: better way needed for deciding this:
+    provider <- metadata(ahm)$DataProvider
     if (grepl("http://inparanoid", provider, fixed=TRUE) ||
         grepl("ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/", provider, fixed=TRUE))
     {
         needs.download <- FALSE
     }
-    
+ 
+    ## download
     if (needs.download)
-    {
-        ## downloadResource(ahm, downloadIfExists)
         downloadResource(ahm, downloadIfExists=FALSE)
-    }
-    needs.recipe <- TRUE ## FIXME
-    if (needs.recipe)
-        ## FIXME this means we might need to download
-        ## but not run recipe. Don't understand how that could happen.
-    {
-        tryCatch(ahm <- run(ahm), error=function(e){
-            flog(ERROR, "error processing %s: %s",
-                 metadata(ahm)$SourceUrl,
-                 conditionMessage(e))
-        })
-        ## upload to S3
-        ## dante
-        if (!getOption("AnnotationHub_Use_Disk", FALSE))
-        {
-            fileToUpload <- file.path(metadata(ahm)$AnnotationHubRoot,
-                                      metadata(ahm)$RDataPath)
-            remotePath <- sub("^/", "", metadata(ahm)$RDataPath)
-            res <- upload_to_S3(fileToUpload, remotePath)
-            ## TODO - if download is successful, delete local file?
-        }
+ 
+    ## run recipe 
+    tryCatch({
+        ahm <- run(ahm)
+    }, error=function(e) {
+        flog(ERROR, "error processing %s: %s", metadata(ahm)$SourceUrl,
+             conditionMessage(e))
+    })
+
+    ## upload to S3
+    if (!getOption("AnnotationHub_Use_Disk", FALSE)) {
+        fileToUpload <- file.path(metadata(ahm)$AnnotationHubRoot,
+                                  metadata(ahm)$RDataPath)
+        remotePath <- sub("^/", "", metadata(ahm)$RDataPath)
+        res <- upload_to_S3(fileToUpload, remotePath)
+        ## TODO - if download is successful, delete local file?
     }
 }
-
-## Here is the main function and what it is responsible for:
-## 1) spawning the AHMs
-## 2) making them into JSON
-## 3) send metadata off to the back end
-## 4) call the recipe and push the results of that off to the right place
 
 updateResources <- function(AnnotationHubRoot, BiocVersion=biocVersion(),
                             preparerClasses=getImportPreparerClasses(),
                             insert=FALSE, metadataOnly=TRUE,
-                            justRunUnitTest=FALSE){
-    
-    ## 1 spawning the AHMs is about calling the newResources method
-    ## defined for them.  The newResources method takes a class that
-    ## it needs to spawn up AHMs for, AND a list of existing AHMs to
-    ## not spawn (and it returns the list of AHMs that don't exist
-    ## already).
-    ## So should look like this
-    BiocVersion <- package_version(BiocVersion)
+                            justRunUnitTest=FALSE, ...) {
+
+    if (insert) {
+        if(is.null(url <- getOption("AH_SERVER_POST_URL")))
+            stop(wmsg(paste0("When 'insert=TRUE' option AH_SERVER_POST_URL ",
+                             "must be set in .Rprofile")))
+    }
+
+    ## create metadata by invoking newResources() method
     allAhms <- list()
     for (preparerClass in preparerClasses)
     {
         flog(INFO, "Preparer Class: %s", preparerClass)
-        if (exists(preparerClass))
-        {
+        if (exists(preparerClass)) {
             args <- list()
             if ("annotationHubRoot" %in% names(formals(preparerClass)))
                 args$annotationHubRoot <- AnnotationHubRoot
             preparerInstance <- do.call(preparerClass, args)
 
         } else {
+            ## FIXME: nothing done with listOfExistingMetadata?
             preparerInstance <- do.call(new, list(preparerClass))
-            ahms <- newResources(preparerInstance, listOfExistingResources,
+            ahms <- newResources(preparerInstance, listOfExistingMetadata,
                                  justRunUnitTest=justRunUnitTest,
-                                 BiocVersion=BiocVersion)
+                                 BiocVersion=package_version(BiocVersion), ...)
             allAhms <- append(allAhms, ahms)
         }
     }
-    
-    ## Running this function with filtering=FALSE for some older recipes
-    ## usually resuilts in no AHMs, which raises the question of
-    ## whether or not filterAHMs is really even needed?
-    ## I think is is necessary since we can't rely on the recipe to
-    ## filter out existing records for us.
-    
-    ## 2 make into JSON
-    jsons = lapply(allAhms,ahmToJson)
 
-    ## 3 send metadata off
-    if(insert==TRUE){
-        .pushMetadata(jsons)
-    }
-    
-    ## 4 call the recipes
-    if(metadataOnly==FALSE){
-        lapply(allAhms, .runRecipes)
-    }
+    ## download, process and push data to appropriate location
+    flog(INFO, "processing and pushing data ...")
+    tryCatch({
+        if (metadataOnly == FALSE) 
+            lapply(allAhms, .runRecipes, ahroot=AnnotationHubRoot)
+    }, error = function(err) {
+        stop(paste0("error processing data in .runRecipes(): ",
+                    "conditionMessage(err)"))
+    })
 
-    
-    return(allAhms)
+    ## if data push was successful, insert metadata in AnnotationHub db
+    if(insert==TRUE) {
+        flog(INFO, "inserting metdata in db ...")
+        jsons = lapply(allAhms, ahmToJson)
+        .pushMetadata(jsons, url)
+    }
+ 
+    allAhms
 }
 
 
@@ -366,68 +388,4 @@ deleteResources <- function(id) {
 ## library(AnnotationHub);debug(AnnotationHubData:::.cleanOneTable);AnnotationHubData:::.cleanOneTable('resources')
 
 ## usage: AnnotationHubData:::.cleanOneTable('resources') ## Doing this only revealed dups in 'tags' table.
-
-
-downloadResource <- function(ahm, downloadIfExists)
-{
-    with(metadata(ahm), {
-        flog(INFO, "in downloadResource(), url is : %s", SourceUrl)
-        ## the [1] assumes that all files in this resource
-        ## have the same protocol:
-        protocol <- tolower(URL_parts(SourceUrl)[,'protocol'])[1]
-        filename <- basename(URL_parts(SourceUrl)[,'path'])
-##      dest0 <- file.path(tempdir(), AnnotationHubRoot, RDataPath) ## new
-        dest0 <- file.path(AnnotationHubRoot, RDataPath) ## ori/works
-        destdir <- dirname(dest0) 
-        dir.create(unique(destdir), recursive=TRUE) ## new
-        destfile <- file.path(destdir, filename)
-
-        if (file.exists(destfile) && (!downloadIfExists))
-        {
-            flog(INFO, "%s exists, skipping...", destfile)
-            return()
-        }
-
-        for (dir in unique(destdir))
-            if (!file.exists(dir))
-                dir.create(dir, recursive=TRUE)
-        if (protocol == "rtracklayer")
-            return ## recipe will do necessary downloading
-        if (protocol == "ftp")
-        {
-            oldwd <- getwd()
-            on.exit(setwd(oldwd))
-            setwd(destdir)
-            pieces <- detectCores()
-            ## FIXME - this leads to oversubscription if
-            ## parallelCores is not NULL in updateAllResources
-            args <- sprintf("-e 'pget -n %s %s;quit'",
-                pieces, SourceUrl)
-            tryCatch(ret <- system2("lftp", args),
-                error=function(e){
-                    flog(ERROR, "Error downloading %s: %s",
-                        SourceUrl, conditionMessage(e))
-                    })
-            if (!getOption("AnnotationHub_Use_Disk", FALSE))
-            {
-                res <- upload_to_S3(destfile, RDataPath)
-                # TODO - if download is successful, delete local file?
-            }
-        } else if (protocol %in% c("http", "https")){
-            ## FIXME be more sophisticated in deciding how to download
-            ## (e.g. use parallel download for bigger files)
-            tryCatch(download.file(SourceUrl, destfile, quiet=TRUE),
-                error=function(e){
-                    flog(ERROR, "Error downloading %s: %s",
-                        SourceUrl, conditionMessage(e))
-                    })
-            # if (!getOption("AnnotationHub_Use_Disk", FALSE))
-            # {
-            #     fileToUpload <- file.path(AnnotationHubRoot, RDataPath)
-            #     res <- upload_to_S3(fileToUpload, sub("^/", "", RDataPath))
-            #     # TODO - if download is successful, delete local file?
-            # }
-        }
-    })
-}
 

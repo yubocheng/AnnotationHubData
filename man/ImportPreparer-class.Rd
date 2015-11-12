@@ -1,6 +1,7 @@
 \name{ImportPreparer-class}
 \docType{class}
 \alias{newResources}
+\alias{getImportPreparer}
 
 \alias{ImportPreparer-class}
 \alias{show,ImportPreparer-method}
@@ -71,15 +72,16 @@
 
 }
 
-
-\author{Martin Morgan \url{mtmorgan@fhcrc.org}}
+\author{Martin Morgan}
 
 \seealso{
   \code{\linkS4class{AnnotationHubMetadata}}.
 }
+
 \examples{
-names(getClassDef("ImportPreparer")@subclasses)
+getImportPreparer()
 }
+
 \keyword{classes}
 
 

@@ -48,8 +48,8 @@ importFrom(AnnotationDbi, loadDb)
 importFrom(methods, as, getClassDef, is, isClass, new, setClass,
            setMethod, slot, slotNames)
 importFrom(tools, file_ext)
-importFrom(futile.logger, ERROR, INFO, TRACE)
-importFrom(futile.logger, appender.file, flog.appender, flog.threshold)
+importFrom(futile.logger, ERROR, INFO, TRACE, appender.file, flog.appender,
+           flog.threshold, flog.info)
 importFrom(jsonlite, fromJSON, toJSON)
 importFrom(httr, config, content, DELETE, GET, handle, handle_find,
            HEAD, headers, POST, stop_for_status)
@@ -76,25 +76,25 @@ exportClasses(AnnotationHubMetadata,
               Inparanoid8ImportPreparer,
               NCBIImportPreparer)
 
-export(AnnotationHubMetadata, 
-       UCSCTrackImportPreparer,
-       newResources,
-       constructAnnotationHubMetadataFromSourceFilePath,
-       #postProcessMetadata,
-       constructMetadataFromJsonPath,
-       flog,
-       upload_to_S3,
-       getImportPreparerClasses,
-       makeAnnotationHubResource,
-       AnnotationHubMetadataFromJson,
-       jsonPath,
-       toJson,
-       constructSeqInfo,
-       ensemblFastaToFaFile,
-       tracksToUpdate,
-       ahmToJson,
-       updateResources,
-       deleteResources)
+export(
+    AnnotationHubMetadata, 
+    UCSCTrackImportPreparer,
+    constructAnnotationHubMetadataFromSourceFilePath,
+    #postProcessMetadata,
+    constructMetadataFromJsonPath,
+    flog,
+    upload_to_S3,
+    getImportPreparerClasses,
+    makeAnnotationHubResource,
+    AnnotationHubMetadataFromJson,
+    jsonPath,
+    toJson,
+    constructSeqInfo,
+    ensemblFastaToFaFile,
+    tracksToUpdate,
+    ahmToJson,
+    newResources, updateResources, deleteResources
+)
 
 exportMethods(
     show,
@@ -108,4 +108,4 @@ exportMethods(
     metadataTable,
     annotationHubRoot,
     sourceUrls
-    )
+)

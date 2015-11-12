@@ -1,13 +1,13 @@
-.ensemblBaseUrl <- "ftp://ftp.ensembl.org/pub/"
+### =========================================================================
+### makeEnsemblFasta()
+### -------------------------------------------------------------------------
+###
 
 ## Adjust this expression in order to save painful-reprocessing of older files.
 ## .ensemblReleaseRegex <- ".*release-(69|7[[:digit:]]|8[[:digit:]])"
-
-##.ensemblReleaseRegex <- ".*release-(79|8[[:digit:]])"
-
+## .ensemblReleaseRegex <- ".*release-(79|8[[:digit:]])"
 ## for a speed run just do one set
 .ensemblReleaseRegex <- ".*release-81"
-
 
 ## list directories below url/dir satisfying regex
 .ensemblDirUrl <-
@@ -42,7 +42,7 @@
     ftpInfo <- .httrFileInfo(files=sourceUrl) 
     sourceSize <- ftpInfo$size
     sourceLastModDate <- ftpInfo$date
-    
+
     list(annotationHubRoot = root, title=title, species = species,
          taxonomyId = as.integer(taxonomyId),
          genome = sub("^([[:alpha:]_]+)\\.(\\w*)\\.(.*)", "\\2", title,
@@ -56,22 +56,16 @@
     c("cdna.all", "dna_rm.toplevel", "dna_sm.toplevel",
       "dna.toplevel", "ncrna", "pep.all")
 
-## retrieve FASTA file urls from Ensembl
-## these should look "like" sourcUrls in the existing DB 
-.ensemblFastaSourceUrls <-
-    function(baseUrl)
+## get urls 
+.ensemblFastaSourceUrls <- function(baseUrl)
 {
-    ## handle pointer must exist in external scope.
-    
-
     want <- .ensemblDirUrl(baseUrl, "fasta/")
-    ## files in release ## BOOM
 
     .processUrl <- function(url) {
         listing <- getURL(url=url, followlocation=TRUE, customrequest="LIST -R")
         listing<- strsplit(listing, "\n")[[1]]
 
-        subdirIdx <- grepl(".*/.*:", listing)  
+        subdirIdx <- grepl(".*/.*:", listing) 
         subdir <- sub("^(.*):$", "\\1", listing[subdirIdx])
 
         fileTypes <- paste(.ensemblFastaTypes, collapse="|")
@@ -85,12 +79,8 @@
 
         sprintf("%s%s/%s", url, subdir, fasta)
     }
-    
     res <- unlist(lapply(want, .processUrl), use.names=FALSE)
 
-## TEMP HACK to allow faster testing by only doing the 1st couple records
-##   res <- res[1:2]
-    
     if (length(res) == 0) {
         txt <- sprintf("no fasta files at %s",
                        paste(sQuote(want), collapse=", "))
@@ -99,20 +89,16 @@
     res
 }
 
-## This recipe is 'tricky' because it has to include an extra row for the extra index file in the database.  That means that all relevant rows for the rdatapaths table needed to have extra elements in their slots...  So below you can see extra work done for RDataPath, RDataClass, RDataSize and RDataLastModifiedDate
-
-## AHM generator
+## metadata generator
 makeEnsemblFastaToAHMs <-
-    function(currentMetadata, justRunUnitTest, BiocVersion)
+    function(currentMetadata, baseUrl = "ftp://ftp.ensembl.org/pub/",
+             justRunUnitTest = FALSE, BiocVersion = biocVersion())
 {
     time1 <- Sys.time()
-    baseUrl = .ensemblBaseUrl
-    ## get all possible sourceUrls
-    sourceUrl <- .ensemblFastaSourceUrls(.ensemblBaseUrl) 
-    
-    if(justRunUnitTest)
+    sourceUrl <- .ensemblFastaSourceUrls(baseUrl)
+    if (justRunUnitTest)
         sourceUrl <- sourceUrl[1:5]
-    
+ 
     sourceFile <- .ensemblSourcePathFromUrl(baseUrl, sourceUrl)
     meta <- .ensemblMetadataFromUrl(sourceUrl) 
     dnaType <- local({
@@ -121,14 +107,14 @@ makeEnsemblFastaToAHMs <-
     })
     description <- paste("FASTA", dnaType, "sequence for", meta$species)
 
-    ## For rdatapaths, I need two copies of each one
+    ## rdatapaths db table needs an extra row for the index file
     rdataPath <- sub(".gz$", ".rz", sourceFile)
-    rdps <- rep(rdataPath,each=2)
+    rdps <- rep(rdataPath, each=2)
     rdatapaths <- split(rdps, f=as.factor(rep(1:length(rdataPath),each=2)))
-    ## Then the 2nd record of each set need to become an '.fai' file
+    ## second record of each set becomes the '.fai' file
     rdatapaths <- lapply(rdatapaths,
                          function(x){x[2] <- paste0(x[2],".fai") ; return(x)})
-    
+ 
     Map(AnnotationHubMetadata,
         Description=description,
         Genome=meta$genome,
@@ -143,39 +129,26 @@ makeEnsemblFastaToAHMs <-
         MoreArgs=list(
           BiocVersion=BiocVersion,
           Coordinate_1_based = TRUE,
-          DataProvider = "Ensembl",
-          Maintainer = "Martin Morgan <mtmorgan@fredhutch.org>",
+          DataProvider="Ensembl",
+          Maintainer="<maintainer@bioconductor.org>",
           SourceType="FASTA",
           DispatchClass="FaFile", 
-          RDataClass = c("FaFile", "FaFile"),
-          RDataDateAdded = Sys.time(),
-          Recipe = "AnnotationHubData:::ensemblFastaToFaFile",
-          Tags = c("FASTA", "ensembl", "sequence")))
+          RDataClass=c("FaFile", "FaFile"),
+          RDataDateAdded=Sys.time(),
+          Recipe="AnnotationHubData:::ensemblFastaToFaFile",
+          Tags=c("FASTA", "ensembl", "sequence")))
 }
 
-## recipe
+## recipe: unzips .gz file and indexes it; save as .rz and .rz.fai
 ensemblFastaToFaFile <- function(ahm)
 {
-    ## faOut is target .rz file name
-    faOut <- normalizePath(outputFile(ahm)[[1]] )
-    ## from which we 'know' the name of the source file that will be present...
+    ## FIXME: normalizePath() only works on the files that exist ...
+    #faOut <- normalizePath(outputFile(ahm)[[1]])
+    faOut <- outputFile(ahm)[[1]]  ## target out file
     srcFile <- sub('.rz$','.gz',faOut)
     razip(srcFile)    ## which we unzip
     indexFa(faOut)    ## and index
 }
 
-
-
-makeAnnotationHubResource("EnsemblFastaImportPreparer",
-                          makeEnsemblFastaToAHMs)
-
-
-## > ahms = updateResources(ahroot, BiocVersion,
-## +   preparerClasses = "EnsemblFastaImportPreparer",
-## +   insert = FALSE, metadataOnly=TRUE)
-## INFO [2015-05-22 17:20:06] Preparer Class: EnsemblFastaImportPreparer
-## Error in initialize(value, ...) : 
-##   invalid names for slots of class “AnnotationHubMetadata”: Location_prefix, RDataSize, RDataLastModifiedDate
-## In addition: Warning message:
-## In if (is.na(species)) { :
-##   the condition has length > 1 and only the first element will be used
+## create the class and newResources() method
+makeAnnotationHubResource("EnsemblFastaImportPreparer", makeEnsemblFastaToAHMs)

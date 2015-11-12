@@ -120,6 +120,8 @@
     description
 }
 
+## FIXME: hotspot files from the Broad Institute should have
+##        dispatchClass == BEDFile
 .peakEpiFiles <- function(justRunUnitTest) {
    paths <- c(broadPeaks="byFileType/peaks/consolidated/broadPeak/",
                narrowPeaks="byFileType/peaks/consolidated/narrowPeak/", 
