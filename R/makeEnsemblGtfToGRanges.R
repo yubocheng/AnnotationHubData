@@ -7,7 +7,7 @@
     function(baseUrl, justRunUnitTest)
 {
     rel <- seq(69,81,1) 
-    want <- paste0(.ensemblBaseUrl, "release-", rel, "/gtf/")
+    want <- paste0(baseUrl, "release-", rel, "/gtf/")
      
     if(justRunUnitTest)
         want <- want[1]
@@ -32,13 +32,16 @@
 ## STEP 1: make function to process metadata into AHMs
 ## This function will return the AHMs and takes no args.
 ## It also must specify a recipe function.
-makeEnsemblGTFsToAHMs <- function(currentMetadata, justRunUnitTest, BiocVersion){
+makeEnsemblGTFsToAHMs <- function(currentMetadata, 
+                                  baseUrl = "ftp://ftp.ensembl.org/pub/",
+                                  justRunUnitTest = FALSE, 
+                                  BiocVersion = biocVersion()){
     ## get possible sources
-    df <- .ensemblGtfSourceUrls(.ensemblBaseUrl, justRunUnitTest)
+    df <- .ensemblGtfSourceUrls(baseUrl, justRunUnitTest)
     sourceUrls <- df$fileurl
     
     ## construct datapath for the saved GRanges
-    rd <- gsub(.ensemblBaseUrl, "", sourceUrls)
+    rd <- gsub(baseUrl, "", sourceUrls)
     rdata <- sub(".gz$", ".RData", rd)
     rdata <- paste0("ensembl/", rdata)
     

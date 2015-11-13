@@ -93,7 +93,8 @@ export(
     ensemblFastaToFaFile,
     tracksToUpdate,
     ahmToJson,
-    newResources, updateResources, deleteResources
+    newResources, updateResources, deleteResources, runRecipes,
+    pushMetadata, pushResources
 )
 
 exportMethods(

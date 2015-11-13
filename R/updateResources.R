@@ -1,3 +1,9 @@
+### =========================================================================
+### updateResources() and friends
+### -------------------------------------------------------------------------
+###
+
+
 ################################################################################
 ## This is where the new functions for updating resources on the new
 ## back end are going to live
@@ -26,14 +32,24 @@ getImportPreparerClasses <- function() {
 
 }
 
-
-.pushMetadata <- function(jsons, url) {
-    h <- handle(url)
+pushMetadata <- function(allAhms, url) {
+    flog(INFO, "inserting metdata in db ...")
+    jsons <- lapply(allAhms, ahmToJson)
     lapply(jsons, function(x) {
-        result <- POST(handle=h, body=list(payload=x))
+        result <- POST(handle=handle(url), body=list(payload=x))
         print(result)
         print(content(result))
         result
+    })
+}
+
+pushResources <- function(allAhms) {
+    flog(INFO, "processing and pushing data ...")
+    tryCatch({
+        lapply(allAhms, runRecipes, ahroot=AnnotationHubRoot)
+    }, error = function(err) {
+        stop(paste0("error processing data in runRecipes(): ",
+                    "conditionMessage(err)"))
     })
 }
 
@@ -87,8 +103,8 @@ downloadResource <- function(ahm, downloadIfExists) {
     }
 }
 
-## this helper is adapted from formerly internal function 'processAhm'
-.runRecipes <- function(ahm, ahroot) {
+## adapted from formerly internal function 'processAhm'
+runRecipes <- function(ahm, ahroot) {
     metadata(ahm)$AnnotationHubRoot <- ahroot
     needs.download <- TRUE
 
@@ -124,7 +140,7 @@ downloadResource <- function(ahm, downloadIfExists) {
 
 updateResources <- function(AnnotationHubRoot, BiocVersion=biocVersion(),
                             preparerClasses=getImportPreparerClasses(),
-                            insert=FALSE, metadataOnly=TRUE,
+                            metadataOnly=TRUE, insert=FALSE,
                             justRunUnitTest=FALSE, ...) {
 
     if (insert) {
@@ -155,38 +171,16 @@ updateResources <- function(AnnotationHubRoot, BiocVersion=biocVersion(),
     }
 
     ## download, process and push data to appropriate location
-    flog(INFO, "processing and pushing data ...")
-    tryCatch({
-        if (metadataOnly == FALSE) 
-            lapply(allAhms, .runRecipes, ahroot=AnnotationHubRoot)
-    }, error = function(err) {
-        stop(paste0("error processing data in .runRecipes(): ",
-                    "conditionMessage(err)"))
-    })
+    if(!metadataOnly)
+        pushResources(allAhms)
 
-    ## if data push was successful, insert metadata in AnnotationHub db
-    if(insert==TRUE) {
-        flog(INFO, "inserting metdata in db ...")
-        jsons = lapply(allAhms, ahmToJson)
-        .pushMetadata(jsons, url)
-    }
+
+    ## if data push was successful insert metadata in db
+    if(insert)
+        pushMetadata(allAhms, url)
  
     allAhms
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 ###########################################################################

@@ -79,7 +79,7 @@
 }
 
 \examples{
-getImportPreparer()
+getImportPreparerClasses()
 }
 
 \keyword{classes}

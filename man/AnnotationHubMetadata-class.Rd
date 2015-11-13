@@ -80,9 +80,9 @@ getImportPreparerClasses()
 makeAnnotationHubResource(objName, makeAnnotationHubMetadataFunction,
                           ..., where)
 tracksToUpdate()
-updateResources(AnnotationHubRoot, BiocVersion,
+updateResources(AnnotationHubRoot, BiocVersion = biocVersion(),
                 preparerClasses=getImportPreparerClasses(),
-                insert=FALSE, metadataOnly=TRUE,
+                metadataOnly=TRUE, insert=FALSE,
                 justRunUnitTest=FALSE)
 }
 
@@ -170,6 +170,7 @@ updateResources(AnnotationHubRoot, BiocVersion,
     the 1st few resources to make sure that recipe works.}
     \item{where}{the environment in which to store the definition.
     Default value is sufficient.}
+    \item{\dots}{additional arguments passed to methods}
 }
 
 \value{
