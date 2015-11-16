@@ -12,46 +12,27 @@
 
 ## Try a new strategy for getting ALL the dir listings at ONCE.
 
+.goldenPathUrl <- "ftp://hgdownload.cse.ucsc.edu/goldenPath/"
+
 ###############################################
-## make this into a function and call it
 .getListing <- function(){
-    ## I did this once and then saved it (it takes a few minutes)
-    listing <- getURL(url="ftp://hgdownload.cse.ucsc.edu/goldenPath/",
-                      followlocation=TRUE, customrequest="LIST -R")
-    ## then bust that into single rows.
-    listing <- strsplit(listing,"\n")[[1]]
+    listing <- .ftpDirectoryInfo(.goldenPathUrl)
     save(listing, file="listing.Rda")
     listing
 }
-## listing <- .getListing()
 
 ###############################################
-## need to get symlinks
+# Get a list of genomes from the UCSC FTP server
 .getGenomeAbbrevs <- function(genomes){
-    baseList <- getURL(url="ftp://hgdownload.cse.ucsc.edu/goldenPath/",
-                       curl=handle_find(url)$handle)
-    baseList <- strsplit(baseList,"\n")[[1]]
-    ## baseList[grep('cb1',baseList)]
-    ## baseList[grep(genome[1],baseList)] ## a normal one
-
-    ## go through all the genomes, and for each one, check if it's like    
-    ## cb1, replace as necessary
-    checkForAndRetrieveSymLinks <- function(genStr){
-        genStr2 <- paste(" ",genStr, sep="")
-        str <- baseList[grep(genStr2, baseList)] ## gets one str
-        ## if(length(str) >1){ message("too many strs for: \n", str)}
-        if(grepl('->', str)){ ## does it have a symlink?
-            res <- sub("^.+->\\s+","",str)
-        }else{
-            res <- genStr
-        }
-        res
+    res <- .listRemoteFiles(.goldenPathUrl)
+    # By arrow I mean symlinks
+    dirsWithoutArrow <- sub(" -> [[:alnum:]]+/?$", "", res)
+    listOfDirs <- read.table(text=dirsWithoutArrow, stringsAsFactors=FALSE)[[1]]
+    # The dir list points to the current and parent, remove them
+    listOfDirs <- listOfDirs[! (listOfDirs %in% c(".", "..")) ]
+    listOfDirs <- listOfDirs[ listOfDirs %in% genomes ]
+    listOfDirs
     }    
-    unlist(lapply(genomes, checkForAndRetrieveSymLinks))
-}
-## genomes2 <- .getGenomeAbbrevs(genomes)
-
-
 
 ###############################################
 ## make this into a couple of functions and call
@@ -333,4 +314,3 @@ tracksToUpdate <- function(){
     res
 }
 ## res <- tracksToUpdate()
-

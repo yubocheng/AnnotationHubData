@@ -13,8 +13,7 @@
 .ensemblDirUrl <-
     function(url, dir,  regex = .ensemblReleaseRegex)
 {
-    lst <- getURL(url=url, dirlistonly=TRUE, followlocation=TRUE) 
-    lst <- strsplit(lst, "\n")[[1]]
+    lst <- .listRemoteFiles(url)
     releases <- paste0(url, lst)
     paste(grep(regex, releases, value=TRUE), dir, sep="/")
 }
@@ -62,8 +61,7 @@
     want <- .ensemblDirUrl(baseUrl, "fasta/")
 
     .processUrl <- function(url) {
-        listing <- getURL(url=url, followlocation=TRUE, customrequest="LIST -R")
-        listing<- strsplit(listing, "\n")[[1]]
+        listing <- .ftpDirectoryInfo(url)
 
         subdirIdx <- grepl(".*/.*:", listing) 
         subdir <- sub("^(.*):$", "\\1", listing[subdirIdx])

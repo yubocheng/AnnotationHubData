@@ -15,8 +15,7 @@
     ## files in release
     
     urls <- unlist(lapply(want, function(url) {
-        listing <- getURL(url=url, followlocation=TRUE, customrequest="LIST -R")
-        listing<- strsplit(listing, "\r*\n")[[1]]
+        listing <- .ftpDirectoryInfo(url)
         subdir <- sub(".* ", "", listing[grep("^drwx", listing)])
         paste0(url, subdir, "/")
     }), use.names=FALSE)
@@ -107,4 +106,3 @@ ensemblGTFToGRangesRecipe <- function(ahm){
 ## STEP 3:  Call the helper to set up the newResources() method
 makeAnnotationHubResource("EnsemblGtfImportPreparer",
                           makeEnsemblGTFsToAHMs)
-

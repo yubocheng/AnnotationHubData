@@ -138,4 +138,3 @@ test_GencodeFasta <- function() {
                            justRunUnitTest=TRUE)
     checkTrue(class(ahms[[1]])=="AnnotationHubMetadata")
 }
-

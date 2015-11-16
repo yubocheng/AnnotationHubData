@@ -22,8 +22,7 @@
 
 .gencodeFileFromUrl <- function(urls) {
     unlist(sapply(urls, function(url) {
-        listing <- getURL(url=url, followlocation=TRUE, customrequest="LIST -R")
-        listing<- strsplit(listing, "\r*\n")[[1]]
+        listing <- .ftpDirectoryInfo(url)
         listing = listing[grep("gencode", listing)]
         paste0(url, "gencode", sub(".*gencode","", listing ))
     }, USE.NAMES=FALSE))
@@ -198,6 +197,3 @@ makeGencodeGFFsToAHMs <- function(currentMetadata, justRunUnitTest, BiocVersion)
 ## STEP 2:  Call the helper to set up the newResources() method
 makeAnnotationHubResource("GencodeGffImportPreparer",
                           makeGencodeGFFsToAHMs)
-
-
-

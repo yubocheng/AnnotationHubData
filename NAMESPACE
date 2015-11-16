@@ -53,8 +53,7 @@ importFrom(futile.logger, ERROR, INFO, TRACE, appender.file, flog.appender,
 importFrom(jsonlite, fromJSON, toJSON)
 importFrom(httr, config, content, DELETE, GET, handle, handle_find,
            HEAD, headers, POST, stop_for_status)
-importFrom(RCurl, basicTextGatherer, curlPerform, getBinaryURL,
-           getCurlHandle, getURL)
+importFrom(curl, new_handle, curl, handle_setopt)
 importFrom(parallel, detectCores)
 importFrom(utils, data, download.file, read.delim, read.table, untar)
 importFrom(stats, setNames)

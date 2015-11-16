@@ -89,6 +89,3 @@ gencodeFastaToFaFile <- function(ahm)
 ## STEP 2:  Call the helper to set up the newResources() method
 makeAnnotationHubResource("GencodeFastaImportPreparer",
                           makeGencodeFastaToAHMs)
-
-
-
