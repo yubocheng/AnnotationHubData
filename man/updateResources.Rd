@@ -153,7 +153,6 @@ Ailuropoda_melanoleuca.ailMel1.ncrna.fa.gz
 [1] "AnnotationHubMetadata"
 attr(,"package")
 [1] "AnnotationHubData"
-}
 
 ## -----------------------------------------------------------------------
 ## Insert metadata in the db and process/push data files:
@@ -178,6 +177,7 @@ meta <- updateResources("local/directory/path",
 
 ## Insert metadata in the db.
 ## pushMetadata(meta, url = getOption("AH_SERVER_POST_URL"))
+}
 }
 
 \keyword{methods}
