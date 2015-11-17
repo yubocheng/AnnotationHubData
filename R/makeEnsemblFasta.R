@@ -7,27 +7,19 @@
 ## .ensemblReleaseRegex <- ".*release-(69|7[[:digit:]]|8[[:digit:]])"
 ## .ensemblReleaseRegex <- ".*release-(79|8[[:digit:]])"
 ## for a speed run just do one set
-.ensemblReleaseRegex <- ".*release-81"
+## .ensemblReleaseRegex <- ".*release-81"
 
 ## list directories below url/dir satisfying regex
 .ensemblDirUrl <-
-    function(url, dir,  regex = .ensemblReleaseRegex)
+    function(url, dir,  regex)
 {
     lst <- .listRemoteFiles(url)
     releases <- paste0(url, lst)
     paste(grep(regex, releases, value=TRUE), dir, sep="/")
 }
 
-## rename SourcePath by replacing baseUrl with 'ensembl/'
-.ensemblSourcePathFromUrl <-
-    function(baseUrl, sourceUrl)
-{
-    sub(baseUrl, "ensembl/", sourceUrl)
-}
-
 ## mangle url to metadata where possible
-.ensemblMetadataFromUrl <-
-    function(sourceUrl){
+.ensemblMetadataFromUrl <- function(sourceUrl) {
     releaseRegex <- ".*(release-[[:digit:]]+).*"
     title <- sub(".gz$", "", basename(sourceUrl))
     root <- setNames(rep(NA_character_, length(sourceUrl)), title)
@@ -56,9 +48,9 @@
       "dna.toplevel", "ncrna", "pep.all")
 
 ## get urls 
-.ensemblFastaSourceUrls <- function(baseUrl)
+.ensemblFastaSourceUrls <- function(baseUrl, baseDir, regex)
 {
-    want <- .ensemblDirUrl(baseUrl, "fasta/")
+    want <- .ensemblDirUrl(baseUrl, baseDir, regex)
 
     .processUrl <- function(url) {
         listing <- .ftpDirectoryInfo(url)
@@ -90,14 +82,15 @@
 ## metadata generator
 makeEnsemblFastaToAHMs <-
     function(currentMetadata, baseUrl = "ftp://ftp.ensembl.org/pub/",
+             baseDir = "fasta/", regex = ".*release-81",
              justRunUnitTest = FALSE, BiocVersion = biocVersion())
 {
     time1 <- Sys.time()
-    sourceUrl <- .ensemblFastaSourceUrls(baseUrl)
+    sourceUrl <- .ensemblFastaSourceUrls(baseUrl, baseDir, regex)
     if (justRunUnitTest)
         sourceUrl <- sourceUrl[1:5]
  
-    sourceFile <- .ensemblSourcePathFromUrl(baseUrl, sourceUrl)
+    sourceFile <- sub(baseUrl, "ensembl/", sourceUrl)
     meta <- .ensemblMetadataFromUrl(sourceUrl) 
     dnaType <- local({
         x <- basename(dirname(sourceFile))
@@ -140,8 +133,6 @@ makeEnsemblFastaToAHMs <-
 ## recipe: unzips .gz file and indexes it; save as .rz and .rz.fai
 ensemblFastaToFaFile <- function(ahm)
 {
-    ## FIXME: normalizePath() only works on the files that exist ...
-    #faOut <- normalizePath(outputFile(ahm)[[1]])
     faOut <- outputFile(ahm)[[1]]  ## target out file
     srcFile <- sub('.rz$','.gz',faOut)
     razip(srcFile)    ## which we unzip
