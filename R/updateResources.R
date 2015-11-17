@@ -43,10 +43,10 @@ pushMetadata <- function(allAhms, url) {
     })
 }
 
-pushResources <- function(allAhms) {
+pushResources <- function(allAhms, ahroot) {
     flog(INFO, "processing and pushing data ...")
     tryCatch({
-        lapply(allAhms, runRecipes, ahroot=AnnotationHubRoot)
+        lapply(allAhms, runRecipes, ahroot=ahroot)
     }, error = function(err) {
         stop(paste0("error processing data in runRecipes(): ",
                     "conditionMessage(err)"))
@@ -172,7 +172,7 @@ updateResources <- function(AnnotationHubRoot, BiocVersion=biocVersion(),
 
     ## download, process and push data to appropriate location
     if(!metadataOnly)
-        pushResources(allAhms)
+        pushResources(allAhms, AnnotationHubRoot)
 
 
     ## if data push was successful insert metadata in db
