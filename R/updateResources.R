@@ -3,28 +3,6 @@
 ### -------------------------------------------------------------------------
 ###
 
-
-################################################################################
-## This is where the new functions for updating resources on the new
-## back end are going to live
-################################################################################
-## After metadata is pushed up to the back end.  The back end will then do 
-## the following to 'fetch' records based on their IDs:
-## 
-# get '/fetch/:id' do
-#   rp = Rdatapath.find(:id=>params[:id])
-#   path = rp.rdatapath
-#   resource = rp.resource
-#   prefix = resource.location_prefix.location_prefix
-#   url = prefix + path
-#   # TODO do some logging here....
-#   redirect url
-# end
-##
-## That means that the formula for looking up a resource will always be :
-## location_prefix + rdatapath
-################################################################################
-
 getImportPreparerClasses <- function() {
     subclasses <- names(getClassDef("ImportPreparer")@subclasses)
     dont.use <- c("UCSCFullTrackImportPreparer") ## revisit this
@@ -95,11 +73,12 @@ downloadResource <- function(ahm, downloadIfExists) {
     } else if (protocol %in% c("http", "https")) {
         ## FIXME be more sophisticated in deciding how to download
         ## (e.g. use parallel download for bigger files)
-        tryCatch(download.file(SourceUrl, destfile, quiet=TRUE),
-            error=function(e){
-                flog(ERROR, "Error downloading %s: %s",
-                    SourceUrl, conditionMessage(e))
-                })
+        tryCatch({
+            download.file(SourceUrl, destfile, quiet=TRUE)
+        }, error=function(e) {
+            flog(ERROR, "Error downloading %s: %s",
+                 SourceUrl, conditionMessage(e))
+        })
     }
 }
 

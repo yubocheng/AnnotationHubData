@@ -16,90 +16,79 @@
 updateResources <- function(AnnotationHubRoot, BiocVersion = biocVersion(),
                             preparerClasses = getImportPreparerClasses(),
                             metadataOnly = TRUE, insert = FALSE,
-                            justRunUnitTest = FALSE)
+                            justRunUnitTest = FALSE, ...)
 }
 
-\arguments{
-  \item{AnnotationHubRoot}{
-    Local path where files will be downloaded.
-  }
-  \item{BiocVersion}{
-    A character vector of Bioconductor versions the resources should be 
-    available for.
-  }
-  \item{preparerClasses}{
-    One of the \code{ImportPreparer} subclasses as defined in
-    \code{getImportPreparer()}. This class is used for dispatch during
-    data discovery.
-  }
-  \item{metadataOnly}{
-    A \code{logical} to specify whether metadata only or both metadata and
-    data are processed.
+\section{arguments}{
+  \itemize{
+    \item{AnnotationHubRoot}{
+      Local path where files will be downloaded.
+    }
+    \item{BiocVersion}{
+      A character vector of Bioconductor versions the resources should be 
+      available for.
+    }
+    \item{preparerClasses}{
+      One of the \code{ImportPreparer} subclasses defined in
+      \code{getImportPreparer()}. This class is used for dispatch during
+      data discovery.
+    }
+    \item{metadataOnly}{
+      A \code{logical} to specify the processing of metadata only or both
+      metadata and data files.
 
-    When TRUE, \code{updateResources} re
-    
-    
-    
-    
-    that indicates metadata only is generated. When TRUE, metadata
-    is generated but no files are downloaded or processed.
-
-    When FALSE, 
-            if (!getOption("AnnotationHub_Use_Disk", FALSE)) if this is FALSE
-            it goes to S3
-
-## it does not work well for uploading files. Therefore this
-## function expects the AWS CLI to be installed. 
-## See: https://aws.amazon.com/cli/
-## It should be configured with a user who can write to 
-## the appropriate bucket. 
-
-TO upload to S3 AWS command line tools must be installed on local machine
-(where downloaded files are)
-
-
-
-  }
-  \item{insert}{
-    A logical to control if metadata should be inserted in the AnnotationHub
-    db. By default this option is FALSE which is a useful state in which
-    to test a new recipe and confirm the metadata fields are correct.
+      When FALSE, metadata are generated and data files are downloaded,
+      processed and pushed to their final location in S3 buckets. 
+      \code{metadata = TRUE} produces only metadata and is useful for 
+      testing.
+    }
+    \item{insert}{
+      A \code{logical} to control if metadata are inserted in the AnnotationHub
+      db. By default this option is FALSE which is a useful state in which
+      to test a new recipe and confirm the metadata fields are correct.
  
-    When \code{insert = TRUE}, the option AH_SERVER_POST_URL must
-    be set in the global environment or .Rprofile.
-  }
-  \item{justRunUnitTest}{
-    A \code{logical}. When TRUE, a small number of records (usually 5) are
-    processed instead of all.
+      When \code{insert = TRUE}, the "AH_SERVER_POST_URL" global option must
+      be set to the http location of the AnnotationHubServer in the global 
+      environment or .Rprofile. Additionally, AWS command line tools
+      must be installed on the local machine to push files to S3 buckets.
+      See https://aws.amazon.com/cli/ for installation instructions.
+    }
+    \item{justRunUnitTest}{
+      A \code{logical}. When TRUE, a small number of records (usually 5) are
+      processed instead of all.
+    }
+    \item{\dots}{
+      Arguments passed to other methods such as \code{regex}, \code{baseUrl},
+      \code{baseDir}.
+    }
   }
 }
 
 \details{
+   \itemize{
+     \item updateResources: 
 
-This page documents procedures for adding new records to AnnoatationHub
-with the assumption that the type of data, or ImportPreparerClass,
-already exits.
-
-for creating a new class please see ***
-
-
-when is AnnotationHub_Use_Disk set?
- (!getOption("AnnotationHub_Use_Disk", FALSE))
-
-  \code{updateResources} is responsible for creating the metadata and
-  downloading and processing data files. Options \code{insert} control
-  whether the metadata are inserted in the \code{AnnotationHub} db and
-  \code{metadataOnly} controls whether just metadata or both metadata and
-  data files are processed.
+           \code{updateResources} is responsible for creating metadata records
+           and downloading, processing and pushing data files to their final
+           resting place. The \item{preparerClasses} argument is used in method
+           dispatch to determine which recipe is used.
+ 
+           By manipulating the \code{metadataOnly}, \code{insert} and
+           \code{justRunUnitTest} arguments one can flexibly test the metadata
+           for a small number of records with or without downloading and
+           processing the data files.
 
 
-## Here is the main function and what it is responsible for:
-## 1) spawning the AHMs
-## 2) making them into JSON
-## 3) send metadata off to the back end
-## 4) call the recipe and push the results of that off to the right place
+      \item global options: 
 
+            Several recipes look at the "AnnotationHub_Use_Disk" option
+            to determine if the file is written to S3. This is legacy behavior
+            and not clearly documented. If the recipe being run respects this
+            option it must be set before running \code{updateResources},
 
+            When \code{insert = TRUE} the "AH_SERVER_POST_URL" option must be
+            set to the https location of the AnnotationHub db.
+  }
 }
 
 \value{
@@ -109,6 +98,9 @@ when is AnnotationHub_Use_Disk set?
 \author{Martin Morgan, Marc Carlson}
 
 \seealso{
+  \itemize{
+    \item \link{AnnotationHubMetadata}
+  }
 }
 
 \examples{
@@ -118,17 +110,18 @@ when is AnnotationHub_Use_Disk set?
 ## -----------------------------------------------------------------------
 ## Inspect metadata:
 ## -----------------------------------------------------------------------
-## When testing a new recipe a useful first step is to generate a small
-## amount of metadata for visual inspection. Using the combination of
+## A useful first step in testing a new recipe is to generate and
+## inspect a small number of metadata records. The combination of
 ## 'metadataOnly=TRUE', 'insert=FALSE' and 'justRunUnitTest=TRUE'
 ## generates metadata for the first 5 records and does not download or 
-## process any data files.
+## process any data.
 
-meta <- updateResources("home/vobencha/ubuntu/sandbox", 
+meta <- updateResources("/local/path", 
                         BiocVersion = c("3.2", "3.3"),
                         preparerClasses = "EnsemblFastaImportPreparer",
-                        metadataOnly = TRUE, insert = FALSE,
-                        justRunUnitTest = TRUE)
+                        metadataOnly = FALSE, insert = FALSE,
+                        justRunUnitTest = TRUE,
+                        regex = ".*release-81")
 
 INFO [2015-11-12 07:58:05] Preparer Class: EnsemblFastaImportPreparer
 Ailuropoda_melanoleuca.ailMel1.cdna.all.fa.gz
@@ -161,23 +154,30 @@ attr(,"package")
 ## the data. If all files are successfully pushed to their
 ## final resting place then metadata are inserted in the AnnotationHub db.
 
-meta <- updateResources("local/directory/path", 
+meta <- updateResources("local/path", 
                         BiocVersion = c("3.2", "3.3"),
                         preparerClasses = "EnsemblFastaImportPreparer",
-                        regex = ".*release-81",
                         metadataOnly = FALSE, insert = TRUE,
-                        justRunUnitTest = FALSE)
+                        justRunUnitTest = FALSE,
+                        regex = ".*release-81")
 
 ## -----------------------------------------------------------------------
 ## Recovery helpers:
 ## -----------------------------------------------------------------------
 
-## Function that downloads, processes and pushes data to S3 buckets.
-## pushResources(meta)
+## pushResources() and pushMetadata() are both called from updateResources()
+## but can be used solo for testing or completing a run that
+## terminated unexpectedly.
 
-## Insert metadata in the db.
-## pushMetadata(meta, url = getOption("AH_SERVER_POST_URL"))
+## Download, process and push to S3 the last 2 files in 'meta':
+sub <- meta[length(meta) - 1:length(meta)]
+pushResources(sub)
+
+## Insert metadata in the AnotationHub db for the last 2 files in 'meta':
+
+pushMetadata(sub, url = getOption("AH_SERVER_POST_URL"))
 }
+
 }
 
 \keyword{methods}

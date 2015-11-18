@@ -8,14 +8,11 @@
 .EpigenomeRoadMap <- "http://egg2.wustl.edu/roadmap/data/byFileType/"
 #.EpigenomeRoadMapMain <- "http://egg2.wustl.edu/roadmap/data/"
 
-.readEpiFilesFromWebUrl <- function(url, pattern, justRunUnitTest) {
-    tryCatch ({
+.readEpiFilesFromWebUrl <- function(url, pattern) {
+    tryCatch({
        table <- XML::readHTMLTable(url)[[1]]
        fnames <- grep(pattern, as.character(table$Name), value=TRUE) 
-       fileurl <- paste0(url, fnames)
-       if(justRunUnitTest)
-           fileurl <- fileurl[1:2]
-       fileurl
+       paste0(url, fnames)
     }, error=function(err) {
         warning(url, ": ", conditionMessage(err), immediate.=TRUE)
         data.frame(url=character(), stringsAsFactors=FALSE)
@@ -29,7 +26,7 @@
 
 .EpiFilesTags <- function(url, baseUrl, pattern="-") {
     ## get columns F,O,D from metadata
-    metadata <- .EpiFilesMetadata()
+    metadata <- .EpiFilesMetadata(baseUrl)
     filename <- basename(url)
      celltype <- gsub(paste0(pattern,".*"),"", filename)
     idx <- match(celltype, metadata[,"EID"])
@@ -60,7 +57,7 @@
     ## these files are downloaded from the web 
     rdatapath <- sub(baseUrl, "", fileurls)
     ## add tags
-    tags <- .EpiFilesTags(fileurls, pattern)
+    tags <- .EpiFilesTags(fileurls, baseUrl, pattern)
     ## description 
     description <- .EpiFilesDescription(fileurls)
     cbind(df, rdatapath, tags, description, stringsAsFactors=FALSE)
@@ -151,8 +148,10 @@
     }
     fileurls <- sapply(paste0(baseUrl, paths), 
         function(x) 
-            .readEpiFilesFromWebUrl(x, pattern, justRunUnitTest)
+            .readEpiFilesFromWebUrl(x, pattern)
     )
+    if(justRunUnitTest)
+        fileurls <- fileurls[1:2]
     dispatchClass <- rep(dispatch , length(fileurls))
     df <- .MiscEpiFiles(baseUrl, fileurls)
     sourcetype <- rep("BED" , length(fileurls))
@@ -180,9 +179,8 @@
     dirurl <- c(dirurl, baseDirs)
     
     fileurls <- sapply(dirurl, function(x) {
-        .readEpiFilesFromWebUrl(x, "bigwig", justRunUnitTest)
+        .readEpiFilesFromWebUrl(x, "bigwig")
     })
-    
     if(justRunUnitTest)
         fileurls <- fileurls[1:2]    
 
@@ -212,8 +210,7 @@
 .chmmModels <- function(justRunUnitTest) {
     dirurl <- paste0(baseUrl, 
         "byFileType/chromhmmSegmentations/ChmmModels/coreMarks/jointModel/final/")
-    fileurls <- .readEpiFilesFromWebUrl(dirurl, "mnemonics.bed.gz", 
-                                        justRunUnitTest=justRunUnitTest)
+    fileurls <- .readEpiFilesFromWebUrl(dirurl, "mnemonics.bed.gz")
     if (justRunUnitTest)
          fileurls <- fileurls[1:2]
     df <- .MiscEpiFiles(baseUrl, fileurls, pattern="_")
@@ -227,8 +224,10 @@
    dirurl <- paste0(baseUrl,"byDataType/rna/expression/")
 
    ## collect file name from page
-   fileurls <- .readEpiFilesFromWebUrl(dirurl,"gz", FALSE)
-    
+   fileurls <- .readEpiFilesFromWebUrl(dirurl,"gz")
+   if (justRunUnitTest)
+       fileurls <- fileurls[1:2]
+ 
    ## get the file size and  the file info
    df <- .httrFileInfo(fileurls, verbose=TRUE)
 
@@ -270,7 +269,9 @@
 .expressionAnnotationGtf <- function(baseUrl, justRunUnitTest=FALSE) {
     dirurl <- paste0(baseUrl,"byDataType/rna/annotations/")
     ## collect file name from page
-    fileurls <- .readEpiFilesFromWebUrl(dirurl,"gtf.gz", FALSE)
+    fileurls <- .readEpiFilesFromWebUrl(dirurl,"gtf.gz")
+    if (justRunUnitTest)
+        fileurls <- fileurls[1:2]
     ## get the file size and  the file info
     df <- .httrFileInfo(fileurls, verbose=TRUE)
     ## these files are downloaded from the web
@@ -289,17 +290,15 @@
         sourcetype, rdataclass, stringsAsFactors=FALSE)
 }
 
-
 .dnaMethylation <- function(baseUrl, justRunUnitTest=FALSE) {
     dirurl <- paste0(baseUrl,"byDataType/dnamethylation/")
     dirurl2 <- paste0(dirurl, c("RRBS/FractionalMethylation_bigwig/", 
                     "WGBS/FractionalMethylation_bigwig/",
                     "mCRF/FractionalMethylation_bigwig/"))
     fileurls <- unlist(sapply(dirurl2, function(x) 
-       .readEpiFilesFromWebUrl(x,"bigwig", FALSE), USE.NAMES=FALSE))
-    if(justRunUnitTest)
-         fileurls <- fileurls[1:2]
-    ## add decription, tags, rdatapath, date, size
+       .readEpiFilesFromWebUrl(x,"bigwig"), USE.NAMES=FALSE))
+    if (justRunUnitTest)
+        fileurls <- fileurls[1:2]
     df <- .MiscEpiFiles(baseUrl, fileurls, pattern="_")
     ## add dispatch class, sourcetype and Rdataclass
     dispatchClass <- rep("BigWigFile" , length(fileurls))
@@ -348,12 +347,12 @@ makeEpigenomeRoadmap <- function(currentMetadata,
     #              dnamethyl[, !names(dnamethyl)%in% "date"]  )
     #date <- c(peak$date, signal$date, metadata$date, seg$date,
     #         expr_gtf$date, expr_text$date, dnamethyl$date)    
-    #rsrc <- .dnaMethylation(baseUrl, justRunUnitTest)
-    #date <- rsrc$date
-    .makeEpigenomeRoadMap(rsrc, BiocVersion=BiocVersion, baseUrl=baseUrl)
+    rsrc <- .dnaMethylation(baseUrl, justRunUnitTest)
+    date <- rsrc$date
+    .makeEpigenomeRoadmap(rsrc, date, BiocVersion, baseUrl)
 }
 
-.makeEpigenomeRoadmap <- function(rscr, date, BiocVersion, baseUrl) {
+.makeEpigenomeRoadmap <- function(rsrc, date, BiocVersion, baseUrl) {
     description <- rsrc$description
     title <- basename(rsrc$fileurl)
     sourceUrls <- rsrc$fileurl
@@ -392,6 +391,4 @@ makeEpigenomeRoadmap <- function(currentMetadata,
 }
 
 makeAnnotationHubResource("EpigenomeRoadMapPreparer", makeEpigenomeRoadmap)
-makeAnnotationHubResource("EpigenomeRoadMapNarrowPeakPreparer", 
-                          makeEpigenomeRoadmap)
 

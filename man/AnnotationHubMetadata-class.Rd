@@ -34,7 +34,6 @@
 \alias{getImportPreparerClasses}
 \alias{makeAnnotationHubResource}
 \alias{tracksToUpdate}
-\alias{updateResources}
 
 
 
@@ -80,10 +79,6 @@ getImportPreparerClasses()
 makeAnnotationHubResource(objName, makeAnnotationHubMetadataFunction,
                           ..., where)
 tracksToUpdate()
-updateResources(AnnotationHubRoot, BiocVersion = biocVersion(),
-                preparerClasses=getImportPreparerClasses(),
-                metadataOnly=TRUE, insert=FALSE,
-                justRunUnitTest=FALSE)
 }
 
 \arguments{
@@ -119,8 +114,6 @@ updateResources(AnnotationHubRoot, BiocVersion = biocVersion(),
     \item{RDataPath}{\code{character(1)} file path to serialized form}
     \item{Maintainer}{\code{character(1)} Maintainer name and email
         address, \sQuote{A Maintainer \url{a.maintainer@email.addr}}}
-    \item{...}{Additional arguments, passed directly to the class
-      initialize method.}
     \item{BiocVersion}{\code{character(1)} Under which resource was built}
     \item{Coordinate_1_based}{\code{logical(1)} Do coordinates start
         with 1 or 0?}
