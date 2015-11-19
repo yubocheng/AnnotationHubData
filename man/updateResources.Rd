@@ -119,7 +119,7 @@ updateResources <- function(AnnotationHubRoot, BiocVersion = biocVersion(),
 meta <- updateResources("/local/path", 
                         BiocVersion = c("3.2", "3.3"),
                         preparerClasses = "EnsemblFastaImportPreparer",
-                        metadataOnly = FALSE, insert = FALSE,
+                        metadataOnly = TRUE, insert = FALSE,
                         justRunUnitTest = TRUE,
                         regex = ".*release-81")
 
