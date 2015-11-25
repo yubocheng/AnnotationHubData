@@ -19,48 +19,46 @@ updateResources <- function(AnnotationHubRoot, BiocVersion = biocVersion(),
                             justRunUnitTest = FALSE, ...)
 }
 
-\section{arguments}{
-  \itemize{
-    \item{AnnotationHubRoot}{
-      Local path where files will be downloaded.
-    }
-    \item{BiocVersion}{
-      A character vector of Bioconductor versions the resources should be 
-      available for.
-    }
-    \item{preparerClasses}{
-      One of the \code{ImportPreparer} subclasses defined in
-      \code{getImportPreparer()}. This class is used for dispatch during
-      data discovery.
-    }
-    \item{metadataOnly}{
-      A \code{logical} to specify the processing of metadata only or both
-      metadata and data files.
+\arguments{
+  \item{AnnotationHubRoot}{
+    Local path where files will be downloaded.
+  }
+  \item{BiocVersion}{
+    A character vector of Bioconductor versions the resources should be 
+    available for.
+  }
+  \item{preparerClasses}{
+    One of the \code{ImportPreparer} subclasses defined in
+    \code{getImportPreparer()}. This class is used for dispatch during
+    data discovery.
+  }
+  \item{metadataOnly}{
+    A \code{logical} to specify the processing of metadata only or both
+    metadata and data files.
 
-      When FALSE, metadata are generated and data files are downloaded,
-      processed and pushed to their final location in S3 buckets. 
-      \code{metadata = TRUE} produces only metadata and is useful for 
-      testing.
-    }
-    \item{insert}{
-      A \code{logical} to control if metadata are inserted in the AnnotationHub
-      db. By default this option is FALSE which is a useful state in which
-      to test a new recipe and confirm the metadata fields are correct.
+    When FALSE, metadata are generated and data files are downloaded,
+    processed and pushed to their final location in S3 buckets. 
+    \code{metadata = TRUE} produces only metadata and is useful for 
+    testing.
+  }
+  \item{insert}{
+    A \code{logical} to control if metadata are inserted in the AnnotationHub
+    db. By default this option is FALSE which is a useful state in which
+    to test a new recipe and confirm the metadata fields are correct.
  
-      When \code{insert = TRUE}, the "AH_SERVER_POST_URL" global option must
-      be set to the http location of the AnnotationHubServer in the global 
-      environment or .Rprofile. Additionally, AWS command line tools
-      must be installed on the local machine to push files to S3 buckets.
-      See https://aws.amazon.com/cli/ for installation instructions.
-    }
-    \item{justRunUnitTest}{
-      A \code{logical}. When TRUE, a small number of records (usually 5) are
-      processed instead of all.
-    }
-    \item{\dots}{
-      Arguments passed to other methods such as \code{regex}, \code{baseUrl},
-      \code{baseDir}.
-    }
+    When \code{insert = TRUE}, the "AH_SERVER_POST_URL" global option must
+    be set to the http location of the AnnotationHubServer in the global 
+    environment or .Rprofile. Additionally, AWS command line tools
+    must be installed on the local machine to push files to S3 buckets.
+    See https://aws.amazon.com/cli/ for installation instructions.
+  }
+  \item{justRunUnitTest}{
+    A \code{logical}. When TRUE, a small number of records (usually 5) are
+    processed instead of all.
+  }
+  \item{\dots}{
+    Arguments passed to other methods such as \code{regex}, \code{baseUrl},
+    \code{baseDir}.
   }
 }
 

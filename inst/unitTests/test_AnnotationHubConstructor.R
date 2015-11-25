@@ -1,20 +1,9 @@
-## Many of the tests in here (and other files) are from before a major
-## refactor.  Many of them are therefore likely to be meaningless in
-## the new context, but others will need to be replaced with
-## modernized tests.
 
-## Here we will try to put tests that make sure that the constructor
-## is behaving itself.
-
+ahroot <- "/var/FastRWeb/web"
 .AnnotationHubMetadata_args <- local({
-    ## local copy of AnnotationHub, and arg list for AHMetadata; singleton
-    sourceDirectory <-
-        system.file('extdata', package='AnnotationHubData')
-    ahroot <- AnnotationHubData:::.createWorkingDirectory(sourceDirectory)
-    ##ahroot <- tempdir()
     basepath <- paste0("goldenpath/hg19/encodeDCC/wgEncodeRikenCage/",
                        "wgEncodeRikenCageCd20CellPapTssHmm.bedRnaElements")
-    
+ 
     list(AnnotationHubRoot=ahroot,
          SourceUrl=sprintf("http://hgdownload.cse.ucsc.edu/%s", basepath),
          SourceVersion=NA_character_,
@@ -40,14 +29,10 @@
 })
 
 .AnnotationHubMetadata <- 
-    ## singleton AHMetadata class instance
     do.call("AnnotationHubMetadata", .AnnotationHubMetadata_args)
 
 test_constructor <- function()
 {
-    ## null constructor (remove this - IOW we don't intend to support 'new')
-    ## checkTrue(validObject(new("AnnotationHubMetadata")))
-
     ## construction from complete args
     args <- .AnnotationHubMetadata_args
     ahm <- do.call("AnnotationHubMetadata", args)
@@ -64,9 +49,6 @@ test_constructor <- function()
     ahm1 <- do.call("AnnotationHubMetadata", args)
     checkIdentical(ahm, ahm1)
 }
-
-
-
 
 test_isComplete <- function()
 {
@@ -106,10 +88,3 @@ test_multi_input <- function()
     checkEquals(2L, length(metadata(x)$SourceMd5))
     checkEquals(2L, length(metadata(x)$SourceSize))
 }
-
-
-################################################################################
-## Tests to just see if we can run all of our recipes
-## 
-## VO deleted these on Aug 14 2015 because they were duplicates of 
-## the tests in test_recipe.R

@@ -1,5 +1,48 @@
-.printf <- function(...) print(noquote(sprintf(...)))
+### =========================================================================
+### Utility functions
+### -------------------------------------------------------------------------
+###
 
+constructSeqInfo <- function(species, genome)
+{
+  recognized.human <- species=="Homo sapiens" & genome %in% c("hg18", "hg19")
+  recognized.mouse <- species=="Mus musculus" & genome %in% c("mm10")
+  recognized <- recognized.human | recognized.mouse
+  stopifnot(recognized)
+ 
+  suppressMessages({
+       # chroms 1-22, X, Y, M are assumed to be the first 25 rows of the
+       # data.frame
+     if(recognized.human)
+        tbl.chromInfo =
+            GenomicFeatures:::.makeUCSCChrominfo (genome,
+                                                  circ_seqs="chrM") [1:25,]
+     if(recognized.mouse)
+        tbl.chromInfo =
+            GenomicFeatures:::.makeUCSCChrominfo (genome,
+                                                  circ_seqs="chrM") [1:22,]
+ 
+     })
+
+   Seqinfo(as.character(tbl.chromInfo$chrom), 
+           seqlengths=tbl.chromInfo$length, 
+           isCircular=tbl.chromInfo$is_circular,
+           genome=genome)
+}
+
+.sortTableByChromosomalLocation <- function(tbl)
+{
+  stopifnot (all (c ('seqname', 'start') %in% colnames (tbl)))
+  factor.chromNames <- factor (tbl$seqname,
+                               levels=paste("chr", c(1:22, "X", "Y", "M"),
+                                            sep=''))
+  tbl$seqname <- factor.chromNames
+  tbl <- tbl [order (tbl$seqname, tbl$start), ]
+  invisible (tbl)
+
+} 
+
+.printf <- function(...) print(noquote(sprintf(...)))
 
 ## from ?grep, by Luke Tierney
 URL_parts <- function(x)
@@ -10,7 +53,6 @@ URL_parts <- function(x)
     colnames(parts) <- c("protocol","host","port","path")
     parts
 }
-
 
 url.exists <- function(url)
 {
@@ -95,29 +137,3 @@ globalVariables(c("futile.logger"))
     flog.appender(appender.file(file.path(logDir,
         sprintf("%s.log", pkgname))), name="file")
 }
-
-#-------------------------------------------------------------------------------
-# in the unit tests we want to actually create data resources, just as they
-# are in the full running version of the hub.  this requires a writable
-# directory: we don't want to try to write into the extdata directory of
-# an installed package! so we need a directory which can be reliably created,
-# written to, and checked, on any computer these tests will run on.  
-# a recursive copy of the (possibly deeply-nested) source directory (below
-# pkg/extdata) into a temporary and necessarily writable directory provides
-# the solution
-.createWorkingDirectory <- function(sourceDirectory, verbose=FALSE)
-{
-    newDirectory <- tempdir()
-    suppressWarnings({ # .svn directories do not copy
-        result=file.copy(sourceDirectory, newDirectory, recursive=TRUE)
-    })
-
-    if(verbose)
-        message(sprintf("result of copy from %s to %s: %s", sourceDirectory, newDirectory, result))
-
-    file.path(newDirectory, basename(sourceDirectory))
-}
-
-.test <- function() BiocGenerics:::testPackage("AnnotationHubData")
-
-

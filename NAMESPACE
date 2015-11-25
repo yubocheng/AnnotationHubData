@@ -63,7 +63,8 @@ importFrom(graphics, title)
 
 
 
-exportClasses(AnnotationHubMetadata,
+exportClasses(HubMetadata,
+              AnnotationHubMetadata,
               ImportPreparer,
               ## For new preparer classes:
               ## Don't forget to add alias to 'ImportPreparer-class.Rd'
