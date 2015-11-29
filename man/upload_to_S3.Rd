@@ -10,9 +10,7 @@ Upload a file to Amazon S3
 This function is for uploading a file resource to the S3 cloud.
 }
 \usage{
-upload_to_S3(file, remotename,
-    bucket=getOption("ANNOTATION_HUB_BUCKET_NAME", "annotationhub"),
-    profile, acl="public-read")
+upload_to_S3(file, remotename, bucket, profile, acl="public-read")
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{

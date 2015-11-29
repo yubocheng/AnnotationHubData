@@ -1,72 +1,7 @@
 ### =========================================================================
-### HubMetadata and AnnotationHubMetadata objects
+### AnnotationHubMetadata objects
 ### -------------------------------------------------------------------------
 ###
-
-setOldClass(c("POSIXct", "POSIXt"))
-setOldClass("numeric_version")
-setOldClass(c("package_version", "numeric_version"))
-
-## The prototype needs to be fully specified, using 'NA' to indicate
-## unknown, otherwise to / from JSON is confused
-setClass("HubMetadata",
-    representation(
-        "VIRTUAL",
-        BiocVersion="package_version",
-        Coordinate_1_based="logical",
-        DataProvider="character",
-        DerivedMd5="character",
-        Description='character',
-        Genome="character",                 ## needed for record_id
-        Maintainer="character",
-        Notes='character',
-        RDataClass="character",             ## needed for record_id
-        RDataDateAdded="POSIXct",
-        RDataPath="character",
-        Recipe="character",                 ## no longer needed for record_id
-        SourceLastModifiedDate="POSIXct",
-        SourceMd5="character",
-        SourceSize="numeric",
-        SourceUrl="character",              ## needed for record_id
-        SourceVersion="character",
-        SourceType="character",
-        Species="character",
-        Tags='character',
-        TaxonomyId="integer",               ## needed for record_id
-        Title="character",
-        Location_Prefix="character",
-        DispatchClass="character",
-        PreparerClass="character"           ## needed for record_id
-    ),
-    prototype = prototype(
-        AnnotationHubRoot=NA_character_,
-        BiocVersion=biocVersion(),
-        Coordinate_1_based=NA,
-        DataProvider=NA_character_,
-        DerivedMd5=NA_character_,
-        Description=NA_character_,
-        Genome=NA_character_,
-        Maintainer=
-            "Bioconductor Package Maintainer <maintainer@bioconductor.org>",
-        Notes=NA_character_,
-        RDataClass=NA_character_,
-        RDataDateAdded=as.POSIXct(NA_character_),
-        RDataPath=NA_character_,
-        Recipe=NA_character_,
-        SourceLastModifiedDate=as.POSIXct(NA_character_),
-        SourceMd5=NA_character_,
-        SourceSize=NA_real_,
-        SourceVersion=NA_character_,
-        SourceType=NA_character_,
-        Species=NA_character_,
-        Tags=NA_character_,
-        TaxonomyId=NA_integer_,
-        Title=NA_character_,
-        Location_Prefix=NA_character_,
-        DispatchClass=NA_character_,
-        PreparerClass=NA_character_
-    )
-)
 
 setClass("AnnotationHubMetadata",
     contains="HubMetadata",
@@ -165,6 +100,7 @@ AnnotationHubMetadata <-
 
     new("AnnotationHubMetadata",
         AnnotationHubRoot=AnnotationHubRoot,
+        HubRoot=AnnotationHubRoot,
         BiocVersion=BiocVersion,
         Coordinate_1_based=Coordinate_1_based,
         DataProvider=DataProvider,
@@ -191,67 +127,6 @@ AnnotationHubMetadata <-
         ...
     )
 }
-
-## ----------------------------------------------------------------------------
-## generics
-##
-
-setGeneric("recipeName", signature="object",
-           function(object)
-           standardGeneric ("recipeName"))
-
-setGeneric("inputFiles", signature="object",
-           function(object, ...)
-           standardGeneric ("inputFiles"))
-
-setGeneric("outputFile", signature="object",
-           function(object)
-           standardGeneric ("outputFile"))
-
-setGeneric("run", signature="object",
-    function(object, recipeFunction, ...)
-        standardGeneric ("run"))
-
-## ------------------------------------------------------------------------------
-## getters and setters
-## 
-
-setMethod("metadata", "HubMetadata",
-    function(x, ...) 
-{
-    nms <- slotNames(class(x))
-    names(nms) <- nms
-    lapply(nms, slot, object=x)
-})
-
-setReplaceMethod("metadata", c("HubMetadata", "list"),
-     function(x, ..., value)
-{
-    do.call(new, c(class(x), x, value))
-})
-
-setMethod("recipeName", "HubMetadata",
-
-    function(object) {
-        metadata(object)$Recipe
-})
-
-setMethod("inputFiles", "AnnotationHubMetadata",
-    function(object, useRoot=TRUE) {
-        if(useRoot==TRUE){
-            res <- file.path(metadata(object)$AnnotationHubRoot,
-                             metadata(object)$RDataPath) 
-        }else{
-            res <- metadata(object)$SourceUrl
-        }
-        res
-})
-
-setMethod("outputFile", "AnnotationHubMetadata",
-    function(object) {
-        file.path(metadata(object)$AnnotationHubRoot,
-                  metadata(object)$RDataPath)
-})
 
 ## -----------------------------------------------------------------------------
 ## validity 
@@ -341,21 +216,6 @@ setValidity("AnnotationHubMetadata",function(object) {
 })
 
 ## ------------------------------------------------------------------------------
-## show
-## 
-
-setMethod(show, "HubMetadata",
-    function(object)
-{
-    cat("class: ", class(object), '\n', sep='')
-    for (slt in sort(slotNames(object))) {
-        value <- slot(object, slt)
-        txt <- paste0(slt, ": ", paste0(as.character(value), collapse=" "))
-        cat(strwrap(txt), sep="\n  ")
-    }
-})
-
-## ------------------------------------------------------------------------------
 ## run
 ##
 
@@ -375,15 +235,6 @@ setMethod("run", "AnnotationHubMetadata",
 ## ------------------------------------------------------------------------------
 ## to / from Json
 ## 
-
-jsonPath <-
-    function(x)
-{
-    with(metadata(x), {
-        fl <- sprintf("%s_%s.json", SourceFile)
-        file.path(AnnotationHubRoot, fl)
-    })
-}
 
 .encodeNA <- function(lst)
 {
@@ -421,7 +272,7 @@ jsonPath <-
     rc <- .Message()
 
     ## required fields must have non-zero length
-    requiredFields <- c("AnnotationHubRoot", 
+    requiredFields <- c("HubRoot", 
         "SourceUrl", "Title", "Species", "Genome", "Recipe", "Tags",
         "RDataClass", "SourceVersion",
         "Coordinate_1_based", "Maintainer", "DataProvider",
@@ -451,8 +302,8 @@ toJson <-
     function(x)
 {
     lst <- metadata(x)
-
-    lst$AnnotationHubRoot <- NULL       # drop AHRoot
+    ## FIXME: does this matter?
+    lst$HubRoot <- NULL       # drop AHRoot
 
     idx <- grep("(RData|Bioc)Version", names(lst))  # version as character
     lst[idx] <- lapply(lst[idx], as.character)
@@ -489,10 +340,10 @@ AnnotationHubMetadataFromJson <-
 
     ## create AnnotationHubMetadata object
     if (1L == length(lst$Title)) {
-        ahm <- do.call(AnnotationHubMetadata, c(AnnotationHubRoot=ahroot, lst))
+        ahm <- do.call(AnnotationHubMetadata, c(HubRoot=ahroot, lst))
         ok <- .isComplete(ahm)
     } else {
-        args <- c(list(AnnotationHubMetadata, AnnotationHubRoot=ahroot), lst)
+        args <- c(list(AnnotationHubMetadata, HubRoot=ahroot), lst)
         ahm <- do.call(Map, args)
         ok <- sapply(ahm, .isComplete)
     }
@@ -522,6 +373,15 @@ writeJSON <- function(ahroot, metadata, flat=FALSE, filename=NULL)
 ## FIXME: not used?
 ## 
 
+jsonPath <-
+    function(x)
+{
+    with(metadata(x), {
+        fl <- sprintf("%s_%s.json", SourceFile)
+        file.path(HubRoot, fl)
+    })
+}
+
 .NA_version_ <- numeric_version("0.0")  ## proxy for unknown version
 .as.numeric_version <-
     function(x, ...)
@@ -537,14 +397,14 @@ constructAnnotationHubMetadataFromSourceFilePath <-
     dir <- dirname(file.path(ahroot, originalFile))
     jsonFile <- .derivedFileName(originalFile, "json")
     jsonFile <- file.path(dir[1], jsonFile)
-    AnnotationHubMetadataFromJson(jsonFile, ahroot)
+    HubMetadataFromJson(jsonFile, ahroot)
 }
 
 constructMetadataFromJsonPath <-
     function(ahroot, jsonpath)
 {
     jsonFile <- file.path(ahroot, jsonpath)[1]
-    AnnotationHubMetadataFromJson(jsonFile, ahroot)
+    HubMetadataFromJson(jsonFile, ahroot)
 }
 
 .getExistingResources <-
@@ -555,5 +415,5 @@ constructMetadataFromJsonPath <-
                 BiocVersion, RDataDateAdded)
     t <- tempfile()
     download.file(url, t, quiet=TRUE)
-    AnnotationHubMetadataFromJson(t)
+    HubMetadataFromJson(t)
 }

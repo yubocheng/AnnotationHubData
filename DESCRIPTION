@@ -1,7 +1,7 @@
 Package: AnnotationHubData
 Type: Package
 Title: Transform public data resources into Bioconductor Data Structures
-Version: 1.1.3
+Version: 1.1.4
 Authors@R:
     c(person("Martin", "Morgan", role="ctb"),
       person("Marc", "Carlson", role="ctb"),
@@ -29,6 +29,7 @@ Collate:
     Message-class.R
     ImportPreparer-class.R
     makeAnnotationHubResource.R
+    HubMetadata-class.R
     AnnotationHubMetadata-class.R
     utils.R
     updateResources.R

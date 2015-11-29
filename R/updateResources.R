@@ -21,10 +21,10 @@ pushMetadata <- function(allAhms, url) {
     })
 }
 
-pushResources <- function(allAhms, ahroot) {
+pushResources <- function(allAhms, hubroot, ...) {
     flog(INFO, "processing and pushing data ...")
     tryCatch({
-        lapply(allAhms, runRecipes, ahroot=ahroot)
+        lapply(allAhms, runRecipes, hubroot=hubroot, ...) 
     }, error = function(err) {
         stop(paste0("error processing data in runRecipes(): ",
                     "conditionMessage(err)"))
@@ -83,39 +83,52 @@ downloadResource <- function(ahm, downloadIfExists) {
 }
 
 ## adapted from formerly internal function 'processAhm'
-runRecipes <- function(ahm, ahroot) {
-    metadata(ahm)$AnnotationHubRoot <- ahroot
-    needs.download <- TRUE
 
-    ## TODO: better way needed for deciding this:
-    provider <- metadata(ahm)$DataProvider
-    if (grepl("http://inparanoid", provider, fixed=TRUE) ||
-        grepl("ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/", provider, fixed=TRUE))
+setGeneric("runRecipes", signature="metadata",
+    function(metadata, hubroot, ...) 
+        standardGeneric("runRecipes")
+)
+
+setMethod("runRecipes", "AnnotationHubMetadata",
+    function(metadata, hubroot, 
+             bucket = getOption("ANNOTATION_HUB_BUCKET_NAME", "annotationhub"),
+             download=TRUE, ...)
     {
-        needs.download <- FALSE
-    }
- 
-    ## download
-    if (needs.download)
-        downloadResource(ahm, downloadIfExists=FALSE)
- 
-    ## run recipe 
-    tryCatch({
-        ahm <- run(ahm)
-    }, error=function(e) {
-        flog(ERROR, "error processing %s: %s", metadata(ahm)$SourceUrl,
-             conditionMessage(e))
-    })
+        ## FIXME: (1) use of 'download' unclear
+        ##        (2) HubRoot / AnnotationHubRoot should already be set
+        metadata(metadata)$AnnotationHubRoot <- hubroot 
+        metadata(metadata)$HubRoot <- hubroot
 
-    ## upload to S3
-    if (!getOption("AnnotationHub_Use_Disk", FALSE)) {
-        fileToUpload <- file.path(metadata(ahm)$AnnotationHubRoot,
-                                  metadata(ahm)$RDataPath)
-        remotePath <- sub("^/", "", metadata(ahm)$RDataPath)
-        res <- upload_to_S3(fileToUpload, remotePath)
-        ## TODO - if download is successful, delete local file?
+        ## TODO: better way needed for deciding this:
+        provider <- metadata(metadata)$DataProvider
+        if (grepl("http://inparanoid", provider, fixed=TRUE) ||
+            grepl("ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/", provider, fixed=TRUE))
+        {
+            download <- FALSE
+        }
+ 
+        ## download
+        if (download)
+            downloadResource(metadata, downloadIfExists=FALSE)
+ 
+        ## run recipe
+        tryCatch({
+            metadata <- run(metadata)
+        }, error=function(e) {
+            flog(ERROR, "error processing %s: %s", metadata(metadata)$SourceUrl,
+                 conditionMessage(e))
+        })
+
+        ## upload to S3
+        if (!getOption("AnnotationHub_Use_Disk", FALSE)) {
+            fileToUpload <- file.path(metadata(metadata)$HubRoot,
+                                      metadata(metadata)$RDataPath)
+            remotePath <- sub("^/", "", metadata(metadata)$RDataPath)
+            res <- upload_to_S3(fileToUpload, remotePath, bucket, ...)
+            ## TODO - if download is successful, delete local file?
+        }
     }
-}
+)
 
 updateResources <- function(AnnotationHubRoot, BiocVersion=biocVersion(),
                             preparerClasses=getImportPreparerClasses(),
@@ -151,7 +164,7 @@ updateResources <- function(AnnotationHubRoot, BiocVersion=biocVersion(),
 
     ## download, process and push data to appropriate location
     if(!metadataOnly)
-        pushResources(allAhms, AnnotationHubRoot)
+        pushResources(allAhms, AnnotationHubRoot, ...)
 
 
     ## if data push was successful insert metadata in db

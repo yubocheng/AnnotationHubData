@@ -88,9 +88,7 @@ flog <- function(level, ...)
 ## It should be configured with a user who can write to 
 ## the appropriate bucket. 
 upload_to_S3 <- 
-    function(file, remotename,
-             bucket = getOption("ANNOTATION_HUB_BUCKET_NAME", "annotationhub"),
-             profile, acl="public-read")
+    function(file, remotename, bucket, profile, acl="public-read")
 {
     remotename <- sub("^\\/", "", remotename)
     #aws --profile ahs_content_uploader s3 cp --acl public-read test s3://annotationhub/loquat/vato/manichean/test

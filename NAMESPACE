@@ -108,5 +108,6 @@ exportMethods(
     metadataList,
     metadataTable,
     annotationHubRoot,
-    sourceUrls
+    sourceUrls,
+    runRecipes
 )
