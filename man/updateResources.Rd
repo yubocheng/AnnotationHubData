@@ -15,10 +15,10 @@
 }
 
 \usage{
-updateResources <- function(AnnotationHubRoot, BiocVersion = biocVersion(),
-                            preparerClasses = getImportPreparerClasses(),
-                            metadataOnly = TRUE, insert = FALSE,
-                            justRunUnitTest = FALSE, ...)
+updateResources(AnnotationHubRoot, BiocVersion = biocVersion(),
+                preparerClasses = getImportPreparerClasses(),
+                metadataOnly = TRUE, insert = FALSE,
+                justRunUnitTest = FALSE, ...)
 }
 
 \arguments{
