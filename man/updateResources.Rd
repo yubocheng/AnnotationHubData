@@ -3,7 +3,6 @@
 
 \alias{runRecipes}
 \alias{runRecipes,AnnotationHubMetadata-method}
-\alias{runRecipes,ExperimentHubMetadata-method}
 \alias{pushResources}
 \alias{pushMetadata}
 
