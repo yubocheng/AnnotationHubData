@@ -76,44 +76,48 @@ setClass("HubMetadata",
 ##
 
 setGeneric("recipeName", signature="object",
-           function(object)
-           standardGeneric ("recipeName"))
+    function(object) standardGeneric ("recipeName")
+)
 
 setGeneric("inputFiles", signature="object",
-           function(object, ...)
-           standardGeneric ("inputFiles"))
+           function(object, ...) standardGeneric ("inputFiles")
+)
 
 setGeneric("outputFile", signature="object",
-           function(object)
-           standardGeneric ("outputFile"))
+           function(object) standardGeneric ("outputFile")
+)
 
 setGeneric("run", signature="object",
-    function(object, recipeFunction, ...)
-        standardGeneric ("run"))
+    function(object, recipeFunction, ...) standardGeneric ("run")
+)
+
+setGeneric("hubError", function(x) standardGeneric("hubError"))
+
+setGeneric("hubError<-", signature=c("x", "value"),
+    function(x, value) standardGeneric("hubError<-")
+)
 
 ## ------------------------------------------------------------------------------
 ## getters and setters
 ## 
 
 setMethod("metadata", "HubMetadata",
-    function(x, ...) 
-{
-    nms <- slotNames(class(x))
-    names(nms) <- nms
-    lapply(nms, slot, object=x)
-})
+    function(x, ...) {
+        nms <- slotNames(class(x))
+        names(nms) <- nms
+        lapply(nms, slot, object=x)
+    }
+)
 
 setReplaceMethod("metadata", c("HubMetadata", "list"),
      function(x, ..., value)
-{
-    do.call(new, c(class(x), x, value))
-})
+         do.call(new, c(class(x), x, value))
+)
 
 setMethod("recipeName", "HubMetadata",
-
-    function(object) {
+    function(object)
         metadata(object)$Recipe
-})
+)
 
 setMethod("inputFiles", "HubMetadata",
     function(object, useRoot=TRUE) {
@@ -124,13 +128,35 @@ setMethod("inputFiles", "HubMetadata",
             res <- metadata(object)$SourceUrl
         }
         res
-})
+    }
+)
 
 setMethod("outputFile", "HubMetadata",
-    function(object) {
+    function(object)
         file.path(metadata(object)$HubRoot,
                   metadata(object)$RDataPath)
-})
+)
+
+setMethod("hubError", "HubMetadata",
+    function(x) x@Error
+)
+
+setMethod("hubError", "list",
+    function(x) 
+    {
+        if (!all(sapply(x, is, "HubMetadata")))
+            stop("all elements of 'value' must be 'HubMetadata' objects")
+        sapply(x, hubError)
+    }
+)
+
+setReplaceMethod("hubError", c("HubMetadata", "character"),
+    function(x, value) 
+    {
+        x@Error <- value
+        x 
+    }
+)
 
 ## ------------------------------------------------------------------------------
 ## show

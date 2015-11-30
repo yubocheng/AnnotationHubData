@@ -94,19 +94,17 @@ export(
     tracksToUpdate,
     ahmToJson,
     newResources, updateResources, deleteResources, runRecipes,
-    pushMetadata, pushResources
+    pushMetadata, pushResources,
+    hubError 
 )
 
 exportMethods(
     show,
     run,
     recipeName,
-    inputFiles,
-    outputFile,
-    metadata,
-    "metadata<-",
-    metadataList,
-    metadataTable,
+    inputFiles, outputFile, hubError, "hubError<-",
+    metadata, "metadata<-",
+    metadataList, metadataTable,
     annotationHubRoot,
     sourceUrls,
     runRecipes

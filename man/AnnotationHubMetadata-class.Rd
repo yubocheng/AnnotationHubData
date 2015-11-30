@@ -23,6 +23,10 @@
 \alias{outputFile,AnnotationHubMetadata-method}
 \alias{recipeName}
 \alias{recipeName,HubMetadata-method}
+\alias{hubError}
+\alias{hubError,HubMetadata-method}
+\alias{hubError,list-method}
+\alias{hubError<-,HubMetadata,character-method}
 
 % Methods:
 \alias{run}
@@ -79,6 +83,8 @@ constructAnnotationHubMetadataFromSourceFilePath(ahroot, originalFile)
 constructMetadataFromJsonPath(ahroot, jsonpath)
 constructSeqInfo(species, genome)
 
+metadata(x)
+hubError(x)
 inputFiles(object, ...)
 outputFile(object)
 ahmToJson(ahm)
