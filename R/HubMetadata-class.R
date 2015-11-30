@@ -158,6 +158,15 @@ setReplaceMethod("hubError", c("HubMetadata", "character"),
     }
 )
 
+setReplaceMethod("hubError", c("list", "character"),
+    function(x, value) 
+    {
+        if (!all(sapply(x, is, "HubMetadata")))
+            stop("all elements of 'x' must be 'HubMetadata' objects")
+        lapply(x, "hubError<-", value=value)
+    }
+)
+
 ## ------------------------------------------------------------------------------
 ## show
 ## 
