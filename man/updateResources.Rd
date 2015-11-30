@@ -91,7 +91,7 @@ updateResources(AnnotationHubRoot, BiocVersion = biocVersion(),
 }
 
 \value{
-  A list of \code{AnnotationHuDataMetadata} objects.
+  A list of \code{AnnotationHubMetadata} objects.
 }
 
 \author{Martin Morgan, Marc Carlson}
