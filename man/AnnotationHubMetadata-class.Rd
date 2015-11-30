@@ -24,8 +24,9 @@
 \alias{recipeName}
 \alias{recipeName,HubMetadata-method}
 \alias{hubError}
-\alias{hubError,HubMetadata-method}
 \alias{hubError,list-method}
+\alias{hubError,HubMetadata-method}
+\alias{hubError<-,list,character-method}
 \alias{hubError<-,HubMetadata,character-method}
 
 % Methods:
