@@ -77,7 +77,7 @@ exportClasses(HubMetadata,
               NCBIImportPreparer)
 
 export(
-    AnnotationHubMetadata, 
+    AnnotationHubMetadata,
     UCSCTrackImportPreparer,
     constructAnnotationHubMetadataFromSourceFilePath,
     #postProcessMetadata,
@@ -91,11 +91,12 @@ export(
     toJson,
     constructSeqInfo,
     ensemblFastaToFaFile,
+    ensemblFastaToTwoBitFile,
     tracksToUpdate,
     ahmToJson,
     newResources, updateResources, deleteResources, runRecipes,
     pushMetadata, pushResources,
-    hubError 
+    hubError
 )
 
 exportMethods(
