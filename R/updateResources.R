@@ -11,7 +11,7 @@ getImportPreparerClasses <- function() {
 }
 
 pushMetadata <- function(allAhms, url) {
-    flog(INFO, "inserting metdata in db ...")
+    flog(INFO, "inserting metadata in db ...")
     jsons <- lapply(allAhms, ahmToJson)
     lapply(jsons, function(x) {
         result <- POST(handle=handle(url), body=list(payload=x))
@@ -24,11 +24,32 @@ pushMetadata <- function(allAhms, url) {
 pushResources <- function(allAhms, hubroot, ...) {
     flog(INFO, "processing and pushing data ...")
     tryCatch({
-        lapply(allAhms, runRecipes, hubroot=hubroot, ...) 
+        #lapply(allAhms, runRecipes, hubroot=hubroot, ...)
+        lapply(allAhms, runRecipes, hubroot=hubroot)
     }, error = function(err) {
         stop(paste0("error processing data in runRecipes(): ",
-                    "conditionMessage(err)"))
+                    conditionMessage(err)))
     })
+}
+
+# This is mostly for "manual" pushes; could be integrated into recipes.
+pushResources2 <- function(allAhms, hubroot, returnAhms=FALSE, ...) {
+    if (!inherits(allAhms, "pointer"))
+        stop("Function argument is not a pointer.")
+
+    errorFun <- function(err) {
+        slot(..(allAhms)[[index]], "Error") <- err$message
+        cat(paste0("error processing data in runRecipes(): ",
+            conditionMessage(err), "\n"))
+    }
+
+    flog(INFO, "processing and pushing data ...")
+    index = 0;
+    lapply(..(allAhms), function(x) { index <<- index + 1
+    tryCatch({ runRecipes(x, hubroot=hubroot) }, error=errorFun) })
+
+    if (returnAhms)
+          return (allAhms)
 }
 
 downloadResource <- function(ahm, downloadIfExists) {
@@ -38,11 +59,11 @@ downloadResource <- function(ahm, downloadIfExists) {
     flog(INFO, "in downloadResource(), url is : %s", SourceUrl)
 
     ## the [1] assumes all files in this resource have the same protocol:
-    protocol <- tolower(URL_parts(SourceUrl)[,'protocol'])[1]
-    filename <- basename(URL_parts(SourceUrl)[,'path'])
+    protocol <- tolower(URL_parts(SourceUrl)[, 'protocol'])[1]
+    filename <- basename(URL_parts(SourceUrl)[, 'path'])
 
     ## create local directory
-    destdir <- dirname(outputFile(ahm)) 
+    destdir <- dirname(outputFile(ahm))
     for (dir in unique(destdir))
         if (!dir.exists(dir))
             dir.create(dir, recursive=TRUE)
@@ -85,18 +106,18 @@ downloadResource <- function(ahm, downloadIfExists) {
 ## adapted from formerly internal function 'processAhm'
 
 setGeneric("runRecipes", signature="metadata",
-    function(metadata, hubroot, ...) 
+    function(metadata, hubroot, ...)
         standardGeneric("runRecipes")
 )
 
 setMethod("runRecipes", "AnnotationHubMetadata",
-    function(metadata, hubroot, 
+    function(metadata, hubroot,
              bucket = getOption("ANNOTATION_HUB_BUCKET_NAME", "annotationhub"),
              download=TRUE, ...)
     {
         ## FIXME: (1) use of 'download' unclear
         ##        (2) HubRoot / AnnotationHubRoot should already be set
-        metadata(metadata)$AnnotationHubRoot <- hubroot 
+        metadata(metadata)$AnnotationHubRoot <- hubroot
         metadata(metadata)$HubRoot <- hubroot
 
         ## TODO: better way needed for deciding this:
@@ -106,11 +127,11 @@ setMethod("runRecipes", "AnnotationHubMetadata",
         {
             download <- FALSE
         }
- 
+
         ## download
         if (download)
             downloadResource(metadata, downloadIfExists=FALSE)
- 
+
         ## run recipe
         tryCatch({
             metadata <- run(metadata)
@@ -163,14 +184,14 @@ updateResources <- function(AnnotationHubRoot, BiocVersion=biocVersion(),
     }
 
     ## download, process and push data to appropriate location
-    if(!metadataOnly)
+    if (!metadataOnly)
         pushResources(allAhms, AnnotationHubRoot, ...)
 
 
     ## if data push was successful insert metadata in db
-    if(insert)
+    if (insert)
         pushMetadata(allAhms, url)
- 
+
     allAhms
 }
 
@@ -185,9 +206,9 @@ updateResources <- function(AnnotationHubRoot, BiocVersion=biocVersion(),
 
 ## Helper to just define SQL needed for all relevant tables together
 .allMajorTablesSQL <- function(){
-    SQL <- "SELECT * FROM resources, rdatapaths, biocversions, input_sources, 
-            recipes, tags  WHERE 
-            resources.id = rdatapaths.resource_id AND 
+    SQL <- "SELECT * FROM resources, rdatapaths, biocversions, input_sources,
+            recipes, tags  WHERE
+            resources.id = rdatapaths.resource_id AND
             resources.id = biocversions.resource_id AND
             resources.id = input_sources.resource_id AND
             resources.recipe_id = recipes.id AND
@@ -201,10 +222,10 @@ updateResources <- function(AnnotationHubRoot, BiocVersion=biocVersion(),
 ## 'new' version of AnnotationHub (and possibly both versions?)...
 getCurrentResources <- function(version){
     ## Call the thing in AnnotationHub that gets a DB conn to the cached meta
-     
+
     ah <- AnnotationHub()
     con <- AnnotationHub:::.db_connection(ah)
-    ## Then send a massive SQL query to extract all the metadata as 
+    ## Then send a massive SQL query to extract all the metadata as
     ## one horrific data.frame
     SQL <- .allMajorTablesSQL()
     meta <- dbGetQuery(con, SQL)
@@ -212,7 +233,7 @@ getCurrentResources <- function(version){
     tags <- rep("NA", times=dim(meta)[1]) ## leave tags out (for now)
     ## Then call Map and pass in the columns from the data.frame
     message("Generating all existing AnnotationHubMetadata objects.  This will take a long time")
-    ## This might be too slow a way to do this...  
+    ## This might be too slow a way to do this...
     ## Might want instead to just check certain fields and not use objects for this.
     Map(AnnotationHubMetadata,
         AnnotationHubRoot=ahroot,
@@ -259,9 +280,9 @@ deleteResources <- function(id) {
 
 
 ##########################################################################
-## Need another helper to help clean up the tables after redundant records 
+## Need another helper to help clean up the tables after redundant records
 ## have been inserted.
-## This will need to happen to several tables, so I basically need to go 
+## This will need to happen to several tables, so I basically need to go
 ## through the following tables and remove redundant fields.
 ## input_sources, rdatapaths, resources, tags, biocversions
 
@@ -281,7 +302,7 @@ deleteResources <- function(id) {
     if(!exists('pswd')){
         stop("You need to set a password for the issue tracker in .Rprofile")
     }
-    
+
     dbConnect(dbDriver('MySQL'),
               host='localhost',  ## we always will run this locally anyhow
               dbname='annotationhub',
@@ -290,10 +311,10 @@ deleteResources <- function(id) {
 }
 
 ## helper to clean one table from MySQL DB (on gamay)
-## This is for cases where a table (or some tables have become contaminated with 
+## This is for cases where a table (or some tables have become contaminated with
 ## redundant entries...)
-## For the resources table this function may not be strict enough someday IF 
-## someday we get to the point where we have records that are identical 'except' 
+## For the resources table this function may not be strict enough someday IF
+## someday we get to the point where we have records that are identical 'except'
 ## for say their sourceURLs (for example).  But it should be plenty picky for now
 
 ## BUT: lets be super-duper safe ANYWAYS and (when considering resources), lets
@@ -332,7 +353,7 @@ deleteResources <- function(id) {
         res <- res[,!(colnames(res) %in% c('ah_id'))]
         #dids <- .getDuplicatedRowIds(res)
         ids <- .getDuplicatedRowIds(res,getALLIds=TRUE)
-        ## Now we have to check the other tables...  
+        ## Now we have to check the other tables...
         ## TODO (lapply through rdatapaths, input_sources, tags, biocversions
         ##res2 <- .getOtherTableDupIDs('rdatapaths',ids)
         tables <- c('rdatapaths', 'input_sources', 'tags', 'biocversions')
@@ -341,17 +362,17 @@ deleteResources <- function(id) {
         if(any(sapply(AllDupIds,function(x){length(x)==0}))){
             message("No duplicates are possible for resources.")
         }else{
-            message("Bad news: you will have to add more code to .cleanOneTable() 
-                    to intersect and filter the ids that have been found to be 
-                    duplicated in all the relevant sub tables. for tidying of 
+            message("Bad news: you will have to add more code to .cleanOneTable()
+                    to intersect and filter the ids that have been found to be
+                    duplicated in all the relevant sub tables. for tidying of
                     the resources table.")
-            ## ADD code to intersect ids for all the sub tables here, and then 
+            ## ADD code to intersect ids for all the sub tables here, and then
             ## filter it using dids (commented above)
         }
     }else{
         sql <- paste0("SELECT * FROM ",tbl)
         res <- dbGetQuery(con, sql)
-        ids <- .getDuplicatedRowIds(res)        
+        ids <- .getDuplicatedRowIds(res)
         idsFmt <- paste(ids,collapse="','")
         message('We just found ',length(ids),' duplicated records from the ', tbl, ' table.')
     }
@@ -366,7 +387,7 @@ deleteResources <- function(id) {
     }
 }
 
-## Then call the above function twice on each table that we want to clean.  
+## Then call the above function twice on each table that we want to clean.
 ## 1st to see if if finds anything and then again to really remove duplicates...
 ## usage: AnnotationHubData:::.cleanOneTable('tags') ## Doing this only revealed dups in 'tags' table.
 ## usage: AnnotationHubData:::.cleanOneTable('tags', reallyDeleteRows=TRUE)

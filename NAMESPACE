@@ -18,7 +18,7 @@ importMethodsFrom(Rsamtools, indexFa)
 importMethodsFrom(RSQLite, dbConnect, dbGetQuery)
 importMethodsFrom(rtracklayer, browserSession, "genome<-", getTable,
                   import, "tableName<-", tableNames, track,
-                  "trackName<-", trackNames, ucscTableQuery)
+                  "trackName<-", trackNames, ucscTableQuery, export)
 importMethodsFrom(S4Vectors, as.factor, complete.cases, do.call, grep,
                   grepl, ifelse, levels, Map, metadata, "metadata<-",
                   Reduce, sapply, split)

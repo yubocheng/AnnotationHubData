@@ -19,9 +19,12 @@
 }
 
 ## mangle url to metadata where possible
-.ensemblMetadataFromUrl <- function(sourceUrl) {
+.ensemblMetadataFromUrl <- function(sourceUrl, twobit=FALSE) {
     releaseRegex <- ".*(release-[[:digit:]]+).*"
-    title <- sub(".gz$", "", basename(sourceUrl))
+    if (!twobit)
+      title <- sub("\\.gz$", "", basename(sourceUrl))
+    else
+      title <- sub("\\.fa\\.gz$", ".2bit", basename(sourceUrl))
     root <- setNames(rep(NA_character_, length(sourceUrl)), title)
     species <- gsub("_", " ", sub("^([[:alpha:]_]+)\\.(.*)", "\\1", title),
                     fixed=TRUE)
@@ -48,8 +51,11 @@
       "dna.toplevel", "ncrna", "pep.all")
 
 ## get urls 
-.ensemblFastaSourceUrls <- function(baseUrl, baseDir, regex)
+.ensemblFastaSourceUrls <- function(baseUrl, baseDir, regex, baseTypes)
 {
+    if (missing(baseTypes))
+        baseTypes <- .ensemblFastaTypes
+
     want <- .ensemblDirUrl(baseUrl, baseDir, regex)
 
     .processUrl <- function(url) {
@@ -58,7 +64,7 @@
         subdirIdx <- grepl(".*/.*:", listing) 
         subdir <- sub("^(.*):$", "\\1", listing[subdirIdx])
 
-        fileTypes <- paste(.ensemblFastaTypes, collapse="|")
+        fileTypes <- paste(baseTypes, collapse="|")
         pat <- sprintf(".*(%s)\\.fa\\.gz$", fileTypes)
 
         fastaIdx <- grepl(pat, listing)
@@ -67,6 +73,33 @@
         ## match subdir w/ fasta
         subdir <- subdir[cumsum(subdirIdx)[fastaIdx]]
 
+        ## Prefer "primary_assembly" to "toplevel" resources.
+        organisms <- unique(sub("(.+?)\\..*", "\\1", fasta, perl=TRUE))
+        keepIdxList <- sapply(organisms, function(x) {
+            orgFiles <- fasta[grep(paste0("^", x, "\\."), fasta)]
+            reBoth <- paste0("dna", c("_rm", "_sm", ""),
+                "\\.(primary_assembly|toplevel)\\.")
+            toplevelIdx <- sapply(reBoth,
+                function(x) length(grep(x, orgFiles)) > 1, simplify=TRUE)
+            reToplevel <- paste0("dna", c("_rm", "_sm", ""),
+                "\\.toplevel\\.")[toplevelIdx]
+
+            isRedundant <- sapply(reToplevel, function(x) grepl(x, orgFiles))
+            retVal <- rep(TRUE, length(orgFiles))
+            if (!is.null(dim(isRedundant))) {
+              retVal <- !apply(isRedundant, 1, any)
+            }
+
+            #if (x == "Homo_sapiens")
+            #    browser()
+
+            retVal
+        })
+        keepIdx <- unlist(keepIdxList)
+        fasta <- fasta[keepIdx]
+        subdir <- subdir[keepIdx]
+
+        #browser()
         sprintf("%s%s/%s", url, subdir, fasta)
     }
     res <- unlist(lapply(want, .processUrl), use.names=FALSE)

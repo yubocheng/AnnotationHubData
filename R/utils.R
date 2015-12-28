@@ -135,3 +135,113 @@ globalVariables(c("futile.logger"))
     flog.appender(appender.file(file.path(logDir,
         sprintf("%s.log", pkgname))), name="file")
 }
+
+
+`%_%` <- function(a, b) paste0(a, b)
+
+
+# Create "pointer" variables for large data sets.
+ptr <- pointer <- function(..., pos=-1, envir=as.environment(pos),
+    namedList=TRUE, expandCharacter=FALSE)
+{
+    variableList <- tail(as.list(match.call()), -1)
+
+    if (length(variableList) == 0)
+        stop("Must supply reference object.")
+
+    exclusions <- intersect(names(variableList), setdiff(names(formals()),
+        "..."))
+    for (exclusion in exclusions)
+        variableList[[exclusion]] = NULL
+
+    if (length(variableList) == 0)
+        stop("Must supply reference object.")
+
+    if (expandCharacter) {
+        temp = character()
+        for (variable in variableList) {
+            if (typeof(variable) == "character")
+                temp <- c(temp, variable)
+            else if (typeof(variable) == "symbol") {
+                evaluatedVariable <- eval(variable)
+                if (typeof(evaluatedVariable) == "character")
+                    temp <- c(temp, evaluatedVariable)
+                else if (is.environment(evaluatedVariable)) {
+                    for (name in ls(evaluatedVariable))
+                        temp <- c(temp, variable %_% "$" %_% name)
+                }
+                else
+                    temp <- c(temp, as.character(variable))
+            }
+        }
+        pointerNames <- temp
+    }
+    else
+        pointerNames <- as.character(variableList)
+
+    returnList <- list()
+    for (pointerName in pointerNames) {
+        e <- envir
+        pName <- pointerName
+
+        reEnv <- "^(.+?)\\$(.+?)$"
+        envMatch <- regexec(reEnv, pointerName)
+        envMatches <- NULL
+        if (envMatch[[1]][1] != -1) {
+            envMatches <- regmatches(pointerName, envMatch)[[1]][2:3]
+            e <- get(envMatches[1])
+            pName <- envMatches[2]
+        }
+
+        p <- list()
+        p$object <- e
+        p$name <- as.character(pName)
+        class(p) <- "pointer"
+
+        index <- length(returnList) + 1
+        if (namedList) index <- p$name
+
+        returnList[[index]] <- p
+    }
+
+    if (length(returnList) == 1)
+        return (returnList[[1]])
+
+    return (returnList)
+}
+
+as.pointer <- function(x)
+{
+    pointer(x)
+}
+
+is.pointer <- function(x)
+{
+    return (inherits(x, "pointer"))
+}
+
+.. <- deref <- function(x)
+{
+    if (is.environment(x)) return (x)
+    else return (get(x$name, envir=x$object))
+}
+`..<-` <- `deref<-` <- function(x, value)
+{
+    if (is.pointer(x)) assign(x$name, value, envir=x$object)
+    return (x)
+}
+
+print.pointer <- function(x, ...)
+{
+    environment.name <- capture.output(print(x$object))
+    cat("Pointer to variable '", x$name, "' in ", environment.name, ":\n\n", sep="")
+    str(..(x), ...)
+}
+
+## usage:
+# x <- list(frog="frog", fish="~frog")
+# z <- pointer(x)
+# ..(z)
+# ..(z)$fish <- "trout"
+# ..(z)
+# x
