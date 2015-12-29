@@ -2,16 +2,15 @@
 importClassesFrom(methods, character, environment, envRefClass,
                   integer, list, logical, numeric, oldClass, POSIXct)
 importMethodsFrom(AnnotationDbi, exists, get, saveDb)
-importMethodsFrom(BiocGenerics, mapply)
+importMethodsFrom(BiocGenerics, mapply, Map)
 importMethodsFrom(Biostrings, head, substr)
 importMethodsFrom(DBI, dbDriver)
-importMethodsFrom(GenomicRanges, mcols, "mcols<-", seqinfo,
-                  "seqinfo<-", strand)
+importMethodsFrom(GenomicRanges, seqinfo, "seqinfo<-", strand)
 importMethodsFrom(IRanges,  append, as.data.frame, cbind,
                   colnames, "colnames<-", duplicated, end, gsub,
                   intersect, lapply, match, merge, nchar, ncol, order,
                   rbind, rownames, "rownames<-", setdiff, sort,
-                  splitAsList, start, sub, t, table, tolower,
+                  splitAsList, start, sub, table, tolower,
                   unique, unlist, which)
 importMethodsFrom(methods, show)
 importMethodsFrom(Rsamtools, indexFa)
@@ -20,8 +19,8 @@ importMethodsFrom(rtracklayer, browserSession, "genome<-", getTable,
                   import, "tableName<-", tableNames, track,
                   "trackName<-", trackNames, ucscTableQuery, export)
 importMethodsFrom(S4Vectors, as.factor, complete.cases, do.call, grep,
-                  grepl, ifelse, levels, Map, metadata, "metadata<-",
-                  Reduce, sapply, split)
+                  grepl, ifelse, levels, mcols, "mcols<-",
+                  metadata, "metadata<-", Reduce, sapply, split, t)
 
 
 

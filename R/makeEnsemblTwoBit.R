@@ -62,7 +62,7 @@ makeEnsemblTwoBit <- # TODO: Add man page for this function
             Maintainer="<maintainer@bioconductor.org>",
             SourceType="FASTA",
             DispatchClass="TwoBitFile",
-            RDataClass=c("TwoBitFile"),
+            RDataClass="TwoBitFile",
             RDataDateAdded=Sys.time(),
             Recipe="AnnotationHubData:::ensemblFastaToTwoBitFile",
             Tags=c("TwoBit", "ensembl", "sequence", "2bit", "FASTA")))

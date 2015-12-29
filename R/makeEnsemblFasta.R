@@ -47,15 +47,13 @@
 }
 
 .ensemblFastaTypes <-
-    c("cdna.all", "dna_rm.toplevel", "dna_sm.toplevel",
-      "dna.toplevel", "ncrna", "pep.all")
+    c("cdna\\.all", "dna_rm\\.toplevel", "dna_sm\\.toplevel",
+      "dna\\.toplevel", "ncrna", "pep\\.all")
 
 ## get urls 
-.ensemblFastaSourceUrls <- function(baseUrl, baseDir, regex, baseTypes)
+.ensemblFastaSourceUrls <-
+    function(baseUrl, baseDir, regex, baseTypes=.ensemblFastaTypes)
 {
-    if (missing(baseTypes))
-        baseTypes <- .ensemblFastaTypes
-
     want <- .ensemblDirUrl(baseUrl, baseDir, regex)
 
     .processUrl <- function(url) {
@@ -79,19 +77,19 @@
             orgFiles <- fasta[grep(paste0("^", x, "\\."), fasta)]
             reBoth <- paste0("dna", c("_rm", "_sm", ""),
                 "\\.(primary_assembly|toplevel)\\.")
-            toplevelIdx <- sapply(reBoth,
-                function(x) length(grep(x, orgFiles)) > 1, simplify=TRUE)
+            toplevelIdx <-
+                vapply(reBoth, function(x) length(grep(x, orgFiles)) > 1,
+                       logical(1))
             reToplevel <- paste0("dna", c("_rm", "_sm", ""),
                 "\\.toplevel\\.")[toplevelIdx]
 
-            isRedundant <- sapply(reToplevel, function(x) grepl(x, orgFiles))
+            isRedundant <-
+                vapply(reToplevel, function(x) grepl(x, orgFiles),
+                       logical(length(x)))
             retVal <- rep(TRUE, length(orgFiles))
             if (!is.null(dim(isRedundant))) {
               retVal <- !apply(isRedundant, 1, any)
             }
-
-            #if (x == "Homo_sapiens")
-            #    browser()
 
             retVal
         })
@@ -99,7 +97,6 @@
         fasta <- fasta[keepIdx]
         subdir <- subdir[keepIdx]
 
-        #browser()
         sprintf("%s%s/%s", url, subdir, fasta)
     }
     res <- unlist(lapply(want, .processUrl), use.names=FALSE)

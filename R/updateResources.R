@@ -45,8 +45,12 @@ pushResources2 <- function(allAhms, hubroot, returnAhms=FALSE, ...) {
 
     flog(INFO, "processing and pushing data ...")
     index = 0;
-    lapply(..(allAhms), function(x) { index <<- index + 1
-    tryCatch({ runRecipes(x, hubroot=hubroot) }, error=errorFun) })
+    lapply(..(allAhms), function(x) {
+        index <<- index + 1
+        tryCatch({
+            runRecipes(x, hubroot=hubroot)
+        }, error=errorFun)
+    })
 
     if (returnAhms)
           return (allAhms)
