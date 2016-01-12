@@ -21,6 +21,7 @@
 
 ## For testing
 #.ensemblTwoBitTypes <- c("primary_assembly")
+#.ensemblTwoBitTypes <- c("Oryctolagus_cuniculus.+?cdna\\.all")
 
 ## metadata generator
 makeEnsemblTwoBit <- # TODO: Add man page for this function

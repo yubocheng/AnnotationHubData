@@ -38,9 +38,9 @@ pushResources2 <- function(allAhms, hubroot, returnAhms=FALSE, ...) {
         stop("Function argument is not a pointer.")
 
     errorFun <- function(err) {
-        slot(..(allAhms)[[index]], "Error") <- err$message
-        cat(paste0("error processing data in runRecipes(): ",
-            conditionMessage(err), "\n"))
+        slot(..(allAhms)[[index]], "Error") <- conditionMessage(err)
+        cat("error processing data in runRecipes(): ",
+            conditionMessage(err), "\n", sep="")
     }
 
     flog(INFO, "processing and pushing data ...")
@@ -50,6 +50,7 @@ pushResources2 <- function(allAhms, hubroot, returnAhms=FALSE, ...) {
         tryCatch({
             runRecipes(x, hubroot=hubroot)
         }, error=errorFun)
+        gc()
     })
 
     if (returnAhms)

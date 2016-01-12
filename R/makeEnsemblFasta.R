@@ -11,7 +11,7 @@
 
 ## list directories below url/dir satisfying regex
 .ensemblDirUrl <-
-    function(url, dir,  regex)
+    function(url, dir, regex)
 {
     lst <- .listRemoteFiles(url)
     releases <- paste0(url, lst)
@@ -33,7 +33,7 @@
         GenomeInfoDb:::.taxonomyId(uspecies)[match(species, uspecies)]
     })
     ## extract info about source size and source mod date etc.
-    ftpInfo <- .httrFileInfo(files=sourceUrl) 
+    ftpInfo <- .httrFileInfo(files=sourceUrl)
     sourceSize <- ftpInfo$size
     sourceLastModDate <- ftpInfo$date
 
@@ -50,7 +50,7 @@
     c("cdna\\.all", "dna_rm\\.toplevel", "dna_sm\\.toplevel",
       "dna\\.toplevel", "ncrna", "pep\\.all")
 
-## get urls 
+## get urls
 .ensemblFastaSourceUrls <-
     function(baseUrl, baseDir, regex, baseTypes=.ensemblFastaTypes)
 {
@@ -59,7 +59,7 @@
     .processUrl <- function(url) {
         listing <- .ftpDirectoryInfo(url)
 
-        subdirIdx <- grepl(".*/.*:", listing) 
+        subdirIdx <- grepl(".*/.*:", listing)
         subdir <- sub("^(.*):$", "\\1", listing[subdirIdx])
 
         fileTypes <- paste(baseTypes, collapse="|")
@@ -119,9 +119,9 @@ makeEnsemblFastaToAHMs <-
     sourceUrl <- .ensemblFastaSourceUrls(baseUrl, baseDir, regex)
     if (justRunUnitTest)
         sourceUrl <- sourceUrl[1:5]
- 
+
     sourceFile <- sub(baseUrl, "ensembl/", sourceUrl)
-    meta <- .ensemblMetadataFromUrl(sourceUrl) 
+    meta <- .ensemblMetadataFromUrl(sourceUrl)
     dnaType <- local({
         x <- basename(dirname(sourceFile))
         sub("(dna|rna)", "\\U\\1", x, perl=TRUE)
@@ -135,7 +135,7 @@ makeEnsemblFastaToAHMs <-
     ## second record of each set becomes the '.fai' file
     rdatapaths <- lapply(rdatapaths,
                          function(x){x[2] <- paste0(x[2],".fai") ; return(x)})
- 
+
     Map(AnnotationHubMetadata,
         Description=description,
         Genome=meta$genome,
@@ -153,7 +153,7 @@ makeEnsemblFastaToAHMs <-
           DataProvider="Ensembl",
           Maintainer="<maintainer@bioconductor.org>",
           SourceType="FASTA",
-          DispatchClass="FaFile", 
+          DispatchClass="FaFile",
           RDataClass=c("FaFile", "FaFile"),
           RDataDateAdded=Sys.time(),
           Recipe="AnnotationHubData:::ensemblFastaToFaFile",
