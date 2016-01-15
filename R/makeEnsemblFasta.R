@@ -78,14 +78,16 @@
             reBoth <- paste0("dna", c("_rm", "_sm", ""),
                 "\\.(primary_assembly|toplevel)\\.")
             toplevelIdx <-
-                vapply(reBoth, function(x) length(grep(x, orgFiles)) > 1,
-                       logical(1))
+                # vapply(reBoth, function(x) length(grep(x, orgFiles)) > 1,
+                #        logical(1))
+                sapply(reBoth, function(x) length(grep(x, orgFiles)) > 1)
             reToplevel <- paste0("dna", c("_rm", "_sm", ""),
                 "\\.toplevel\\.")[toplevelIdx]
 
             isRedundant <-
-                vapply(reToplevel, function(x) grepl(x, orgFiles),
-                       logical(length(x)))
+                # vapply(reToplevel, function(x) grepl(x, orgFiles),
+                #        logical(length(x)))
+                sapply(reToplevel, function(x) grepl(x, orgFiles))
             retVal <- rep(TRUE, length(orgFiles))
             if (!is.null(dim(isRedundant))) {
               retVal <- !apply(isRedundant, 1, any)
@@ -93,13 +95,13 @@
 
             retVal
         })
-        keepIdx <- unlist(keepIdxList)
+        keepIdx <- base::unlist(keepIdxList)
         fasta <- fasta[keepIdx]
         subdir <- subdir[keepIdx]
 
         sprintf("%s%s/%s", url, subdir, fasta)
     }
-    res <- unlist(lapply(want, .processUrl), use.names=FALSE)
+    res <- base::unlist(lapply(want, .processUrl), use.names=FALSE)
 
     if (length(res) == 0) {
         txt <- sprintf("no fasta files at %s",
