@@ -18,14 +18,15 @@
 \alias{metadata<-}
 \alias{metadata<-,HubMetadata,list-method}
 \alias{inputFiles}
-\alias{inputFiles,AnnotationHubMetadata-method}
+\alias{inputFiles,HubMetadata-method}
 \alias{outputFile}
-\alias{outputFile,AnnotationHubMetadata-method}
+\alias{outputFile,HubMetadata-method}
 \alias{recipeName}
 \alias{recipeName,HubMetadata-method}
 \alias{hubError}
 \alias{hubError,list-method}
 \alias{hubError,HubMetadata-method}
+\alias{hubError<-}
 \alias{hubError<-,list,character-method}
 \alias{hubError<-,HubMetadata,character-method}
 
@@ -35,7 +36,7 @@
 
 % Other:
 \alias{jsonPath}
-\alias{AnnotationHubMetadataFromJson}
+\alias{HubMetadataFromJson}
 \alias{toJson}
 \alias{constructAnnotationHubMetadataFromSourceFilePath}
 \alias{constructMetadataFromJsonPath}
@@ -44,7 +45,6 @@
 \alias{deleteResources}
 \alias{getImportPreparerClasses}
 \alias{makeAnnotationHubResource}
-\alias{tracksToUpdate}
 
 % Show:
 \alias{show}
@@ -84,7 +84,7 @@ constructAnnotationHubMetadataFromSourceFilePath(ahroot, originalFile)
 constructMetadataFromJsonPath(ahroot, jsonpath)
 constructSeqInfo(species, genome)
 
-metadata(x)
+metadata(x, ...)
 hubError(x)
 inputFiles(object, ...)
 outputFile(object)
@@ -93,7 +93,6 @@ deleteResources(id)
 getImportPreparerClasses()
 makeAnnotationHubResource(objName, makeAnnotationHubMetadataFunction,
                           ..., where)
-tracksToUpdate()
 }
 
 \arguments{

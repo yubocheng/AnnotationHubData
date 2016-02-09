@@ -207,7 +207,7 @@
         rdataclass, stringsAsFactors=FALSE)
 }
 
-.chmmModels <- function(justRunUnitTest) {
+.chmmModels <- function(baseUrl, justRunUnitTest) {
     dirurl <- paste0(baseUrl, 
         "byFileType/chromhmmSegmentations/ChmmModels/coreMarks/jointModel/final/")
     fileurls <- .readEpiFilesFromWebUrl(dirurl, "mnemonics.bed.gz")
@@ -318,7 +318,7 @@ makeEpigenomeRoadmapPeak <-
 {
     rsrc <- .peakEpiFiles(baseUrl, justRunUnitTest, fileType)
     date <- rsrc$date
-    .makeEpigenomeRoadMap(rsrc, date, BiocVersion, baseUrl)
+    .makeEpigenomeRoadmap(rsrc, date, BiocVersion, baseUrl)
 
 }
 

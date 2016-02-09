@@ -24,9 +24,9 @@
 #.ensemblTwoBitTypes <- c("Oryctolagus_cuniculus.+?cdna\\.all")
 
 ## metadata generator
-makeEnsemblTwoBit <- # TODO: Add man page for this function
+makeEnsemblTwoBitToAHM <- # TODO: Add man page for this function
     function(currentMetadata, baseUrl = "ftp://ftp.ensembl.org/pub/",
-             baseDir = "fasta/", regex = ".*release-82",
+             baseDir = "fasta/", regex,
              justRunUnitTest = FALSE, BiocVersion = biocVersion())
 {
     time1 <- Sys.time()
@@ -82,4 +82,4 @@ ensemblFastaToTwoBitFile <- function(ahm)
 }
 
 ## create the class and newResources() method
-makeAnnotationHubResource("EnsemblTwoBitPreparer", makeEnsemblTwoBit)
+makeAnnotationHubResource("EnsemblTwoBitPreparer", makeEnsemblToTwoBitAHM)

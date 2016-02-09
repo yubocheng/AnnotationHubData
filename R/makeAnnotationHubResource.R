@@ -3,8 +3,7 @@
 ### -------------------------------------------------------------------------
 ###
 
-## This function creates a Preparer class and associated newResource() method.
-
+## Creates a Preparer class and associated newResource() method.
 .generalNewResources <- function(importPreparer, currentMetadata,
                                  makeAnnotationHubMetadataFunction, ...)
 {
@@ -12,8 +11,10 @@
     ahms <- makeAnnotationHubMetadataFunction(currentMetadata, ...)
 
     ## add the importPreparer  
-    lapply(ahms, function(x){x@PreparerClass<-class(importPreparer)[1];
-                             return(x)})
+    lapply(ahms, function(x) {
+        x@PreparerClass<-class(importPreparer)[1]
+        x
+    })
 }
 
 makeAnnotationHubResource <- function(objName, 

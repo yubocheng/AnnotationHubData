@@ -229,88 +229,87 @@ getLatestTrackDates <- function(){
 ## differently from the tracks).
 
 
+### Not used:
 
-############################################################################
-## Now I just need some code to compare this data with what is in the
-## metadata
+#############################################################################
+### Now I just need some code to compare this data with what is in the
+### metadata
+#
+### So get the metadata
+#getAHTrackDates <- function(){
+#    ah = AnnotationHub()
+#    m = AnnotationHub:::.metadata(snapshotUrl(ah),
+#      filters = list(DataProvider="hgdownload.cse.ucsc.edu"),
+#      cols = c("SourceFile","RDataDateAdded","DataProvider"))
+#
+#    ## SourceFile is easier to clean up than sourceUrl...
+#    data <- strsplit(m$SourceFile,"/")
+#    trackNames <- unlist(lapply(data, function(x){x[4]}))
+#    genNames <- unlist(lapply(data, function(x){x[2]}))
+#    if(length(trackNames) == length(genNames) &&
+#       dim(m)[1] == length(trackNames)){
+#        m <- cbind(as.data.frame(m), trackNames, genNames)
+#    }
+#
+#    ## Now make m into a similar structure to trackDates
+#    trx <- as.character(m$RDataDateAdded)
+#    names(trx) <- trackNames
+#    ## then split it
+#    split(trx, f=m$genNames)
+#}
+### ahTrackDates <-  getAHTrackDates()
 
-## So get the metadata
-getAHTrackDates <- function(){
-    ah = AnnotationHub()
-    m = AnnotationHub:::.metadata(snapshotUrl(ah),
-      filters = list(DataProvider="hgdownload.cse.ucsc.edu"),
-      cols = c("SourceFile","RDataDateAdded","DataProvider"))
-
-    ## SourceFile is easier to clean up than sourceUrl...
-    data <- strsplit(m$SourceFile,"/")
-    trackNames <- unlist(lapply(data, function(x){x[4]}))
-    genNames <- unlist(lapply(data, function(x){x[2]}))
-    if(length(trackNames) == length(genNames) &&
-       dim(m)[1] == length(trackNames)){
-        m <- cbind(as.data.frame(m), trackNames, genNames)
-    }
-
-    ## Now make m into a similar structure to trackDates
-    trx <- as.character(m$RDataDateAdded)
-    names(trx) <- trackNames
-    ## then split it
-    split(trx, f=m$genNames)
-}
-## ahTrackDates <-  getAHTrackDates()
-
-
-
-############################################################################
-## And now we can use this to write code that compares and just lists
-## tracks that are out of date.
-tracksToUpdate <- function(){
-    trackDates <- getLatestTrackDates()
-    ahTrackDates <-  getAHTrackDates()
-    
-    ## go along and for each list element in ahTrackDates we will need
-    ## to look at the equivalent element from trackDates and then
-    ## compare the dates.  Dates will be not OK (TRUE for update
-    ## this), OK, or NA.
-    ## This requires a helper to test indiv, elements of a vector
-    .testDate <- function(x, other){
-        if(is.na(x)){
-            return(NA)
-        }else if(is.na(other[names(x)])){
-            return(NA)
-        }else{
-            if(as.POSIXct(x) > as.POSIXct(other[names(x)])){
-                return(FALSE)
-            }else{ ## this means it needs an update 
-                return(TRUE)
-            }
-        }
-    }
-    ## And another helper to lets us loop across genomes
-    .compareDates <- function(genomeDateSet,trackDates){
-        ah <- genomeDateSet[[1]]
-        other <- trackDates[names(genomeDateSet)][[1]]
-        ## res <- lapply(ah, .testDate, other=other) ## rips names from vector
-        res <- vector()
-        for(i in seq_along(ah)){
-            res[i] <- .testDate(ah[i], other)
-        }
-        names(res) <- names(ah)
-        res
-    }
-    
-
-    ## I have to loop along the ahTrackDates object. I can use lapply
-    ## (but not mapply), and have to pass in all of trackDates every
-    ## time.
-
-    ## And again I am burned because lapply() jetisons the names...
-    res <- list()
-    for(i in seq_along(ahTrackDates)){
-        res[[i]] <- .compareDates(ahTrackDates[i], trackDates)
-    }
-    names(res) <- names(ahTrackDates)
-
-    ## return list of vectors.
-    res
-}
-## res <- tracksToUpdate()
+#############################################################################
+### And now we can use this to write code that compares and just lists
+### tracks that are out of date.
+#tracksToUpdate <- function(){
+#    trackDates <- getLatestTrackDates()
+#    ahTrackDates <-  getAHTrackDates()
+#    
+#    ## go along and for each list element in ahTrackDates we will need
+#    ## to look at the equivalent element from trackDates and then
+#    ## compare the dates.  Dates will be not OK (TRUE for update
+#    ## this), OK, or NA.
+#    ## This requires a helper to test indiv, elements of a vector
+#    .testDate <- function(x, other){
+#        if(is.na(x)){
+#            return(NA)
+#        }else if(is.na(other[names(x)])){
+#            return(NA)
+#        }else{
+#            if(as.POSIXct(x) > as.POSIXct(other[names(x)])){
+#                return(FALSE)
+#            }else{ ## this means it needs an update 
+#                return(TRUE)
+#            }
+#        }
+#    }
+#    ## And another helper to lets us loop across genomes
+#    .compareDates <- function(genomeDateSet,trackDates){
+#        ah <- genomeDateSet[[1]]
+#        other <- trackDates[names(genomeDateSet)][[1]]
+#        ## res <- lapply(ah, .testDate, other=other) ## rips names from vector
+#        res <- vector()
+#        for(i in seq_along(ah)){
+#            res[i] <- .testDate(ah[i], other)
+#        }
+#        names(res) <- names(ah)
+#        res
+#    }
+#    
+#
+#    ## I have to loop along the ahTrackDates object. I can use lapply
+#    ## (but not mapply), and have to pass in all of trackDates every
+#    ## time.
+#
+#    ## And again I am burned because lapply() jetisons the names...
+#    res <- list()
+#    for(i in seq_along(ahTrackDates)){
+#        res[[i]] <- .compareDates(ahTrackDates[i], trackDates)
+#    }
+#    names(res) <- names(ahTrackDates)
+#
+#    ## return list of vectors.
+#    res
+#}
+### res <- tracksToUpdate()

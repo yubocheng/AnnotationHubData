@@ -120,7 +120,7 @@ meta <- updateResources("/local/path",
                         preparerClasses = "EnsemblFastaImportPreparer",
                         metadataOnly = TRUE, insert = FALSE,
                         justRunUnitTest = TRUE,
-                        regex = ".*release-81")
+                        regex = ".*release-82")
 
 INFO [2015-11-12 07:58:05] Preparer Class: EnsemblFastaImportPreparer
 Ailuropoda_melanoleuca.ailMel1.cdna.all.fa.gz

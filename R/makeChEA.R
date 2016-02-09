@@ -1,10 +1,18 @@
-.mssmBaseUrl <- "http://amp.pharm.mssm.edu/"
+### =========================================================================
+### makeChEA()
+### -------------------------------------------------------------------------
+###
 
-makeChEAImporter <- function(currentMetadata, justRunUnitTest=FALSE,
-                             BiocVersion=biocVersion()) {
+### Recipe for ChEA transcription factor background file.
+
+makeChEAToAHM <- function(currentMetadata, 
+                          baseUrl="http://amp.pharm.mssm.edu/",
+                          justRunUnitTest=FALSE,
+                          BiocVersion=biocVersion()) 
+{
     files <- "result/kea/chea-background.zip"
 
-    files <- paste0(.mssmBaseUrl, files)
+    files <- paste0(baseUrl, files)
     rsrc <- .httrFileInfo(files, verbose=FALSE)
     title <- basename(rsrc$fileurl)
         
@@ -27,7 +35,7 @@ makeChEAImporter <- function(currentMetadata, justRunUnitTest=FALSE,
         Description = description,
         Title = title,
         
-        RDataPath = gsub(.mssmBaseUrl, "", sourceUrls),
+        RDataPath = gsub(baseUrl, "", sourceUrls),
         
         MoreArgs=list(
             BiocVersion=BiocVersion,
@@ -41,7 +49,7 @@ makeChEAImporter <- function(currentMetadata, justRunUnitTest=FALSE,
             DataProvider = "ChEA",
             Maintainer = "Bioconductor Maintainer <maintainer@bioconductor.org>",         
             Coordinate_1_based = FALSE,
-            Location_Prefix = .mssmBaseUrl,
+            Location_Prefix = baseUrl,
             RDataDateAdded = Sys.time(),
                         
             #rdata table
@@ -53,5 +61,4 @@ makeChEAImporter <- function(currentMetadata, justRunUnitTest=FALSE,
             Recipe = NA_character_ ))
 }
 
-makeAnnotationHubResource("ChEAImportPreparer", makeChEAImporter)
-
+makeAnnotationHubResource("ChEAImportPreparer", makeChEAToAHM)

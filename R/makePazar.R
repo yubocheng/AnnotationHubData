@@ -6,16 +6,14 @@
 
 .getPazarFiles <- function(justRunUnitTest) {
     
-    ## read the filenames from the url 
-    theurl <- paste0(.pazarBaseUrl, "cgi-bin/downloads_csv.pl")
-    result <- GET(theurl)
+    url <- paste0(.pazarBaseUrl, "cgi-bin/downloads_csv.pl")
+    result <- GET(url)
     stop_for_status(result)
     html <- content(result)
-     
-    filenames <- sapply(html["//table//tr/td/a/text()"], xmlValue)
-    sourceUrl <- sapply(html["//table//tr/td/a/@href"], as.character)
+    filenames <- as.character(xml_find_all(html, "//table//tr/td/a/text()")) 
+    sourceUrl <- as.character(
+        xml_contents(xml_find_all(html, "//table//tr/td/a/@href")))
     sourceUrl <- grep(".csv$", sourceUrl, value=TRUE)
- 
     if(!identical(basename(sourceUrl), filenames))
          stop("Inconsistent FileNames and sourceUrls")
     

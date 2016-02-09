@@ -53,7 +53,7 @@
 }
 
 .cleanFiles <- function(url, isSubDir=FALSE) {
-    fls <- .httrRead(url, fileName=NA_character_, getmd5sum=FALSE)$files
+    fls <- .httrRead(url, xpathString="//pre/a/text()")$files
         
     if(length(fls) != 0) {
         if(isSubDir){

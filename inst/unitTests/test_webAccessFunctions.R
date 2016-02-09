@@ -1,10 +1,4 @@
-###
-### FIXME: These are all integration tests.  Once a framework for integration tests
-###   becomes available in the R ecosystem, these should be converted appropritately
-###
-
 m6Url <- "ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_mouse/release_M6/"
-
 hg19Url <- "http://hgdownload.cse.ucsc.edu/goldenpath/hg19/encodeDCC/"
 hg19RnaSeqUrl <- paste0(hg19Url,"wgEncodeCshlLongRnaSeq/")
 hg19MasterSitesUrl <- paste0(hg19Url,"wgEncodeAwgDnaseMasterSites/")
@@ -27,12 +21,13 @@ tearDown <- function(){
   options(timeout=initialTimeout)
 }
 
+.httrRead <- AnnotationHubData:::.httrRead
 test_httrRead <- function(){
-  fileInfo <- AnnotationHubData:::.httrRead(hg19RnaSeqUrl, NA)
+  fileInfo <- .httrRead(hg19RnaSeqUrl, "//pre/a/text()")
   checkTrue(validObject(fileInfo))
   checkTrue(length(fileInfo[[1]]) > 0)
 
-  fileInfo <- AnnotationHubData:::.httrRead(hg19MasterSitesUrl, NA)
+  fileInfo <- .httrRead(hg19MasterSitesUrl, "//pre/a/text()")
   checkTrue(validObject(fileInfo))
   checkTrue(length(fileInfo[[1]]) > 0)
 }

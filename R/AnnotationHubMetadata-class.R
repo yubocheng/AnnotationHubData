@@ -315,7 +315,7 @@ toJson <-
     toJSON(.encodeNA(lst))
 }
 
-AnnotationHubMetadataFromJson <-
+HubMetadataFromJson <-
     function(path, ahroot=NA_character_)
 {
     lst <- .decodeNA(fromJSON(file=path))

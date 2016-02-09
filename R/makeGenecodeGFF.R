@@ -31,29 +31,29 @@
 .gencodeDescription <- function(fileurls){
     # add description map here.
     map <- c(
-      annotation.gff3.gz= .expandLine("Gene annotations
-      on reference chromosomes from Gencode"),
+      annotation.gff3.gz=.expandLine("Gene annotations
+          on reference chromosomes from Gencode"),
       chr_patch_hapl_scaff.annotation.=.expandLine("Gene annotation 
-      on reference-chromosomes/patches/scaffolds/haplotypes from Gencode"),
+          on reference-chromosomes/patches/scaffolds/haplotypes from Gencode"),
       polyAs=.expandLine("files contain polyA signals, polyA sites and 
-      pseudo polyAs manually annotated by HAVANA from only the refrence
-      chromosome"),
+          pseudo polyAs manually annotated by HAVANA from only the refrence
+          chromosome"),
       wayconspseudos=.expandLine("pseudogenes predicted by the Yale 
-      & UCSC pipelines, but not by Havana on reference chromosomes"),
+          & UCSC pipelines, but not by Havana on reference chromosomes"),
       long_noncoding_RNAs=.expandLine("sub-set of the main annotation files
-       on the reference chromosomes. They contain only the lncRNA genes. 
-       Long non-coding RNA genes are considered the genes with any of 
-       those biotypes: 'processed_transcript', 'lincRNA', 
-       '3prime_overlapping_ncrna', 'antisense', 'non_coding', 
-       'sense_intronic' , 'sense_overlapping' , 'TEC' , 'known_ncrna'."),
+          on the reference chromosomes. They contain only the lncRNA genes. 
+          Long non-coding RNA genes are considered the genes with any of 
+          those biotypes: 'processed_transcript', 'lincRNA', 
+          '3prime_overlapping_ncrna', 'antisense', 'non_coding', 
+          'sense_intronic' , 'sense_overlapping' , 'TEC' , 'known_ncrna'."),
       tRNAs =.expandLine("tRNA structures predicted by tRNA-Scan on 
-      reference chromosomes"),  
+          reference chromosomes"),  
       transcripts.fa.gz=.expandLine("Protein-coding transcript sequences 
-      on reference chromosomes Fasta file"),
+          on reference chromosomes Fasta file"),
       translations.fa.gz=.expandLine("Translations of protein-coding 
-      transcripts on reference chromosomes Fasta file"),
+          transcripts on reference chromosomes Fasta file"),
       lncRNA_transcripts.fa.gz=.expandLine("Long non-coding RNA 
-      transcript sequences on reference chromosomes Fasta file.") 
+          transcript sequences on reference chromosomes Fasta file.") 
       )
     description <- character(length(fileurls))
     for (i in seq_along(map))
@@ -83,27 +83,18 @@
 
 
 # Helper to retrieve GTF & GFF3 file urls from Gencode
-.gencodeGffSourceUrls <-
-    function(species, release, filetype, justRunUnitTest=FALSE)
+.gencodeSourceUrls <- function(species, release, filetype, justRunUnitTest)
 {
-    speciesUrl <- ifelse(species=="Human", yes="Gencode_human/", no="Gencode_mouse/")
+    speciesUrl <- ifelse(species=="Human", "Gencode_human/", "Gencode_mouse/")
     dirurl = paste0(.gencodeBaseUrl, speciesUrl, "release_", release, "/")
     names(dirurl) <- paste0(species,"_", release)
     
-    if(justRunUnitTest)
-        dirurl <- dirurl[1]
-
-    ## get the fileurls for each dirurl
     fileurls <-.gencodeFileFromUrl(dirurl) 
-   
     
-    # get only gff3 files from this list. 
     if (tolower(filetype)=="gff")
        idx <-  grep("gff3", fileurls)
-    
     if(tolower(filetype)=="fasta")
        idx <-  grep("fa.gz", fileurls)
-
     fileurls <- fileurls[idx]
 
     if(length(idx)==0)
@@ -151,7 +142,7 @@ makeGencodeGFFsToAHMs <- function(currentMetadata, justRunUnitTest, BiocVersion)
 
     ## important - here you need to know which species and release you want to 
     ## add files for.  
-    rsrc <- .gencodeGffSourceUrls(species="Human", release="23", filetype="gff", 
+    rsrc <- .gencodeSourceUrls(species="Human", release="23", filetype="gff", 
          justRunUnitTest)
        
     description <- rsrc$description

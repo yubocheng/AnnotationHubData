@@ -72,7 +72,7 @@ trackWithAuxiliaryTablesToGRanges <- function(ahm)
 
     save(gr, file=outputFile(ahm))
     if (!getOption("AnnotationHub_Use_Disk", FALSE)) {
-        upload_to_S3(outputfile(ahm), metadata(ahm)$RDataPath)
+        upload_to_S3(outputFile(ahm), metadata(ahm)$RDataPath)
     }
 
     outputFile(ahm)

@@ -118,7 +118,7 @@ setGeneric("runRecipes", signature="metadata",
 setMethod("runRecipes", "AnnotationHubMetadata",
     function(metadata, hubroot,
              bucket = getOption("ANNOTATION_HUB_BUCKET_NAME", "annotationhub"),
-             download=TRUE, ...)
+             download = TRUE, ...)
     {
         ## FIXME: (1) use of 'download' unclear
         ##        (2) HubRoot / AnnotationHubRoot should already be set
@@ -153,6 +153,7 @@ setMethod("runRecipes", "AnnotationHubMetadata",
             res <- upload_to_S3(fileToUpload, remotePath, bucket, ...)
             ## TODO - if download is successful, delete local file?
         }
+        ## FIXME: else do what? Is Use_Disk still in use?
     }
 )
 
@@ -179,9 +180,9 @@ updateResources <- function(AnnotationHubRoot, BiocVersion=biocVersion(),
             preparerInstance <- do.call(preparerClass, args)
 
         } else {
-            ## FIXME: nothing done with listOfExistingMetadata?
             preparerInstance <- do.call(new, list(preparerClass))
-            ahms <- newResources(preparerInstance, listOfExistingMetadata,
+            ## NOTE: 'currentMetadata' arg is in generic but not used
+            ahms <- newResources(preparerInstance, 
                                  justRunUnitTest=justRunUnitTest,
                                  BiocVersion=package_version(BiocVersion), ...)
             allAhms <- append(allAhms, ahms)

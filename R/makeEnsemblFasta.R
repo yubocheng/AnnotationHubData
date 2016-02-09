@@ -1,5 +1,5 @@
 ### =========================================================================
-### makeEnsemblFasta()
+### makeEnsemblFastaAHM() and ensemblFastaToFaFile()
 ### -------------------------------------------------------------------------
 ###
 
@@ -112,9 +112,9 @@
 }
 
 ## metadata generator
-makeEnsemblFastaToAHMs <-
+makeEnsemblFastaToAHM <-
     function(currentMetadata, baseUrl = "ftp://ftp.ensembl.org/pub/",
-             baseDir = "fasta/", regex = ".*release-81",
+             baseDir = "fasta/", regex,
              justRunUnitTest = FALSE, BiocVersion = biocVersion())
 {
     time1 <- Sys.time()
@@ -162,14 +162,22 @@ makeEnsemblFastaToAHMs <-
           Tags=c("FASTA", "ensembl", "sequence")))
 }
 
-## recipe: unzips .gz file and indexes it; save as .rz and .rz.fai
-ensemblFastaToFaFile <- function(ahm)
+## Used in makeEnsemblFastaAHM() and makeGencodeFastaToAHM():
+## Unzips .gz file, indexes it and saves as .rz and .rz.fai.
+.fastaToFaFile <- function(ahm)
 {
-    faOut <- outputFile(ahm)[[1]]  ## target out file
+    ## target output file
+    faOut <- outputFile(ahm)[[1]]
     srcFile <- sub('.rz$','.gz',faOut)
-    razip(srcFile)    ## which we unzip
-    indexFa(faOut)    ## and index
+    ## unzip and index
+    razip(srcFile)
+    indexFa(faOut)
 }
 
-## create the class and newResources() method
-makeAnnotationHubResource("EnsemblFastaImportPreparer", makeEnsemblFastaToAHMs)
+ensemblFastaToFaFile <- function(ahm)
+{
+    .fastaToFaFile(ahm)
+}
+
+## create dispatch class and newResources() method
+makeAnnotationHubResource("EnsemblFastaImportPreparer", makeEnsemblFastaToAHM)

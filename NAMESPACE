@@ -57,6 +57,7 @@ importFrom(parallel, detectCores)
 importFrom(utils, data, download.file, read.delim, read.table, untar)
 importFrom(stats, setNames)
 importFrom(XML, readHTMLTable, xmlParse, xmlValue)
+importFrom(xml2, xml_find_all, xml_contents)
 importFrom(RSQLite, SQLite)
 importFrom(graphics, title)
 
@@ -85,17 +86,19 @@ export(
     upload_to_S3,
     getImportPreparerClasses,
     makeAnnotationHubResource,
-    AnnotationHubMetadataFromJson,
+    HubMetadataFromJson,
     jsonPath,
     toJson,
     constructSeqInfo,
+    makeEnsemblFastaToAHM, makeEnsemblTwoBitToAHM,
     ensemblFastaToFaFile,
     ensemblFastaToTwoBitFile,
-    tracksToUpdate,
     ahmToJson,
     newResources, updateResources, deleteResources, runRecipes,
     pushMetadata, pushResources,
-    hubError
+    hubError,
+
+    makeGencodeFastaToAHM, gencodeFastaToFaFile
 )
 
 exportMethods(

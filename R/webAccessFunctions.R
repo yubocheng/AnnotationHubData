@@ -2,19 +2,20 @@
 ## Using this function, one can read all the filenames or filenames ending with a
 ## cetrain extension on an http page, it also reads the
 ## md5sum which is present in "md5sum.txt" on the same http page
-.httrRead <- function(url, fileName, getmd5sum=FALSE) {
+.httrRead <- function(url, xpathString, fileName=NA_character_, getmd5sum=FALSE) {
     tryCatch({
-        result <- httr::GET(url)
+        result <- GET(url)
         stop_for_status(result)
         html <- content(result)
 
-        fls <- vapply(html["//pre/a/text()"], xmlValue, character(1))
+        ## httr >=1.1.0 uses xml2 instead of XML
+        #fls <- as.character(xml_find_all(html, "//pre/a/text()")) 
+        fls <- as.character(xml_find_all(html, xpathString)) 
 
         md5exists <- length(grep("md5sum.txt", fls))!=0
-
         remove <- c("Name", "Size", "Last modified", "Description",
                     "Parent Directory", "referenceSequences/",
-                    "files.txt", "md5sum.txt")
+                    "files.txt", "md5sum.txt", "supplemental/")
         fls <- fls[!fls %in% remove ]
 
         ## we want to read in only files with a specific extension here.
@@ -22,7 +23,7 @@
             fls <- fls[grepl(paste0(fileName, "$"), fls)]
         }
 
-        ## the chain files and the ucsc 2bit files have a file called md5sum.txt
+        ## UCSC chain and 2bit files have a file called md5sum.txt
         ## col1=md5sum, col2=filename
         ## note : not all chain files have md5sum on UCSC website!
         if(getmd5sum & md5exists & length(fls!=0)) {

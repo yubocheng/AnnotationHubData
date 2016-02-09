@@ -1,7 +1,7 @@
 ################################################################################
 ## Tests to just see if we can run all of our recipes
 
-ahroot <- "/var/FastRWeb/web"
+ahroot <- getwd() 
 BiocVersion <- c("3.1") 
 
 test_HaemCodeImportPreparer_recipe <- function() {
@@ -18,8 +18,6 @@ test_BioPaxImportPreparer_recipe <- function() {
     checkTrue(class(ahms[[1]])=="AnnotationHubMetadata")
 }
 
-## FIXME: may want to set a timeout on this one -
-##        web query takes awhile
 test_UCSCChainPreparer_recipe <- function() {
     ahms = updateResources(ahroot, BiocVersion,
         preparerClasses = "UCSCChainPreparer",
@@ -76,17 +74,6 @@ test_ChEAPreparer_recipe <- function() {
     checkTrue(class(ahms[[1]])=="AnnotationHubMetadata")
 }
 
-## FIXME: broken
-#test_Inparanoid8ImportPreparer_recipe <- function() {
-#    suppresWarnings({
-#    ahms = updateResources(ahroot, BiocVersion,
-#                           preparerClasses = "Inparanoid8ImportPreparer",
-#                           insert = FALSE, metadataOnly=TRUE,
-#                           justRunUnitTest=TRUE)
-#    })
-#    checkTrue(class(ahms[[1]])=="AnnotationHubMetadata")
-#}
-
 test_NCBIImportPreparer_recipe <- function() {
     ahms = updateResources(ahroot, BiocVersion,
                                preparerClasses = "NCBIImportPreparer",
@@ -135,6 +122,18 @@ test_GencodeFasta <- function() {
     ahms = updateResources(ahroot, BiocVersion,
                            preparerClasses = "GencodeFastaImportPreparer",
                            insert = FALSE, metadataOnly=TRUE,
-                           justRunUnitTest=TRUE)
+                           justRunUnitTest=TRUE, species="Human",
+                           release="23")
     checkTrue(class(ahms[[1]])=="AnnotationHubMetadata")
 }
+
+## FIXME: broken
+#test_Inparanoid8ImportPreparer_recipe <- function() {
+#    suppresWarnings({
+#    ahms = updateResources(ahroot, BiocVersion,
+#                           preparerClasses = "Inparanoid8ImportPreparer",
+#                           insert = FALSE, metadataOnly=TRUE,
+#                           justRunUnitTest=TRUE)
+#    })
+#    checkTrue(class(ahms[[1]])=="AnnotationHubMetadata")
+#}
