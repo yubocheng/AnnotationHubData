@@ -4,10 +4,7 @@ hg19RnaSeqUrl <- paste0(hg19Url,"wgEncodeCshlLongRnaSeq/")
 hg19MasterSitesUrl <- paste0(hg19Url,"wgEncodeAwgDnaseMasterSites/")
 
 bioPaxUrl <- "ftp://ftp1.nci.nih.gov/pub/PID/BioPAX/"
-bioPaxKeggUrl <- paste0(bioPaxUrl,"KEGG.bp2.owl.gz")
 bioPaxCartaUrl <- paste0(bioPaxUrl,"BioCarta.owl.gz")
-## We know the Bio Pax FTP server exists, and the following file does not
-badBioPaxUrl <- paste0(bioPaxUrl,"FILE_DOES_NOT_EXIST.owl.gz")
 
 rProjUrl <- "https://www.r-project.org/"
 biocUrl <- "http://bioconductor.org/"
@@ -56,11 +53,15 @@ test_ftpFileInfo <- function(){
     tearDown()
 }
 
+## FIXME: AFAICT this isn't used in AHD; do we need this?
+##        FYI httr::HEAD() >= 1.1.0 supports http only, not ftp
 test_fileExistsOnline <- function(){
-    result <- AnnotationHubData:::.fileExistsOnline(bioPaxKeggUrl)
+    url <- "http://www.biopax.org/release/biopax-level2.owl"
+    result <- AnnotationHubData:::.fileExistsOnline(url)
     checkEquals(result[[1]], TRUE)
 
-    failureResult <- AnnotationHubData:::.fileExistsOnline(badBioPaxUrl)
+    url <- "http://www.biopax.org/release/FOO.gz"
+    failureResult <- AnnotationHubData:::.fileExistsOnline(url)
     checkEquals(failureResult[[1]], FALSE)
 }
 

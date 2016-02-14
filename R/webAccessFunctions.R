@@ -108,22 +108,22 @@
     data.frame(fileurl=files, date, size, stringsAsFactors=FALSE)
 }
 
+## FIXME: AFAICT this isn't used in AHD; do we need this?
 ## Check if a given file exists online.
 .fileExistsOnline  <- function(url) {
-  sapply(url, function(innerUrl) {
-      tryCatch({
-      urlHeaders <- httr::HEAD(innerUrl)
-      result <- unlist(urlHeaders)
-      size <- result$`headers.content-length`
-      if(as.integer(size) > 1)
-        TRUE
-      else
-        FALSE
-      }, error=function(err){
-        message(paste0("Error retrieving URL '", url, "': \n\t", err))
-        FALSE
-      })
-  })
+    sapply(url, function(innerUrl) {
+        tryCatch({
+            urlHeaders <- httr::HEAD(innerUrl)
+            ## VO: fail based on status instead of 'headers.content-length'
+            if (urlHeaders$status_code >= 300)
+                FALSE
+            else 
+                TRUE
+        }, error=function(err){
+            message(paste0("Error retrieving URL '", url, "': \n\t", err))
+            FALSE
+        })
+    })
 }
 
 # Return a full directory listing (with size, permissions, last modified)
