@@ -9,7 +9,7 @@ importMethodsFrom(GenomicRanges, seqinfo, "seqinfo<-", strand)
 importMethodsFrom(IRanges,  append, as.data.frame, cbind,
                   colnames, "colnames<-", duplicated, end, gsub,
                   intersect, lapply, match, merge, nchar, ncol, order,
-                  rbind, rownames, "rownames<-", setdiff, sort,
+                  rbind, rownames, "rownames<-", setdiff,
                   splitAsList, start, sub, table, tolower,
                   unique, unlist, which)
 importMethodsFrom(methods, show)
@@ -39,6 +39,7 @@ importFrom(rBiopaxParser, readBiopax)
 importFrom(rtracklayer, GRangesForUCSCGenome, ucscGenomes)
 importFrom(Rsamtools, razip)
 import(AnnotationHub)
+import(IRanges)
 importFrom(AnnotationForge, makeInpDb,
            makeOrgPackageFromNCBI)
 importFrom(AnnotationDbi, loadDb)
