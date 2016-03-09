@@ -24,7 +24,7 @@
     if(justRunUnitTest)
         urls <- urls[1:5]
 
-    df <- .ftpFileInfo(url=urls, filename=paste0(".", rel, ".gtf.gz"), tag=basename(urls))
+    df <- .ftpFileInfo(urls, paste0(".", rel, ".gtf.gz"), basename(urls))
     rownames(df) <- NULL
     df
 }

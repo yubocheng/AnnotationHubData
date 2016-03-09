@@ -2,7 +2,7 @@
 .amazonBaseUrl <- "http://s3.amazonaws.com/annotationhub/"
 
 .getBioPax <- function(url) {
-    files <- .ftpFileInfo(url, filename="owl.gz", tag="hg19")
+    files <- .ftpFileInfo(url, extension="owl.gz", tag="hg19")
 }    
 
 .getBioPaxFilesNIH <- function(justRunUnitTest=FALSE) {

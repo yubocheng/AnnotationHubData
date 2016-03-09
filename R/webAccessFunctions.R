@@ -41,33 +41,36 @@
     })
 }
 
-## Using this function, once can read all the filenames or filenames ending with a
-## cetrain extension on an FTP page, it also gets the date the file was last
-## modified and the file size.
-.ftpFileInfo <- function(url, filename, tag) {
+## Using this function, once can read all the filenames or filenames ending
+## with an extension on an FTP page, it also gets the date the file was
+## last modified and the file size.
+.ftpFileInfo <- function(url, extension, tag, filenames=NULL) {
   firsturl <- ifelse(length(url)>1, url[1], url)
     # Establish the curl handle
     curlHandle <- curl::new_handle()
     curl::handle_setopt(curlHandle, dirlistonly=TRUE)
 
   ## make a list of filenames from each url
-  allurls <- lapply(url, function(ul){
+  allurls <- lapply(url, function(ul) {
     # Open the connecting in "r" (read text) mode.
     con <- curl::curl(ul, "r")
     txt <- read.table(con, stringsAsFactors=FALSE, fill=TRUE)
     close(con)
 
     df2 <- txt[[9]]
-    df2 <- df2[grep(paste0(filename, "$"), df2)]
+    df2 <- df2[grep(paste0(extension, "$"), df2)]
     drop <- grepl("00-", df2)
     df2 <- df2[!drop]
 
+    ## 'filenames' allow cherry-picking from a single directory
+    if (!is.null(filenames))
+        df2 <- df2[which(df2 %in% paste0(filenames, ".", extension))]
+
     paste0(ul, df2)
   })
+
   allurls <- unlist(allurls)
-
   curl::handle_reset(curlHandle)
-
   ## use httr to get date and size for each file.
   df <- .httrFileInfo(allurls, verbose=TRUE)
   base::cbind(df, genome=tag, stringsAsFactors=FALSE)
