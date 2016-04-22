@@ -25,7 +25,7 @@
 ### On the web site (ftp://ftp.ncbi.nih.gov/snp/organisms/) there 7 base
 ### directories. b141 is no longer there and b144, b146 have been added.
 
-### Update recipe to look in 
+### The recipe has been updated to look in 
 ###    ftp://ftp.ncbi.nlm.nih.gov/pub/clinvar/
 ###    ftp://ftp.ncbi.nlm.nih.gov/pub/clinvar/
 ### ----------------------------------------------------------------------
@@ -96,6 +96,7 @@ makedbSNPVCF <- function(currentMetadata, justRunUnitTest=TRUE,
     ## resources table
     title <- rsrc$title
     description <- rsrc$description
+    genome <- rsrc$genome
  
     ## rdatapath should have 2 entries -for the VCF and its TabixFile
     rdatapath <- sub(.dbSNPBaseUrl, "", rsrc$fileurl)
@@ -104,9 +105,9 @@ makedbSNPVCF <- function(currentMetadata, justRunUnitTest=TRUE,
     rdatapaths <- lapply(rdatapaths,
                          function(x){x[2] <- paste0(x[2],".tbi") ; return(x)}) 
  
-    Tags <- lapply(rsrc$genome, function(tag) {
-        c("dbSNP", tag, "VCF")
-    })
+    tags <- lapply(genome, 
+        function(tag) c("dbSNP", tag, "VCF")
+    )
  
     Map(AnnotationHubMetadata,
         SourceSize=sourceSize,
@@ -116,8 +117,8 @@ makedbSNPVCF <- function(currentMetadata, justRunUnitTest=TRUE,
  
         Description=description,
         Title=title,
-        Tags=Tags,
-
+        Genome=genome,
+        Tags=tags,
         RDataPath=rdatapaths,
  
         MoreArgs=list(
@@ -127,7 +128,6 @@ makedbSNPVCF <- function(currentMetadata, justRunUnitTest=TRUE,
  
             # resources
             Species="Homo sapiens",
-            Genome="hg19",
             TaxonomyId=9606L, 
             DataProvider = "dbSNP",
             Maintainer = "Bioconductor Maintainer <maintainer@bioconductor.org>",
