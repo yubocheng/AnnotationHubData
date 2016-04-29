@@ -134,8 +134,8 @@
         paths <- c("byFileType/peaks/consolidated/narrowPeak/", 
                   "byFileType/peaks/unconsolidated/narrowPeak/")
         pattern <- "narrowPeak"
-        dispatch <- "EpigenomeRoadmapFile"
-        #dispatch <- "UCSCNarrowPeak"
+        #dispatch <- "EpigenomeRoadmapFile"
+        dispatch <- "UCSCNarrowPeak"
     } else {
        paths <- c("byFileType/peaks/consolidated/narrowPeak/")
        if (fileType == "narrowFDR") {
