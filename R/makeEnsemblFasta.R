@@ -153,7 +153,7 @@ makeEnsemblFastaToAHM <-
           BiocVersion=BiocVersion,
           Coordinate_1_based = TRUE,
           DataProvider="Ensembl",
-          Maintainer="<maintainer@bioconductor.org>",
+          Maintainer = "Bioconductor Maintainer <maintainer@bioconductor.org>",
           SourceType="FASTA",
           DispatchClass="FaFile",
           RDataClass=c("FaFile", "FaFile"),

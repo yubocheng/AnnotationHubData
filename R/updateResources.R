@@ -10,8 +10,10 @@ getImportPreparerClasses <- function() {
 
 }
 
+## FIXME: modify to track errors in hubErrors()
 pushMetadata <- function(allAhms, url) {
     flog(INFO, "inserting metadata in db ...")
+
     jsons <- lapply(allAhms, ahmToJson)
     lapply(jsons, function(x) {
         result <- POST(handle=handle(url), body=list(payload=x))
@@ -23,38 +25,19 @@ pushMetadata <- function(allAhms, url) {
 
 pushResources <- function(allAhms, hubroot, ...) {
     flog(INFO, "processing and pushing data ...")
-    tryCatch({
-        #lapply(allAhms, runRecipes, hubroot=hubroot, ...)
-        lapply(allAhms, runRecipes, hubroot=hubroot)
-    }, error = function(err) {
-        stop(paste0("error processing data in runRecipes(): ",
-                    conditionMessage(err)))
-    })
-}
-
-# This is mostly for "manual" pushes; could be integrated into recipes.
-pushResources2 <- function(allAhms, hubroot, returnAhms=FALSE, ...) {
-    if (!inherits(allAhms, "pointer"))
-        stop("Function argument is not a pointer.")
-
-    errorFun <- function(err) {
-        slot(..(allAhms)[[index]], "Error") <- conditionMessage(err)
-        cat("error processing data in runRecipes(): ",
-            conditionMessage(err), "\n", sep="")
-    }
-
-    flog(INFO, "processing and pushing data ...")
-    index = 0;
-    lapply(..(allAhms), function(x) {
-        index <<- index + 1
-        tryCatch({
-            runRecipes(x, hubroot=hubroot)
-        }, error=errorFun)
-        gc()
-    })
-
-    if (returnAhms)
-          return (allAhms)
+    res <- lapply(allAhms, 
+        function(xx) {
+            tryCatch({
+                runRecipes(xx, hubroot=hubroot)
+                xx
+            }, error=function(err) {
+                msg <- paste0("error in runRecipes():", conditionMessage(err))
+                hubError(xx) <- msg 
+                flog(ERROR, msg) 
+                xx
+            })
+        })
+    res 
 }
 
 downloadResource <- function(ahm, downloadIfExists) {
@@ -141,7 +124,7 @@ setMethod("runRecipes", "AnnotationHubMetadata",
         tryCatch({
             metadata <- run(metadata)
         }, error=function(e) {
-            flog(ERROR, "error processing %s: %s", metadata(metadata)$SourceUrl,
+            flog(ERROR, "error processing %s: %s", basename(metadata(metadata)$SourceUrl),
                  conditionMessage(e))
         })
 
@@ -191,7 +174,7 @@ updateResources <- function(AnnotationHubRoot, BiocVersion=biocVersion(),
 
     ## download, process and push data to appropriate location
     if (!metadataOnly)
-        pushResources(allAhms, AnnotationHubRoot, ...)
+        allAhms <- pushResources(allAhms, AnnotationHubRoot, ...)
 
 
     ## if data push was successful insert metadata in db

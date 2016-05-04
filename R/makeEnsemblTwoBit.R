@@ -60,7 +60,7 @@ makeEnsemblTwoBitToAHM <- # TODO: Add man page for this function
             BiocVersion=BiocVersion,
             Coordinate_1_based = TRUE,
             DataProvider="Ensembl",
-            Maintainer="<maintainer@bioconductor.org>",
+            Maintainer = "Bioconductor Maintainer <maintainer@bioconductor.org>",
             SourceType="FASTA",
             DispatchClass="TwoBitFile",
             RDataClass="TwoBitFile",
@@ -72,14 +72,16 @@ makeEnsemblTwoBitToAHM <- # TODO: Add man page for this function
 ## Recipe: Convert .fa file to .2bit
 ensemblFastaToTwoBitFile <- function(ahm)
 {
-    twobitOut <- outputFile(ahm)[[1]]  ## target out file
+    twobitOut <- outputFile(ahm)[[1]]
     srcFile <- sub('\\.2bit','.fa.gz', twobitOut)
-    fastaFile <- sub('\\.gz','', srcFile)
-    #GEOquery::gunzip(srcFile, destname=fastaFile, remove=FALSE) # Don't need
-    # to unzip; use ".gz" files directly.
-    ## Convert.
-    export(import(srcFile, "FASTA"), twobitOut, "TwoBit")
+    dna <- import(srcFile, "FASTA")
+
+    ## ID as name
+    ids <- sub(" .*", "", names(dna)) 
+    stopifnot(length(ids) == length(dna))
+    names(dna) <- ids 
+    export(dna, twobitOut, "TwoBit")
 }
 
 ## create the class and newResources() method
-makeAnnotationHubResource("EnsemblTwoBitPreparer", makeEnsemblToTwoBitAHM)
+makeAnnotationHubResource("EnsemblTwoBitPreparer", makeEnsemblTwoBitToAHM)
