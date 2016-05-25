@@ -71,6 +71,7 @@ AnnotationHubMetadata <-
         else
             TaxonomyId <- NA_integer_
     }
+    TaxonomyId <- as.integer(TaxonomyId)
     if(!(isSingleInteger(TaxonomyId) || is.na(TaxonomyId)))
         stop(wmsg(paste0("AnnotationHubMetdata objects can contain",
                          " only one taxonomy ID or NA")))
