@@ -18,8 +18,9 @@
     paste(grep(regex, releases, value=TRUE), dir, sep="/")
 }
 
-## mangle url to metadata where possible
-.ensemblMetadataFromUrl <- function(sourceUrl, twobit=FALSE) {
+## NOTE: httr >= 1.2.0 doesn't support ftp last modified date and size
+## FIXME: This should be combined with .httrFileInfo() and .ftpFileInfo()
+.ensemblMetadataFromUrl <- function(sourceUrl, twobit=FALSE, http=FALSE) {
     releaseRegex <- ".*(release-[[:digit:]]+).*"
     if (!twobit)
       title <- sub("\\.gz$", "", basename(sourceUrl))
@@ -32,10 +33,12 @@
         uspecies <- unique(species)
         GenomeInfoDb:::.taxonomyId(uspecies)[match(species, uspecies)]
     })
-    ## extract info about source size and source mod date etc.
-    ftpInfo <- .httrFileInfo(files=sourceUrl)
-    sourceSize <- ftpInfo$size
-    sourceLastModDate <- ftpInfo$date
+
+    if (http) {
+       ftpInfo <- .httrFileInfo(sourceUrl)
+       sourceSize <- ftpInfo$size
+       sourceLastModDate <- ftpInfo$date
+    } else sourceSize <- sourceLastModDate <- NA
 
     list(annotationHubRoot = root, title=title, species = species,
          taxonomyId = as.integer(taxonomyId),
@@ -114,10 +117,11 @@
 ## metadata generator
 makeEnsemblFastaToAHM <-
     function(currentMetadata, baseUrl = "ftp://ftp.ensembl.org/pub/",
-             baseDir = "fasta/", regex,
+             baseDir = "fasta/", release,
              justRunUnitTest = FALSE, BiocVersion = biocVersion())
 {
     time1 <- Sys.time()
+    regex <- paste0(".*release-", release)
     sourceUrl <- .ensemblFastaSourceUrls(baseUrl, baseDir, regex)
     if (justRunUnitTest)
         sourceUrl <- sourceUrl[1:5]

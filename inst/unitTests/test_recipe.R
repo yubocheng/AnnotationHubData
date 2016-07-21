@@ -2,7 +2,7 @@
 ## Tests to just see if we can run all of our recipes
 
 ahroot <- getwd() 
-BiocVersion <- c("3.1") 
+BiocVersion <- "3.1" 
 
 test_HaemCodeImportPreparer_recipe <- function() {
     ahms = updateResources(ahroot, BiocVersion,
@@ -106,7 +106,7 @@ test_EnsemblGtfToGRanges_recipe <- function() {
     ahms = updateResources(ahroot, BiocVersion,
                            preparerClasses = "EnsemblGtfImportPreparer",
                            insert = FALSE, metadataOnly=TRUE,
-                           justRunUnitTest=TRUE)
+                           release = "84", justRunUnitTest=TRUE)
     checkTrue(class(ahms[[1]])=="AnnotationHubMetadata")
 }
 

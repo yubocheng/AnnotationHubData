@@ -17,11 +17,11 @@
 
 \usage{
 makeEnsemblFastaToAHM(currentMetadata, baseUrl = "ftp://ftp.ensembl.org/pub/",
-                      baseDir = "fasta/", regex,
+                      baseDir = "fasta/", release,
                       justRunUnitTest = FALSE, BiocVersion = biocVersion())
 
 makeEnsemblTwoBitToAHM(currentMetadata, baseUrl = "ftp://ftp.ensembl.org/pub/",
-                       baseDir = "fasta/", regex,
+                       baseDir = "fasta/", release,
                        justRunUnitTest = FALSE, BiocVersion = biocVersion())
 
 ensemblFastaToFaFile(ahm)
@@ -40,8 +40,8 @@ ensemblFastaToTwoBitFile(ahm)
   \item{baseDir}{
     ftp file directory.
   } 
-  \item{regex}{
-    Regular expression to match release version, e.g., "*.release-81".
+  \item{release}{
+    Integer version number, e.g., "84".
   } 
   \item{justRunUnitTest}{
     A \code{logical}. When TRUE, a small number of records (usually 5) are
@@ -77,13 +77,13 @@ ensemblFastaToTwoBitFile(ahm)
 ## updateResources() generates metadata, process records and
 ## pushes files to AWS S3 buckets. See ?updateResources for details.
 
-## 'regex' is passed to makeEnsemblFastaToFaFile.
+## 'release' is passed to makeEnsemblFastaToFaFile.
 \dontrun{
 meta <- updateResources("/local/path", 
                         BiocVersion = c("3.2", "3.3"),
                         preparerClasses = "EnsemblFastaImportPreparer",
                         metadataOnly = TRUE, insert = FALSE,
-                        justRunUnitTest = FALSE, regex = ".*release-82")
+                        justRunUnitTest = FALSE, release = "83")
 }
 }
 

@@ -53,7 +53,7 @@
 }
 
 .cleanFiles <- function(url, isSubDir=FALSE) {
-    fls <- .httrRead(url, xpathString="//pre/a/text()")$files
+    fls <- .httrRead(url)$files
         
     if(length(fls) != 0) {
         if(isSubDir){
@@ -122,7 +122,7 @@
     urls <- setNames(paste0(encode_url, subdirs), subdirs)
     
     if(justRunUnitTest)
-        urls <- urls[c(1,2,3,10,14)]
+        urls <- urls[c(1,2)]
     
     do.call(rbind, Map(.subDir, urls, verbose=TRUE))
 }

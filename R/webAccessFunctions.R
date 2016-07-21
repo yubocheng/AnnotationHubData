@@ -1,15 +1,29 @@
+### =========================================================================
+### HTTP and FTP helpers
+### -------------------------------------------------------------------------
+###
 
-## Using this function, one can read all the filenames or filenames ending with a
-## cetrain extension on an http page, it also reads the
-## md5sum which is present in "md5sum.txt" on the same http page
-.httrRead <- function(url, xpathString, fileName=NA_character_, getmd5sum=FALSE) {
+.trim <- function (x) gsub("^\\s+|\\s+$", "", x)
+
+## Remove remove "\n" when inserting long text (> 80 chars)
+.expandLine <- function(x)
+    gsub("[[:space:]]{2,}"," ", x)
+
+## -----------------------------------------------------------------------------
+## HTTP
+## 
+
+## Parses xml from a http page into a data.frame of filenames, 
+## List filenames or filenames ending with an extension on http page.
+## Also reads the md5sum in "md5sum.txt" on the same http page.
+.httrRead <- function(url, xpathString="//pre/a/text()", 
+                      extension=NA_character_, getmd5sum=FALSE) {
     tryCatch({
         result <- GET(url)
         stop_for_status(result)
         html <- content(result)
 
         ## httr >=1.1.0 uses xml2 instead of XML
-        #fls <- as.character(xml_find_all(html, "//pre/a/text()")) 
         fls <- as.character(xml_find_all(html, xpathString)) 
 
         md5exists <- length(grep("md5sum.txt", fls))!=0
@@ -18,9 +32,9 @@
                     "files.txt", "md5sum.txt", "supplemental/")
         fls <- fls[!fls %in% remove ]
 
-        ## we want to read in only files with a specific extension here.
-        if(!is.na(fileName)){
-            fls <- fls[grepl(paste0(fileName, "$"), fls)]
+        ## filter by extension
+        if(!is.na(extension)){
+            fls <- fls[grepl(paste0(extension, "$"), fls)]
         }
 
         ## UCSC chain and 2bit files have a file called md5sum.txt
@@ -41,54 +55,12 @@
     })
 }
 
-## Using this function, once can read all the filenames or filenames ending
-## with an extension on an FTP page, it also gets the date the file was
-## last modified and the file size.
-.ftpFileInfo <- function(url, extension, tag, filenames=NULL) {
-    # Establish the curl handle
-    curlHandle <- curl::new_handle()
-    curl::handle_setopt(curlHandle, dirlistonly=TRUE)
 
-    ## make a list of filenames from each url
-    allurls <- lapply(url, function(ul) {
-        # Open the connecting in "r" (read text) mode.
-        con <- curl::curl(ul, "r")
-        txt <- read.table(con, stringsAsFactors=FALSE, fill=TRUE)
-        close(con)
-
-        df2 <- txt[[9]]
-        df2 <- df2[grep(paste0(extension, "$"), df2)]
-        drop <- grepl("00-", df2)
-        df2 <- df2[!drop]
-
-        ## 'filenames' allow cherry-picking from a single directory
-        if (!is.null(filenames))
-            df2 <- df2[which(df2 %in% paste0(filenames, ".", extension))]
-
-        paste0(ul, df2)
-    })
-
-    elts <- lengths(allurls)
-    allurls <- unlist(allurls)
-    curl::handle_reset(curlHandle)
-    ## use httr to get date and size for each file.
-    df <- .httrFileInfo(allurls, verbose=TRUE)
-    base::cbind(df, genome=rep.int(tag, times=elts), stringsAsFactors=FALSE)
-}
-
-.trim <- function (x) gsub("^\\s+|\\s+$", "", x)
-
-
-## while inserting long text(more than 80 chars), we want to remove "\n"
-.expandLine <- function(x)
-    gsub("[[:space:]]{2,}"," ", x)
-
-
-## for files on http sites, get the file size and file's date last modified.
-.httrFileInfo <- function(files, verbose=TRUE) {
-    result <- lapply(files, function(f){
+## Returns data.frame with fileurl, last modified date and file size
+.httrFileInfo <- function(urls, verbose=TRUE) {
+    result <- lapply(urls, function(f){
         if(verbose)
-            message(basename(f))
+            message(paste0("getting file info: ", basename(f)))
         tryCatch({
             h = suppressWarnings(
               GET(f, config=config(nobody=TRUE, filetime=TRUE)))
@@ -108,28 +80,58 @@
     date <- strptime(sapply(result, "[[", "last-modified"),
              "%a, %d %b %Y %H:%M:%S", tz="GMT")
 
-    data.frame(fileurl=files, date, size, stringsAsFactors=FALSE)
+    data.frame(fileurl=urls, date, size, stringsAsFactors=FALSE)
 }
 
-## FIXME: AFAICT this isn't used in AHD; do we need this?
-## Check if a given file exists online.
-.fileExistsOnline  <- function(url) {
-    sapply(url, function(innerUrl) {
-        tryCatch({
-            urlHeaders <- httr::HEAD(innerUrl)
-            ## VO: fail based on status instead of 'headers.content-length'
-            if (urlHeaders$status_code >= 300)
-                FALSE
-            else 
-                TRUE
-        }, error=function(err){
-            message(paste0("Error retrieving URL '", url, "': \n\t", err))
-            FALSE
+## -----------------------------------------------------------------------------
+## FTP 
+## 
+
+## Returns a data.frame with fileurl, last modified date and file size.
+## 'extension' can be a single file name with extension or just the extension.
+.ftpFileInfo <- function(url, extension, verbose=FALSE) {
+
+    curlHandle <- curl::new_handle()
+    curl::handle_setopt(curlHandle, dirlistonly=TRUE)
+    if (verbose)
+        message(paste0("creating urls ..."))
+
+    result <- lapply(url, function(ul) {
+        con <- curl::curl(ul, "r")
+        txt <- read.table(con, stringsAsFactors=FALSE, fill=TRUE)
+        close(con)
+
+        files <- txt[[9]]
+        if (verbose)
+            message(basename(ul))
+
+        pattern <- paste(paste0(extension, "$"), collapse="|")
+        keep <- !grepl("00-", files) & grepl(pattern, files)
+        txt <- txt[keep, ]
+        if (nrow(txt) == 0L)
+            return(data.frame(fileurl=character(), 
+                              date=as.POSIXct(character()),
+                              size=numeric()))
+
+        # last modified date and size
+        dateraw <- apply(txt, 1, function(xx) paste(xx[6], xx[7], xx[8]))
+        datestring <- lapply(dateraw, function(xx) {
+            as.POSIXct(strptime(xx, format="%b %e %H:%M", tz="GMT"))
         })
+        if (any(is.na(datestring))) {
+            datestring <- lapply(dateraw, function(xx) {
+                as.POSIXct(strptime(xx, format="%b %e %Y", tz="GMT"))
+            })
+        }
+
+        data.frame(fileurl=paste0(ul, txt[[9]]), date=do.call(c, datestring), 
+                   size=as.numeric(txt[[5]]), stringsAsFactors=FALSE)
     })
+
+    do.call(rbind, result)
 }
 
-# Return a full directory listing (with size, permissions, last modified)
+# Return unparsed directory listing as character vector
 .ftpDirectoryInfo <- function(someUrl, filesOnly=FALSE) {
   curlHandle <- curl::new_handle()
   curl::handle_setopt(curlHandle, customrequest="LIST -R")

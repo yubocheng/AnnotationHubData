@@ -1,8 +1,7 @@
 .ucscBase <- "http://hgdownload.cse.ucsc.edu/"
 
 .getchainFiles <- function(url, fileName=NA_character_, verbose=TRUE) {
-    result <- .httrRead(url, xpathString="//pre/a/text()",
-                        fileName=fileName, getmd5sum=TRUE)
+    result <- .httrRead(url, extension=fileName, getmd5sum=TRUE)
     if(length(result)) {
         files <-  paste0(url, "/", result$files)
         df <- .httrFileInfo(files, verbose=TRUE)

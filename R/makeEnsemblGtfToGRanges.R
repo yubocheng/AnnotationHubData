@@ -1,20 +1,12 @@
-## This is an example of how this new helper method can make things
-## simpler and also provides a test case for how we can parse ensembl
-## GTF files into GRanges objects.
+## As of July 2016 this recipe was modified to store only metadata
+## and no files in S3. AnnotationHub will expose available GTF files
+## from Ensembl and the AnnotationHub::GTFFile dispatch class will
+## convert the GTF to GRanges on the fly.
 
-## Helper to retrieve GTF file urls from Ensembl
 .ensemblGtfSourceUrls <-
-    function(baseUrl, justRunUnitTest, release)
+    function(baseDir, baseUrl, release, justRunUnitTest, verbose=FALSE)
 {
-    #rel <- seq(69,81,1)
-    rel <- release
-    want <- paste0(baseUrl, "release-", rel, "/gtf/")
-
-    if(justRunUnitTest)
-        want <- want[1]
-
-    ## files in release
-
+    want <- paste0(baseUrl, "release-", release, paste0("/", baseDir))
     urls <- unlist(lapply(want, function(url) {
         listing <- .ftpDirectoryInfo(url)
         subdir <- sub(".* ", "", listing[grep("^drwx", listing)])
@@ -22,31 +14,26 @@
     }), use.names=FALSE)
 
     if(justRunUnitTest)
-        urls <- urls[1:5]
+        urls <- urls[1:2] ## 2 organisms; possibly more files
 
-    df <- .ftpFileInfo(urls, paste0(".", rel, ".gtf.gz"), basename(urls))
+    df <- .ftpFileInfo(urls, ".gtf.gz", verbose=verbose)
     rownames(df) <- NULL
     df
 }
 
-## STEP 1: make function to process metadata into AHMs
-## This function will return the AHMs and takes no args.
-## It also must specify a recipe function.
-makeEnsemblGTFsToAHMs <- function(currentMetadata,
-    baseUrl = "ftp://ftp.ensembl.org/pub/",
-    release = "82",
-    justRunUnitTest = FALSE,
-    BiocVersion = biocVersion())
+makeEnsemblGtfToAHM <-
+    function(currentMetadata, baseUrl = "ftp://ftp.ensembl.org/pub/",
+             baseDir = "gtf/", release, justRunUnitTest = FALSE, 
+             BiocVersion = biocVersion(), ...)
 {
-    ## get possible sources
-    df <- .ensemblGtfSourceUrls(baseUrl, justRunUnitTest, release)
+    ## get all file urls, size, date
+    df <- .ensemblGtfSourceUrls(baseDir, baseUrl, release, 
+                                justRunUnitTest, ...)
+
     sourceUrls <- df$fileurl
+    rdatapath <- gsub(baseUrl, "", sourceUrls)
 
-    ## construct datapath for the saved GRanges
-    rd <- gsub(baseUrl, "", sourceUrls)
-    rdata <- sub(".gz$", ".RData", rd)
-    rdata <- paste0("ensembl/", rdata)
-
+    ## get genome, species, version, title
     meta <- .ensemblMetadataFromUrl(sourceUrls)
     description <- paste("Gene Annotation for", meta$species)
 
@@ -57,54 +44,20 @@ makeEnsemblGTFsToAHMs <- function(currentMetadata,
         SourceLastModifiedDate=df$date,
         SourceVersion=meta$sourceVersion,
         Species=meta$species,
-        RDataPath=rdata,
+        RDataPath=rdatapath,
         TaxonomyId=meta$taxonomyId, Title=meta$title,
         MoreArgs=list(
             BiocVersion=BiocVersion,
-            Coordinate_1_based = TRUE,
-            DataProvider = "Ensembl",
-            Maintainer = "Martin Morgan <mtmorgan@fredhutch.org>",
-            RDataClass = "GRanges",
-            DispatchClass="GRanges",
+            Coordinate_1_based=TRUE,
+            DataProvider="Ensembl",
+            Maintainer="Bioconductor Maintainer <maintainer@bioconductor.org>",
+            RDataClass="GRanges",
+            DispatchClass="GTFFile",
             SourceType="GTF",
-            Location_Prefix=.amazonBaseUrl,
-            RDataDateAdded = Sys.time(),
-            Recipe = "AnnotationHubData:::ensemblGTFToGRangesRecipe",
-            Tags = c("GTF", "ensembl", "Gene", "Transcript", "Annotation")))
+            Location_Prefix=baseUrl,
+            RDataDateAdded=Sys.time(),
+            Recipe=NA_character_,
+            Tags=c("GTF", "ensembl", "Gene", "Transcript", "Annotation")))
 }
 
-
-
-## STEP 2: Make a recipe function that takes an AnnotationHubMetadata
-## object.
-ensemblGTFToGRangesRecipe <- function(ahm)
-{
-    message()
-    message("###############################################################")
-
-    ahmroot <- metadata(ahm)$AnnotationHubRoot  # path on localDir
-
-    ## contains truncated path to .Rda file on localDir
-    rdatapath <- metadata(ahm)$RDataPath
-
-    ## path to original Biopax file on the web
-    originalFile <- basename(metadata(ahm)$SourceUrl)
-
-    ## contains truncated path to original file on localDir
-    originalPath <- gsub(basename(rdatapath), originalFile, rdatapath)
-
-    faIn <- file.path(ahmroot, originalPath)
-    faOut <- file.path(ahmroot, rdatapath)
-
-    message("faIn:", faIn)
-    message("faOut:", faOut)
-
-    if (!file.exists(faOut)) {
-        gr <- import(faIn, "gtf")
-        save(gr, file=faOut)
-    }
-    faOut
-}
-
-## STEP 3:  Call the helper to set up the newResources() method
-makeAnnotationHubResource("EnsemblGtfImportPreparer", makeEnsemblGTFsToAHMs)
+makeAnnotationHubResource("EnsemblGtfImportPreparer", makeEnsemblGtfToAHM)

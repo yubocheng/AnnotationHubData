@@ -101,7 +101,7 @@
      stop("No files found.") 
 
      if(justRunUnitTest)
-        fileurls <- fileurls[1:5]
+        fileurls <- fileurls[1:2]
    
     ## tags 
     filename <- basename(fileurls)

@@ -1,88 +1,68 @@
-m6Url <- "ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_mouse/release_M6/"
-hg19Url <- "http://hgdownload.cse.ucsc.edu/goldenpath/hg19/encodeDCC/"
-hg19RnaSeqUrl <- paste0(hg19Url,"wgEncodeCshlLongRnaSeq/")
-hg19MasterSitesUrl <- paste0(hg19Url,"wgEncodeAwgDnaseMasterSites/")
-
-bioPaxUrl <- "ftp://ftp1.nci.nih.gov/pub/PID/BioPAX/"
-bioPaxCartaUrl <- paste0(bioPaxUrl,"BioCarta.owl.gz")
-
-rProjUrl <- "https://www.r-project.org/"
-biocUrl <- "http://bioconductor.org/"
 initialTimeout <- getOption("timeout")
-
-setup <- function(){
-  options(timeout=5*60)
-}
-
-tearDown <- function(){
-  options(timeout=initialTimeout)
-}
+setup <- function()
+    options(timeout=5*60)
+tearDown <- function()
+    options(timeout=initialTimeout)
 
 .httrRead <- AnnotationHubData:::.httrRead
-test_httrRead <- function(){
-  fileInfo <- .httrRead(hg19RnaSeqUrl, "//pre/a/text()")
-  checkTrue(validObject(fileInfo))
-  checkTrue(length(fileInfo[[1]]) > 0)
+.ftpDirectoryInfo <- AnnotationHubData:::.ftpDirectoryInfo
+.ftpFileInfo <- AnnotationHubData:::.ftpFileInfo 
+.listRemoteFiles <- AnnotationHubData:::.listRemoteFiles
+.getGenomeAbbrevs <- AnnotationHubData:::.getGenomeAbbrevs
 
-  fileInfo <- .httrRead(hg19MasterSitesUrl, "//pre/a/text()")
-  checkTrue(validObject(fileInfo))
-  checkTrue(length(fileInfo[[1]]) > 0)
+test_httrRead <- function() {
+    setup()
+    hg19Url <- "http://hgdownload.cse.ucsc.edu/goldenpath/hg19/encodeDCC/"
+    url <- paste0(hg19Url,"wgEncodeCshlLongRnaSeq/")
+    ans <- .httrRead(url, "//pre/a/text()")
+    checkTrue(is(ans, "data.frame"))
+    checkTrue(names(ans) == "files")
+    checkTrue(nrow(ans) > 0)
+    tearDown()
 }
 
 test_ftpDirectoryInfo <- function(){
-  setup()
-  listOfFiles <- AnnotationHubData:::.ftpDirectoryInfo(m6Url)
-  checkTrue(length(listOfFiles[[1]]) > 0)
-  tearDown()
+    setup()
+    url <- "ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_mouse/release_M6/"
+    ans <- .ftpDirectoryInfo(url)
+    checkTrue(is(ans, "character"))
+    checkTrue(is.null(names(ans)))
+    checkTrue(length(ans) > 0L)
+    tearDown()
 }
 
 test_ftpFileInfo <- function(){
     setup()
-    fileInfo <- AnnotationHubData:::.ftpFileInfo(bioPaxUrl, "BioCarta.owl.gz", "testgenome")
-    checkTrue(validObject(fileInfo))
-    checkEquals(length(fileInfo), 4)
+    url <- "ftp://ftp1.nci.nih.gov/pub/PID/BioPAX/"
+    ans <- .ftpFileInfo(url, "BioCarta.owl.gz")
+    checkTrue(is(ans, "data.frame"))
+    checkIdentical(names(ans), c("fileurl", "date", "size"))
+    checkTrue(nrow(ans) == 1L)
 
-    fileInfo2 <- AnnotationHubData:::.ftpFileInfo(bioPaxUrl, "NCI-Nature_Curated.owl.gz", "testgenome")
-    checkTrue(validObject(fileInfo2))
-    checkEquals(length(fileInfo2), 4)
+    ans <- .ftpFileInfo(url, ".gz")
+    checkEquals(nrow(ans), 6L)
 
-    fileInfo3 <- AnnotationHubData:::.ftpFileInfo(bioPaxUrl, "FILE_THAT_DOESNT_EXIST.gz", "testgenome")
-    checkTrue(is.na(fileInfo3["size"])[1])
-    # checkException(.isComplete(invalid), silent=TRUE)
-    # checkIdentical(ahm, ahm1)
+    ans <- .ftpFileInfo(url, "FILE_THAT_DOESNT_EXIST.gz")
+    checkTrue(is(ans, "data.frame"))
+    checkIdentical(names(ans), c("fileurl", "date", "size"))
+    checkTrue(nrow(ans) == 0L)
     tearDown()
 }
 
-## FIXME: AFAICT this isn't used in AHD; do we need this?
-##        FYI httr::HEAD() >= 1.1.0 supports http only, not ftp
-test_fileExistsOnline <- function(){
-    url <- "http://www.biopax.org/release/biopax-level2.owl"
-    result <- AnnotationHubData:::.fileExistsOnline(url)
-    checkEquals(result[[1]], TRUE)
-
-    url <- "http://www.biopax.org/release/FOO.gz"
-    failureResult <- AnnotationHubData:::.fileExistsOnline(url)
-    checkEquals(failureResult[[1]], FALSE)
-}
-
-test_ftpDirectoryInfo <- function(){
-  setup()
-  res <- AnnotationHubData:::.ftpDirectoryInfo(bioPaxUrl)
-  checkTrue(length(res) > 0)
-  tearDown()
-}
-
 test_listRemoteFiles <- function(){
-  setup()
-  res <- AnnotationHubData:::.listRemoteFiles(bioPaxUrl)
-  checkTrue(length(res) > 0)
-  tearDown()
+    setup()
+    url <- "ftp://ftp1.nci.nih.gov/pub/PID/BioPAX/"
+    ans <- .listRemoteFiles(url)
+    checkTrue(is(ans, "character"))
+    checkTrue(is.null(names(ans)))
+    checkTrue(length(ans) == 6L)
+    tearDown()
 }
 
+## FIXME: revisit this when working on UCSCTrackUpdateChecker.R
 test_getGenomeAbbrevs <- function(){
   smallSample <- c("hg19", "hg18", "hg17")
-  actualResult <- AnnotationHubData:::.getGenomeAbbrevs(smallSample)
-  warning(paste0("\nResult from 'getGenomeAbbrevs': ",actualResult), immediate.=TRUE)
+  actualResult <- .getGenomeAbbrevs(smallSample)
   expectedResult <- sort(smallSample)
   checkEquals(actualResult, expectedResult)
 
@@ -97,7 +77,6 @@ test_getGenomeAbbrevs <- function(){
   # You should notice, however that results are returned in a sorted order.
   sampleWithSymlink <- c("hg15", "cb1", "rn2", "ce1")
   resultWithSymlink <- AnnotationHubData:::.getGenomeAbbrevs(sampleWithSymlink)
-  warning(paste0("\nResult from 'getGenomeAbbrevs': ",resultWithSymlink), immediate.=TRUE)
   expectedResult <- sort(sampleWithSymlink)
   checkEquals(resultWithSymlink, expectedResult)
 }

@@ -46,8 +46,10 @@
 
     if (justRunUnitTest)
         urls <- urls[1]
-    df <- .ftpFileInfo(url=urls, extension="vcf.gz", tag=names(urls), files)
-    df$genome <- gsub("GRCh37clinical", "GRCh37", df$genome)
+  
+    genome <- rep(names(urls), each=length(files))
+    df <- .ftpFileInfo(url=urls, extension=paste0(files, ".vcf.gz"))
+    df$genome <- gsub("GRCh37clinical", "GRCh37", genome)
     df <- cbind(df, title=basename(df$fileurl), stringsAsFactors = FALSE)
     rownames(df) <- NULL
  

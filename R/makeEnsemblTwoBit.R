@@ -26,10 +26,11 @@
 ## metadata generator
 makeEnsemblTwoBitToAHM <- # TODO: Add man page for this function
     function(currentMetadata, baseUrl = "ftp://ftp.ensembl.org/pub/",
-             baseDir = "fasta/", regex,
+             baseDir = "fasta/", release,
              justRunUnitTest = FALSE, BiocVersion = biocVersion())
 {
     time1 <- Sys.time()
+    regex <- paste0(".*release-", release)
     sourceUrl <- .ensemblFastaSourceUrls(baseUrl, baseDir, regex,
         baseTypes=.ensemblTwoBitTypes)
     if (justRunUnitTest)
