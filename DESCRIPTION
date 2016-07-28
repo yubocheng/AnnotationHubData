@@ -45,7 +45,6 @@ Collate:
     makeGencodeFasta.R
     makeGencodeGFF.R
     makeGrasp2Db.R
-    makeGSE62944ToExpressionSet.R
     makeHaemCode.R
     makeInparanoid8ToDbs.R
     makeNCBIToOrgDbs.R
