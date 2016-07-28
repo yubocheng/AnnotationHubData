@@ -2,21 +2,13 @@
 ## Tests to just see if we can run all of our recipes
 
 ahroot <- getwd() 
-BiocVersion <- "3.1" 
+BiocVersion <- "3.4" 
 
-test_HaemCodeImportPreparer_recipe <- function() {
-    ahms = updateResources(ahroot, BiocVersion,
-      preparerClasses = "HaemCodeImportPreparer",
-      insert = FALSE, metadataOnly=TRUE, justRunUnitTest=TRUE)
-    checkTrue(class(ahms[[1]])=="AnnotationHubMetadata")
-}
+## No longer used:
+## test_HaemCodeImportPreparer_recipe 
+## test_Inparanoid8ImportPreparer_recipe 
+## test_BioPaxImportPreparer_recipe 
 
-test_BioPaxImportPreparer_recipe <- function() {
-    ahms = updateResources(ahroot, BiocVersion,
-      preparerClasses = "BioPaxImportPreparer",
-      insert = FALSE, metadataOnly=TRUE, justRunUnitTest=TRUE)
-    checkTrue(class(ahms[[1]])=="AnnotationHubMetadata")
-}
 
 test_UCSCChainPreparer_recipe <- function() {
     ahms = updateResources(ahroot, BiocVersion,
@@ -82,14 +74,6 @@ test_NCBIImportPreparer_recipe <- function() {
     checkTrue(class(ahms[[1]])=="AnnotationHubMetadata")
 }
 
-t_GSE62944_recipe <- function() {
-    ahms = updateResources(ahroot, BiocVersion,
-                           preparerClasses = "GSE62944ToExpressionSetPreparer",
-                           insert = FALSE, metadataOnly=TRUE,
-                           justRunUnitTest=TRUE)
-    checkTrue(class(ahms[[1]])=="AnnotationHubMetadata")
-}
-
 test_Grasp2Db_recipe <- function() {
     ahms = updateResources(ahroot, BiocVersion,
                            preparerClasses = "Grasp2ImportPreparer",
@@ -126,14 +110,3 @@ test_GencodeFasta <- function() {
                            release="23")
     checkTrue(class(ahms[[1]])=="AnnotationHubMetadata")
 }
-
-## FIXME: broken
-#test_Inparanoid8ImportPreparer_recipe <- function() {
-#    suppresWarnings({
-#    ahms = updateResources(ahroot, BiocVersion,
-#                           preparerClasses = "Inparanoid8ImportPreparer",
-#                           insert = FALSE, metadataOnly=TRUE,
-#                           justRunUnitTest=TRUE)
-#    })
-#    checkTrue(class(ahms[[1]])=="AnnotationHubMetadata")
-#}

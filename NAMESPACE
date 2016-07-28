@@ -1,81 +1,71 @@
+import(methods)
+importFrom(utils)
+import(S4Vectors)
+import(IRanges)
+import(GenomicRanges)
+import(AnnotationHub)
 
-importClassesFrom(methods, character, environment, envRefClass,
-                  integer, list, logical, numeric, oldClass, POSIXct)
+import(OrganismDbi)
+import(GenomicFeatures)
+
+importFrom(GEOquery, getGEOSuppFiles)
 importMethodsFrom(AnnotationDbi, exists, get, saveDb)
 importMethodsFrom(BiocGenerics, mapply, Map)
 importMethodsFrom(Biostrings, head, substr)
 importMethodsFrom(DBI, dbDriver)
-importMethodsFrom(GenomicRanges, seqinfo, "seqinfo<-", strand)
-importMethodsFrom(IRanges,  append, as.data.frame, cbind,
-                  colnames, "colnames<-", duplicated, end, gsub,
-                  intersect, lapply, match, merge, nchar, ncol, order,
-                  rbind, rownames, "rownames<-", setdiff,
-                  splitAsList, start, sub, table, tolower,
-                  unique, unlist, which)
-importMethodsFrom(methods, show)
 importMethodsFrom(Rsamtools, indexFa)
 importMethodsFrom(RSQLite, dbConnect, dbGetQuery)
-importMethodsFrom(rtracklayer, browserSession, "genome<-", getTable,
-                  import, "tableName<-", tableNames, track,
-                  "trackName<-", trackNames, ucscTableQuery, export)
-importMethodsFrom(S4Vectors, as.factor, complete.cases, do.call, grep,
-                  grepl, ifelse, levels, mcols, "mcols<-",
-                  metadata, "metadata<-", Reduce, sapply, split, t)
-
-
-
-
+importMethodsFrom(rtracklayer, 
+    browserSession, "genome<-", getTable,
+    import, "tableName<-", tableNames, track,
+    "trackName<-", trackNames, ucscTableQuery, export
+)
 importFrom(BiocInstaller, biocLite, biocVersion)
 importFrom(Biobase, AnnotatedDataFrame, ExpressionSet)
-importFrom(S4Vectors, DataFrame, isSingleInteger, isSingleString,
-           isSingleStringOrNA, wmsg)
-importFrom(IRanges, IRanges)
 importFrom(GenomeInfoDb, Seqinfo)
-importFrom(GenomicRanges, GRanges)
-import(GenomicFeatures)
-importFrom(GEOquery, getGEOSuppFiles)
-import(OrganismDbi)
 importFrom(rBiopaxParser, readBiopax)
 importFrom(rtracklayer, GRangesForUCSCGenome, ucscGenomes)
 importFrom(Rsamtools, razip)
-import(AnnotationHub)
-import(IRanges)
-importFrom(AnnotationForge, makeInpDb,
-           makeOrgPackageFromNCBI)
+importFrom(AnnotationForge, makeInpDb, makeOrgPackageFromNCBI)
 importFrom(AnnotationDbi, loadDb)
-
-
-importFrom(methods, as, getClassDef, is, isClass, new, setClass,
-           setMethod, slot, slotNames)
 importFrom(tools, file_ext)
-importFrom(futile.logger, ERROR, INFO, TRACE, appender.file, flog.appender,
-           flog.threshold, flog.info)
+importFrom(futile.logger, 
+    ERROR, INFO, TRACE, appender.file, flog.appender,
+    flog.threshold, flog.info
+)
 importFrom(jsonlite, fromJSON, toJSON)
-importFrom(httr, config, content, DELETE, GET, handle, handle_find,
-           HEAD, headers, POST, stop_for_status)
+importFrom(httr, 
+    config, content, DELETE, GET, handle, handle_find,
+    HEAD, headers, POST, stop_for_status
+)
 importFrom(curl, new_handle, curl, handle_setopt)
 importFrom(parallel, detectCores)
-importFrom(utils, data, download.file, read.delim, read.table, untar)
 importFrom(stats, setNames)
 importFrom(XML, readHTMLTable, xmlParse, xmlValue)
 importFrom(xml2, xml_find_all, xml_contents)
 importFrom(RSQLite, SQLite)
 importFrom(graphics, title)
 
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### Export S4 classes
+###
 
+exportClasses(
+    HubMetadata,
+    AnnotationHubMetadata,
+    ImportPreparer,
+    UCSCTrackImportPreparer,
+    UCSCChainPreparer,
+    Grasp2ImportPreparer,
+    EnsemblGtfImportPreparer,
+    EnsemblFastaImportPreparer,
+    Inparanoid8ImportPreparer,
+    NCBIImportPreparer
+)
 
-exportClasses(HubMetadata,
-              AnnotationHubMetadata,
-              ImportPreparer,
-              ## For new preparer classes:
-              ## Don't forget to add alias to 'ImportPreparer-class.Rd'
-              UCSCTrackImportPreparer,
-              UCSCChainPreparer,
-              Grasp2ImportPreparer,
-              EnsemblGtfImportPreparer,
-              EnsemblFastaImportPreparer,
-              Inparanoid8ImportPreparer,
-              NCBIImportPreparer)
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### Export non-generic functions
+###
 
 export(
     AnnotationHubMetadata,
@@ -95,21 +85,40 @@ export(
     ensemblFastaToFaFile,
     ensemblFastaToTwoBitFile,
     ahmToJson,
-    newResources, updateResources, deleteResources, runRecipes,
+    newResources, updateResources, deleteResources,
     pushMetadata, pushResources,
-    hubError,
-
     makeGencodeFastaToAHM, gencodeFastaToFaFile
 )
 
-exportMethods(
-    show,
-    run,
-    recipeName,
-    inputFiles, outputFile, hubError, "hubError<-",
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### Export S4 generics defined in AnnotationHubData + export corresponding
+### methods
+###
+
+export(
+    recipeName, run, runRecipes, 
+    hubError, "hubError<-",
+    inputFiles, outputFile,
     metadata, "metadata<-",
     metadataList, metadataTable,
     annotationHubRoot,
-    sourceUrls,
-    runRecipes
+    sourceUrls
+)
+
+exportMethods(
+    recipeName, run, runRecipes, 
+    hubError, "hubError<-",
+    inputFiles, outputFile,
+    metadata, "metadata<-",
+    metadataList, metadataTable,
+    annotationHubRoot,
+    sourceUrls
+)
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### Export S4 methods for generics not defined in AnnotationHubData
+###
+
+exportMethods(
+    show
 )

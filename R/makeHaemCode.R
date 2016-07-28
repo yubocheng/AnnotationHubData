@@ -1,3 +1,18 @@
+## This recipe is no longer used. Download site has moved from the hard coded 
+## location to 
+## http://codex.stemcells.cam.ac.uk/browse.php?repository=haemcode&organism=mmu
+## If this is resurrected, reinstate unit test with a smaller file
+## used for justRunUnitTest=TRUE.
+##
+#  test_HaemCodeImportPreparer_recipe <- function() {
+#      ahms = updateResources(ahroot, BiocVersion,
+#          preparerClasses = "HaemCodeImportPreparer",
+#          insert = FALSE, metadataOnly=TRUE, justRunUnitTest=TRUE)
+#      checkTrue(class(ahms[[1]])=="AnnotationHubMetadata")
+#}
+
+
+
 .haemcodeBaseUrl <- "http://haemcode.stemcells.cam.ac.uk/"
 
 .getHaemCodeFileNames <- function(justRunUnitTest) {
@@ -29,8 +44,8 @@
     fileurls <- unlist(fileurls) 
     
     if(justRunUnitTest) {
-       fileurls <- fileurls[c(1,2,326,327, 638,639)]
-       metadata <- metadata[c(1,2,326,327, 638,639)]
+       fileurls <- fileurls[c(1,2)]
+       metadata <- metadata[c(1,2)]
     }
 
     list(files= fileurls, metadata = metadata)

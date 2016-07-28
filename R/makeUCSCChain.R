@@ -64,7 +64,7 @@
     urls <- sprintf("%s/%s/%s", .fileBase, genomes, dirName)
     
     if(justRunUnitTest)
-       	urls <- urls[1]
+       	urls <- tail(urls, n=1)
        
     rsrc <- do.call(rbind, lapply(urls, .getchainFiles, 
         fileName=fileName, verbose=verbose))

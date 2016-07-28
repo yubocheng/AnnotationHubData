@@ -1,5 +1,15 @@
-## This is an example of how to add resources to the hub in three steps
+## This recipe is no longer used. If reinstated, add this unit test
+## back to test_recipes.R
 
+test_Inparanoid8ImportPreparer_recipe <- function() {
+    suppresWarnings({
+    ahms = updateResources(ahroot, BiocVersion,
+                           preparerClasses = "Inparanoid8ImportPreparer",
+                           insert = FALSE, metadataOnly=TRUE,
+                           justRunUnitTest=TRUE)
+    })
+    checkTrue(class(ahms[[1]])=="AnnotationHubMetadata")
+}
 
 ## helper to make metadata list from the data
 .inparanoidMetadataFromUrl <- function(baseUrl, justRunUnitTest) {

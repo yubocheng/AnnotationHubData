@@ -1,3 +1,13 @@
+## This recipe is no longer used. If reinstated, add unit test back
+## to test_recipes.R.
+
+test_BioPaxImportPreparer_recipe <- function() {
+    ahms = updateResources(ahroot, BiocVersion,
+      preparerClasses = "BioPaxImportPreparer",
+      insert = FALSE, metadataOnly=TRUE, justRunUnitTest=TRUE)
+    checkTrue(class(ahms[[1]])=="AnnotationHubMetadata")
+}
+
 .nihBaseUrl <- "ftp://ftp1.nci.nih.gov/"
 .amazonBaseUrl <- "http://s3.amazonaws.com/annotationhub/"
 
