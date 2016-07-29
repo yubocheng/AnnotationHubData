@@ -44,7 +44,7 @@ makeEnsemblTwoBitToAHM <- # TODO: Add man page for this function
         SourceSize=meta$sourceSize,
         SourceLastModifiedDate=meta$sourceLastModifiedDate,
         MoreArgs=list(
-            BiocVersion=BiocVersion,
+            BiocVersion=package_version(BiocVersion),
             Coordinate_1_based = TRUE,
             DataProvider="Ensembl",
             Maintainer = "Bioconductor Maintainer <maintainer@bioconductor.org>",
