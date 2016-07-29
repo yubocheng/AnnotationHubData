@@ -3,29 +3,15 @@
 ### -------------------------------------------------------------------------
 ###
 
-## Adjust this expression in order to save painful-reprocessing of older files.
-## .ensemblReleaseRegex <- ".*release-(69|7[[:digit:]]|8[[:digit:]])"
-## .ensemblReleaseRegex <- ".*release-(79|8[[:digit:]])"
-## for a speed run just do one set
-## .ensemblReleaseRegex <- ".*release-82"
-
-## Much of the code needed by the following functions is already in "makeEnsemblFasta.R".
-
-# .ensemblTwoBitTypes <-
-#     c("cdna.all", "dna_rm.toplevel", "dna_sm.toplevel",
-#       "dna.toplevel", "ncrna")
 .ensemblTwoBitTypes <-
     c("cdna\\.all", "dna_rm\\.(primary_assembly|toplevel)",
       "dna_sm\\.(primary_assembly|toplevel)",
       "dna\\.(primary_assembly|toplevel)", "ncrna")
 
-## For testing
-#.ensemblTwoBitTypes <- c("primary_assembly")
-#.ensemblTwoBitTypes <- c("Oryctolagus_cuniculus.+?cdna\\.all")
-
-## metadata generator
+## Metadata generator
+## 'release' should be a single integer, e.g., 84
 makeEnsemblTwoBitToAHM <- # TODO: Add man page for this function
-    function(currentMetadata, baseUrl = "ftp://ftp.ensembl.org/pub/",
+    function(currentMetadata=getwd(), baseUrl = "ftp://ftp.ensembl.org/pub/",
              baseDir = "fasta/", release,
              justRunUnitTest = FALSE, BiocVersion = biocVersion())
 {
@@ -70,9 +56,9 @@ makeEnsemblTwoBitToAHM <- # TODO: Add man page for this function
             Tags=c("TwoBit", "ensembl", "sequence", "2bit", "FASTA")))
 }
 
-## Recipe: Convert .fa file to .2bit
 ensemblFastaToTwoBitFile <- function(ahm)
 {
+    ## Convert .fa file to .2bit
     twobitOut <- outputFile(ahm)[[1]]
     srcFile <- sub('\\.2bit','.fa.gz', twobitOut)
     dna <- import(srcFile, "FASTA")

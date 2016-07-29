@@ -38,7 +38,10 @@
        ftpInfo <- .httrFileInfo(sourceUrl)
        sourceSize <- ftpInfo$size
        sourceLastModDate <- ftpInfo$date
-    } else sourceSize <- sourceLastModDate <- NA
+    } else {
+        sourceSize <- as.numeric(NA)
+        sourceLastModDate <- as.POSIXct(NA)
+    }
 
     list(annotationHubRoot = root, title=title, species = species,
          taxonomyId = as.integer(taxonomyId),
