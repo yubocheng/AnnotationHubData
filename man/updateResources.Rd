@@ -116,7 +116,7 @@ updateResources(AnnotationHubRoot, BiocVersion = biocVersion(),
 ## process any data.
 
 meta <- updateResources("/local/path", 
-                        BiocVersion = c("3.3"),
+                        BiocVersion = "3.3",
                         preparerClasses = "EnsemblFastaImportPreparer",
                         metadataOnly = TRUE, insert = FALSE,
                         justRunUnitTest = TRUE,
