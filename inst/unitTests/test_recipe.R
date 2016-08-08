@@ -1,13 +1,13 @@
 ################################################################################
 ## Tests to just see if we can run all of our recipes
 
-ahroot <- getwd() 
-BiocVersion <- "3.4" 
+ahroot <- getwd()
+BiocVersion <- "3.4"
 
 ## No longer used:
-## test_HaemCodeImportPreparer_recipe 
-## test_Inparanoid8ImportPreparer_recipe 
-## test_BioPaxImportPreparer_recipe 
+## test_HaemCodeImportPreparer_recipe
+## test_Inparanoid8ImportPreparer_recipe
+## test_BioPaxImportPreparer_recipe
 
 
 test_UCSCChainPreparer_recipe <- function() {
@@ -16,7 +16,7 @@ test_UCSCChainPreparer_recipe <- function() {
         insert = FALSE, metadataOnly=TRUE, justRunUnitTest=TRUE)
     checkTrue(class(ahms[[1]])=="AnnotationHubMetadata")
 }
- 
+
 test_UCSC2BitPreparer_recipe <- function() {
     ahms = updateResources(ahroot, BiocVersion,
         preparerClasses = "UCSC2BitPreparer",
@@ -44,7 +44,7 @@ test_dbSNPVCFPreparer_recipe <- function() {
         insert = FALSE, metadataOnly=TRUE, justRunUnitTest=TRUE)
     checkTrue(class(ahms[[1]])=="AnnotationHubMetadata")
 }
- 
+
 test_RefNetImportPreparer_recipe <- function() {
     ahms = updateResources(ahroot, BiocVersion,
         preparerClasses = "RefNetImportPreparer",
@@ -83,10 +83,16 @@ test_Grasp2Db_recipe <- function() {
 }
 
 ## FIXME: add test_EnsemblFasta
+test_EnsmblFastaTwoBitToAHM <- function() {
+    ahms = updateResources(ahroot, BiocVersion,
+                           preparerClasses = "EnsemblTwoBitPreparer",
+                           insert = FALSE, metadataOnly = TRUE,
+                           justRunUnitTest = TRUE, release = 85)
+    checkTrue(class(ahms[[1]]) == "AnnotationHubMetadata")
+}
+
 
 test_EnsemblGtfToGRanges_recipe <- function() {
-    ## FIXME: Error in function (type, msg, asError = TRUE)  : <not set>
-    ##        related to version of curl on windows builder?
     ahms = updateResources(ahroot, BiocVersion,
                            preparerClasses = "EnsemblGtfImportPreparer",
                            insert = FALSE, metadataOnly=TRUE,
