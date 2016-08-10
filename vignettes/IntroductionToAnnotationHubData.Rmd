@@ -40,37 +40,32 @@ organism or genome build not supported in the
 [Biocondcutor annotation repository](http://www.bioconductor.org/packages/release/BiocViews.html#___AnnotationData)
 can be done through the following steps: 
 
-1. Notify `Bioconductor` team member
+1. Notify `Bioconductor` team member:  
+   Adding the data to AWS S3 and the metadata to the production database 
+   involves assistance from a `Bioconductor` team member. Please send email 
+   to packages@bioconductor.org so a team member can work with you through the
+   process.
 
-Adding the data to AWS S3 and the metadata to the production database involves
-assistance from a `Bioconductor` team member. Please send email to 
-packages@bioconductor.org so a team member can work with you through the 
-process.
+2. Prepare the data:  
+   In the case of an OrgDb object, only the sqlite file is stored in S3.
+   See makeOrgPackageFromNCBI() and makeOrgPackage() in the AnnotationForge
+   package for help creating the sqlite file. BSgenome objects should be made 
+   according to the steps outline in the
+   [BSgenome
+   vignette](http://www.bioconductor.org/packages/3.4/bioc/vignettes/BSgenome/inst/doc/BSgenomeForge.pdf). TxDb objects will be made on-the-fly from a 
+   GRanges with GenomicFeatures::makeTxDbFromGRanges() when the resource is
+   downloaded from `AnnotationHub`. Data should be provided as a GRanges
+   object. See GenomicRanges::makeGRangesFromDataFrame() or
+   rtracklayer::import() for help creating the GRanges.
 
-2. Prepare the data
-
-In the case of an OrgDb object, only the sqlite file is stored in S3.
-See makeOrgPackageFromNCBI() and makeOrgPackage() in the AnnotationForge
-package for help creating the sqlite file.
-
-BSgenome objects should be made according to the steps outline in the
-[BSgenome vignette](http://www.bioconductor.org/packages/3.4/bioc/vignettes/BSgenome/inst/doc/BSgenomeForge.pdf)
-
-TxDb objects will be made on-the-fly from a GRanges with
-GenomicFeatures::makeTxDbFromGRanges() when the resource is downloaded from
-`AnnotationHub`. Data should be provided as a GRanges
-object. See GenomicRanges::makeGRangesFromDataFrame() or
-rtracklayer::import() for help creating the GRanges.
-
-3. Generate metadata 
-
-Prepare a .R file that generates metadata for the resource(s) by calling
-the AnnotationHubData::AnnotationHubMetadata() constructor. Argument
-details are found on the ?AnnotationHubMetadata man page.
-
-As an example, this piece of code generates the metadata for Timothée's 
-the Vitis vinifera TxDb Timothée Flutre contributed to AnnotationHub:
-
+3. Generate metadata:  
+   Prepare a .R file that generates metadata for the resource(s) by calling
+   the AnnotationHubData::AnnotationHubMetadata() constructor. Argument
+   details are found on the ?AnnotationHubMetadata man page.
+ 
+   As an example, this piece of code generates the metadata for Timothée's 
+   the Vitis vinifera TxDb Timothée Flutre contributed to AnnotationHub:
+ 
 ```{r, TxDb_Metadata, eval=FALSE}
 metadata <- AnnotationHubMetadata(
     Description="Gene Annotation for Vitis vinifera",
@@ -97,9 +92,8 @@ metadata <- AnnotationHubMetadata(
 )
 ```
 
-4. Add data to S3 and metadata to the production database
-
-This last step is done by the `Biocondcutor` team member.
+4. Add data to S3 and metadata to the database:  
+   This last step is done by the `Biocondcutor` team member.
 
 
 ## Contribute a family of resources 
@@ -112,19 +106,17 @@ are stored in AWS S3 buckets instead of the software package.
 
 Creating the package involves the following steps:
 
-1. Notify `Bioconductor` team member
+1. Notify `Bioconductor` team member:  
+   The man page and vignette examples in the software package will not work until
+   the data are available in AnnotationHub. Adding the data to AWS S3 and the
+   metadata to the production database involves assistance from a `Bioconductor`
+   team member.  If you are interested in submitting a package, please send an
+   email to packages@bioconductor.org so a team member can work with you through
+   the process.
 
-The man page and vignette examples in the software package will not work until
-the data are available in AnnotationHub. Adding the data to AWS S3 and the
-metadata to the production database involves assistance from a `Bioconductor`
-team member.  If you are interested in submitting a package, please send an
-email to packages@bioconductor.org so a team member can work with you through
-the process.
-
-2. Building the software package
-
-Below is an outline of package organization. The files listed are required
-unless otherwise stated. 
+2. Building the software package:  
+   Below is an outline of package organization. The files listed are required
+   unless otherwise stated. 
 
 * inst/extdata/
     - metadata.csv: 
@@ -199,24 +191,21 @@ unless otherwise stated.
     myfiles[[1]]  ## load the first resource in the list
     ```
 
-* DESCRIPTION / NAMESPACE
+* DESCRIPTION / NAMESPACE  
+The package should depend on and fully import AnnotationHub.
+Package authors are encouraged to use the AnnotationHub::listResources() and 
+AnnotationHub::loadResource() functions in their man pages and vignette.
+These helpers are designed to facilitate data discovery within a specific
+package vs within all of AnnotationHub.
 
-    The package should depend on and fully import AnnotationHub.
-    Package authors are encouraged to use the AnnotationHub::listResources() and 
-    AnnotationHub::loadResource() functions in their man pages and vignette.
-    These helpers are designed to facilitate data discovery within a specific
-    package vs within all of AnnotationHub.
 
+3. Data objects:  
+Data are not formally part of the software package and are stored 
+separately in AWS S3 buckets. The author should make the data available 
+via dropbox, ftp or another mutually accessible application and it will 
+be uploaded to S3 by a member of the `Bioconductor` team.
 
-3. Data objects
-
-Data are not formally part of the software package and are stored separately in
-AWS S3 buckets. The author should make the data available via dropbox, ftp or
-another mutually accessible application and it will be uploaded to S3 by a
-member of the `Bioconductor` team.
-
-4. Package review 
-
+4. Package review:  
 When the data and metadata are ready, a `Bioconductor` team member will push
 the data to AWS S3 and add the metadata to the production database. At this
 point the package man pages and vignette can be finalized. When the package
@@ -228,7 +217,7 @@ tracker](https://github.com/Bioconductor/Contributions) for review.
 
 Multiple versions of the data can be added to the same package as they
 become available. Be sure the title is descriptive and reflects the
-distinguishing information such as genome build Adding more resources of the same typeto an existing package requires the following steps:
+distinguishing information such as version or genome build.
 
 * make data available via dropbox, ftp, etc. and notify 
   maintainer@bioconductor.org
