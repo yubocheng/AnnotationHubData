@@ -96,44 +96,83 @@ makeAnnotationHubResource(objName, makeAnnotationHubMetadataFunction,
 }
 
 \arguments{
-    \item{AnnotationHubRoot}{\code{character(1)} Absolute path to
-        directory structure containing resources to be added to
-        AnnotationHub}
-    \item{SourceUrl}{\code{character()} URL where resource(s) can be
-        found}
-    \item{SourceType}{\code{character()} which indicates what kind of
-    resource was initially processed.  The preference is to name the
-    type of resource if it's a single file type and to name where the
-    resources came from if it is a compound resource.  So Typical
-    answers would be like: 'BED','FASTA' or 'Inparanoid' etc.}
-    \item{SourceVersion}{\code{character(1)} Version of original file}
-    \item{SourceLastModifiedDate}{\code{POSIXct()} The date when the
-    source was last modified.  Leaving this blank should allow the
-    values to be retrieved for you (if your sourceURL is valid).}
-    \item{SourceMd5}{\code{character()} md5 hash of original file}
-    \item{SourceSize}{\code{numeric(1)} Number of bytes in original file}
-    \item{DataProvider}{\code{character(1)} Where did this resource come
-        from?}
-    \item{Title}{\code{character(1)} Title for this resource}
-    \item{Description}{\code{character(1)} Description of the resource}
-    \item{Species}{\code{character(1)} Species name}
-    \item{TaxonomyId}{\code{character(1)}  NCBI code}
-    \item{Genome}{\code{character(1)} Name of genome build}
-    \item{Tags}{\code{character()} Free-form tags}
-    \item{Recipe}{\code{character(1)} Name of recipe function}
-    \item{RDataClass}{\code{character(1)} Class of derived object
-        (e.g. \sQuote{GRanges})}
-    \item{RDataDateAdded}{\code{POSIXct()} Date added to
-        AnnotationHub. Used to determine snapshots.}
-    \item{RDataPath}{\code{character(1)} file path to serialized form}
-    \item{Maintainer}{\code{character(1)} Maintainer name and email
-        address, \sQuote{A Maintainer \url{a.maintainer@email.addr}}}
-    \item{BiocVersion}{\code{character(1)} Under which resource was built}
-    \item{Coordinate_1_based}{\code{logical(1)} Do coordinates start
-        with 1 or 0?}
-    \item{DispatchClass}{\code{character(1)} string used to indicate
-    which code should be called by the client when the resource is
-    downloaded.  This is often the same as the RDataClass.  But it is
+    \item{AnnotationHubRoot}{
+      \code{character(1)} Absolute path to directory structure 
+      containing resources to be added to AnnotationHub. Internal use only.
+    }
+    \item{SourceUrl}{
+      \code{character()} URL of original resource(s).
+    }
+    \item{SourceType}{
+      \code{character()} Form of original data, e.g., BED, FASTA, etc.
+    }
+    \item{SourceVersion}{
+      \code{character(1)} Version of original file.
+    }
+    \item{SourceLastModifiedDate}{
+      \code{POSIXct()} The date when the source was last modified.
+    }
+    \item{SourceMd5}{
+      \code{character()} md5 hash of original file.
+    }
+    \item{SourceSize}{
+      \code{numeric(1)} Size of original file in bytes.
+    }
+    \item{DataProvider}{
+      \code{character(1)} Provider of original data, e.g., NCBI, UniProt etc.
+    }
+    \item{Title}{
+      \code{character(1)} Title for the resource with version or genome
+      build as appropriate.
+    }
+    \item{Description}{
+      \code{character(1)} Description of the resource. May include
+      details such as data type, format, study origin, sequencing technology, 
+      treated vs control, number of samples etc.}
+    \item{Species}{
+      \code{character(1)} Species name.
+    }
+    \item{TaxonomyId}{
+      \code{character(1)}  NCBI code
+    }
+    \item{Genome}{
+      \code{character(1)} Name of genome build.
+    }
+    \item{Tags}{
+      \code{character()} Free-form tags that serve as search terms.
+    }
+    \item{Recipe}{
+      \code{character(1)} Name of recipe function. Only applicable to
+      recipes created by the Bioconductor core team and included in
+      AnnotationHubData base code.
+    }
+    \item{RDataClass}{
+      \code{character(1)} Class of derived R object, e.g., GRanges.
+    }
+    \item{RDataDateAdded}{
+      \code{POSIXct()} Date resource was added to AnnotationHub; used to 
+      determine snapshots.
+    }
+    \item{RDataPath}{
+      \code{character(1)} File path to serialized form. Internal use only.
+    }
+    \item{Maintainer}{
+      \code{character(1)} Maintainer name and email address, e.g.,
+      \sQuote{YourName \url{YourName@email.com}}
+    }
+    \item{BiocVersion}{
+      \code{character(1)} The first Biocondcutor version the resource
+      will be made available under. Default is the current version,
+      specified with biocVersion().}
+    \item{Coordinate_1_based}{
+      \code{logical(1)} Do coordinates start with 1 or 0?
+    }
+    \item{DispatchClass}{
+      \code{character(1)} String used AnnotationHub:::.get1() method dispatch
+      when loading the resource. If the data are saved as .rda files this
+      value should be "Rda". Other possible classes can be see in 
+      AnnotationHub
+      This is often the same as the RDataClass.  But it is
     allowed to be a different value so that the client can do something
     different internally if required.}
     \item{Location_Prefix}{\code{character(1)} This was added for
