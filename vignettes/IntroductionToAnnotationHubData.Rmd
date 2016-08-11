@@ -26,9 +26,9 @@ through the `AnnotationHub` client interface.
 # New resources
 
 Multiple, related resources are added to `AnnotationHub` by creating a software
-package, similar in structure to the existing annotation packages.  Individual
-objects of a standard class structure, e.g., a single TxDb or OrgDb, can be
-added by supplying just the data and metadata to a `Bioconductor` team member.
+package similar to the existing annotation packages.  Individual
+objects of a standard class, e.g., a single TxDb or OrgDb, are added
+by providing the data and metadata to a `Bioconductor` team member.
 Both approaches are described below.
 
 ## Contribute OrgDb, TxDb, or BSgenome objects
