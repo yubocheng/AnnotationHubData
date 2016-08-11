@@ -48,7 +48,7 @@ can be done through the following steps:
 
 2. Prepare the data:  
    In the case of an OrgDb object, only the sqlite file is stored in S3.
-   See makeOrgPackageFromNCBI() and makeOrgPackage() in the AnnotationForge
+   See makeOrgPackageFromNCBI() and makeOrgPackage() in the `AnnotationForge`
    package for help creating the sqlite file. BSgenome objects should be made 
    according to the steps outline in the
    [BSgenome
@@ -60,11 +60,11 @@ can be done through the following steps:
 
 3. Generate metadata:  
    Prepare a .R file that generates metadata for the resource(s) by calling
-   the AnnotationHubData::AnnotationHubMetadata() constructor. Argument
-   details are found on the ?AnnotationHubMetadata man page.
+   the `AnnotationHubData::AnnotationHubMetadata()` constructor. Argument
+   details are found on the ?`AnnotationHubMetadata` man page.
  
    As an example, this piece of code generates the metadata for Timothée's 
-   the Vitis vinifera TxDb Timothée Flutre contributed to AnnotationHub:
+   the Vitis vinifera TxDb Timothée Flutre contributed to `AnnotationHub`:
  
 ```{r, TxDb_Metadata, eval=FALSE}
 metadata <- AnnotationHubMetadata(
@@ -108,7 +108,7 @@ Creating the package involves the following steps:
 
 1. Notify `Bioconductor` team member:  
    The man page and vignette examples in the software package will not work until
-   the data are available in AnnotationHub. Adding the data to AWS S3 and the
+   the data are available in `AnnotationHub`. Adding the data to AWS S3 and the
    metadata to the production database involves assistance from a `Bioconductor`
    team member.  If you are interested in submitting a package, please send an
    email to packages@bioconductor.org so a team member can work with you through
@@ -151,9 +151,9 @@ Creating the package involves the following steps:
   - make-metadata.R:
 
     Code that assembles metadata for all resources and calls 
-    AnnotationHubData::AnnotationHubMetadata(). The output should be a list
-    of AnnotationHubMetadata objects, one for each resource. Examples functions
-    can be found in the AnnotationHubData source code with names of 
+    `AnnotationHubData::AnnotationHubMetadata()`. The output should be a list
+    of `AnnotationHubMetadata` objects, one for each resource. Examples functions
+    can be found in the `AnnotationHubData` source code with names of 
     make*ToAHM().
 
   - make-data.R:
@@ -181,7 +181,7 @@ Creating the package involves the following steps:
     man page.
  
     The man page(s) should demonstrate how the data can be loaded through the 
-    AnnotationHub interface. Replace 'PACKAGENAME' below with the name of
+    `AnnotationHub` interface. Replace 'PACKAGENAME' below with the name of
     your package:
 
     ```
@@ -192,11 +192,11 @@ Creating the package involves the following steps:
     ```
 
 * DESCRIPTION / NAMESPACE  
-The package should depend on and fully import AnnotationHub.
-Package authors are encouraged to use the AnnotationHub::listResources() and 
-AnnotationHub::loadResource() functions in their man pages and vignette.
+The package should depend on and fully import `AnnotationHub`.
+Package authors are encouraged to use the `AnnotationHub::listResources()` and 
+`AnnotationHub::loadResource()` functions in their man pages and vignette.
 These helpers are designed to facilitate data discovery within a specific
-package vs within all of AnnotationHub.
+package vs within all of `AnnotationHub`.
 
 
 3. Data objects:  
@@ -249,18 +249,18 @@ A bug fix may involve a change to the metadata, data resource or both.
 
 # Remove resources
 
-When a resource is removed from AnnotationHub the 'status' field in the 
+When a resource is removed from `AnnotationHub` the 'status' field in the 
 metadata is modified to explain why they are no longer available. Once
-this status is changed the AnnotationHub() constructor will not list the 
+this status is changed the `AnnotationHub()` constructor will not list the 
 resource among the available ids. An attempt to extract the resource with 
 '[[' and the AH id will return an error along with the status message.
 
-To remove a resource from AnnotationHub contact maintainer@bioconductor.org.
+To remove a resource from `AnnotationHub` contact maintainer@bioconductor.org.
 
 # Historical vignettes
 
-The process for adding data to AnnotationHub has evolved substantially since
+The process for adding data to `AnnotationHub` has evolved substantially since
 the first vignettes were written. Much of the information contained in those
 documents is outdated or applicable only to repeat-run recipes added to the
 code base. For historical purposes these documents have been moved to
-the inst/scripts/ directory of the AnnotationHubData package.
+the inst/scripts/ directory of the `AnnotationHubData` package.
