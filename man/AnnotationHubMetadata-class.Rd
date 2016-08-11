@@ -168,46 +168,77 @@ makeAnnotationHubResource(objName, makeAnnotationHubMetadataFunction,
       \code{logical(1)} Do coordinates start with 1 or 0?
     }
     \item{DispatchClass}{
-      \code{character(1)} String used AnnotationHub:::.get1() method dispatch
-      when loading the resource. If the data are saved as .rda files this
-      value should be "Rda". Other possible classes can be see in 
-      AnnotationHub
-      This is often the same as the RDataClass.  But it is
-    allowed to be a different value so that the client can do something
-    different internally if required.}
-    \item{Location_Prefix}{\code{character(1)} This was added for
-    resources where the metadata only is stored and the resource itself
-    comes from a third party web site.  The location prefix says the
-    base path where the resource is coming from, and the default value
-    will be from our own site.}
-    \item{Notes}{\code{character()} Notes about the resource.}
-    \item{ahm}{An instance of class \code{AnnotationHubMetadata}.}
-    \item{x}{An instance of class \code{AnnotationHubMetadata}.}
-    \item{jsonpath}{\code{character(1)} full path to a JSON representation
-        of \code{AnnotationHubMetadata}-class.}
-    \item{ahroot}{A \code{character(1)} representing the value of
-      \code{AnnotationHubRoot} to be added to the returned instance.}
-    \item{originalFile}{A\code{character(1)}}
-    \item{object}{An AnnotationHubRecipe instance.}
-    \item{species}{\code{character(1)} The organism, e.g., "Homo sapiens".}
-    \item{genome}{\code{character(1)} The genome build, e.g., "hg19".}
-    \item{id}{An id whose DB record is to be fully deleted
-      (from gamay - not production)}
-    \item{objName}{\code{character(1)} The name of the preparerClass
-    object that you intend to have be used for dispatch.  You can call
-    it whatever you want as long as you don't use an existing
-    preparerClass name}
-    \item{makeAnnotationHubMetadataFunction}{\code{function} This is not
-    a string, but just the name of the function that makes AHMs out of
-    your resource of choice.}
-    \item{where}{the environment in which to store the definition.
-    Default value is sufficient.}
-    \item{\dots}{additional arguments passed to methods}
+      \code{character(1)} String used in AnnotationHub:::.get1() method dispatch
+      when loading the resource from AnnotationHub. This value is often the
+      same as the RDataClass.
+
+      Dispatch classes are defined on the .get1() methods in AnnotationHub.  If
+      one exists for your data type, simply use the name of the data type,
+      e.g., if the data are saved as ExpressionSet objects,
+      \code{DispatchClass} should be "ExpressionSet"; when the resource is
+      downloaded from AnnotationHub with '[[' the "Resources" extension is
+      (automatically) added to make the new class "ExpressionSetResource". If
+      the data are saved as .rda files \code{DispatchClass} should be "Rda" and
+      when downloaded in AnnotationHub the class name becomes "RdaResource" and
+      so on. 
+
+      If there is not a .get1() method in AnnotationHub for your object type,
+      contact maintainer@bioconductor.org for assistance.
+    }
+    \item{Location_Prefix}{
+      \code{character(1)} Base path where the resource is coming from,
+      e.g., a web site or Amazon S3.
+    }
+    \item{Notes}{
+      \code{character()} Notes about the resource.
+    }
+    \item{ahm}{
+      An instance of class \code{AnnotationHubMetadata}.
+    }
+    \item{x}{
+      An instance of class \code{AnnotationHubMetadata}.
+    }
+    \item{jsonpath}{
+      \code{character(1)} Full path to a JSON representation
+        of \code{AnnotationHubMetadata}-class.
+    }
+    \item{ahroot}{
+      A \code{character(1)} \code{AnnotationHubRoot} to be added to the 
+      path / location of the returned instance.
+    }
+    \item{originalFile}{
+      A \code{character(1)} Original file name.
+    }
+    \item{object}{
+      An \code{AnnotationHubRecipe} instance.
+    }
+    \item{species}{
+      \code{character(1)} The organism, e.g., "Homo sapiens".
+    }
+    \item{genome}{
+      \code{character(1)} The genome build, e.g., "hg19".
+    }
+    \item{id}{
+      An id whose DB record is to be fully deleted.
+    }
+    \item{objName}{
+      \code{character(1)} The name of the PreparerClass used for dispatch.
+    }
+    \item{makeAnnotationHubMetadataFunction}{
+      \code{function} Function (name) that makes \code{AnnotationHubMetadata}
+      objects from the resource(s).}
+    \item{where}{
+      Environment where function definition is defined. Default value 
+      is sufficient.
+    }
+    \item{\dots}{
+      Additional arguments passed to methods.
+    }
 }
 
 \value{
   \code{AnnotationHubMetadata} returns an instance of the class.
-  
+ 
   \code{jsonPath} returns a \code{character(1))} representation of the
   full path to the location of the \code{json} file associated with this
   record.
