@@ -68,6 +68,8 @@ ensemblFastaToTwoBitFile <- function(ahm)
     stopifnot(length(ids) == length(dna))
     names(dna) <- ids 
     export(dna, twobitOut, "TwoBit")
+    ## remove .fa file
+    system(paste0("rm ", srcFile)) 
 }
 
 ## create the class and newResources() method

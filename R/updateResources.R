@@ -134,7 +134,8 @@ setMethod("runRecipes", "AnnotationHubMetadata",
                                       metadata(metadata)$RDataPath)
             remotePath <- sub("^/", "", metadata(metadata)$RDataPath)
             res <- upload_to_S3(fileToUpload, remotePath, bucket, ...)
-            ## TODO - if download is successful, delete local file?
+            ## If successful, delete local file
+            system(paste0("rm ", fileToUpload))
         }
         ## FIXME: else do what? Is Use_Disk still in use?
     }
