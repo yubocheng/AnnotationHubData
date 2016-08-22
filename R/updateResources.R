@@ -23,12 +23,12 @@ pushMetadata <- function(allAhms, url) {
     })
 }
 
-pushResources <- function(allAhms, hubroot, ...) {
+pushResources <- function(allAhms, hubroot, uploadToS3=TRUE) {
     flog(INFO, "processing and pushing data ...")
     res <- lapply(allAhms, 
         function(xx) {
             tryCatch({
-                runRecipes(xx, hubroot=hubroot)
+                runRecipes(xx, hubroot=hubroot, ..., uploadToS3=uploadToS3)
                 xx
             }, error=function(err) {
                 msg <- paste0("error in runRecipes():", conditionMessage(err))
@@ -101,7 +101,7 @@ setGeneric("runRecipes", signature="metadata",
 setMethod("runRecipes", "AnnotationHubMetadata",
     function(metadata, hubroot,
              bucket = getOption("ANNOTATION_HUB_BUCKET_NAME", "annotationhub"),
-             download = TRUE, ...)
+             download = TRUE, uploadToS3 = TRUE, ...)
     {
         ## FIXME: (1) use of 'download' unclear
         ##        (2) HubRoot / AnnotationHubRoot should already be set
@@ -129,7 +129,7 @@ setMethod("runRecipes", "AnnotationHubMetadata",
         })
 
         ## upload to S3
-        if (!getOption("AnnotationHub_Use_Disk", FALSE)) {
+        if (uploadToS3) {
             fileToUpload <- file.path(metadata(metadata)$HubRoot,
                                       metadata(metadata)$RDataPath)
             remotePath <- sub("^/", "", metadata(metadata)$RDataPath)
@@ -137,7 +137,6 @@ setMethod("runRecipes", "AnnotationHubMetadata",
             ## If successful, delete local file
             system(paste0("rm ", fileToUpload))
         }
-        ## FIXME: else do what? Is Use_Disk still in use?
     }
 )
 
