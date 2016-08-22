@@ -124,7 +124,8 @@ setMethod("runRecipes", "AnnotationHubMetadata",
         tryCatch({
             metadata <- run(metadata)
         }, error=function(e) {
-            flog(ERROR, "error processing %s: %s", basename(metadata(metadata)$SourceUrl),
+            flog(ERROR, "error processing %s: %s", 
+                 basename(metadata(metadata)$SourceUrl),
                  conditionMessage(e))
         })
 
