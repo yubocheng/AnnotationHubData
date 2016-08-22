@@ -57,11 +57,21 @@ ensemblFastaToTwoBitFile(ahm)
 }
 
 \details{
-  TODO
+  \code{makeEnsemblFastaToAHM} and \code{makeEnsemblTwoBitToAHM} process
+  metadata into a list of \code{AnnotationHubMetadata} objects. 
+
+  \code{ensemblFastaToFaFile} unzips a .gz files, creates and index and
+  writes out .rz and .rz.fai files to disk.
+  \code{ensemblFastaToTwoBit} converts a fasta file to twobit format and
+  writes the .2bit file out to disk.
 }
 
 \value{
-  TODO
+  \code{makeEnsemblFastaToAHM} and \code{makeEnsemblTwoBitToAHM} return
+  a list of \code{AnnotationHubMetadata} objects. 
+
+  \code{ensemblFastaToFaFile} write out .rz and .rz.fai files to disk.
+  \code{ensemblFastaToTwoBit} writes out a .2bit file to disk.
 }
 
 \author{Bioconductor Core Team}
