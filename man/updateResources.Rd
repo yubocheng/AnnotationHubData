@@ -18,11 +18,19 @@ updateResources(AnnotationHubRoot, BiocVersion = biocVersion(),
                 preparerClasses = getImportPreparerClasses(),
                 metadataOnly = TRUE, insert = FALSE,
                 justRunUnitTest = FALSE, ...)
+
+pushResources(allAhms, hubroot, uploadToS3=TRUE)
+
+pushMetadata(allAhms, url)
 }
 
 \arguments{
   \item{AnnotationHubRoot}{
     Local path where files will be downloaded.
+  }
+  \item{hubroot}{
+    Local path where files will be downloaded. (same as AnnotationHubRoot;
+    should be renamed to match)
   }
   \item{BiocVersion}{
     A character vector of Bioconductor versions the resources should be 
@@ -56,6 +64,16 @@ updateResources(AnnotationHubRoot, BiocVersion = biocVersion(),
   \item{justRunUnitTest}{
     A \code{logical}. When TRUE, a small number of records (usually 5) are
     processed instead of all.
+  }
+  \item{allAhms}{
+    List of \code{AnnotationHubMetadata} objects.
+  }
+  \item{url}{
+    URL of AnnotationHub database where metadata will be inserted.
+  }
+  \item{uploadToS3}{
+    A \code{logical} indicating whether resources should be uploaded
+    to the AWS S3 bucket.
   }
   \item{\dots}{
     Arguments passed to other methods such as \code{regex}, \code{baseUrl},
