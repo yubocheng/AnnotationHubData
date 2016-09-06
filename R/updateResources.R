@@ -23,21 +23,24 @@ pushMetadata <- function(allAhms, url) {
     })
 }
 
-pushResources <- function(allAhms, hubroot, uploadToS3=TRUE) {
+pushResources <- function(allAhms, hubroot, uploadToS3=TRUE, download = TRUE) {
     flog(INFO, "processing and pushing data ...")
-    res <- lapply(allAhms, 
+    res <- lapply(allAhms,
         function(xx) {
             tryCatch({
-                runRecipes(xx, hubroot=hubroot, ..., uploadToS3=uploadToS3)
+                runRecipes(xx, hubroot=hubroot,
+                           bucket = getOption("ANNOTATION_HUB_BUCKET_NAME",
+                                              "annotationhub"),
+                           download = download, uploadToS3=uploadToS3)
                 xx
             }, error=function(err) {
                 msg <- paste0("error in runRecipes():", conditionMessage(err))
-                hubError(xx) <- msg 
-                flog(ERROR, msg) 
+                hubError(xx) <- msg
+                flog(ERROR, msg)
                 xx
             })
         })
-    res 
+    res
 }
 
 downloadResource <- function(ahm, downloadIfExists) {
@@ -99,9 +102,7 @@ setGeneric("runRecipes", signature="metadata",
 )
 
 setMethod("runRecipes", "AnnotationHubMetadata",
-    function(metadata, hubroot,
-             bucket = getOption("ANNOTATION_HUB_BUCKET_NAME", "annotationhub"),
-             download = TRUE, uploadToS3 = TRUE, ...)
+    function(metadata, hubroot, ..., uploadToS3 = TRUE, download = TRUE)
     {
         ## FIXME: (1) use of 'download' unclear
         ##        (2) HubRoot / AnnotationHubRoot should already be set
@@ -124,7 +125,7 @@ setMethod("runRecipes", "AnnotationHubMetadata",
         tryCatch({
             metadata <- run(metadata)
         }, error=function(e) {
-            flog(ERROR, "error processing %s: %s", 
+            flog(ERROR, "error processing %s: %s",
                  basename(metadata(metadata)$SourceUrl),
                  conditionMessage(e))
         })
@@ -166,7 +167,7 @@ updateResources <- function(AnnotationHubRoot, BiocVersion=biocVersion(),
         } else {
             preparerInstance <- do.call(new, list(preparerClass))
             ## NOTE: 'currentMetadata' arg is in generic but not used
-            ahms <- newResources(preparerInstance, 
+            ahms <- newResources(preparerInstance,
                                  justRunUnitTest=justRunUnitTest,
                                  BiocVersion=package_version(BiocVersion), ...)
             allAhms <- append(allAhms, ahms)
@@ -221,7 +222,7 @@ getCurrentResources <- function(version){
     meta <- dbGetQuery(con, SQL)
     ahroot <- rep("NA", times=dim(meta)[1])
     tags <- rep("NA", times=dim(meta)[1]) ## leave tags out (for now)
-    ## Then call Map and pass in the columns from the data.frame
+    ## Then call Map and pass inuthe columns from the data.frame
     message("Generating all existing AnnotationHubMetadata objects.  This will take a long time")
     ## This might be too slow a way to do this...
     ## Might want instead to just check certain fields and not use objects for this.

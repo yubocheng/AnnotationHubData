@@ -10,7 +10,7 @@
 \title{updateResources}
 
 \description{
-  Add new resources to AnnotationHub 
+  Add new resources to AnnotationHub
 }
 
 \usage{
@@ -19,7 +19,7 @@ updateResources(AnnotationHubRoot, BiocVersion = biocVersion(),
                 metadataOnly = TRUE, insert = FALSE,
                 justRunUnitTest = FALSE, ...)
 
-pushResources(allAhms, hubroot, uploadToS3=TRUE)
+pushResources(allAhms, hubroot, uploadToS3 = TRUE, download = TRUE)
 
 pushMetadata(allAhms, url)
 }
@@ -33,7 +33,7 @@ pushMetadata(allAhms, url)
     should be renamed to match)
   }
   \item{BiocVersion}{
-    A character vector of Bioconductor versions the resources should be 
+    A character vector of Bioconductor versions the resources should be
     available for.
   }
   \item{preparerClasses}{
@@ -46,17 +46,17 @@ pushMetadata(allAhms, url)
     metadata and data files.
 
     When FALSE, metadata are generated and data files are downloaded,
-    processed and pushed to their final location in S3 buckets. 
-    \code{metadata = TRUE} produces only metadata and is useful for 
+    processed and pushed to their final location in S3 buckets.
+    \code{metadata = TRUE} produces only metadata and is useful for
     testing.
   }
   \item{insert}{
     A \code{logical} to control if metadata are inserted in the AnnotationHub
     db. By default this option is FALSE which is a useful state in which
     to test a new recipe and confirm the metadata fields are correct.
- 
+
     When \code{insert = TRUE}, the "AH_SERVER_POST_URL" global option must
-    be set to the http location of the AnnotationHubServer in the global 
+    be set to the http location of the AnnotationHubServer in the global
     environment or .Rprofile. Additionally, AWS command line tools
     must be installed on the local machine to push files to S3 buckets.
     See https://aws.amazon.com/cli/ for installation instructions.
@@ -75,6 +75,10 @@ pushMetadata(allAhms, url)
     A \code{logical} indicating whether resources should be uploaded
     to the AWS S3 bucket.
   }
+  \item{download}{
+    A \code{logical} indicating whether resources should be downloaded from
+    resource url.
+  }
   \item{\dots}{
     Arguments passed to other methods such as \code{regex}, \code{baseUrl},
     \code{baseDir}.
@@ -83,20 +87,20 @@ pushMetadata(allAhms, url)
 
 \details{
    \itemize{
-     \item updateResources: 
+     \item updateResources:
 
            \code{updateResources} is responsible for creating metadata records
            and downloading, processing and pushing data files to their final
            resting place. The \item{preparerClasses} argument is used in method
            dispatch to determine which recipe is used.
- 
+
            By manipulating the \code{metadataOnly}, \code{insert} and
            \code{justRunUnitTest} arguments one can flexibly test the metadata
            for a small number of records with or without downloading and
            processing the data files.
 
 
-      \item global options: 
+      \item global options:
 
             Several recipes look at the "AnnotationHub_Use_Disk" option
             to determine if the file is written to S3. This is legacy behavior
@@ -130,10 +134,10 @@ pushMetadata(allAhms, url)
 ## A useful first step in testing a new recipe is to generate and
 ## inspect a small number of metadata records. The combination of
 ## 'metadataOnly=TRUE', 'insert=FALSE' and 'justRunUnitTest=TRUE'
-## generates metadata for the first 5 records and does not download or 
+## generates metadata for the first 5 records and does not download or
 ## process any data.
 
-meta <- updateResources("/local/path", 
+meta <- updateResources("/local/path",
                         BiocVersion = "3.3",
                         preparerClasses = "EnsemblFastaImportPreparer",
                         metadataOnly = TRUE, insert = FALSE,
@@ -150,10 +154,10 @@ Ailuropoda_melanoleuca.ailMel1.ncrna.fa.gz
 ## The return value is a list of metadata for the first 5 records:
 
 > names(meta)
-[1] "FASTA cDNA sequence for Ailuropoda melanoleuca" 
-[2] "FASTA DNA sequence for Ailuropoda melanoleuca"  
-[3] "FASTA DNA sequence for Ailuropoda melanoleuca"  
-[4] "FASTA DNA sequence for Ailuropoda melanoleuca"  
+[1] "FASTA cDNA sequence for Ailuropoda melanoleuca"
+[2] "FASTA DNA sequence for Ailuropoda melanoleuca"
+[3] "FASTA DNA sequence for Ailuropoda melanoleuca"
+[4] "FASTA DNA sequence for Ailuropoda melanoleuca"
 [5] "FASTA ncRNA sequence for Ailuropoda melanoleuca"
 
 
@@ -171,7 +175,7 @@ attr(,"package")
 ## the data. If all files are successfully pushed to their
 ## final resting place then metadata are inserted in the AnnotationHub db.
 
-meta <- updateResources("local/path", 
+meta <- updateResources("local/path",
                         BiocVersion = c("3.2", "3.3"),
                         preparerClasses = "EnsemblFastaImportPreparer",
                         metadataOnly = FALSE, insert = TRUE,
