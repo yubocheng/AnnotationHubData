@@ -1,5 +1,7 @@
 ---
 title: "Introduction to AnnotationHubData"
+author: "Valerie Obenchain"
+date: "Modified: October 2016. Compiled: `r format(Sys.Date(), '%d %b %Y')`"
 output:
   BiocStyle::html_document:
     toc: true
@@ -20,18 +22,18 @@ to standard `Bioconductor` data types, and stored so that they may be
 conveniently served up on demand to users via the AnnotationHub client. While
 data are often manipulated into a more R-friendly form, the data themselves
 retain their raw content and are not filtered or curated like those in
-[ExperimentHub](http://www.bioconductor.org/packages/3.4/bioc/html/ExperimentHub.html).  Each resource has associated metadata that can be searched
-through the `AnnotationHub` client interface.
+[ExperimentHub](http://www.bioconductor.org/packages/3.4/bioc/html/ExperimentHub.html).  
+Each resource has associated metadata that can be searched through the 
+`AnnotationHub` client interface.
 
 # New resources
 
-Multiple, related resources are added to `AnnotationHub` by creating a software
-package similar to the existing annotation packages.  Individual
-objects of a standard class, e.g., a single TxDb or OrgDb, are added
-by providing the data and metadata to a `Bioconductor` team member.
-Both approaches are described below.
+## Individual resources
 
-## Contribute OrgDb, TxDb, or BSgenome objects
+Individual objects of a standard class, e.g., a single TxDb, OrgDb, or BSgenome
+can be added by providing the data and metadata to a `Bioconductor` team member
+instead of creating a package as described in the `Family of Resources`
+section.
 
 OrgDb, TxDb and BSgenome objects are well defined `Bioconductor` classes and
 methods necessary to download and process these objects already exist in
@@ -96,18 +98,20 @@ metadata <- AnnotationHubMetadata(
    This last step is done by the `Biocondcutor` team member.
 
 
-## Contribute a family of resources 
+## Family of resources 
 
-Collections of resources are contributed to `AnnotationHub` in the form of a
-package.  The package contains the resource metadata, man pages, vignette and
-any supporting `R` functions the author wants to provide.  This is a similar
-design to the existing `Bioconductor` annotation data packages except the data
-are stored in AWS S3 buckets instead of the software package.
+Multiple, related resources are added to `AnnotationHub` by creating a software
+package similar to the existing annotation packages. The package itself does
+not contain data but serves as a light weight wrapper around scripts that
+generate metadata for the resources added to `AnnotationHub`.
+
+At a minimum the package should contain a man page describing the resources.
+Vignettes and additional `R` code for manipulating the objects are optional.
 
 Creating the package involves the following steps:
 
 1. Notify `Bioconductor` team member:  
-   The man page and vignette examples in the software package will not work until
+   Man page and vignette examples in the software package will not work until
    the data are available in `AnnotationHub`. Adding the data to AWS S3 and the
    metadata to the production database involves assistance from a `Bioconductor`
    team member.  If you are interested in submitting a package, please send an
@@ -144,7 +148,7 @@ Creating the package involves the following steps:
 
 * vignettes/
 
-    One or more vignettes describing analysis workflows. 
+    OPTIONAL vignette(s) describing analysis workflows. 
 
 * R/
 
@@ -164,7 +168,7 @@ Creating the package involves the following steps:
     of the data prior to hosting on the web site. For data hosted on a public
     web site with no prior manipultaion this file is not needed.
 
-  - Optional functions to enhance data exploration.
+  - OPTIONAL functions to enhance data exploration.
 
 * man/
 
@@ -177,17 +181,16 @@ Creating the package involves the following steps:
  
   - resource man pages: 
 
-    It is recommended (but not required) that each resource have a dedicated 
-    man page.
- 
-    The man page(s) should demonstrate how the data can be loaded through the 
-    `AnnotationHub` interface. Replace 'PACKAGENAME' below with the name of
-    your package:
+    OPTIONAL. Man page(s) should describe the resource (raw data source,
+    processing, QC steps) and demonstrate how the data can be loaded through 
+    the `AnnotationHub` interface. For example, replace "SEARCHTERM*" below 
+    with one or more search terms that uniquely identify resources in your 
+    package.
 
     ```
     library(AnnotationHub)
     eh <- AnnotationHub()
-    myfiles <- query(eh, "PACKAGENAME")
+    myfiles <- query(eh, "SEARCHTERM1", "SEARCHTERM2")
     myfiles[[1]]  ## load the first resource in the list
     ```
 
@@ -202,7 +205,7 @@ package vs within all of `AnnotationHub`.
 3. Data objects:  
 Data are not formally part of the software package and are stored 
 separately in AWS S3 buckets. The author should make the data available 
-via dropbox, ftp or another mutually accessible application and it will 
+via dropbox, ftp site or another mutually accessible application and it will 
 be uploaded to S3 by a member of the `Bioconductor` team.
 
 4. Package review:  
