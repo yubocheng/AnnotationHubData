@@ -28,76 +28,6 @@ Each resource has associated metadata that can be searched through the
 
 # New resources
 
-## Individual resources
-
-Individual objects of a standard class, e.g., a single TxDb, OrgDb, or BSgenome
-can be added by providing the data and metadata to a `Bioconductor` team member
-instead of creating a package as described in the `Family of Resources`
-section.
-
-OrgDb, TxDb and BSgenome objects are well defined `Bioconductor` classes and
-methods necessary to download and process these objects already exist in
-`AnnotationHub`. Adding an OrgDb, TxDb or BSgenome for an
-organism or genome build not supported in the 
-[Biocondcutor annotation repository](http://www.bioconductor.org/packages/release/BiocViews.html#___AnnotationData)
-can be done through the following steps: 
-
-1. Notify `Bioconductor` team member:  
-   Adding the data to AWS S3 and the metadata to the production database 
-   involves assistance from a `Bioconductor` team member. Please send email 
-   to packages@bioconductor.org so a team member can work with you through the
-   process.
-
-2. Prepare the data:  
-   In the case of an OrgDb object, only the sqlite file is stored in S3.
-   See makeOrgPackageFromNCBI() and makeOrgPackage() in the `AnnotationForge`
-   package for help creating the sqlite file. BSgenome objects should be made 
-   according to the steps outline in the
-   [BSgenome
-   vignette](http://www.bioconductor.org/packages/3.4/bioc/vignettes/BSgenome/inst/doc/BSgenomeForge.pdf). TxDb objects will be made on-the-fly from a 
-   GRanges with GenomicFeatures::makeTxDbFromGRanges() when the resource is
-   downloaded from `AnnotationHub`. Data should be provided as a GRanges
-   object. See GenomicRanges::makeGRangesFromDataFrame() or
-   rtracklayer::import() for help creating the GRanges.
-
-3. Generate metadata:  
-   Prepare a .R file that generates metadata for the resource(s) by calling
-   the `AnnotationHubData::AnnotationHubMetadata()` constructor. Argument
-   details are found on the ?`AnnotationHubMetadata` man page.
- 
-   As an example, this piece of code generates the metadata for Timothée's 
-   the Vitis vinifera TxDb Timothée Flutre contributed to `AnnotationHub`:
- 
-```{r, TxDb_Metadata, eval=FALSE}
-metadata <- AnnotationHubMetadata(
-    Description="Gene Annotation for Vitis vinifera",
-    Genome="IGGP12Xv0",
-    Species="Vitis vinifera",
-    SourceUrl="http://genomes.cribi.unipd.it/DATA/V2/V2.1/V2.1.gff3",
-    SourceLastModifiedDate=as.POSIXct("2014-04-17"),
-    SourceVersion="2.1",
-    RDataPath="community/tflutre/",
-    TaxonomyId=29760L, 
-    Title="Vvinifera_CRIBI_IGGP12Xv0_V2.1.gff3.Rdata",
-    BiocVersion=package_version("3.3"),
-    Coordinate_1_based=TRUE,
-    DataProvider="CRIBI",
-    Maintainer="Timothée Flutre <timothee.flutre@supagro.inra.fr",
-    RDataClass="GRanges",
-    DispatchClass="GRanges",
-    SourceType="GFF",
-    RDataDateAdded=as.POSIXct(Sys.time()),
-    Recipe=NA_character_,
-    PreparerClass="None",
-    Tags=c("GFF", "CRIBI", "Gene", "Transcript", "Annotation"),
-    Notes="chrUn renamed to chrUkn"
-)
-```
-
-4. Add data to S3 and metadata to the database:  
-   This last step is done by the `Biocondcutor` team member.
-
-
 ## Family of resources 
 
 Multiple, related resources are added to `AnnotationHub` by creating a software
@@ -189,8 +119,8 @@ Creating the package involves the following steps:
 
     ```
     library(AnnotationHub)
-    eh <- AnnotationHub()
-    myfiles <- query(eh, "SEARCHTERM1", "SEARCHTERM2")
+    hub <- AnnotationHub()
+    myfiles <- query(hub, "SEARCHTERM1", "SEARCHTERM2")
     myfiles[[1]]  ## load the first resource in the list
     ```
 
@@ -215,6 +145,79 @@ point the package man pages and vignette can be finalized. When the package
 passes R CMD build and check it can be submitted to the [package
 tracker](https://github.com/Bioconductor/Contributions) for review.
 
+## Individual resources
+
+Individual objects of a standard class can be added to the hub by providing
+only the data and metadata files or by creating a package as described in the
+`Family of Resources` section.
+
+OrgDb, TxDb and BSgenome objects are well defined `Bioconductor` classes and
+methods to download and process these objects already exist in `AnnotationHub`.
+When adding only one or two objects the overhead of creating a package may be
+unnecessary.  The goal of the package is to provide structure for metadata
+generation and makes sense when there are plans to update versions or add new
+organisms in the future.
+
+Make sure the OrgDb, TxDb or BSgenome object you want to add does not already
+exist here:
+[Biocondcutor annotation repository](http://www.bioconductor.org/packages/release/BiocViews.html#___AnnotationData)
+
+Providing just data and metadata files involves the following steps:
+
+1. Notify `Bioconductor` team member:  
+   Adding the data to AWS S3 and the metadata to the production database 
+   involves assistance from a `Bioconductor` team member. Please send email 
+   to packages@bioconductor.org so a team member can work with you through the
+   process.
+
+2. Prepare the data:  
+   In the case of an OrgDb object, only the sqlite file is stored in S3.
+   See makeOrgPackageFromNCBI() and makeOrgPackage() in the `AnnotationForge`
+   package for help creating the sqlite file. BSgenome objects should be made 
+   according to the steps outline in the
+   [BSgenome
+   vignette](http://www.bioconductor.org/packages/3.4/bioc/vignettes/BSgenome/inst/doc/BSgenomeForge.pdf). TxDb objects will be made on-the-fly from a 
+   GRanges with GenomicFeatures::makeTxDbFromGRanges() when the resource is
+   downloaded from `AnnotationHub`. Data should be provided as a GRanges
+   object. See GenomicRanges::makeGRangesFromDataFrame() or
+   rtracklayer::import() for help creating the GRanges.
+
+3. Generate metadata:  
+   Prepare a .R file that generates metadata for the resource(s) by calling
+   the `AnnotationHubData::AnnotationHubMetadata()` constructor. Argument
+   details are found on the ?`AnnotationHubMetadata` man page.
+ 
+   As an example, this piece of code generates the metadata for Timothée's 
+   the Vitis vinifera TxDb Timothée Flutre contributed to `AnnotationHub`:
+ 
+```{r, TxDb_Metadata, eval=FALSE}
+metadata <- AnnotationHubMetadata(
+    Description="Gene Annotation for Vitis vinifera",
+    Genome="IGGP12Xv0",
+    Species="Vitis vinifera",
+    SourceUrl="http://genomes.cribi.unipd.it/DATA/V2/V2.1/V2.1.gff3",
+    SourceLastModifiedDate=as.POSIXct("2014-04-17"),
+    SourceVersion="2.1",
+    RDataPath="community/tflutre/",
+    TaxonomyId=29760L, 
+    Title="Vvinifera_CRIBI_IGGP12Xv0_V2.1.gff3.Rdata",
+    BiocVersion=package_version("3.3"),
+    Coordinate_1_based=TRUE,
+    DataProvider="CRIBI",
+    Maintainer="Timothée Flutre <timothee.flutre@supagro.inra.fr",
+    RDataClass="GRanges",
+    DispatchClass="GRanges",
+    SourceType="GFF",
+    RDataDateAdded=as.POSIXct(Sys.time()),
+    Recipe=NA_character_,
+    PreparerClass="None",
+    Tags=c("GFF", "CRIBI", "Gene", "Transcript", "Annotation"),
+    Notes="chrUn renamed to chrUkn"
+)
+```
+
+4. Add data to S3 and metadata to the database:  
+   This last step is done by the `Biocondcutor` team member.
 
 # Additional resources / updated versions
 

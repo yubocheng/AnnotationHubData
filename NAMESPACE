@@ -3,7 +3,6 @@ import(S4Vectors)
 import(IRanges)
 import(GenomicRanges)
 import(AnnotationHub)
-
 import(OrganismDbi)
 import(GenomicFeatures)
 
@@ -29,8 +28,8 @@ importFrom(AnnotationForge, makeInpDb, makeOrgPackageFromNCBI)
 importFrom(AnnotationDbi, loadDb)
 importFrom(tools, file_ext)
 importFrom(futile.logger, 
-    ERROR, INFO, TRACE, appender.file, flog.appender,
-    flog.threshold, flog.info
+    ERROR, INFO, TRACE, appender.file, 
+    flog.appender, flog.threshold, flog.info
 )
 importFrom(jsonlite, fromJSON, toJSON)
 importFrom(httr, 
@@ -44,8 +43,10 @@ importFrom(XML, readHTMLTable, xmlParse, xmlValue)
 importFrom(xml2, xml_find_all, xml_contents)
 importFrom(RSQLite, SQLite)
 importFrom(graphics, title)
-importFrom("utils", "capture.output", "data", "download.file",
-    "read.delim", "read.table", "str")
+importFrom(utils, 
+    capture.output, data, download.file, 
+    read.delim, read.table, str
+)
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ### Export S4 classes
@@ -69,6 +70,7 @@ exportClasses(
 ###
 
 export(
+    readMetadataFromCsv,
     AnnotationHubMetadata,
     UCSCTrackImportPreparer,
     constructAnnotationHubMetadataFromSourceFilePath,

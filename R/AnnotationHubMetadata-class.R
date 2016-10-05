@@ -51,6 +51,35 @@ setClass("AnnotationHubMetadata",
                          " must not contain any commas")))
 }
 
+## Used for contributed packages, not internal recipes.
+makeAnnotationHubMetadata <- function(pathToPackage) 
+{
+    meta <- readMetadataFromCsv(pathToPackage)
+    package <- basename(pathToPackage)
+    meta$Tags <- c(meta$Tags, package)
+    meta$RDataPath <- paste0(package,"/",meta$ResourceName)
+
+    lapply(seq_len(nrow(meta)),
+        function(x) {
+            with(meta[x,], 
+                 AnnotationHubMetadata(Title=Title, Description=Description, 
+                                       BiocVersion=BiocVersion, Genome=Genome, 
+                                       SourceType=SourceType, 
+                                       SourceUrl=SourceUrl,
+                                       SourceVersion=SourceVersion, 
+                                       Species=Species, TaxonomyId=TaxonomyId,
+                                       Coordinate_1_based=Coordinate_1_based, 
+                                       DataProvider=DataProvider,
+                                       Maintainer=Maintainer, 
+                                       RDataClass=RDataClass, Tags=Tags, 
+                                       RDataDateAdded=RDataDateAdded, 
+                                       RDataPath=RDataPath, 
+                                       DispatchClass=DispatchClass,
+                                       PreparerClass=PreparerClass)) 
+        }
+    )
+}
+
 AnnotationHubMetadata <-
     function(AnnotationHubRoot=NA_character_, SourceUrl, SourceType, 
         SourceVersion,
