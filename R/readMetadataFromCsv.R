@@ -4,9 +4,10 @@
 ###
 
 ## High level helper used to check metadata in 'Hub' packages.
-readMetadataFromCsv <- function(pathToPackage) 
+readMetadataFromCsv <- function(pathToPackage, fileName="metadata.csv") 
 {
-    meta <- read.csv(file.path(pathToPackage, "inst/extdata/metadata.csv"),
+    meta <- read.csv(file.path(pathToPackage, 
+                     paste0("inst/extdata/", fileName)),
                      colClasses="character", stringsAsFactors=FALSE)
     ## Check columns
     mat <- rbind(c("Title", "character"),
@@ -23,6 +24,7 @@ readMetadataFromCsv <- function(pathToPackage)
                  c("Maintainer", "character"),
                  c("RDataClass", "character"),
                  c("DispatchClass", "character"),
+                 c("Tags", "Tags"),
                  c("ResourceName", "character"))
 
     expected <- mat[,1]
@@ -43,5 +45,7 @@ readMetadataFromCsv <- function(pathToPackage)
                 stop(paste0("all fields in metadata.csv must be a character ",
                      "string of length 1"))
         }
+
     )
+    meta
 }

@@ -57,7 +57,8 @@
               BAM, BigWig, etc.
 
         \item SourceUrl: \code{character}. Optional location of original
-              data files.
+              data files. Multiple urls should be provided as a comma separated
+              string.
 
         \item SourceVersion: \code{character}. Version of original data.
 
@@ -86,22 +87,25 @@
 
         \item ResourceName: \code{character}. Exact file name.
 
-        \item Tags: \code{character}. 
+        \item Tags: \code{character() vector}. 
               \sQuote{Tags} are search terms used to define a subset of
-              resources in a \code{Hub} object, e.g, in a call to \code{query}. 
+              resources in a \code{Hub} object, e.g, in a call to \code{query}.
+              When adding multiple \sQuote{Tags} to the metadata data.frame,
+              protect with \code{I}, e.g., 
+
+              \code{data.frame(Tags=I(list(c("tag1", "tag2", "tag3"))))}
 
               For AnnotationHub resources, \sQuote{Tags} are a free-form field
               of search terms defined by the user.  The package name is
               automatically added as one of the \sQuote{Tags} before the
               metadata are finalized.
 
-              For ExperimentHub resources, \sQuote{Tags} are not specified
-              by the user but are automatically generated from the 
-              \sQuote{biocViews} in the DESCRIPTION. \sQuote{Tags} values 
-              supplied by the
-              user will be ignored. This approach was taken in order to
-              impose more structured vocabulary on the values giving
-              the user a defined set of values on which to search. This 
+              For ExperimentHub resources, \sQuote{Tags} are not specified by
+              the user but are instead automatically generated from the
+              \sQuote{biocViews} in the DESCRIPTION. \sQuote{Tags} values
+              supplied by the user will be ignored. This approach was taken in
+              order to impose more structured vocabulary on the values giving
+              the user a defined set of values on which to search. This
               approach may change in the future.
 
       }
