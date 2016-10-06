@@ -13,12 +13,15 @@
 }
 
 \usage{
-  readMetadataFromCsv(pathToPackage)
+  readMetadataFromCsv(pathToPackage, fileName="metadata.csv")
 }
 
 \arguments{
   \item{pathToPackage}{
     Full path to data package including package name; no trailing slash.
+  }
+  \item{fileName}{
+    Name of csv file.
   }
 }
 
