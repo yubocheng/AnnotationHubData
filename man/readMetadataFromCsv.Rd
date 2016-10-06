@@ -39,45 +39,45 @@
 
       Required Fields in metadata.csv:
       \itemize{
-        \item Title: \code{character}. Name of the resource. This can be
+        \item Title: \code{character(1)}. Name of the resource. This can be
               the exact file name (if self-describing) or a more complete
               description.
 
-        \item Description: \code{character}. Brief description of the resource,
+        \item Description: \code{character(1)}. Brief description of the resource,
               similar to the 'Description' field in a package DESCRIPTION file.
 
-        \item BiocVersion: \code{character}. The first Bioconductor version
+        \item BiocVersion: \code{character(1)}. The first Bioconductor version
               the resource was made available for. Unless removed from
               the hub, the resource will be available for all versions 
               greater than or equal to this field.
 
-        \item Genome: \code{character}. Genome.
+        \item Genome: \code{character(1)}. Genome.
 
-        \item SourceType: \code{character}. Format of original data, e.g., FASTA,
+        \item SourceType: \code{character(1)}. Format of original data, e.g., FASTA,
               BAM, BigWig, etc.
 
-        \item SourceUrl: \code{character}. Optional location of original
+        \item SourceUrl: \code{character(1)}. Optional location of original
               data files. Multiple urls should be provided as a comma separated
               string.
 
-        \item SourceVersion: \code{character}. Version of original data.
+        \item SourceVersion: \code{character(1)}. Version of original data.
 
-        \item Species: \code{character}. Species.
+        \item Species: \code{character(1)}. Species.
 
         \item TaxonomyId: \code{character(1)}. Taxonomy ID.
 
         \item Coordinate_1_based: \code{logical}. TRUE if data are 1-based.
 
-        \item DataProvider: \code{character}. Name of company or institution
+        \item DataProvider: \code{character(1)}. Name of company or institution
               that supplied the original (raw) data.
 
-        \item Maintainer: \code{character}. Maintainer name and email in the
+        \item Maintainer: \code{character(1)}. Maintainer name and email in the
               following format: Maintainer Name <username@address>.
 
-        \item RDataClass: \code{character}. R / Bioconductor class the data
+        \item RDataClass: \code{character(1)}. R / Bioconductor class the data
               are stored in.
 
-        \item DispatchClass: \code{character}. Class used to determine how
+        \item DispatchClass: \code{character(1)}. Class used to determine how
               to load the data into R. The value for this field should
               be \sQuote{Rda} with the assumption that the data have been 
               serialized with \code{save()} and the filename has the 
@@ -85,7 +85,7 @@
               if you data do not meet these assumptions and we can determine
               the most appropriate dispatch class.
 
-        \item ResourceName: \code{character}. Exact file name.
+        \item ResourceName: \code{character(1)}. Exact file name.
 
         \item Tags: \code{character() vector}. 
               \sQuote{Tags} are search terms used to define a subset of
