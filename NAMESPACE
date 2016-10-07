@@ -71,7 +71,7 @@ exportClasses(
 
 export(
     readMetadataFromCsv,
-    AnnotationHubMetadata,
+    AnnotationHubMetadata, makeAnnotationHubMetadata,
     UCSCTrackImportPreparer,
     constructAnnotationHubMetadataFromSourceFilePath,
     #postProcessMetadata,

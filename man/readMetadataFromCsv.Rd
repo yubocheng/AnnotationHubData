@@ -8,7 +8,7 @@
 }
 
 \description{
-  Reads the metadata.csv file located in the "inst/extdata" package directory
+  Reads the metadata file located in the "inst/extdata" package directory
   into a data.frame. 
 }
 
@@ -21,7 +21,7 @@
     Full path to data package including package name; no trailing slash.
   }
   \item{fileName}{
-    Name of csv file.
+    Name of metadata file with csv extension.
   }
 }
 
@@ -40,7 +40,7 @@
       resources (i.e., data objects) and the columns are the metadata
       fields. All fields should be a single character string of length 1.
 
-      Required Fields in metadata.csv:
+      Required Fields in metadata file:
       \itemize{
         \item Title: \code{character(1)}. Name of the resource. This can be
               the exact file name (if self-describing) or a more complete
@@ -112,7 +112,7 @@
               approach may change in the future.
 
       }
-      The metadata.csv file can have additional columns beyond the 'Required
+      The metadata file can have additional columns beyond the 'Required
       Fields' listed above. These values are not added to the Hub
       database but they can be used in package functions to provide an
       additional level of metadata on the resources.
@@ -160,10 +160,9 @@ meta <- data.frame(
 )
 
 \dontrun{
-## Write the data out as 'metadata.csv' and put in the inst/extdata 
-## package directory.
+## Write the data out and put in the inst/extdata directory.
+## csv 
 write.csv(meta, file="metadata.csv", row.names=FALSE)
-
 ## Test metadata.csv with readMetadataCsv():
 readMetadataFromCsv("path/to/mypackage")
 }

@@ -9,6 +9,7 @@ readMetadataFromCsv <- function(pathToPackage, fileName="metadata.csv")
     meta <- read.csv(file.path(pathToPackage, 
                      paste0("inst/extdata/", fileName)),
                      colClasses="character", stringsAsFactors=FALSE)
+
     ## Check columns
     mat <- rbind(c("Title", "character"),
                  c("Description", "character"),
@@ -47,5 +48,14 @@ readMetadataFromCsv <- function(pathToPackage, fileName="metadata.csv")
         }
 
     )
+    ## Enforce data type
+    meta$TaxonomyId <- as.integer(meta$TaxonomyId)
+    meta$Coordinate_1_based <- as.logical(meta$Coordinate_1_based)
+    meta$BiocVersion <- package_version(meta$BiocVersion)
+
+    ## Real time assignments
+    meta$RDataDateAdded <- rep(Sys.time(), nrow(meta))
+    package <- basename(pathToPackage)
+    meta$RDataPath <- paste0(package,"/",meta$ResourceName)
     meta
 }
