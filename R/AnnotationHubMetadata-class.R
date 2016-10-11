@@ -55,9 +55,9 @@ setClass("AnnotationHubMetadata",
 makeAnnotationHubMetadata <- function(pathToPackage) 
 {
     meta <- readMetadataFromCsv(pathToPackage)
-    ## process tags, add package name
-    package <- basename(pathToPackage)
-    .tags <- c(strsplit(meta$Tags, ",")[[1]], package)
+    ## process tags; package name to PreparerClass
+    .package <- basename(pathToPackage)
+    .tags <- c(strsplit(meta$Tags, ",")[[1]], .package)
 
     lapply(seq_len(nrow(meta)),
         function(x) {
@@ -76,7 +76,7 @@ makeAnnotationHubMetadata <- function(pathToPackage)
                                        RDataPath=RDataPath,
                                        Recipe=NA_character_,
                                        DispatchClass=DispatchClass,
-                                       PreparerClass=NA_character_)) 
+                                       PreparerClass=.package)) 
         }
     )
 }
