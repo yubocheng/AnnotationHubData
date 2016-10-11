@@ -12,12 +12,15 @@
 }
 
 \usage{
-  makeAnnotationHubMetadata(pathToPackage)
+  makeAnnotationHubMetadata(pathToPackage, fileName="metadata.csv")
 }
 
 \arguments{
   \item{pathToPackage}{
     Full path to data package including the package name; no trailing slash
+  }
+  \item{fileName}{
+    Name of metadata file with csv extension.
   }
 }
 

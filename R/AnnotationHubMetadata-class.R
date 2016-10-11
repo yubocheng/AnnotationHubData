@@ -52,9 +52,9 @@ setClass("AnnotationHubMetadata",
 }
 
 ## Used for contributed packages, not internal recipes.
-makeAnnotationHubMetadata <- function(pathToPackage) 
+makeAnnotationHubMetadata <- function(pathToPackage, fileName="metadata.csv") 
 {
-    meta <- readMetadataFromCsv(pathToPackage)
+    meta <- readMetadataFromCsv(pathToPackage, fileName)
     ## process tags; package name to PreparerClass
     .package <- basename(pathToPackage)
     .tags <- c(strsplit(meta$Tags, ",")[[1]], .package)
