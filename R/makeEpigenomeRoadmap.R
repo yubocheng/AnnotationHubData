@@ -236,20 +236,34 @@
 
     ## add description.
     map <- c(
-       "57epigenomes.RPKM.pc" = "RPKM expression matrix for protein coding genes",
-       "57epigenomes.N.pc"= "RNA-seq read counts matrix for protein coding genes",
-       "57epigenomes.exon.RPKM.pc"= "RPKM expression matrix for protein coding exons",
-       "57epigenomes.RPKM.intronic.pc"="RNA-seq read count matrix for intronic protein-coding RNA elements",
-       "57epigenomes.exon.N.pc"="RNA-seq read counts matrix for protein coding exons",
-       "57epigenomes.N.intronic.pc"="RNA-seq read count matrix for intronic protein-coding RNA elements",
-       "57epigenomes.RPKM.nc"="RPKM expression matrix for non-coding RNAs",
-       "57epigenomes.N.nc"="RNA-seq read counts matrix for non-coding RNAs",
-       "57epigenomes.N.rb"="RNA-seq read counts matrix for ribosomal genes",
-       "57epigenomes.RPKM.rb"="RPKM expression matrix for ribosomal RNAs",
-       "57epigenomes.exn.RPKM.rb"="RPKM expression matrix for ribosomal gene exons",
-       "57epigenomes.exn.N.rb"="RNA-seq read counts matrix for ribosomal gene exons",
-       "57epigenomes.exon.N.nc.gz"="RNA-seq read counts matrix for ribosomal gene exons", 
-       "57epigenomes.exon.RPKM.nc.gz"="RPKM expression matrix for ribosomal gene exons")
+       "57epigenomes.RPKM.pc" = 
+         "RPKM expression matrix for protein coding genes",
+       "57epigenomes.N.pc" = 
+         "RNA-seq read counts matrix for protein coding genes",
+       "57epigenomes.exon.RPKM.pc" = 
+         "RPKM expression matrix for protein coding exons",
+       "57epigenomes.RPKM.intronic.pc" =
+         "RNA-seq read count matrix for intronic protein-coding RNA elements",
+       "57epigenomes.exon.N.pc" =
+         "RNA-seq read counts matrix for protein coding exons",
+       "57epigenomes.N.intronic.pc" =
+         "RNA-seq read count matrix for intronic protein-coding RNA elements",
+       "57epigenomes.RPKM.nc" =
+         "RPKM expression matrix for non-coding RNAs",
+       "57epigenomes.N.nc" =
+         "RNA-seq read counts matrix for non-coding RNAs",
+       "57epigenomes.N.rb" =
+         "RNA-seq read counts matrix for ribosomal genes",
+       "57epigenomes.RPKM.rb" =
+         "RPKM expression matrix for ribosomal RNAs",
+       "57epigenomes.exn.RPKM.rb" =
+         "RPKM expression matrix for ribosomal gene exons",
+       "57epigenomes.exn.N.rb" =
+         "RNA-seq read counts matrix for ribosomal gene exons",
+       "57epigenomes.exon.N.nc.gz" =
+         "RNA-seq read counts matrix for ribosomal gene exons", 
+       "57epigenomes.exon.RPKM.nc.gz" =
+         "RPKM expression matrix for ribosomal gene exons")
     description <- character(length(fileurls))
     for (i in seq_along(map))
        description[grep(names(map)[i], basename(fileurls))] <- map[[i]]
