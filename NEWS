@@ -1,3 +1,44 @@
+CHANGES IN VERSION 1.4.0
+------------------------
+
+NEW FEATURES
+
+    o add script to generate user-contributed resources
+
+    o makeEnsemblGtfToGRanges() no longer stores data in S3 but downloads
+      and converts to GRanges on the fly
+
+    o add EnsemblFastaTwoBitToAHM unit test
+
+    o add man page for makeEnsemblTwoBitToAHM and
+      ensemblFastaToTwoBitFile
+
+    o add makeAnnotationHubMetadata() helper
+
+MODIFICATIONS
+
+    o move GSE62944-related code to ExperimentHub
+
+    o move old vignettes to inst/scripts; add 'Introduction to
+      AnnotationHubData' vignette
+
+    o remove fasta and towbit files on the fly
+
+    o add 'uploadToS3' argument to pushResources() and runRecipes()
+
+    o move readMetadataFromCsv() from ExperimentHubData to
+      AnnotationHubData
+
+    o add 'fileName' arg to readMetadataFromCsv(); don't warn when
+      'Tags' are provided
+
+    o specify length for args in readMetadataFromCsv()
+
+    o makeAnnotationHubMetadata() populates PreparerClass with package name
+
+    o add 'fileName' arg to makeAnnotationHubMetadata()
+
+
 CHANGES IN VERSION 1.2.0
 ------------------------
 
