@@ -48,9 +48,17 @@ readMetadataFromCsv <- function(pathToPackage, fileName="metadata.csv")
         }
 
     )
+    ## Fields cannot be empty
+    if (any(missing <- meta$DataProvider == "")) {
+        meta$DataProvider[missing] <- "NA" 
+        message("missing values for 'DataProvider set to 'NA''")
+    }
+    if (any(is.na(meta$Coordinate_1_based))) {
+        meta$Coordinate_1_based <- TRUE
+        message("missing values for 'Coordinate_1_based set to TRUE'")
+    }
     ## Enforce data type
     meta$TaxonomyId <- as.integer(meta$TaxonomyId)
-    meta$Coordinate_1_based <- as.logical(meta$Coordinate_1_based)
     meta$BiocVersion <- package_version(meta$BiocVersion)
 
     ## Real time assignments
