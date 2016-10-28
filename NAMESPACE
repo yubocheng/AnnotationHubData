@@ -13,7 +13,7 @@ importMethodsFrom(Biostrings, head, substr)
 importMethodsFrom(DBI, dbDriver)
 importMethodsFrom(Rsamtools, indexFa)
 importMethodsFrom(RSQLite, dbConnect, dbGetQuery)
-importMethodsFrom(rtracklayer, 
+importMethodsFrom(rtracklayer,
     browserSession, "genome<-", getTable,
     import, "tableName<-", tableNames, track,
     "trackName<-", trackNames, ucscTableQuery, export
@@ -27,12 +27,12 @@ importFrom(Rsamtools, razip)
 importFrom(AnnotationForge, makeInpDb, makeOrgPackageFromNCBI)
 importFrom(AnnotationDbi, loadDb)
 importFrom(tools, file_ext)
-importFrom(futile.logger, 
-    ERROR, INFO, TRACE, appender.file, 
+importFrom(futile.logger,
+    ERROR, INFO, TRACE, appender.file,
     flog.appender, flog.threshold, flog.info
 )
 importFrom(jsonlite, fromJSON, toJSON)
-importFrom(httr, 
+importFrom(httr,
     config, content, DELETE, GET, handle, handle_find,
     HEAD, headers, POST, stop_for_status
 )
@@ -43,9 +43,9 @@ importFrom(XML, readHTMLTable, xmlParse, xmlValue)
 importFrom(xml2, xml_find_all, xml_contents)
 importFrom(RSQLite, SQLite)
 importFrom(graphics, title)
-importFrom(utils, 
-    capture.output, data, download.file, 
-    read.delim, read.table, str
+importFrom(utils,
+    capture.output, data, download.file,
+    read.delim, read.table, str, read.csv
 )
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -99,7 +99,7 @@ export(
 ###
 
 export(
-    recipeName, run, runRecipes, 
+    recipeName, run, runRecipes,
     hubError, "hubError<-",
     inputFiles, outputFile,
     metadata, "metadata<-",
@@ -109,7 +109,7 @@ export(
 )
 
 exportMethods(
-    recipeName, run, runRecipes, 
+    recipeName, run, runRecipes,
     hubError, "hubError<-",
     inputFiles, outputFile,
     metadata, "metadata<-",

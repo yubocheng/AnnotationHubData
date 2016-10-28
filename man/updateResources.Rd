@@ -19,7 +19,7 @@ updateResources(AnnotationHubRoot, BiocVersion = biocVersion(),
                 metadataOnly = TRUE, insert = FALSE,
                 justRunUnitTest = FALSE, ...)
 
-pushResources(allAhms, hubroot, uploadToS3 = TRUE, download = TRUE)
+pushResources(allAhms, uploadToS3 = TRUE, download = TRUE)
 
 pushMetadata(allAhms, url)
 }
@@ -27,10 +27,6 @@ pushMetadata(allAhms, url)
 \arguments{
   \item{AnnotationHubRoot}{
     Local path where files will be downloaded.
-  }
-  \item{hubroot}{
-    Local path where files will be downloaded. (same as AnnotationHubRoot;
-    should be renamed to match)
   }
   \item{BiocVersion}{
     A character vector of Bioconductor versions the resources should be

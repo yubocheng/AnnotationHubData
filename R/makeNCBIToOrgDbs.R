@@ -12,7 +12,7 @@
     ## need to find an alternative to this...
     ## old school table of tax Ids
     if (!exists("specData")) {
-     data(specData, package = "GenomeInfoDb")
+    load(system.file("data", "specData.rda", package = "GenomeInfoDb"))
     }
     sd <- specData[!is.na(specData[[3]]),]
     ## need to find offenders
@@ -61,6 +61,7 @@ makeNCBIToOrgDbsToAHM <-
              BiocVersion) {
     meta <- .NCBIMetadataFromUrl(baseUrl, justRunUnitTest,
                                  biocVersion=BiocVersion[[1]])
+
     Map(AnnotationHubMetadata,
         Description=meta$description,
         Genome=meta$genome,
@@ -70,7 +71,7 @@ makeNCBIToOrgDbsToAHM <-
         TaxonomyId=meta$taxonomyId,
         Title=meta$title,
         RDataPath=meta$rDataPath,
-        MoreArgs=list(
+        MoreArgs=c(currentMetadata, list(
             BiocVersion=package_version(BiocVersion),
             Coordinate_1_based = TRUE,
             DataProvider = baseUrl,
@@ -81,7 +82,7 @@ makeNCBIToOrgDbsToAHM <-
             SourceType="NCBI/UniProt",
             RDataDateAdded = Sys.time(),
             Recipe = "AnnotationHubData:::NCBIToOrgDbs",
-            Tags = c("NCBI", "Gene", "Annotation")))
+            Tags = c("NCBI", "Gene", "Annotation"))))
 }
 
 ## STEP 2: Make a recipe function that takes an AnnotationHubRecipe object.
@@ -92,15 +93,14 @@ NCBIToOrgDbs <- function(ahm){
     dbname <- makeOrgPackageFromNCBI(version="1.0.0",
                                      maintainer=ahm@Maintainer,
                                      author=ahm@Maintainer,
-                                     outputDir=getwd(),
+                                     outputDir=ahm@HubRoot,
                                      tax_id=as.character(ahm@TaxonomyId),
                                      genus=genus,
                                      species=species,
-                                     NCBIFilesDir=getwd(),
+                                     NCBIFilesDir=ahm@HubRoot,
                                      databaseOnly=TRUE,
                                      rebuildCache=TRUE)
-    db <- loadDb(file=dbname)
-    saveDb(db, file=outputFile(ahm))
+    file.rename(from=file.path(ahm@HubRoot, dbname), to=outputFile(ahm))
     outputFile(ahm)
 }
 

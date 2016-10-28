@@ -38,7 +38,7 @@ setClass("HubMetadata",
         Location_Prefix="character",
         DispatchClass="character",
         PreparerClass="character",          ## needed for record_id
-        Error="character" 
+        Error="character"
     ),
     prototype = prototype(
         HubRoot=NA_character_,
@@ -67,7 +67,7 @@ setClass("HubMetadata",
         Location_Prefix=NA_character_,
         DispatchClass=NA_character_,
         PreparerClass=NA_character_,
-        Error="NA_character" 
+        Error="NA_character"
     )
 )
 
@@ -99,7 +99,7 @@ setGeneric("hubError<-", signature=c("x", "value"),
 
 ## ------------------------------------------------------------------------------
 ## getters and setters
-## 
+##
 
 setMethod("metadata", "HubMetadata",
     function(x, ...) {
@@ -123,7 +123,7 @@ setMethod("inputFiles", "HubMetadata",
     function(object, useRoot=TRUE) {
         if(useRoot==TRUE){
             res <- file.path(metadata(object)$HubRoot,
-                             metadata(object)$RDataPath) 
+                             metadata(object)$RDataPath)
         }else{
             res <- metadata(object)$SourceUrl
         }
@@ -134,7 +134,7 @@ setMethod("inputFiles", "HubMetadata",
 setMethod("outputFile", "HubMetadata",
     function(object)
         file.path(metadata(object)$HubRoot,
-                  metadata(object)$RDataPath)
+                  basename(metadata(object)$RDataPath))
 )
 
 setMethod("hubError", "HubMetadata",
@@ -142,7 +142,7 @@ setMethod("hubError", "HubMetadata",
 )
 
 setMethod("hubError", "list",
-    function(x) 
+    function(x)
     {
         if (!all(sapply(x, is, "HubMetadata")))
             stop("all elements of 'value' must be 'HubMetadata' objects")
@@ -151,15 +151,15 @@ setMethod("hubError", "list",
 )
 
 setReplaceMethod("hubError", c("HubMetadata", "character"),
-    function(x, value) 
+    function(x, value)
     {
         x@Error <- value
-        x 
+        x
     }
 )
 
 setReplaceMethod("hubError", c("list", "character"),
-    function(x, value) 
+    function(x, value)
     {
         if (!all(sapply(x, is, "HubMetadata")))
             stop("all elements of 'x' must be 'HubMetadata' objects")
@@ -169,7 +169,7 @@ setReplaceMethod("hubError", c("list", "character"),
 
 ## ------------------------------------------------------------------------------
 ## show
-## 
+##
 
 setMethod(show, "HubMetadata",
     function(object)

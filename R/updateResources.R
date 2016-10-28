@@ -23,15 +23,12 @@ pushMetadata <- function(allAhms, url) {
     })
 }
 
-pushResources <- function(allAhms, hubroot, uploadToS3=TRUE, download = TRUE) {
+pushResources <- function(allAhms, uploadToS3=TRUE, download = TRUE) {
     flog(INFO, "processing and pushing data ...")
     res <- lapply(allAhms,
         function(xx) {
             tryCatch({
-                runRecipes(xx, hubroot=hubroot,
-                           bucket = getOption("ANNOTATION_HUB_BUCKET_NAME",
-                                              "annotationhub"),
-                           download = download, uploadToS3=uploadToS3)
+                runRecipes(xx, uploadToS3=uploadToS3, download=download)
                 xx
             }, error=function(err) {
                 msg <- paste0("error in runRecipes():", conditionMessage(err))
@@ -102,15 +99,14 @@ setGeneric("runRecipes", signature="metadata",
 )
 
 setMethod("runRecipes", "AnnotationHubMetadata",
-    function(metadata, hubroot, ..., uploadToS3 = TRUE, download = TRUE)
+          function(metadata, hubroot,
+                   bucket = getOption("ANNOTATION_HUB_BUCKET_NAME",
+                                      "annotationhub"),
+                   uploadToS3, download, ...)
     {
-        ## FIXME: (1) use of 'download' unclear
-        ##        (2) HubRoot / AnnotationHubRoot should already be set
-        metadata(metadata)$AnnotationHubRoot <- hubroot
-        metadata(metadata)$HubRoot <- hubroot
-
         ## TODO: better way needed for deciding this:
         provider <- metadata(metadata)$DataProvider
+
         if (grepl("http://inparanoid", provider, fixed=TRUE) ||
             grepl("ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/", provider, fixed=TRUE))
         {
@@ -133,7 +129,7 @@ setMethod("runRecipes", "AnnotationHubMetadata",
         ## upload to S3
         if (uploadToS3) {
             fileToUpload <- file.path(metadata(metadata)$HubRoot,
-                                      metadata(metadata)$RDataPath)
+                                      basename(metadata(metadata)$RDataPath))
             remotePath <- sub("^/", "", metadata(metadata)$RDataPath)
             res <- upload_to_S3(fileToUpload, remotePath, bucket, ...)
             ## If successful, delete local file
@@ -146,7 +142,7 @@ updateResources <- function(AnnotationHubRoot, BiocVersion=biocVersion(),
                             preparerClasses=getImportPreparerClasses(),
                             metadataOnly=TRUE, insert=FALSE,
                             justRunUnitTest=FALSE, ...) {
-
+    AnnotationHubRoot <- normalizePath(AnnotationHubRoot)
     if (insert) {
         if(is.null(url <- getOption("AH_SERVER_POST_URL")))
             stop(wmsg(paste0("When 'insert=TRUE' option AH_SERVER_POST_URL ",
@@ -168,15 +164,18 @@ updateResources <- function(AnnotationHubRoot, BiocVersion=biocVersion(),
             preparerInstance <- do.call(new, list(preparerClass))
             ## NOTE: 'currentMetadata' arg is in generic but not used
             ahms <- newResources(preparerInstance,
+                                 currentMetadata=list(AnnotationHubRoot=
+                                                          AnnotationHubRoot),
                                  justRunUnitTest=justRunUnitTest,
-                                 BiocVersion=package_version(BiocVersion), ...)
+                                 BiocVersion=package_version(BiocVersion),
+                                 ...)
             allAhms <- append(allAhms, ahms)
         }
     }
 
     ## download, process and push data to appropriate location
     if (!metadataOnly)
-        allAhms <- pushResources(allAhms, AnnotationHubRoot, ...)
+        allAhms <- pushResources(allAhms, ...)
 
 
     ## if data push was successful insert metadata in db
