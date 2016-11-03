@@ -27,10 +27,16 @@
     else
       title <- sub("\\.fa\\.gz$", ".2bit", basename(sourceUrl))
     root <- setNames(rep(NA_character_, length(sourceUrl)), title)
-    ## First two terms separated by underscore
+    ## genome followed by underscore 
+    genome <- sub("^([[:alpha:]_]+)\\.(\\w*)\\.(.*)", "\\2", title, perl=TRUE)
+    ## genome followed by dot 
+    splitGenome <- strsplit(genome, '\\.')
+    if (any(xx <- lengths(splitGenome) > 1L))
+        genome[xx] <- sapply(splitGenome[xx], "[", 2)
+    ## species is fist two terms separated by underscore
     species <- strsplit(sub("^([[:alpha:]_]+)\\.(.*)", "\\1", title), "_")
-    if (any(multiple <- lengths(species) > 2L))
-        species[multiple] <- lapply(species[multiple], function(ii) ii[1:2])
+    if (any(yy <- lengths(species) > 2L)) 
+        species[yy] <- lapply(species[yy], function(ii) ii[1:2])
     species <- sapply(species, paste0, collapse=" ")
     taxonomyId <- local({
         uspecies <- unique(species)
@@ -48,8 +54,7 @@
 
     list(annotationHubRoot = root, title=title, species = species,
          taxonomyId = as.integer(taxonomyId),
-         genome = sub("^([[:alpha:]_]+)\\.(\\w*)\\.(.*)", "\\2", title,
-           perl=TRUE),
+         genome = genome,
          sourceSize=sourceSize,
          sourceLastModifiedDate=sourceLastModDate,
          sourceVersion = sub(releaseRegex, "\\1", sourceUrl))
