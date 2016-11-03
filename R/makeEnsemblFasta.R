@@ -27,8 +27,11 @@
     else
       title <- sub("\\.fa\\.gz$", ".2bit", basename(sourceUrl))
     root <- setNames(rep(NA_character_, length(sourceUrl)), title)
-    species <- gsub("_", " ", sub("^([[:alpha:]_]+)\\.(.*)", "\\1", title),
-                    fixed=TRUE)
+    ## First two terms separated by underscore
+    species <- strsplit(sub("^([[:alpha:]_]+)\\.(.*)", "\\1", title), "_")
+    if (any(multiple <- lengths(species) > 2L))
+        species[multiple] <- lapply(species[multiple], function(ii) ii[1:2])
+    species <- sapply(species, paste0, collapse=" ")
     taxonomyId <- local({
         uspecies <- unique(species)
         GenomeInfoDb:::.taxonomyId(uspecies)[match(species, uspecies)]
