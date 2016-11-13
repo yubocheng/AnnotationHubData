@@ -9,12 +9,13 @@
       "dna\\.(primary_assembly|toplevel)", "ncrna")
 
 ## Metadata generator
-## 'release' should be a single integer, e.g., 84
-makeEnsemblTwoBitToAHM <- # TODO: Add man page for this function
-    function(currentMetadata=getwd(), baseUrl = "ftp://ftp.ensembl.org/pub/",
+makeEnsemblTwoBitToAHM <- 
+    function(currentMetadata, baseUrl = "ftp://ftp.ensembl.org/pub/",
              baseDir = "fasta/", release,
              justRunUnitTest = FALSE, BiocVersion = biocVersion())
 {
+    if (!isSingleInteger(release))
+        stop("'release' must be a single integer")
     time1 <- Sys.time()
     regex <- paste0(".*release-", release)
     sourceUrl <- .ensemblFastaSourceUrls(baseUrl, baseDir, regex,

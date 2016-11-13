@@ -78,6 +78,7 @@ makeStandardOrgDbsToAHM <- function(currentMetadata,
     orgDbs <- .getOrgDbs()
     meta <- .orgDbPkgMetadataFromObjs(orgDbs, biocversion=BiocVersion)
     Map(AnnotationHubMetadata,
+        AnnotationHubRoot=currentMetadata$AnnotationHubRoot
         Description=meta$description,
         Genome=meta$genome,
         SourceUrl=meta$sourceUrl,
