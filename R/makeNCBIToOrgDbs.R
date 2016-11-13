@@ -1,3 +1,19 @@
+### =========================================================================
+### makeNCBIToOrgDbs ('non-standard' OrgDbs)
+### -------------------------------------------------------------------------
+###
+
+## This recipe makes 'non-standard' OrgDb sqlite files from data
+## at ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/. These OrgDbs are less
+## comprehensive than the 'standard' packages available in the
+## Bioconductor repo. This code generates 1000 sqlite files.
+
+## This recipe should be run right before a new release. The 
+## biocversion should be the current devel version, soon to roll over 
+## to the new release.
+
+## The 'standard' OrgDbs are generated with makeStandardOrgDbsToSqlite.R.
+
 .NCBIMetadataFromUrl <- function(baseUrl, justRunUnitTest, biocVersion) {
     load(system.file('extdata','viableIDs.rda', package='AnnotationForge'))
     ids <- results

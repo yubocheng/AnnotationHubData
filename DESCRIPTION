@@ -52,7 +52,7 @@ Collate:
     makeHaemCode.R
     makeInparanoid8ToDbs.R
     makeNCBIToOrgDbs.R
-    makeRecentOrgPkgsToDbs.R
+    makeStandardOrgDbsToSqlite.R
     makePazar.R
     makeRefNet.R
     makeUCSCChain.R
