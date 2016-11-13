@@ -41,7 +41,7 @@ importFrom(parallel, detectCores)
 importFrom(stats, setNames)
 importFrom(XML, readHTMLTable, xmlParse, xmlValue)
 importFrom(xml2, xml_find_all, xml_contents)
-importFrom(RSQLite, SQLite)
+importFrom(RSQLite, SQLite, sqliteCopyDatabase)
 importFrom(graphics, title)
 importFrom(utils,
     capture.output, data, download.file,

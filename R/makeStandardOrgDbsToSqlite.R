@@ -78,7 +78,7 @@ makeStandardOrgDbsToAHM <- function(currentMetadata,
     orgDbs <- .getOrgDbs()
     meta <- .orgDbPkgMetadataFromObjs(orgDbs, biocversion=BiocVersion)
     Map(AnnotationHubMetadata,
-        AnnotationHubRoot=currentMetadata$AnnotationHubRoot
+        AnnotationHubRoot=currentMetadata$AnnotationHubRoot,
         Description=meta$description,
         Genome=meta$genome,
         SourceUrl=meta$sourceUrl,
@@ -107,8 +107,10 @@ extractOrgDbSqlite <- function(ahm) {
     orgDbs <- .getOrgDbs()
     orgDb <- orgDbs[[orgDbName]]
     outputPath <- file.path(metadata(ahm)$AnnotationHubRoot,
-                            metadata(ahm)$RDataPath)
-    saveDb(orgDb, file=outputPath)
+                            basename(metadata(ahm)$RDataPath))
+    if (!isSingleString(outputPath)) 
+        stop("'outputPath' must be a single string")
+    sqliteCopyDatabase(dbconn(orgDb), outputPath)
     outputFile(ahm)
 }
 

@@ -23,7 +23,7 @@ pushMetadata <- function(allAhms, url) {
     })
 }
 
-pushResources <- function(allAhms, uploadToS3=TRUE, download = TRUE) {
+pushResources <- function(allAhms, uploadToS3=TRUE, download=TRUE) {
     flog(INFO, "processing and pushing data ...")
     res <- lapply(allAhms,
         function(xx) {
