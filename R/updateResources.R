@@ -64,7 +64,7 @@ downloadResource <- function(ahm, downloadIfExists) {
     }
 
     if (protocol == "rtracklayer")
-        return ## recipe will download
+        return() ## recipe will download
     if (protocol == "ftp") {
         oldwd <- getwd()
         on.exit(setwd(oldwd))
