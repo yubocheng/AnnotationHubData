@@ -9,8 +9,6 @@ readMetadataFromCsv <- function(pathToPackage, fileName="metadata.csv")
     meta <- read.csv(file.path(pathToPackage, 
                      paste0("inst/extdata/", fileName)),
                      colClasses="character", stringsAsFactors=FALSE)
-
-    ## Check columns
     mat <- rbind(c("Title", "character"),
                  c("Description", "character"),
                  c("BiocVersion", "character"),
@@ -25,7 +23,7 @@ readMetadataFromCsv <- function(pathToPackage, fileName="metadata.csv")
                  c("Maintainer", "character"),
                  c("RDataClass", "character"),
                  c("DispatchClass", "character"),
-                 c("Tags", "Tags"),
+                 c("Tags", "character"),
                  c("ResourceName", "character"))
 
     expected <- mat[,1]
@@ -34,9 +32,6 @@ readMetadataFromCsv <- function(pathToPackage, fileName="metadata.csv")
         stop(paste0("missing fields in metadata.csv: ", 
                     paste(expected[missing], collapse=", ")))
     extra<- !names(meta) %in% expected 
-    if (any(extra))
-        message(paste0("extra fields in metadata.csv will be ignored: ", 
-                    paste(names(meta)[extra], collapse=", ")))
 
     ## All fields length 1
     apply(meta, 1, 
@@ -48,7 +43,7 @@ readMetadataFromCsv <- function(pathToPackage, fileName="metadata.csv")
         }
 
     )
-    ## Fields cannot be empty
+    ## Populate required fields
     if (any(missing <- meta$DataProvider == "")) {
         meta$DataProvider[missing] <- "NA" 
         message("missing values for 'DataProvider set to 'NA''")
@@ -56,14 +51,25 @@ readMetadataFromCsv <- function(pathToPackage, fileName="metadata.csv")
     if (any(is.na(meta$Coordinate_1_based))) {
         meta$Coordinate_1_based <- TRUE
         message("missing values for 'Coordinate_1_based set to TRUE'")
+    } else { 
+        meta$Coordinate_1_based <- as.logical(meta$Coordinate_1_based)
     }
     ## Enforce data type
     meta$TaxonomyId <- as.integer(meta$TaxonomyId)
     meta$BiocVersion <- package_version(meta$BiocVersion)
 
+    ## Location_Prefix not specified -> data in S3
+    if (all(is.null(Location_Prefix <- meta$Location_Prefix))) {
+        meta$Location_Prefix <- 'http://s3.amazonaws.com/annotationhub/'
+        package <- basename(pathToPackage)
+        meta$RDataPath <- paste0(package,"/",meta$ResourceName)
+    ## Location_Prefix specified -> data at other location
+    } else {
+        if (all(is.null(meta$RDataPath)))
+            stop(paste0("when 'Location_Prefix' is specified 'RDataPath' ",
+                        "must be provided"))
+    }
     ## Real time assignments
     meta$RDataDateAdded <- rep(Sys.time(), nrow(meta))
-    package <- basename(pathToPackage)
-    meta$RDataPath <- paste0(package,"/",meta$ResourceName)
     meta
 }

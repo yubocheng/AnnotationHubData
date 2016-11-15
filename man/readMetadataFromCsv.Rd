@@ -90,6 +90,21 @@
 
         \item ResourceName: \code{character(1)}. Exact file name.
 
+        \item Location_Prefix: \code{character(1)}. Do not include this field
+              if data are stored in AWS S3; it will be generated automatically.
+
+              If data will be accessed from a location other than AWS S3
+              this field should be the base url. When \code{Location_Prefix}
+              is provided you also need to specify \code{RDataPath}.
+
+        \item RDataPath: \code{character(1)}. Do not include this field if
+              data are stored in AWS S3; it will be generated automatically.
+
+              If data will be accessed from a location other than AWS S3
+              this field should be the remainder of the path to the
+              resource. The \code{Location_Prefix} will be prepended to
+              \code{RDataPath} for the full path to the resource.
+
         \item Tags: \code{character() vector}. 
               \sQuote{Tags} are search terms used to define a subset of
               resources in a \code{Hub} object, e.g, in a call to \code{query}.
@@ -123,7 +138,7 @@
 \value{
     A data.frame with one row per resource and columns for the Required 
     Fields described above. Additional auto-generated columns, e.g., 
-    RDataDateAdded, RDataPath and PreparerClass may also be present and are 
+    RDataDateAdded and PreparerClass may also be present and are 
     used by internal functions when generating the final metadata.
 }
 

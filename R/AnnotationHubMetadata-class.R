@@ -58,7 +58,6 @@ makeAnnotationHubMetadata <- function(pathToPackage, fileName="metadata.csv")
     ## process tags; package name to PreparerClass
     .package <- basename(pathToPackage)
     .tags <- c(strsplit(meta$Tags, ",")[[1]], .package)
-
     lapply(seq_len(nrow(meta)),
         function(x) {
             with(meta[x,], 
@@ -76,7 +75,8 @@ makeAnnotationHubMetadata <- function(pathToPackage, fileName="metadata.csv")
                                        RDataPath=RDataPath,
                                        Recipe=NA_character_,
                                        DispatchClass=DispatchClass,
-                                       PreparerClass=.package)) 
+                                       PreparerClass=.package,
+                                       Location_Prefix=Location_Prefix)) 
         }
     )
 }

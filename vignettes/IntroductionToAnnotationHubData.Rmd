@@ -138,7 +138,12 @@ separately in AWS S3 buckets. The author should make the data available
 via dropbox, ftp site or another mutually accessible application and it will 
 be uploaded to S3 by a member of the `Bioconductor` team.
 
-4. Package review:  
+4. Confirm valid metadata:  
+Confirm the data in inst/exdata/metadata.csv are valid by running
+AnnotationHubData:::makeAnnotationHubMetadata() on your package. Please
+address and warnings or errors.
+
+5. Package review:  
 When the data and metadata are ready, a `Bioconductor` team member will push
 the data to AWS S3 and add the metadata to the production database. At this
 point the package man pages and vignette can be finalized. When the package
