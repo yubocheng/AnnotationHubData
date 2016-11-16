@@ -263,5 +263,5 @@ To remove a resource from `AnnotationHub` contact maintainer@bioconductor.org.
 The process for adding data to `AnnotationHub` has evolved substantially since
 the first vignettes were written. Much of the information contained in those
 documents is outdated or applicable only to repeat-run recipes added to the
-code base. For historical purposes these documents have been moved to
-the inst/scripts/ directory of the `AnnotationHubData` package.
+code base. These documents have been retained for historical purposes and
+are located in the inst/scripts/ directory of the `AnnotationHubData` package.
