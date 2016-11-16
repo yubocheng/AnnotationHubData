@@ -14,7 +14,7 @@ makeEnsemblTwoBitToAHM <-
              baseDir = "fasta/", release,
              justRunUnitTest = FALSE, BiocVersion = biocVersion())
 {
-    if (!isSingleInteger(release))
+    if (length(release) > 1L)
         stop("'release' must be a single integer")
     time1 <- Sys.time()
     regex <- paste0(".*release-", release)
