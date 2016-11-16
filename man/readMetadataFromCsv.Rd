@@ -28,7 +28,8 @@
 \details{
   \itemize{
     \item{readMetadataFromCsv:}{
-      Reads the metadata.csv file describing the metadata for resources
+
+      Reads a metadata.csv file describing the metadata for resources
       to be added to one of the 'Hubs' (AnnotationHub, ExperimentHub).
       The file should be located in the inst/extdata of the package.
       \code{readMetadataFromCsv} performs checks for required columns
@@ -150,9 +151,10 @@
 
 \examples{
 
-## Each resource needs a separate row of metadata. This example is for a
-## single resource. If you have multiple resources the arguments below
-## would be character vectors that produced multiple rows in the data.frame.
+## Each row of the metadata.csv represents a resource added to one of
+## the 'Hubs'. This example creates a csv file for a single resource. In
+## the case of multiple resources, the arguments below would be character 
+## vectors that produced multiple rows in the data.frame.
 
 meta <- data.frame(
     Title = "RNA-Sequencing dataset from study XYZ",
@@ -176,9 +178,9 @@ meta <- data.frame(
 
 \dontrun{
 ## Write the data out and put in the inst/extdata directory.
-## csv 
 write.csv(meta, file="metadata.csv", row.names=FALSE)
-## Test metadata.csv with readMetadataCsv():
+
+## Test the validity of metadata.csv with readMetadataCsv():
 readMetadataFromCsv("path/to/mypackage")
 }
 
