@@ -53,6 +53,7 @@ Creating the package involves the following steps:
    unless otherwise stated. 
 
 * inst/extdata/
+
     - metadata.csv: 
     This file contains the metadata in the format of one row per resource
     to be added to the `AnnotationHub` database. The file should be generated
@@ -63,18 +64,25 @@ Creating the package involves the following steps:
     details.
 
 * inst/scripts/
-    - make-data.R: 
+
+    - make-data.R:  
     A script describing the steps involved in making the data object(s). This
     includes where the original data were downloaded from, pre-processing,
     and how the final R object was made. Include a description of any
-    steps performed outside of `R` with third party software. Data objects
-    should be serialized with save() with the .rda extension on the filename.
+    steps performed outside of `R` with third party software. 
 
-    - make-metadata.R: 
+    Output of the script are files on disk ready to be pushed to S3. If data 
+    are to be hosted on a personal web site instead of S3, this file should 
+    explain any manipulation of the data prior to hosting on the web site. For 
+    data hosted on a public web site with no prior manipultaion this file is 
+    not needed.
+
+    - make-metadata.R:   
     A script to make the metadata.csv file located in inst/extdata of the 
-    package. See ?`readMetadataFromCsv` for a description of expected fields 
-    and data types.  `readMetadataFromCsv()` can be used to validate the 
-    metadata.csv file before submitting the package.
+    package. See ?`readMetadataFromCsv` for a description of the
+    metadata.csv file, expected fields and data types. The
+    `readMetadataFromCsv()` function can be used to validate the metadata.csv 
+    file before submitting the package.
 
 * vignettes/
 
@@ -82,35 +90,17 @@ Creating the package involves the following steps:
 
 * R/
 
-  - make-metadata.R:
-
-    Code that assembles metadata for all resources and calls 
-    `AnnotationHubData::AnnotationHubMetadata()`. The output should be a list
-    of `AnnotationHubMetadata` objects, one for each resource. Examples functions
-    can be found in the `AnnotationHubData` source code with names of 
-    make*ToAHM().
-
-  - make-data.R:
-
-    Code that downloads and manipulates (if necessary) the data; outputs are 
-    files on disk ready to be pushed to S3. If data are to be hosted on a 
-    personal web site instead of S3, this file should explain any manipulation 
-    of the data prior to hosting on the web site. For data hosted on a public
-    web site with no prior manipultaion this file is not needed.
-
-  - OPTIONAL functions to enhance data exploration.
+    OPTIONAL functions to enhance data exploration.
 
 * man/
 
-  - package man page: 
-
+  - package man page:  
     The package man page serves as a landing point and should briefly describe
     all resources associated with the package. There should be an \alias
     entry for each resource title either on the package man page or individual
     man pages.
  
-  - resource man pages: 
-
+  - resource man pages:  
     OPTIONAL. Man page(s) should describe the resource (raw data source,
     processing, QC steps) and demonstrate how the data can be loaded through 
     the `AnnotationHub` interface. For example, replace "SEARCHTERM*" below 

@@ -10,19 +10,19 @@ BiocVersion <- "3.4"
 ## test_BioPaxImportPreparer_recipe
 
 
-test_UCSCChainPreparer_recipe <- function() {
-    ahms = updateResources(ahroot, BiocVersion,
-        preparerClasses = "UCSCChainPreparer",
-        insert = FALSE, metadataOnly=TRUE, justRunUnitTest=TRUE)
-    checkTrue(class(ahms[[1]])=="AnnotationHubMetadata")
-}
-
-test_UCSC2BitPreparer_recipe <- function() {
-    ahms = updateResources(ahroot, BiocVersion,
-        preparerClasses = "UCSC2BitPreparer",
-        insert = FALSE, metadataOnly=TRUE, justRunUnitTest=TRUE)
-    checkTrue(class(ahms[[1]])=="AnnotationHubMetadata")
-}
+#test_UCSCChainPreparer_recipe <- function() {
+#    ahms = updateResources(ahroot, BiocVersion,
+#        preparerClasses = "UCSCChainPreparer",
+#        insert = FALSE, metadataOnly=TRUE, justRunUnitTest=TRUE)
+#    checkTrue(class(ahms[[1]])=="AnnotationHubMetadata")
+#}
+#
+#test_UCSC2BitPreparer_recipe <- function() {
+#    ahms = updateResources(ahroot, BiocVersion,
+#        preparerClasses = "UCSC2BitPreparer",
+#        insert = FALSE, metadataOnly=TRUE, justRunUnitTest=TRUE)
+#    checkTrue(class(ahms[[1]])=="AnnotationHubMetadata")
+#}
 
 test_EncodeImportPreparer_recipe <- function() {
     ahms = updateResources(ahroot, BiocVersion,
