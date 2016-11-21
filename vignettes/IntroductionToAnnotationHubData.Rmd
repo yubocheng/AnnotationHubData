@@ -94,13 +94,13 @@ Creating the package involves the following steps:
 
 * man/
 
-  - package man page:  
+    - package man page:  
     The package man page serves as a landing point and should briefly describe
     all resources associated with the package. There should be an \alias
     entry for each resource title either on the package man page or individual
     man pages.
  
-  - resource man pages:  
+    - resource man pages:  
     OPTIONAL. Man page(s) should describe the resource (raw data source,
     processing, QC steps) and demonstrate how the data can be loaded through 
     the `AnnotationHub` interface. For example, replace "SEARCHTERM*" below 
