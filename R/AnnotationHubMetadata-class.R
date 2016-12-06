@@ -57,6 +57,8 @@ makeAnnotationHubMetadata <- function(pathToPackage, fileName="metadata.csv")
     meta <- readMetadataFromCsv(pathToPackage, fileName)
     ## process tags; package name to PreparerClass
     .package <- basename(pathToPackage)
+    if (is.na(meta$Tags) || !length(meta$Tags))
+        stop("please add 'Tag' values to metadata")
     .tags <- c(strsplit(meta$Tags, ",")[[1]], .package)
     lapply(seq_len(nrow(meta)),
         function(x) {

@@ -23,7 +23,6 @@ readMetadataFromCsv <- function(pathToPackage, fileName="metadata.csv")
                  c("Maintainer", "character"),
                  c("RDataClass", "character"),
                  c("DispatchClass", "character"),
-                 c("Tags", "character"),
                  c("ResourceName", "character"))
 
     expected <- mat[,1]
