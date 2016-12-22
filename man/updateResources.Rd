@@ -47,6 +47,10 @@ pushMetadata(allAhms, url)
     testing.
   }
   \item{insert}{
+    NOTE: This option is for inserting metadata records in the
+    production data base (done by Bioconductor core team member) and
+    is for internal use only.
+
     A \code{logical} to control if metadata are inserted in the AnnotationHub
     db. By default this option is FALSE which is a useful state in which
     to test a new recipe and confirm the metadata fields are correct.
@@ -168,8 +172,10 @@ attr(,"package")
 ## Insert metadata in the db and process/push data files:
 ## -----------------------------------------------------------------------
 ## This next code chunk creates the metadata and downloads and processes
-## the data. If all files are successfully pushed to their
-## final resting place then metadata are inserted in the AnnotationHub db.
+## the data (metadataOnly=FALSE). If all files are successfully pushed to
+## to their final resting place, metadata records are inserted in the 
+## AnnotationHub db (insert=TRUE). Metadata insertion is done by a 
+## Bioconductor team member; contact maintainer@bioconductor.org for help.
 
 meta <- updateResources("local/path",
                         BiocVersion = c("3.2", "3.3"),

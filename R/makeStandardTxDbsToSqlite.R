@@ -3,13 +3,17 @@
 ### -------------------------------------------------------------------------
 ###
 
-## This recipe extracts the sqlite files from the 'standard'
-## TxDb packages in the current Bioconductor repo:
+## Extracts the sqlite files from the 'standard' TxDb packages in the current 
+## Bioconductor repo:
 ## 
 ##   http://www.bioconductor.org/packages/release/BiocViews.html#___TxDb.
 
-## Recipe should be run after new TxDbs have been generated (right before
-## the next release).
+## NOTES:
+## - Recipe should be run after new TxDbs have been generated (right before
+##   the next release).
+## - BiocVersion() should be the impending release / current devel.
+## - May need to run AnnotationHubData:::.getTxDbs(TRUE) to load all
+##   TxDbs if not in local R install.
 
 ## Returns list of loaded TxDb objects
 .getTxDbs <- function(install=FALSE) {
@@ -19,9 +23,8 @@
     if (install) {  ## download, install
         require(BiocInstaller)
         lapply(dbNames, function(xx) {
-            if (!require(xx, character.only=TRUE)) {
+            if (!require(xx, character.only=TRUE))
                 biocLite(xx, ask=FALSE)
-            }
         })
     }
     lapply(dbNames, require, character.only=TRUE)

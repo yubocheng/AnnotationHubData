@@ -137,7 +137,8 @@ setMethod("runRecipes", "AnnotationHubMetadata",
     }
 )
 
-updateResources <- function(AnnotationHubRoot, BiocVersion=biocVersion(),
+updateResources <- function(AnnotationHubRoot=getwd(), 
+                            BiocVersion=biocVersion(),
                             preparerClasses=getImportPreparerClasses(),
                             metadataOnly=TRUE, insert=FALSE,
                             justRunUnitTest=FALSE, ...) {
@@ -148,8 +149,8 @@ updateResources <- function(AnnotationHubRoot, BiocVersion=biocVersion(),
                              "must be set in .Rprofile")))
     }
 
-    ## create metadata by invoking newResources() method
-    allAhms <- list()
+    ## generate metadata by invoking newResources() method
+    metadata <- list()
     for (preparerClass in preparerClasses)
     {
         flog(INFO, "Preparer Class: %s", preparerClass)
@@ -161,27 +162,34 @@ updateResources <- function(AnnotationHubRoot, BiocVersion=biocVersion(),
 
         } else {
             preparerInstance <- do.call(new, list(preparerClass))
-            ## NOTE: 'currentMetadata' arg is in generic but not used
             ahms <- newResources(preparerInstance,
                                  currentMetadata=list(AnnotationHubRoot=
                                                           AnnotationHubRoot),
                                  justRunUnitTest=justRunUnitTest,
                                  BiocVersion=package_version(BiocVersion),
                                  ...)
-            allAhms <- append(allAhms, ahms)
+            metadata <- append(metadata, ahms)
         }
     }
 
     ## download, process and push data to appropriate location
     if (!metadataOnly)
-        allAhms <- pushResources(allAhms, ...)
-
+        metadata <- pushResources(metadata, ...)
 
     ## if data push was successful insert metadata in db
-    if (insert)
-        pushMetadata(allAhms, url)
+    if (insert) {
+        ## We don't check for duplicated names in AnnotationHub because
+        ## the original model allowed the addition of new resources with 
+        ## the same titles as existing records; metadata exposed to the user 
+        ## is filtered by biocVersion or rdatadateremoved.
+        ## check if any new records match existing
 
-    allAhms
+        message("inserting metadata in db ...") 
+        pushMetadata(metadata, url)
+    }
+
+    message("complete!") 
+    metadata 
 }
 
 
