@@ -16,9 +16,8 @@ pushMetadata <- function(allAhms, url) {
 
     jsons <- lapply(allAhms, ahmToJson)
     lapply(jsons, function(x) {
-        result <- POST(handle=handle(url), body=list(payload=x))
+        result <- postForm(url, payload=x)
         print(result)
-        print(content(result))
         result
     })
 }
@@ -257,7 +256,7 @@ getCurrentResources <- function(version){
         stop("You can't delete a record randomly. You need an id.")}
     if(!is.integer(id)){stop("id must be an integer")}
     url <- paste0("http://gamay:9393/resource/",id)
-    DELETE(url)
+    httpDELETE(url)
 }
 
 ## and a vectorized function for removing records

@@ -24,15 +24,15 @@
     xml <- XML::xmlParse(url)
     
     ## 2. records
-    id <- as.character(sapply(xml["//Id/text()"], XML::xmlValue))
+    id <- as.character(sapply(xml["//Id/text()"], xmlValue))
     scin <- taxid <- character()
     if (length(id)) {
         query2 <- paste(id, collapse=",")
         url <- sprintf("%s/efetch.fcgi?db=taxonomy&id=%s&retmax=%d",
             .eutils, query2, length(uorganism))
         xml <- XML::xmlParse(url)
-        scin <- sapply(xml["/TaxaSet/Taxon/ScientificName"], XML::xmlValue)
-        taxid <- sapply(xml["/TaxaSet/Taxon/TaxId/text()"], XML::xmlValue)
+        scin <- sapply(xml["/TaxaSet/Taxon/ScientificName"], xmlValue)
+        taxid <- sapply(xml["/TaxaSet/Taxon/TaxId/text()"], xmlValue)
     }
     
     

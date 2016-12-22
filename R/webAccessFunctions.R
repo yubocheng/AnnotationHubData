@@ -3,8 +3,6 @@
 ### -------------------------------------------------------------------------
 ###
 
-.trim <- function (x) gsub("^\\s+|\\s+$", "", x)
-
 ## Remove remove "\n" when inserting long text (> 80 chars)
 .expandLine <- function(x)
     gsub("[[:space:]]{2,}"," ", x)
@@ -19,12 +17,12 @@
 .httrRead <- function(url, xpathString="//pre/a/text()", 
                       extension=NA_character_, getmd5sum=FALSE) {
     tryCatch({
-        result <- GET(url)
-        stop_for_status(result)
-        html <- content(result)
+        result <- httpGET(url)
+        html <- htmlParse(result, asText=TRUE)
 
-        ## httr >=1.1.0 uses xml2 instead of XML
-        fls <- as.character(xml_find_all(html, xpathString)) 
+        fls <- getNodeSet(html, xpathString)
+        if (is(fls, "XMLNodeSet"))
+            fls <- vapply(fls, xmlValue, character(1L))
 
         md5exists <- length(grep("md5sum.txt", fls))!=0
         remove <- c("Name", "Size", "Last modified", "Description",
@@ -63,11 +61,11 @@
             message(paste0("getting file info: ", basename(f)))
         tryCatch({
             h = suppressWarnings(
-              GET(f, config=config(nobody=TRUE, filetime=TRUE)))
+              httpGET(f, nobody=TRUE, filetime=TRUE, header=TRUE))
 
-            nams <- names(headers(h))
+            nams <- names(h$header)
             if("last-modified" %in% nams)
-                 headers(h)[c("last-modified", "content-length")]
+                 h$header[c("last-modified", "content-length")]
 	    else
                 c("last-modified"=NA, "content-length"=NA)
         }, error=function(err) {
@@ -91,15 +89,12 @@
 ## 'extension' can be a single file name with extension or just the extension.
 .ftpFileInfo <- function(url, extension, verbose=FALSE) {
 
-    curlHandle <- curl::new_handle()
-    curl::handle_setopt(curlHandle, dirlistonly=TRUE)
     if (verbose)
         message(paste0("creating urls ..."))
 
     result <- lapply(url, function(ul) {
-        con <- curl::curl(ul, "r")
-        txt <- read.table(con, stringsAsFactors=FALSE, fill=TRUE)
-        close(con)
+        con <- getURL(ul)
+        txt <- read.table(text=con, stringsAsFactors=FALSE, fill=TRUE)
 
         files <- txt[[9]]
         if (verbose)
@@ -131,27 +126,21 @@
     do.call(rbind, result)
 }
 
+.parseDirInfo <- function(info) {
+    readLines(textConnection(trimws(info)))
+}
+
 # Return unparsed directory listing as character vector
 .ftpDirectoryInfo <- function(someUrl, filesOnly=FALSE) {
-  curlHandle <- curl::new_handle()
-  curl::handle_setopt(curlHandle, customrequest="LIST -R")
-  con <- curl::curl(someUrl, handle=curlHandle)
-  retVal <- readLines(con)
-  close(con)
-  curl::handle_reset(curlHandle)
-  # Return listing as rows
-  return (retVal);
+    curlHandle <- getCurlHandle(customrequest="LIST -R")
+    info <- getURL(someUrl, curl=curlHandle)
+    .parseDirInfo(info)
 }
 
 ## Return just the names of the files in an FTP directory
 ## Note, this will not do any cleaning of symlinks
 .listRemoteFiles <- function(someUrl){
-  curlHandle <- curl::new_handle()
-  curl::handle_setopt(curlHandle, dirlistonly=TRUE)
-  con <- curl::curl(someUrl, handle=curlHandle)
-  retVal <- readLines(con)
-  close(con)
-  curl::handle_reset(curlHandle)
-
-  return (retVal);
+    curlHandle <- getCurlHandle(dirlistonly=TRUE)
+    info <- getURL(someUrl, curl=curlHandle)
+    .parseDirInfo(info)
 }

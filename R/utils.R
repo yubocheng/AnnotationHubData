@@ -54,11 +54,6 @@ URL_parts <- function(x)
     parts
 }
 
-url.exists <- function(url)
-{
-   HEAD(url)$headers$status == "200"
-}
-
 ## log messages to console AND to a file
 flog <- function(level, ...)
 {

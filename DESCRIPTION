@@ -1,7 +1,7 @@
 Package: AnnotationHubData
 Type: Package
 Title: Transform public data resources into Bioconductor Data Structures
-Version: 1.5.11
+Version: 1.5.12
 Encoding: UTF-8
 Authors@R: c(
         person("Martin", "Morgan", role="ctb"),
@@ -17,10 +17,10 @@ Depends: R (>= 3.2.2), methods, utils, S4Vectors (>= 0.7.21),
     IRanges (>= 2.3.23), GenomicRanges, AnnotationHub
 Suggests: RUnit, knitr,RMySQL, BiocStyle, grasp2db
 Imports: GenomicFeatures, Rsamtools, rtracklayer, BiocGenerics,
-    jsonlite, BiocInstaller, httr, biocViews,
+    jsonlite, BiocInstaller, biocViews,
     AnnotationDbi, Biobase, Biostrings, DBI, GEOquery,
     GenomeInfoDb, OrganismDbi, RSQLite, rBiopaxParser,
-    AnnotationForge, futile.logger (>= 1.3.0), XML, xml2, curl
+    AnnotationForge, futile.logger (>= 1.3.0), XML
 Description: These recipes convert a wide variety and a growing number of
     public bioinformatic data sets into easily-used standard Bioconductor data
     structures.

@@ -33,15 +33,11 @@ importFrom(futile.logger,
     flog.appender, flog.threshold, flog.info
 )
 importFrom(jsonlite, fromJSON, toJSON)
-importFrom(httr,
-    config, content, DELETE, GET, handle, handle_find,
-    HEAD, headers, POST, stop_for_status
-)
-importFrom(curl, new_handle, curl, handle_setopt)
 importFrom(parallel, detectCores)
 importFrom(stats, setNames)
-importFrom(XML, readHTMLTable, xmlParse, xmlValue)
-importFrom(xml2, xml_find_all, xml_contents)
+importFrom(RCurl, httpGET, httpDELETE, postForm, getCurlHandle, url.exists,
+           getURL)
+importFrom(XML, readHTMLTable, xmlParse, xmlValue, getNodeSet, htmlParse)
 importFrom(RSQLite, SQLite, sqliteCopyDatabase)
 importFrom(graphics, title)
 importFrom(utils,

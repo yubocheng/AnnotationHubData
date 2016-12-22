@@ -3,15 +3,13 @@
 
 .getTags <- function(url) {
     tagurl <- paste0(url, "files.txt")
-    result <- GET(tagurl)
-    stop_for_status(result)
-    html <- content(result)
+    html <- httpGET(tagurl)
     
     html <- unlist(strsplit(html, "\n")) # split to get tags for each file
     lapply(html, function(t) {
         ta <- unlist(strsplit(t, "\t"))
         temp <- unlist(strsplit(ta[2],";"))
-        temp <- .trim(temp)
+        temp <- trimws(temp)
         
         ## extract the md5sum if present
         md <- grep("md5sum=", temp, value=TRUE)

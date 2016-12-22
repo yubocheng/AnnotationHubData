@@ -74,7 +74,7 @@
     tbl <- XML::readHTMLTable(tblurl, header=TRUE, stringsAsFactors=FALSE)    
     tbl <- tbl[[1]]
     tblheader <- gsub("\n", "", colnames(tbl))
-    tblheader = .trim(tblheader)
+    tblheader = trimws(tblheader)
     colnames(tbl) = tblheader
     
     idx <- which(tbl[,"GENCODE release"]==release)
