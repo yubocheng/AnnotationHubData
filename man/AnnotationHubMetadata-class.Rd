@@ -147,14 +147,16 @@ makeAnnotationHubResource(objName, makeAnnotationHubMetadataFunction,
       AnnotationHubData base code.
     }
     \item{RDataClass}{
-      \code{character(1)} Class of derived R object, e.g., GRanges.
+      \code{character()} Class of derived R object, e.g., GRanges. Length 
+      must match the length of \code{RDataPath}.
     }
     \item{RDataDateAdded}{
       \code{POSIXct()} Date resource was added to AnnotationHub; used to 
       determine snapshots.
     }
     \item{RDataPath}{
-      \code{character(1)} File path to serialized form. Internal use only.
+      \code{character()} File path to serialized form. Length must match
+      the length of \code{RDataClass}. Internal use only.
     }
     \item{Maintainer}{
       \code{character(1)} Maintainer name and email address, e.g.,
