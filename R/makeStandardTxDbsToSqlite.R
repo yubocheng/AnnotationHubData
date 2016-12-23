@@ -34,34 +34,49 @@
 }
 
 .TxDbPkgMetadataFromObjs <- function(txdbs, biocversion) {
-     title <- paste0(names(txdbs), '.sqlite')
-     species <- unlist(lapply(txdbs,
-         function(x){m <- metadata(x); m[m$name=='Organism', 2] }))
-     taxonomyId <- as.integer(unlist(lapply(txdbs, 
-         function(x) {
-             m <- metadata(x) 
-             id <- m[m$name=='TaxID', 2]
-             if (!length(id))
-                 id <- m[m$name=='Taxonomy ID', 2]
-             id
-         })))
+    title <- paste0(names(txdbs), '.sqlite')
+    ## Confirm we aren't re-adding an TxDbs ...
+    query <- paste0("SELECT distinct(title) FROM resources ",
+                    "WHERE preparerclass='TxDbFromPkgsImportPreparer'")
+    con <- dbconn(AnnotationHub())
+    current <- dbGetQuery(con, query)[,1]
+    dbDisconnect(con)
+    exists <- title %in% current 
+    if (any(exists)) {
+        warning("new records with filenames that exist in ",
+                "the sqlite db were not inserted: ")
+        selectSome(title[exists])
+        title <- title[!exists]
+        txdbs <- txdbs[!exists]
+    }
 
-     sourceVersion <- sapply(txdbs, 
-         function(x) {
-             m <- metadata(x) 
-             paste0('UCSC transcript based annotations generated ', 
-                    strptime(m[m$name=='Creation time', 2], "%Y-%m-%d")) 
-         }, simplify=FALSE)
-     url <- list(c("http://genome.ucsc.edu/", 
-                   "http://hgdownload.cse.ucsc.edu/goldenPath"))
-     list(title=title,
-          species=species,
-          taxonomyId=taxonomyId,
-          genome=rep("UCSC genomes", length(title)),
-          sourceUrl=rep(url, length(title)),
-          sourceVersion=sourceVersion,
-          description=paste("UCSC transcript based annotations for", species),
-          rDataPath=paste0("ucsc/standard/", biocversion, "/",title))
+    species <- unlist(lapply(txdbs,
+        function(x){m <- metadata(x); m[m$name=='Organism', 2] }))
+    taxonomyId <- as.integer(unlist(lapply(txdbs, 
+        function(x) {
+            m <- metadata(x) 
+            id <- m[m$name=='TaxID', 2]
+            if (!length(id))
+                id <- m[m$name=='Taxonomy ID', 2]
+            id
+        })))
+
+    sourceVersion <- sapply(txdbs, 
+        function(x) {
+            m <- metadata(x) 
+            paste0('UCSC transcript based annotations generated ', 
+                   strptime(m[m$name=='Creation time', 2], "%Y-%m-%d")) 
+        }, simplify=FALSE)
+    url <- list(c("http://genome.ucsc.edu/", 
+                  "http://hgdownload.cse.ucsc.edu/goldenPath"))
+    list(title=title,
+         species=species,
+         taxonomyId=taxonomyId,
+         genome=rep("UCSC genomes", length(title)),
+         sourceUrl=rep(url, length(title)),
+         sourceVersion=sourceVersion,
+         description=paste("UCSC transcript based annotations for", species),
+         rDataPath=paste0("ucsc/standard/", biocversion, "/",title))
 }
 
 makeStandardTxDbsToAHM <- function(currentMetadata, justRunUnitTest = FALSE, 
