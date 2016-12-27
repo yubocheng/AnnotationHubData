@@ -21,15 +21,13 @@
 .getOrgDbs <- function(install=FALSE) {
     dbNames <- OrganismDbi:::.packageTaxIds()
     if (install) {  ## download, install
-        require(BiocInstaller)
         lapply(dbNames, function(xx) {
-            if (!require(xx, character.only=TRUE)) {
-                biocLite(xx, ask=FALSE)
+            if (!requireNamespace(xx)) {
+                BiocInstaller::biocLite(xx, ask=FALSE)
             }
         })
     }
-    lapply(dbNames, require, character.only=TRUE)
-    res <- lapply(dbNames, get)
+    res <- mapply(get, dbNames, lapply(dbNames, asNamespace), SIMPLIFY=FALSE)
     names(res) <- dbNames
     res
 }
