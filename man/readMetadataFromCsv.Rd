@@ -4,16 +4,16 @@
 \alias{metadata.csv}
 
 \title{
-  Reads a csv file of resource metadata into a data.frame
+  Reads csv files of resource metadata into a data.frame
 }
 
 \description{
-  Reads the metadata file located in the "inst/extdata" package directory
+  Reads metadata files located in the "inst/extdata" package directory
   into a data.frame. 
 }
 
 \usage{
-  readMetadataFromCsv(pathToPackage, fileName="metadata.csv")
+  readMetadataFromCsv(pathToPackage, fileName=character(1))
 }
 
 \arguments{
@@ -21,7 +21,8 @@
     Full path to data package including package name; no trailing slash.
   }
   \item{fileName}{
-    Name of metadata file with csv extension.
+    Name of single metadata file located in "inst/extdata". If none is
+    provided the function looks for a file named "metadata.csv".
   }
 }
 
@@ -29,15 +30,13 @@
   \itemize{
     \item{readMetadataFromCsv:}{
 
-      Reads a metadata.csv file describing the metadata for resources
-      to be added to one of the 'Hubs' (AnnotationHub, ExperimentHub).
-      The file should be located in the inst/extdata of the package.
+      Reads a .csv file of metadata located in "inst/extdata".
       \code{readMetadataFromCsv} performs checks for required columns
       and data types and can be used by package authors to validate their
-      metadata.csv. The function is used internally by
-      \code{makeAnnotationHubMetadata}.
+      metadata before submitting the package for review. The function is 
+      used internally by \code{makeAnnotationHubMetadata}.
 
-      The rows of metadata.csv represent individual \code{Hub}
+      The rows of the .csv file(s) represent individual \code{Hub}
       resources (i.e., data objects) and the columns are the metadata
       fields. All fields should be a single character string of length 1.
 
@@ -151,9 +150,9 @@
 
 \examples{
 
-## Each row of the metadata.csv represents a resource added to one of
-## the 'Hubs'. This example creates a csv file for a single resource. In
-## the case of multiple resources, the arguments below would be character 
+## Each row of the metadata file represents a resource added to one of
+## the 'Hubs'. This example creates a metadata.csv file for a single resource. 
+## In the case of multiple resources, the arguments below would be character 
 ## vectors that produced multiple rows in the data.frame.
 
 meta <- data.frame(
@@ -161,7 +160,7 @@ meta <- data.frame(
     Description = paste0("RNA-seq data from study XYZ containing 10 normal ",
                          "and 10 tumor samples represented as a",
                          "SummarizedExperiment"),
-    BiocVersion = "3.3",
+    BiocVersion = "3.4",
     Genome = "GRCh38",
     SourceType = "BAM",
     SourceUrl = "http://www.path/to/original/data/file",

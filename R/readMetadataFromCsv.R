@@ -4,11 +4,13 @@
 ###
 
 ## High level helper used to check metadata in 'Hub' packages.
-readMetadataFromCsv <- function(pathToPackage, fileName="metadata.csv") 
+readMetadataFromCsv <- function(pathToPackage, fileName=character()) 
 {
-    meta <- read.csv(file.path(pathToPackage, 
-                     paste0("inst/extdata/", fileName)),
-                     colClasses="character", stringsAsFactors=FALSE)
+    if (!length(fileName))
+        fileName <- "metadata.csv"
+    path <- file.path(pathToPackage, "inst", "extdata")
+    meta <- read.csv(file.path(path, fileName), colClasses="character", 
+                     stringsAsFactors=FALSE)
     mat <- rbind(c("Title", "character"),
                  c("Description", "character"),
                  c("BiocVersion", "character"),
@@ -28,7 +30,7 @@ readMetadataFromCsv <- function(pathToPackage, fileName="metadata.csv")
     expected <- mat[,1]
     missing <- !expected %in% names(meta)
     if (any(missing))
-        stop(paste0("missing fields in metadata.csv: ", 
+        stop(paste0("missing fields in metadata file ", fileName, ": ", 
                     paste(expected[missing], collapse=", ")))
     extra<- !names(meta) %in% expected 
 
@@ -37,7 +39,7 @@ readMetadataFromCsv <- function(pathToPackage, fileName="metadata.csv")
         function(xx) {
             valid <- sapply(xx, function(field) length(field) == 1L)
             if (any(!valid))
-                stop(paste0("all fields in metadata.csv must be a character ",
+                stop(paste0("all fields in ", fileName, " must be a character ",
                      "string of length 1"))
         }
 

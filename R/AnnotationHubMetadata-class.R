@@ -52,35 +52,41 @@ setClass("AnnotationHubMetadata",
 }
 
 ## Used for contributed packages, not internal recipes.
-makeAnnotationHubMetadata <- function(pathToPackage, fileName="metadata.csv") 
+makeAnnotationHubMetadata <- function(pathToPackage, fileName=character()) 
 {
-    meta <- readMetadataFromCsv(pathToPackage, fileName)
-    ## process tags; package name to PreparerClass
-    .package <- basename(pathToPackage)
-    if (is.na(meta$Tags) || !length(meta$Tags))
-        stop("please add 'Tag' values to metadata")
-    .tags <- c(strsplit(meta$Tags, ",")[[1]], .package)
-    lapply(seq_len(nrow(meta)),
-        function(x) {
-            with(meta[x,], 
-                 AnnotationHubMetadata(Title=Title, Description=Description, 
-                                       BiocVersion=BiocVersion, Genome=Genome, 
-                                       SourceType=SourceType, 
-                                       SourceUrl=SourceUrl,
-                                       SourceVersion=SourceVersion, 
-                                       Species=Species, TaxonomyId=TaxonomyId,
-                                       Coordinate_1_based=Coordinate_1_based, 
-                                       DataProvider=DataProvider,
-                                       Maintainer=Maintainer, 
-                                       RDataClass=RDataClass, Tags=.tags, 
-                                       RDataDateAdded=RDataDateAdded, 
-                                       RDataPath=RDataPath,
-                                       Recipe=NA_character_,
-                                       DispatchClass=DispatchClass,
-                                       PreparerClass=.package,
-                                       Location_Prefix=Location_Prefix)) 
-        }
-    )
+    path <- file.path(pathToPackage, "inst", "extdata")
+    if (!length(fileName))
+        fileName <- list.files(path, pattern="*\\.csv")
+    ans <- lapply(fileName,
+        function(xx) {
+            meta <- readMetadataFromCsv(pathToPackage, xx)
+            .package <- basename(pathToPackage)
+            if (is.na(meta$Tags) || !length(meta$Tags))
+                stop("please add 'Tag' values to metadata")
+            .tags <- c(strsplit(meta$Tags, ",")[[1]], .package)
+            #lapply(seq_len(nrow(meta)), .singleAnnotationHubMetadata)
+            apply(meta, 2, function(x) {
+                with(x, AnnotationHubMetadata(
+                    Title=Title, Description=Description, 
+                    BiocVersion=BiocVersion, Genome=Genome, 
+                    SourceType=SourceType, 
+                    SourceUrl=SourceUrl,
+                    SourceVersion=SourceVersion, 
+                    Species=Species, TaxonomyId=TaxonomyId,
+                    Coordinate_1_based=Coordinate_1_based, 
+                    DataProvider=DataProvider,
+                    Maintainer=Maintainer, 
+                    RDataClass=RDataClass, Tags=.tags, 
+                    RDataDateAdded=RDataDateAdded, 
+                    RDataPath=RDataPath,
+                    Recipe=NA_character_,
+                    DispatchClass=DispatchClass,
+                    PreparerClass=.package,
+                    Location_Prefix=Location_Prefix)) 
+            })
+    })
+    names(ans) <- fileName
+    ans
 }
 
 AnnotationHubMetadata <-

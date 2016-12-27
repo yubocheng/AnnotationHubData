@@ -63,6 +63,9 @@ Creating the package involves the following steps:
     `AnnotationHubData::readMetadataFromCsv()`. See ?`readMetadataFromCsv` for 
     details.
 
+    If necessary, metadata can be broken up into multiple csv files instead
+    having of all records in a single "metadata.csv".
+
 * inst/scripts/
 
     - make-data.R:  
@@ -93,10 +96,10 @@ Creating the package involves the following steps:
 * man/
 
     - package man page:  
-    The package man page serves as a landing point and should briefly describe
-    all resources associated with the package. There should be an \alias
-    entry for each resource title either on the package man page or individual
-    man pages.
+    OPTIONAL. The package man page serves as a landing point and should briefly
+    describe all resources associated with the package. There should be an
+    \alias entry for each resource title either on the package man page or
+    individual man pages.
  
     - resource man pages:  
     OPTIONAL. Man page(s) should describe the resource (raw data source,
@@ -132,11 +135,14 @@ AnnotationHubData:::makeAnnotationHubMetadata() on your package. Please
 address and warnings or errors.
 
 5. Package review:  
-When the data and metadata are ready, a `Bioconductor` team member will push
-the data to AWS S3 and add the metadata to the production database. At this
-point the package man pages and vignette can be finalized. When the package
-passes R CMD build and check it can be submitted to the [package
-tracker](https://github.com/Bioconductor/Contributions) for review.
+Submit the package to the
+[tracker](https://github.com/Bioconductor/Contributions) for review. The
+primary purpose of the package review is to validate the metadata in the csv
+file(s). It is ok if the package fails R CMD build and check because the
+data and metadata are not yet in place. Once the metadata.csv is approved, 
+records are added to the production database. At that point the package man
+pages and vignette can be finalized and the package should pass R CMD build 
+and check.
 
 ## Individual resources
 

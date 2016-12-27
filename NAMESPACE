@@ -35,8 +35,6 @@ importFrom(futile.logger,
 importFrom(jsonlite, fromJSON, toJSON)
 importFrom(parallel, detectCores)
 importFrom(stats, setNames)
-importFrom(RCurl, httpGET, httpDELETE, postForm, getCurlHandle, url.exists,
-           getURL)
 importFrom(XML, readHTMLTable, xmlParse, xmlValue, getNodeSet, htmlParse)
 importFrom(RSQLite, SQLite, sqliteCopyDatabase)
 importFrom(graphics, title)

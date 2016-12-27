@@ -7,12 +7,12 @@
 }
 
 \description{
-  Make AnnotationHubMetadata objects from metadata.csv file located in 
+  Make AnnotationHubMetadata objects from .csv files located in 
   the "inst/extdata/" package directory of an AnnotationHub package.
 }
 
 \usage{
-  makeAnnotationHubMetadata(pathToPackage, fileName="metadata.csv")
+  makeAnnotationHubMetadata(pathToPackage, fileName=character())
 }
 
 \arguments{
@@ -20,14 +20,15 @@
     Full path to data package including the package name; no trailing slash
   }
   \item{fileName}{
-    Name of metadata file with csv extension.
+    Name of metadata file(s) with csv extension. If none are provided, all
+    files with .csv extension in "inst/extdata" will be processed.
   }
 }
 
 \details{
   \itemize{
     \item{makeAnnotationHubMetadata:}{
-      Reads the resource metadata in the metadata.csv file into a
+      Reads the resource metadata from .csv files into a
       \link{AnnotationHubMetadata} object. The \link{AnnotationHubMetadata}
       is inserted in the AnnotationHub database. Intended for internal
       use or package authors checking the validity of package metadata.
@@ -36,7 +37,8 @@
 }
 
 \value{
-    A list of \code{AnnotationHubMetadata} objects.
+    A named list the length of \code{fileName}. Each element is a list of
+    of \code{AnnotationHubMetadata} objects created from the .csv file.
 }
 
 \seealso{
