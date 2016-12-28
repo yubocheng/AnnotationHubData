@@ -5,6 +5,7 @@ import(GenomicRanges)
 import(AnnotationHub)
 import(OrganismDbi)
 import(GenomicFeatures)
+import(RCurl)
 
 importFrom(GEOquery, getGEOSuppFiles)
 importFrom(biocViews, recommendPackages)
