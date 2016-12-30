@@ -13,7 +13,7 @@
 }
 
 \usage{
-  readMetadataFromCsv(pathToPackage, fileName=character(1))
+  readMetadataFromCsv(pathToPackage, fileName=character())
 }
 
 \arguments{
