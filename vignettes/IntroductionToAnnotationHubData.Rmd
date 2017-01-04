@@ -116,12 +116,11 @@ Creating the package involves the following steps:
     ```
 
 * DESCRIPTION / NAMESPACE  
-The package should depend on and fully import `AnnotationHub`.
 Package authors are encouraged to use the `AnnotationHub::listResources()` and 
 `AnnotationHub::loadResource()` functions in their man pages and vignette.
 These helpers are designed to facilitate data discovery within a specific
-package vs within all of `AnnotationHub`.
-
+package vs within all of `AnnotationHub`. If used, these functions should be
+imported from `AnnotationHub`.
 
 3. Data objects:  
 Data are not formally part of the software package and are stored 
