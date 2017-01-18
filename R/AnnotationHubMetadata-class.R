@@ -63,7 +63,7 @@ makeAnnotationHubMetadata <- function(pathToPackage, fileName=character())
             .package <- basename(pathToPackage)
             if (is.na(meta$Tags) || !length(meta$Tags))
                 stop("please add 'Tag' values to metadata")
-            .tags <- c(strsplit(meta$Tags, ",")[[1]], .package)
+            .tags <- c(strsplit(meta$Tags, ",")[[1]])
             lapply(seq_len(nrow(meta)), function(x) {
                 with(meta[x, ], AnnotationHubMetadata(
                     Title=Title, Description=Description, 
