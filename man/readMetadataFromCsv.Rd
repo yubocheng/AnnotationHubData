@@ -78,15 +78,17 @@
               following format: Maintainer Name <username@address>.
 
         \item RDataClass: \code{character(1)}. R / Bioconductor class the data
-              are stored in.
+              are stored in, e.g., GRanges, SummarizedExperiment,
+              ExpressionSet etc.
 
         \item DispatchClass: \code{character(1)}. Class used to determine how
-              to load the data into R. The value for this field should
-              be \sQuote{Rda} with the assumption that the data have been 
-              serialized with \code{save()} and the filename has the 
-              \sQuote{rda} extension. Contact maintainer@bioconductor.org
-              if you data do not meet these assumptions and we can determine
-              the most appropriate dispatch class.
+              to load the data into R. The value for this field should be
+              \sQuote{Rda} if the data were serialized with \code{save()} and
+              \sQuote{RDS} if serialized with \code{saveRDS}. The filename
+              should have the appropriate \sQuote{rda} or \sQuote{rds}
+              extension.  Contact maintainer@bioconductor.org if you data do 
+              not meet these assumptions and we can determine the most 
+              appropriate dispatch class.
 
         \item ResourceName: \code{character(1)}. Exact file name.
 
@@ -108,23 +110,26 @@
         \item Tags: \code{character() vector}. 
               \sQuote{Tags} are search terms used to define a subset of
               resources in a \code{Hub} object, e.g, in a call to \code{query}.
-              When adding multiple \sQuote{Tags} to the metadata data.frame,
-              protect with \code{I}, e.g., 
 
-              \code{data.frame(Tags=I(list(c("tag1", "tag2", "tag3"))))}
+              Multiple \sQuote{Tags} are specified as a colon separated
+              string, e.g., tags for two resources would look like this:
 
-              For AnnotationHub resources, \sQuote{Tags} are a free-form field
-              of search terms defined by the user.  The package name is
-              automatically added as one of the \sQuote{Tags} before the
-              metadata are finalized.
+              \preformatted{
+              Tags=c("tag1:tag2:tag3", "tag1:tag3")
+              }
 
-              For ExperimentHub resources, \sQuote{Tags} are not specified by
-              the user but are instead automatically generated from the
-              \sQuote{biocViews} in the DESCRIPTION. \sQuote{Tags} values
-              supplied by the user will be ignored. This approach was taken in
-              order to impose more structured vocabulary on the values giving
-              the user a defined set of values on which to search. This
-              approach may change in the future.
+              \sQuote{Tags} for AnnotationHub resources are a free-form field
+              of search terms defined by the user.  The package name is added
+              as one of the \sQuote{Tags} before the metadata are finalized.
+
+              For ExperimentHub resources, \sQuote{Tags} are automatically
+              generated from the \sQuote{biocViews} in the DESCRIPTION.
+              \sQuote{Tags} values supplied by the user are not be entered in
+              the database and are not part of the formal metadata. These tags,
+              however, can be used by the author in functions defined in the
+              package. The 'controlled vocabulary' approach was taken to
+              provide a more well defined and limited set of Tag values on
+              which to search. This approach may change in the future.
 
       }
       The metadata file can have additional columns beyond the 'Required
