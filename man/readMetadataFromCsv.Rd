@@ -84,7 +84,7 @@
         \item DispatchClass: \code{character(1)}. Class used to determine how
               to load the data into R. The value for this field should be
               \sQuote{Rda} if the data were serialized with \code{save()} and
-              \sQuote{RDS} if serialized with \code{saveRDS}. The filename
+              \sQuote{Rds} if serialized with \code{saveRDS}. The filename
               should have the appropriate \sQuote{rda} or \sQuote{rds}
               extension.  Contact maintainer@bioconductor.org if you data do 
               not meet these assumptions and we can determine the most 
