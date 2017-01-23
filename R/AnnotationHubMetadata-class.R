@@ -204,7 +204,7 @@ AnnotationHubMetadata <-
 }
 
 expectedSourceTypes <- c("BED", "UCSC track", "VCF", "GTF", "GFF", "CSV", "TSV",
-                         "BigWig", "TwoBit", "Chain",
+                         "BigWig", "TwoBit", "Chain", "MySQL", "ensembl",
                          "FASTA", "BioPax", "BioPaxLevel2", "BioPaxLevel3",
                          "Inparanoid", "NCBI/blast2GO", "NCBI/UniProt",
                          "NCBI/ensembl", "GRASP", "Zip", "RData", "tar.gz",
