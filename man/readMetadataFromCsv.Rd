@@ -81,14 +81,20 @@
               are stored in, e.g., GRanges, SummarizedExperiment,
               ExpressionSet etc.
 
-        \item DispatchClass: \code{character(1)}. Class used to determine how
-              to load the data into R. The value for this field should be
+        \item DispatchClass: \code{character(1)}. Determines how data are 
+              loaded into R. The value for this field should be
               \sQuote{Rda} if the data were serialized with \code{save()} and
               \sQuote{Rds} if serialized with \code{saveRDS}. The filename
               should have the appropriate \sQuote{rda} or \sQuote{rds}
-              extension.  Contact maintainer@bioconductor.org if you data do 
-              not meet these assumptions and we can determine the most 
-              appropriate dispatch class.
+              extension. 
+ 
+              A number of dispatch classes are pre-defined in 
+              AnnotationHub/R/AnnotationHubResource-class.R with the suffix
+              \sQuote{Resource}. For example, if you have sqlite files, the
+              AnnotationHubResource-class.R defines SQLiteFileResource so
+              the DispatchClass would be SQLiteFile. Contact 
+              maintainer@bioconductor.org if you are not sure which class 
+              to use.
 
         \item ResourceName: \code{character(1)}. Exact file name.
 
