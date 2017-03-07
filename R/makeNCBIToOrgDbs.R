@@ -28,7 +28,7 @@
     ## need to find an alternative to this...
     ## old school table of tax Ids
     if (!exists("specData")) {
-    load(system.file("data", "specData.rda", package = "GenomeInfoDb"))
+    load(system.file("data", "specData.rda", package = "GenomeInfoDbData"))
     }
     sd <- specData[!is.na(specData[[3]]),]
     ## need to find offenders

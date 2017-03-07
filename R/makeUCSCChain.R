@@ -12,6 +12,8 @@
             size=NA, md5sum=NA_character_, stringsAsFactors=FALSE)
 }
 
+## FIXME: eutils file (and interface?) has moved to 
+##        "https://www.ncbi.nlm.nih.gov/books/NBK25501/"
 .organismToTaxid <- function(organism=character()) {
     ## query NCBI for taxonomy ID
     .eutils <- "http://eutils.ncbi.nlm.nih.gov/entrez/eutils"

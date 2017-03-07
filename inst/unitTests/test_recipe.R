@@ -10,6 +10,9 @@ BiocVersion <- "3.4"
 ## test_BioPaxImportPreparer_recipe
 
 
+## FIXME:
+## Both UCSC broken because location / format of eutils file has changed;
+## See .organismToTaxid()
 #test_UCSCChainPreparer_recipe <- function() {
 #    ahms = updateResources(ahroot, BiocVersion,
 #        preparerClasses = "UCSCChainPreparer",
