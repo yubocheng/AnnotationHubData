@@ -161,7 +161,7 @@ generation and makes sense when there are plans to update versions or add new
 organisms in the future.
 
 Make sure the OrgDb, TxDb or BSgenome object you want to add does not already
-exist here:
+exist in the  
 [Biocondcutor annotation repository](http://www.bioconductor.org/packages/release/BiocViews.html#___AnnotationData)
 
 Providing just data and metadata files involves the following steps:
@@ -189,7 +189,7 @@ Providing just data and metadata files involves the following steps:
    the `AnnotationHubData::AnnotationHubMetadata()` constructor. Argument
    details are found on the ?`AnnotationHubMetadata` man page.
  
-   As an example, this piece of code generates the metadata for Timothée's 
+   As an example, this piece of code generates the metadata for 
    the Vitis vinifera TxDb Timothée Flutre contributed to `AnnotationHub`:
  
 ```{r, TxDb_Metadata, eval=FALSE}
