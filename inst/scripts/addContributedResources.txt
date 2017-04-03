@@ -1,0 +1,89 @@
+## Contributed Annotations:
+
+This doc describes how to add contributed (i.e., non-core generated)
+resources to AnnotationHub. In general, these instructions pertain
+to core team members only.
+
+* Case 1: Single resources with no accompanying software package
+
+- Metadata
+
+  Author follows these instructions to create a .R file that generates
+  metadata for the resource(s):
+
+  http://www.bioconductor.org/packages/3.5/bioc/vignettes/AnnotationHubData/inst/doc/IntroductionToAnnotationHubData.html#individual-resources
+
+- Test metadata
+
+  Test the .R file provided by the author with
+  AnnotationHubData::AnnotationHubMetadata(). Confirm the metadata fields
+  are valid (reasonable title, version) and the paths are accurate.
+
+- Add metadata
+
+  Add the metadata to the production database with the AnnotationHub docker.
+
+
+* Case 2: Family of resources with accompanying software package
+
+- Software package
+
+  Author creates a software package according to guidelines here:
+
+  http://www.bioconductor.org/packages/3.5/bioc/vignettes/AnnotationHubData/inst/doc/IntroductionToAnnotationHubData.html#family-of-resources
+
+- Test metadata
+
+  Check the metadata with AnnotationHubData::makeAnnnotationHubMetadata().
+  There can be more than one metadata.csv file, e.g., ensembl_version86.csv,
+  ensembl_version87.csv etc. The package should have record of all
+  metadata added over time. For example, when version 88 files are added
+  they should not remove the csv files for versions 86 and 87.
+
+- Add resources
+
+  The resources can be 'stored' on a web site or in an S3 bucket. If they 
+  will be in S3, follow these steps:
+
+  -- Create a new S3 bucket under annotationhub/ with the same name as the 
+     software package.
+  -- Either the core team member adds the resources to the S3 bucket or we
+     grant the author permission to add/delete from their bucket.
+
+     If we aren't granting access the resources can be added to the bucket.
+     Confirm they are public and can be downloaded by anyone.
+
+     Granting access should be the exception and works in cases where the
+     author is an established community member and they have many files and
+     plan to update the files on a regular basis.  If access is not granted
+     correctly the user may be able to delete or corrupt other resources in the
+     Hub. It's very important to restrict access via an appropriate policy.
+
+     For an example of a user, group, policy relationship see
+     the set up for Johannes Rainer and the AHEnsDb bucket:
+
+     https://console.aws.amazon.com/iam/home?region=us-east-1#/users/johannes_rainer
+
+     Granting access to a bucket involves these steps:
+     1. add a user
+     2. add a group
+     3. add user to the group
+     4. create a policy
+     5. attach the policy to the group 
+
+     Detailed instructions here:
+     http://docs.aws.amazon.com/IAM/latest/UserGuide/getting-started_create-admin-group.html
+     http://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies.html
+
+  -- Once the author has access to the bucket, have them upload the resources 
+     with an aws command similar to this, replacing the username, S3 bucket and
+     file names with their own:
+ 
+     aws --profile johannes_rainer s3 cp myfile.rda s3://annotationhub/EuPathDb/myfile.rda --acl public-read 
+
+     NOTE: The public-read flag is important; without it no one can access
+     the file.
+
+- Add metadata
+
+  Add the metadata to the production database with the AnnotationHub docker.
