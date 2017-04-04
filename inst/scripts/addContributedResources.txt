@@ -79,7 +79,7 @@ to core team members only.
      with an aws command similar to this, replacing the username, S3 bucket and
      file names with their own:
  
-     aws --profile johannes_rainer s3 cp myfile.rda s3://annotationhub/EuPathDb/myfile.rda --acl public-read 
+     aws --profile johannes_rainer s3 cp myfile.rda s3://annotationhub/EnsDb/myfile.rda --acl public-read 
 
      NOTE: The public-read flag is important; without it no one can access
      the file.
