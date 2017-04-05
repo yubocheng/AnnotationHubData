@@ -178,11 +178,13 @@ updateResources <- function(AnnotationHubRoot=getwd(),
 
     ## if data push was successful insert metadata in db
     if (insert) {
-        ## We don't check for duplicated names in AnnotationHub because
-        ## the original model allowed the addition of new resources with 
-        ## the same titles as existing records; metadata exposed to the user 
-        ## is filtered by biocVersion or rdatadateremoved.
-        ## check if any new records match existing
+        ## We don't have a check to prevent adding duplicate records.
+        ## We can't just look for duplicate titles, as we do in ExperimentHub,
+        ## because AnnotationHub allows multiple records with the same 
+        ## title (e.g., versions of OrgDb packages).
+        ## One possibility is to first look for matching titles then
+        ## at datadataremoved (NULL) then at rdatapath; rdatapath should be 
+        ## unique even for resources with the same name.
 
         message("inserting metadata in db ...") 
         pushMetadata(metadata, url)
