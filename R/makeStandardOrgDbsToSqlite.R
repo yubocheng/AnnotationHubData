@@ -16,8 +16,8 @@
 
 ## Returns list of OrgDb objects
 ## NOTE: OrganismDbi:::.packageTaxIds is a static named character vector
-##       of package names and taxids. This should be checked against the
-##       OrgDbs offered in the Bioconductor repo before running the recipe.
+##       of package names and taxids. This file should be checked to
+##       confirm the package names match the current batch of OrgDb packages.
 .getOrgDbs <- function(install=FALSE) {
     dbNames <- OrganismDbi:::.packageTaxIds()
     if (install) {  ## download, install
@@ -67,13 +67,13 @@
           rDataPath=rDataPath)
 }
 
-makeStandardOrgDbsToAHM <- function(currentMetadata, 
-                                justRunUnitTest = FALSE, 
-                                BiocVersion = biocVersion()) {
+makeStandardOrgDbsToAHM <- function(currentMetadata, justRunUnitTest=FALSE, 
+                                    BiocVersion=biocVersion(), 
+                                    install=TRUE) {
     if (length(BiocVersion) > 1L)
         stop("length(BiocVersion) must == 1L")
 
-    orgDbs <- .getOrgDbs()
+    orgDbs <- .getOrgDbs(install)
     meta <- .orgDbPkgMetadataFromObjs(orgDbs, biocversion=BiocVersion)
     Map(AnnotationHubMetadata,
         AnnotationHubRoot=currentMetadata$AnnotationHubRoot,
