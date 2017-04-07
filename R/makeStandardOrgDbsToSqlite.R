@@ -18,9 +18,9 @@
 ## NOTE: OrganismDbi:::.packageTaxIds is a static named character vector
 ##       of package names and taxids. This file should be checked to
 ##       confirm the package names match the current batch of OrgDb packages.
-.getOrgDbs <- function(install=FALSE) {
+.getOrgDbs <- function(downloadOrgDbs=FALSE) {
     dbNames <- OrganismDbi:::.packageTaxIds()
-    if (install) {  ## download, install
+    if (downloadOrgDbs) {  ## download, install
         lapply(dbNames, function(xx) {
             if (!requireNamespace(xx)) {
                 BiocInstaller::biocLite(xx, ask=FALSE)
@@ -69,11 +69,11 @@
 
 makeStandardOrgDbsToAHM <- function(currentMetadata, justRunUnitTest=FALSE, 
                                     BiocVersion=biocVersion(), 
-                                    install=TRUE) {
+                                    downloadOrgDbs=TRUE) {
     if (length(BiocVersion) > 1L)
         stop("length(BiocVersion) must == 1L")
 
-    orgDbs <- .getOrgDbs(install)
+    orgDbs <- .getOrgDbs(downloadOrgDbs)
     meta <- .orgDbPkgMetadataFromObjs(orgDbs, biocversion=BiocVersion)
     Map(AnnotationHubMetadata,
         AnnotationHubRoot=currentMetadata$AnnotationHubRoot,

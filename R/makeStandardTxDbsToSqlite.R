@@ -16,11 +16,11 @@
 ##   TxDbs if not in local R install.
 
 ## Returns list of loaded TxDb objects
-.getTxDbs <- function(install=FALSE) {
+.getTxDbs <- function(downloadTxDbs=FALSE) {
     dbNames <- recommendPackages("TxDb", use.release=FALSE)
     ## FDb.UCSC.tRNAs is a FeatureDb package; remove it
     dbNames <- dbNames[-match("FDb.UCSC.tRNAs", dbNames)]
-    if (install) {  ## download, install
+    if (downloadTxDbs) {  ## download, install
         require(BiocInstaller)
         lapply(dbNames, function(xx) {
             if (!require(xx, character.only=TRUE))
@@ -80,11 +80,12 @@
 }
 
 makeStandardTxDbsToAHM <- function(currentMetadata, justRunUnitTest = FALSE, 
-                                    BiocVersion = biocVersion()) {
+                                   BiocVersion = biocVersion(),
+                                   downloadTxDbs=TRUE) {
     if (length(BiocVersion) > 1L)
         stop("length(BiocVersion) must == 1L")
 
-    txdbs <- .getTxDbs()
+    txdbs <- .getTxDbs(downloadTxDbs)
     meta <- .TxDbPkgMetadataFromObjs(txdbs, biocversion=BiocVersion)
     Map(AnnotationHubMetadata,
         AnnotationHubRoot=currentMetadata$AnnotationHubRoot,

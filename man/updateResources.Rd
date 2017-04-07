@@ -178,7 +178,7 @@ attr(,"package")
 ## Bioconductor team member; contact maintainer@bioconductor.org for help.
 
 meta <- updateResources("local/path",
-                        BiocVersion = c("3.2", "3.3"),
+                        BiocVersion = "3.5",
                         preparerClasses = "EnsemblFastaImportPreparer",
                         metadataOnly = FALSE, insert = TRUE,
                         justRunUnitTest = FALSE,
