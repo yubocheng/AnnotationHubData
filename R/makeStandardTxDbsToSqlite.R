@@ -15,41 +15,21 @@
 ## - May need to run AnnotationHubData:::.getTxDbs(TRUE) to load all
 ##   TxDbs if not in local R install.
 
-## Returns list of loaded TxDb objects
-.getTxDbs <- function(downloadTxDbs=FALSE) {
-    dbNames <- recommendPackages("TxDb", use.release=FALSE)
-    ## FDb.UCSC.tRNAs is a FeatureDb package; remove it
-    dbNames <- dbNames[-match("FDb.UCSC.tRNAs", dbNames)]
-    if (downloadTxDbs) {  ## download, install
-        require(BiocInstaller)
-        lapply(dbNames, function(xx) {
-            if (!require(xx, character.only=TRUE))
-                biocLite(xx, ask=FALSE)
-        })
-    }
-    lapply(dbNames, require, character.only=TRUE)
-    res <- lapply(dbNames, get)
-    names(res) <- dbNames
+## Returns list of loaded TxDb objects.
+.getTxDbs <- function(TxDbs) {
+    require(BiocInstaller)
+    lapply(TxDbs, function(xx) {
+        if (!require(xx, character.only=TRUE))
+            biocLite(xx, ask=FALSE)
+    })
+    lapply(TxDbs, require, character.only=TRUE)
+    res <- lapply(TxDbs, get)
+    names(res) <- TxDbs 
     res
 }
 
 .TxDbPkgMetadataFromObjs <- function(txdbs, biocversion) {
     title <- paste0(names(txdbs), '.sqlite')
-    ## Confirm we aren't re-adding an TxDbs ...
-    query <- paste0("SELECT distinct(title) FROM resources ",
-                    "WHERE preparerclass='TxDbFromPkgsImportPreparer'")
-    con <- dbconn(AnnotationHub())
-    current <- dbGetQuery(con, query)[,1]
-    dbDisconnect(con)
-    exists <- title %in% current 
-    if (any(exists)) {
-        warning("new records with filenames that exist in ",
-                "the sqlite db were not inserted: ")
-        selectSome(title[exists])
-        title <- title[!exists]
-        txdbs <- txdbs[!exists]
-    }
-
     species <- unlist(lapply(txdbs,
         function(x){m <- metadata(x); m[m$name=='Organism', 2] }))
     taxonomyId <- as.integer(unlist(lapply(txdbs, 
@@ -81,11 +61,11 @@
 
 makeStandardTxDbsToAHM <- function(currentMetadata, justRunUnitTest = FALSE, 
                                    BiocVersion = biocVersion(),
-                                   downloadTxDbs=TRUE) {
+                                   TxDbs) {
     if (length(BiocVersion) > 1L)
         stop("length(BiocVersion) must == 1L")
 
-    txdbs <- .getTxDbs(downloadTxDbs)
+    txdbs <- .getTxDbs(TxDbs)
     meta <- .TxDbPkgMetadataFromObjs(txdbs, biocversion=BiocVersion)
     Map(AnnotationHubMetadata,
         AnnotationHubRoot=currentMetadata$AnnotationHubRoot,
@@ -113,14 +93,12 @@ makeStandardTxDbsToAHM <- function(currentMetadata, justRunUnitTest = FALSE,
 ## Load the object and call saveDb()
 extractTxDbSqlite <- function(ahm) {
     dbFile <- metadata(ahm)$Title
-    dbName <- sub('.sqlite','',dbFile)
-    txdbs <- .getTxDbs()
-    txdb <- txdbs[[dbName]]
+    txdb <- sub('.sqlite','',dbFile)
     outputPath <- file.path(metadata(ahm)$AnnotationHubRoot,
                             basename(metadata(ahm)$RDataPath))
     if (!isSingleString(outputPath)) 
         stop("'outputPath' must be a single string")
-    sqliteCopyDatabase(dbconn(txdb), outputPath)
+    sqliteCopyDatabase(dbconn(.getTxDbs(txdb)[[1]]), outputPath)
     outputFile(ahm)
 }
 

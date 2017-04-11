@@ -173,8 +173,13 @@ updateResources <- function(AnnotationHubRoot=getwd(),
     }
 
     ## download, process and push data to appropriate location
-    if (!metadataOnly)
-        metadata <- pushResources(metadata, ...)
+    if (!metadataOnly) {
+        if (!exists("uploadToS3"))
+            uploadToS3 <- TRUE
+        if (!exists("download"))
+            download <- TRUE
+        metadata <- pushResources(metadata, uploadToS3, download)
+    }
 
     ## if data push was successful insert metadata in db
     if (insert) {

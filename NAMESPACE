@@ -86,7 +86,9 @@ export(
     ahmToJson,
     newResources, updateResources, deleteResources,
     pushMetadata, pushResources,
-    makeGencodeFastaToAHM, gencodeFastaToFaFile
+    makeGencodeFastaToAHM, gencodeFastaToFaFile,
+    makeStandardOrgDbsToAHM, makeStandardTxDbsToAHM,
+    makeNCBIToOrgDbsToAHM
 )
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
