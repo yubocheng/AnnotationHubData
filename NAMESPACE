@@ -14,7 +14,7 @@ importMethodsFrom(BiocGenerics, mapply, Map)
 importMethodsFrom(Biostrings, head, substr)
 importMethodsFrom(DBI, dbDriver)
 importMethodsFrom(Rsamtools, indexFa)
-importMethodsFrom(RSQLite, dbConnect, dbGetQuery)
+importMethodsFrom(RSQLite, dbConnect, dbGetQuery, dbDisconnect)
 importMethodsFrom(rtracklayer,
     browserSession, "genome<-", getTable,
     import, "tableName<-", tableNames, track,
