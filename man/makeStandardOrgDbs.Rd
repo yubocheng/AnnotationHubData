@@ -23,29 +23,32 @@ makeNCBIToOrgDbsToAHM(currentMetadata, justRunUnitTest = FALSE,
 
 \arguments{
   \item{currentMetadata}{
-    Currently not used. Intended to be a list of metadata to filter, i.e.,
-    records that do not need to be processed again. Need to remove or fix.
+    Historically was intended to be a list of metadata to filter, i.e.,
+    records that do not need to be processed again. In some recipes this
+    is used as a way to pass additional arguments. Need to remove or 
+    make consistent.
   }
   \item{baseUrl}{
-    file location.
+    A \code{character()}. The file location.
   } 
   \item{justRunUnitTest}{
-    A \code{logical}. When TRUE, a small number of records (usually 5) are
+    A \code{logical}. When TRUE, a small number of records (usually <= 5) are
     processed instead of all.
   }
   \item{BiocVersion}{
-    A \code{character} vector of Bioconductor versions the resources should be 
-    available for.
+    A \code{character(1)}. The resource will be available for Bioconductor 
+    versions greater than and equal to this version. Default is
+    BiocInstaller::biocVersion().
   }
   \item{TxDbs}{
-    Character vector of the \code{TxDb}s to build and push. This should
-    include \code{TxDbs} that were new or updated for the current release.
+    Character vector of the \code{TxDb} names; generally includes
+    \code{TxDbs} that were new or updated for the current release.
   }
   \item{downloadOrgDbs}{
-    Logical. Indicates if all \code{OrgDb} packages in the Bioconductor
-    repo should be downloaded and installed. This should be \code{TRUE}
-    the first time the recipe is run and can be \code{FALSE} for
-    subsequent runs.
+    A \code{logical}. Indicates if all \code{OrgDb} packages in the 
+    Bioconductor repo should be downloaded and installed. This should be 
+    \code{TRUE} the first time the recipe is run and can be \code{FALSE} for
+    subsequent runs when testing.
   }
 }
 
@@ -89,7 +92,7 @@ TxDbs <- c("TxDb.Ggallus.UCSC.galGal5.refGene",
            "TxDb.Dmelanogaster.UCSC.dm6.ensGene",
            "TxDb.Rnorvegicus.UCSC.rn6.refGene")
 meta <- makeStandardTxDbsToAHM(currentMetadata=list(AnnotationHubRoot=getwd()), 
-                               justRunUnitTest = FALSE, 
+                               justRunUnitTest=FALSE, 
                                TxDbs = TxDbs)
 
 ## Step II: build metadata with updateResources()
@@ -98,9 +101,9 @@ meta <- makeStandardTxDbsToAHM(currentMetadata=list(AnnotationHubRoot=getwd()),
 ## use metadataOnly=TRUE and insert=FALSE. This will create the list of
 ## metadata and confirm the 'TxDbs' argument is properly interpreted.
 meta <- updateResources(getwd(),
-                        preparerClasses = "TxDbFromPkgsImportPreparer",
-                        metadataOnly = TRUE, insert = FALSE,
-                        justRunUnitTest = FALSE, TxDbs = TxDbs)
+                        preparerClasses="TxDbFromPkgsImportPreparer",
+                        metadataOnly=TRUE, insert = FALSE,
+                        justRunUnitTest=FALSE, TxDbs = TxDbs)
 
 INFO [2017-04-11 09:12:09] Preparer Class: TxDbFromPkgsImportPreparer
 complete!
@@ -116,10 +119,10 @@ complete!
 ## the AnnotationHub Docker.
 
 meta <- updateResources(getwd(),
-                        BiocVersion = "3.5",
-                        preparerClasses = "TxDbFromPkgsImportPreparer",
-                        metadataOnly = FALSE, insert = FALSE,
-                        justRunUnitTest = FALSE, TxDbs = TxDbs)
+                        BiocVersion="3.5",
+                        preparerClasses="TxDbFromPkgsImportPreparer",
+                        metadataOnly=FALSE, insert = FALSE,
+                        justRunUnitTest=FALSE, TxDbs = TxDbs)
 }
 }
 
