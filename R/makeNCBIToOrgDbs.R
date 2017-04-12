@@ -25,8 +25,8 @@
         stop(paste("'biocVersion' must be a single value. Make sure new",
                    "'OrgDbs' go into the CORRECT Bioconductor version!"))
     }
-    ## need to find an alternative to this...
-    ## old school table of tax Ids
+    ## Marc's note: 
+    ## need to find an alternative to this... old school table of tax Ids
     if (!exists("specData")) {
     load(system.file("data", "specData.rda", package = "GenomeInfoDbData"))
     }
@@ -38,11 +38,10 @@
     }
     ## Some taxonomy IDs cannot be looked up at all - so discard
     ids <- ids[ids %in% sd$tax_id]
-    ## AND remove this overly general barley ID
-    ## ids <- ids[!(ids %in% '4513')]
 
     res <- lapply(ids,lookup)
-    taxonomyId <- as.integer(as.character(unlist(lapply(res, function(x){x$tax_id}))))
+    taxonomyId <- 
+        as.integer(as.character(unlist(lapply(res, function(x){x$tax_id}))))
     genus <- unlist(lapply(res, function(x){x$genus}))
     species <- unlist(lapply(res, function(x){x$species}))
     genus <- gsub(" ", "_", genus)
