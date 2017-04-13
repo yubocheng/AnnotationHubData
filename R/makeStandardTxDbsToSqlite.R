@@ -87,7 +87,8 @@ makeStandardTxDbsToAHM <- function(currentMetadata, justRunUnitTest = FALSE,
             SourceType="FASTA",
             RDataDateAdded = Sys.time(),
             Recipe="AnnotationHubData:::extractTxDbSqlite",
-            Tags=c("UCSC", "Transcript", "Annotation"))) 
+            Tags=c("UCSC", "Transcript", "Annotation")),
+        USE.NAMES=FALSE) 
 }
 
 ## Load the object and call saveDb()
