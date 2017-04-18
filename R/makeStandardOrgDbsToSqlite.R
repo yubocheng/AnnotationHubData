@@ -71,7 +71,7 @@ makeStandardOrgDbsToAHM <- function(currentMetadata, justRunUnitTest=FALSE,
                                     BiocVersion=biocVersion(), 
                                     downloadOrgDbs=TRUE) {
     if (length(BiocVersion) > 1L)
-        stop("length(BiocVersion) must == 1L")
+        stop("BiocVersion must be a single version")
 
     orgDbs <- .getOrgDbs(downloadOrgDbs)
     meta <- .orgDbPkgMetadataFromObjs(orgDbs, biocversion=BiocVersion)

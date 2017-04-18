@@ -163,9 +163,10 @@ makeAnnotationHubResource(objName, makeAnnotationHubMetadataFunction,
       \sQuote{YourName \url{YourName@email.com}}
     }
     \item{BiocVersion}{
-      \code{character(1)} The first Biocondcutor version the resource
-      will be made available under. Default is the current version,
-      specified with biocVersion().}
+      A \code{character(1)} Bioconductor version. The resource will be available
+      in Bioconductor >= to this version. Default value is the current version,
+      specified with biocVersion().
+    }
     \item{Coordinate_1_based}{
       \code{logical(1)} Do coordinates start with 1 or 0?
     }

@@ -142,6 +142,8 @@ updateResources <- function(AnnotationHubRoot=getwd(),
                             preparerClasses=getImportPreparerClasses(),
                             metadataOnly=TRUE, insert=FALSE,
                             justRunUnitTest=FALSE, ...) {
+    if (length(BiocVersion) > 1L)
+        stop("BiocVersion must be a single version")
     AnnotationHubRoot <- normalizePath(AnnotationHubRoot)
     if (insert) {
         if(is.null(url <- getOption("AH_SERVER_POST_URL")))

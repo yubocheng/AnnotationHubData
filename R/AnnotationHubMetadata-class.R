@@ -360,7 +360,6 @@ HubMetadataFromJson <-
     lst <- lst[!sapply(lst, is.null)]         # replace with default values
 
     lst[["BiocVersion"]] <- package_version(lst$BiocVersion)
-     # lst[["BiocVersion"]] <- lapply(lst$BiocVersion, package_version)
 
     idx <- grep("Date", names(lst))
     lst[idx] <- rapply(lst[idx], function(x) {
@@ -405,53 +404,4 @@ writeJSON <- function(ahroot, metadata, flat=FALSE, filename=NULL)
         outfile <- file.path(ahroot, resourceDir, filename)
     cat(json, "\n", file=outfile)
     outfile
-}
-
-## ------------------------------------------------------------------------------
-## FIXME: not used?
-## 
-
-jsonPath <-
-    function(x)
-{
-    with(metadata(x), {
-        fl <- sprintf("%s_%s.json", SourceFile)
-        file.path(HubRoot, fl)
-    })
-}
-
-.NA_version_ <- numeric_version("0.0")  ## proxy for unknown version
-.as.numeric_version <-
-    function(x, ...)
-{
-    if (is(x, "character"))
-        x[x == "unknown"] <- as.character(.NA_version_)
-    base::as.numeric_version(x)
-}
-
-constructAnnotationHubMetadataFromSourceFilePath <-
-    function(ahroot, originalFile)
-{
-    dir <- dirname(file.path(ahroot, originalFile))
-    jsonFile <- .derivedFileName(originalFile, "json")
-    jsonFile <- file.path(dir[1], jsonFile)
-    HubMetadataFromJson(jsonFile, ahroot)
-}
-
-constructMetadataFromJsonPath <-
-    function(ahroot, jsonpath)
-{
-    jsonFile <- file.path(ahroot, jsonpath)[1]
-    HubMetadataFromJson(jsonFile, ahroot)
-}
-
-.getExistingResources <-
-    function(BiocVersion=biocVersion(), RDataDateAdded="2013-01-22")
-{
-    url <-
-        sprintf("http://annotationhub.bioconductor.org/ah/%s/%s/query/cols/all",
-                BiocVersion, RDataDateAdded)
-    t <- tempfile()
-    download.file(url, t, quiet=TRUE)
-    HubMetadataFromJson(t)
 }

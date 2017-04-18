@@ -48,8 +48,9 @@ ensemblFastaToTwoBitFile(ahm)
     processed instead of all.
   }
   \item{BiocVersion}{
-    A \code{character} vector of Bioconductor versions the resources should be 
-    available for.
+    A \code{character(1)} Bioconductor version. The resource will be available
+    in Bioconductor >= to this version. Default value is the current version,
+    specified with biocVersion().
   }
   \item{ahm}{
     List of \code{AnnotationHubMetadata} instances.

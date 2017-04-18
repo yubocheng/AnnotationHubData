@@ -91,15 +91,11 @@
             reBoth <- paste0("dna", c("_rm", "_sm", ""),
                 "\\.(primary_assembly|toplevel)\\.")
             toplevelIdx <-
-                # vapply(reBoth, function(x) length(grep(x, orgFiles)) > 1,
-                #        logical(1))
                 sapply(reBoth, function(x) length(grep(x, orgFiles)) > 1)
             reToplevel <- paste0("dna", c("_rm", "_sm", ""),
                 "\\.toplevel\\.")[toplevelIdx]
 
             isRedundant <-
-                # vapply(reToplevel, function(x) grepl(x, orgFiles),
-                #        logical(length(x)))
                 sapply(reToplevel, function(x) grepl(x, orgFiles))
             retVal <- rep(TRUE, length(orgFiles))
             if (!is.null(dim(isRedundant))) {

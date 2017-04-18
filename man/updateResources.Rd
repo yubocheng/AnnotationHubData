@@ -29,8 +29,9 @@ pushMetadata(allAhms, url)
     Local path where files will be downloaded.
   }
   \item{BiocVersion}{
-    A character vector of Bioconductor versions the resources should be
-    available for.
+    A \code{character(1)} Bioconductor version. The resource will be available
+    in Bioconductor >= to this version. Default value is the current version,
+    specified with biocVersion().
   }
   \item{preparerClasses}{
     One of the \code{ImportPreparer} subclasses defined in

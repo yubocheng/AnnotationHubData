@@ -16,6 +16,8 @@ makeEnsemblTwoBitToAHM <-
 {
     if (length(release) > 1L)
         stop("'release' must be a single integer")
+    if (length(BiocVersion) > 1L)
+        stop("BiocVersion must be a single version")
     time1 <- Sys.time()
     regex <- paste0(".*release-", release)
     sourceUrl <- .ensemblFastaSourceUrls(baseUrl, baseDir, regex,
