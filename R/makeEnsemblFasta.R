@@ -74,8 +74,7 @@
         listing <- .ftpDirectoryInfo(url)
 
         subdirIdx <- grepl(".*/.*:", listing)
-        subdir <- sub("^(.*):$", "\\1", listing[subdirIdx])
-
+        subdir <- sub("^.{2}(.*):$", "\\1", listing[subdirIdx])
         fileTypes <- paste(baseTypes, collapse="|")
         pat <- sprintf(".*(%s)\\.fa\\.gz$", fileTypes)
 
