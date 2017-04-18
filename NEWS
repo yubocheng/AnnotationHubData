@@ -1,3 +1,58 @@
+CHANGES IN VERSION 1.6.0
+------------------------
+
+NEW FEATURES
+
+    o add makeStandardTxDbsToSqlite() recipe
+
+    o add 'ensembl' and 'MySQL' as possible SourceType values
+
+    o tidy and export makeStandard*ToAHMs and makeNCBIToOrgDbsToAHMs
+
+MODIFICATIONS
+
+    o move currentMetadata
+
+    o tidy pushResources interface
+
+    o modified parsing of species name and genome in .ensemblMetadataFromUrl()
+
+    o modified standard OrgDb recipe
+
+    o enhance and clean vignette
+
+    o move 'Tags' check from readCsvFromMetadata() to
+    makeAnnotationHubMetadata()
+
+    o remove dependency on xml2, curl, httr and probably other wheel
+    reinventions, alter imports and suggests
+
+    o specify multiple 'Tags' as colon separated string instead of comma
+    separated; avoids problems with read.csv()
+
+    o select data moved to GenomeInfoDbData package 
+
+    o Added additional documentation instructions for core members to add
+    contributed data to AnnotationHub
+    
+    o rename files; remove old JSON test file no longer applicable
+
+    o pass 'install' argument down through recipe
+
+    o General code tidy; remove unused functions and comments; clarify checks
+
+BUG FIXES
+
+    o readMetadataFromCsv() fills in DataProvider and Coordinate_1_based if missing
+
+    o fix bug introduced in checking 'release' in makeEnsemblTwoBit recipe
+
+    o makeAnnotationHubMetadata() now processes all inst/extdata/*.csv files
+
+    o fix subset and import bug in makeAnnotationHubMetadata()
+
+    o Fix bug in Rdatapath and sourceurl for makeEnsemblFasta.R
+
 CHANGES IN VERSION 1.4.0
 ------------------------
 
