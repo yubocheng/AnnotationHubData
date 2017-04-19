@@ -36,6 +36,7 @@ makeEnsemblTwoBitToAHM <-
     rdataPath <- sub("\\.fa\\.gz$", ".2bit", sourceFile)
 
     Map(AnnotationHubMetadata,
+        AnnotationHubRoot=currentMetadata$AnnotationHubRoot,
         Description=description,
         Genome=meta$genome,
         RDataPath=rdataPath,
