@@ -35,6 +35,7 @@ pushResources <- function(allAhms, uploadToS3=TRUE, download=TRUE) {
                 flog(ERROR, msg)
                 xx
             })
+	    gc()
         })
     res
 }
