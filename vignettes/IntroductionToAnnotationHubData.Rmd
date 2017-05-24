@@ -226,9 +226,12 @@ metadata <- AnnotationHubMetadata(
 Metadata for new versions of the data can be added to the same package as they
 become available. 
 
-* The titles for the new versions must be unique and not match the title of
+* The titles for the new versions should be unique and not match the title of
   any resource currently in AnnotationHub. Good practice would be to 
-  include the version and / or genome build in the title.
+  include the version and / or genome build in the title. If the title is
+  not unique, the `AnnotationHub` object will list multiple files with the
+  same title. The user will need to use 'rdatadateadded' to determine which
+  is the most current.
 
 * Make data available via dropbox, ftp, etc. and notify 
   maintainer@bioconductor.org
@@ -255,7 +258,8 @@ A bug fix may involve a change to the metadata, data resource or both.
 
 ## Update the resource 
 
-* The replacement resource must have the same name as the original
+* The replacement resource must have the same name as the original and
+  be at the same location (path).
 
 * Notify maintainer@bioconductor.org that you want to replace the data
   and make the files available via dropbox, ftp, etc. 
@@ -268,19 +272,51 @@ bug fixes.
 
 * Notify maintainer@bioconductor.org that you want to change the metadata
 
-* Update make-metadata.R with modified information
+* Update make-metadata.R and regenerate the metadata.csv file
 
 * Bump the package version and commit to svn/git
 
 # Remove resources
 
-When a resource is removed from `AnnotationHub` the 'status' field in the 
-metadata is modified to explain why they are no longer available. Once
-this status is changed the `AnnotationHub()` constructor will not list the 
+When a resource is removed from `AnnotationHub` two things happen:
+the 'rdatadateremoved' field is populated with a date and the 'status' 
+field is populated with a reason why the resource is no longer available. Once
+these changes are made, the `AnnotationHub()` constructor will not list the 
 resource among the available ids. An attempt to extract the resource with 
 '[[' and the AH id will return an error along with the status message.
 
+In general, resources are only removed when they are no longer available
+(e.g., moved from web location, no longer provided etc.). 
+
 To remove a resource from `AnnotationHub` contact maintainer@bioconductor.org.
+
+# Versioning
+
+Versioning of resources is handled by the maintainer. If you plan to provide 
+incremental updates to a file for the same organism / genome build, we
+recommend including a version in the title of the resource so it is easy
+to distinguish which is most current.
+
+If you do not include a version, or make the title unique in some way,
+multiple files with the same title will be listed in the `AnnotationHub`
+object. The user will can use the 'rdatadateadded' metadata field
+to determine which file is the most current.
+
+# Visibility
+
+Several metadata fields control which resources are visible when 
+a user invokes AnnotationHub(). Records are filtered based on these criteria:
+
+- 'snapshotdate' >= the date of the Bioconductor release being used
+- 'rdatadateadded'  >= today's date
+- 'rdatadateremoved' is NULL / NA
+- 'biocVersion' is <= to the Bioconductor version being used
+
+Once a record is added to AnnotationHub it is visable from that point forward
+until stamped with 'rdatadateremoved'. For example, a record added on
+May 1, 2017 with 'biocVersion' 3.6 will be visible in all snapshots >=
+May1, 2017 and in all Bioconductor versions >= 3.6.
+
 
 # Historical vignettes
 
