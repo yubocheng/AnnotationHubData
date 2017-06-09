@@ -45,7 +45,8 @@ readMetadataFromCsv <- function(pathToPackage, fileName=character())
 
     )
     ## Populate required fields
-    if (any(missing <- meta$DataProvider == "")) {
+    missing <- is.na(nchar(meta$DataProvider))
+    if (any(missing)) {
         meta$DataProvider[missing] <- "NA" 
         message("missing values for 'DataProvider set to 'NA''")
     }
