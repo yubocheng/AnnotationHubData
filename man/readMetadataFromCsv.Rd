@@ -46,8 +46,9 @@
               the exact file name (if self-describing) or a more complete
               description.
 
-        \item Description: \code{character(1)}. Brief description of the resource,
-              similar to the 'Description' field in a package DESCRIPTION file.
+        \item Description: \code{character(1)}. Brief description of the 
+              resource, similar to the 'Description' field in a package 
+              DESCRIPTION file.
 
         \item BiocVersion: \code{character(1)}. The first Bioconductor version
               the resource was made available for. Unless removed from

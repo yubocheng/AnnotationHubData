@@ -119,7 +119,8 @@ makeAnnotationHubResource(objName, makeAnnotationHubMetadataFunction,
       \code{numeric(1)} Size of original file in bytes.
     }
     \item{DataProvider}{
-      \code{character(1)} Provider of original data, e.g., NCBI, UniProt etc.
+      \code{character(1)} Provider of original data, e.g., NCBI, 
+      UniProt etc.
     }
     \item{Title}{
       \code{character(1)} Title for the resource with version or genome
@@ -127,8 +128,9 @@ makeAnnotationHubResource(objName, makeAnnotationHubMetadataFunction,
     }
     \item{Description}{
       \code{character(1)} Description of the resource. May include
-      details such as data type, format, study origin, sequencing technology, 
-      treated vs control, number of samples etc.}
+      details such as data type, format, study origin, sequencing 
+      technology, treated vs control, number of samples etc.
+    }
     \item{Species}{
       \code{character(1)} Species name.
     }
@@ -151,46 +153,45 @@ makeAnnotationHubResource(objName, makeAnnotationHubMetadataFunction,
       must match the length of \code{RDataPath}.
     }
     \item{RDataDateAdded}{
-      \code{POSIXct()} Date resource was added to AnnotationHub; used to 
-      determine snapshots.
+      \code{POSIXct()} Date resource was added to AnnotationHub. The
+      default is today's date and is auto-generated when metadata are
+      constructed. Resources will appear in snapshots with a date greater
+      than or equal to the \code{RDataDateAdded}.
     }
     \item{RDataPath}{
-      \code{character()} File path to serialized form. Length must match
-      the length of \code{RDataClass}. Internal use only.
+      \code{character()} File path to where object is stored in AWS S3
+      bucket or on the web. Length must match the length of 
+      \code{RDataClass}.
     }
     \item{Maintainer}{
-      \code{character(1)} Maintainer name and email address, e.g.,
-      \sQuote{YourName \url{YourName@email.com}}
+      \code{character(1)} Maintainer name and email address,
+      \sQuote{A Maintainer \url{a.maintainer@email.com}}
     }
-    \item{BiocVersion}{
-      A \code{character(1)} Bioconductor version. The resource will be available
-      in Bioconductor >= to this version. Default value is the current version,
-      specified with biocVersion().
+    \item{BiocVersion}{\code{character(1)}. The first Bioconductor version
+      the resource was made available for. Unless removed from the hub, the
+      resource will be available for all versions greater than or equal to this
+      field.
     }
     \item{Coordinate_1_based}{
       \code{logical(1)} Do coordinates start with 1 or 0?
     }
     \item{DispatchClass}{
-      \code{character(1)} String used in AnnotationHub:::.get1() method dispatch
-      when loading the resource from AnnotationHub. This value is often the
-      same as the RDataClass.
-
-      Dispatch classes are defined on the .get1() methods in AnnotationHub.  If
-      one exists for your data type, simply use the name of the data type,
-      e.g., if the data are saved as ExpressionSet objects,
-      \code{DispatchClass} should be "ExpressionSet"; when the resource is
-      downloaded from AnnotationHub with '[[' the "Resources" extension is
-      (automatically) added to make the new class "ExpressionSetResource". If
-      the data are saved as .rda files \code{DispatchClass} should be "Rda" and
-      when downloaded in AnnotationHub the class name becomes "RdaResource" and
-      so on. 
-
-      If there is not a .get1() method in AnnotationHub for your object type,
-      contact maintainer@bioconductor.org for assistance.
+      \code{character(1)}. Determines how data are loaded into R. The value for
+      this field should be \sQuote{Rda} if the data were serialized with
+      \code{save()} and \sQuote{Rds} if serialized with \code{saveRDS}. The
+      filename should have the appropriate \sQuote{rda} or \sQuote{rds}
+      extension. 
+ 
+      A number of dispatch classes are pre-defined in
+      AnnotationHub/R/AnnotationHubResource-class.R with the suffix
+      \sQuote{Resource}. For example, if you have sqlite files, the
+      AnnotationHubResource-class.R defines SQLiteFileResource so the
+      DispatchClass would be SQLiteFile. Contact maintainer@bioconductor.org if
+      you are not sure which class to use.
     }
     \item{Location_Prefix}{
-      \code{character(1)} Base path where the resource is coming from,
-      e.g., a web site or Amazon S3.
+      \code{character(1)} URL location of AWS S3 bucket or web site where
+      resource is located.
     }
     \item{Notes}{
       \code{character()} Notes about the resource.
@@ -229,7 +230,8 @@ makeAnnotationHubResource(objName, makeAnnotationHubMetadataFunction,
     }
     \item{makeAnnotationHubMetadataFunction}{
       \code{function} Function (name) that makes \code{AnnotationHubMetadata}
-      objects from the resource(s).}
+      objects from the resource(s).
+    }
     \item{where}{
       Environment where function definition is defined. Default value 
       is sufficient.
