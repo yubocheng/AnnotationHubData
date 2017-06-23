@@ -12,9 +12,9 @@ importFrom(biocViews, recommendPackages)
 importMethodsFrom(AnnotationDbi, exists, get, saveDb)
 importMethodsFrom(BiocGenerics, mapply, Map)
 importMethodsFrom(Biostrings, head, substr)
-importMethodsFrom(DBI, dbDriver)
+importMethodsFrom(DBI, dbDriver, dbGetQuery)
 importMethodsFrom(Rsamtools, indexFa)
-importMethodsFrom(RSQLite, dbConnect, dbGetQuery, dbDisconnect)
+importMethodsFrom(RSQLite, dbConnect, dbDisconnect)
 importMethodsFrom(rtracklayer,
     browserSession, "genome<-", getTable,
     import, "tableName<-", tableNames, track,
