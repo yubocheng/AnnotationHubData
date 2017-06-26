@@ -2,7 +2,7 @@
 ## Tests to just see if we can run all of our recipes
 
 ahroot <- getwd()
-BiocVersion <- "3.4"
+BiocVersion <- as.character(BiocInstaller::biocVersion())
 
 ## No longer used:
 ## test_HaemCodeImportPreparer_recipe
