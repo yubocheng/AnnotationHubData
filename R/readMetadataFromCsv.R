@@ -4,12 +4,12 @@
 ###
 
 ## High level helper used to check metadata in 'Hub' packages.
-readMetadataFromCsv <- function(pathToPackage, fileName=character()) 
+readMetadataFromCsv <- function(pathToPackage, fileName=character())
 {
     if (!length(fileName))
         fileName <- "metadata.csv"
     path <- file.path(pathToPackage, "inst", "extdata")
-    meta <- read.csv(file.path(path, fileName), colClasses="character", 
+    meta <- read.csv(file.path(path, fileName), colClasses="character",
                      stringsAsFactors=FALSE)
     mat <- rbind(c("Title", "character"),
                  c("Description", "character"),
@@ -25,17 +25,18 @@ readMetadataFromCsv <- function(pathToPackage, fileName=character())
                  c("Maintainer", "character"),
                  c("RDataClass", "character"),
                  c("DispatchClass", "character"),
-                 c("ResourceName", "character"))
+                 c("ResourceName", "character"),
+                 c("RDataPath", "character"))
 
     expected <- mat[,1]
     missing <- !expected %in% names(meta)
     if (any(missing))
-        stop(paste0("missing fields in metadata file ", fileName, ": ", 
+        stop(paste0("missing fields in metadata file ", fileName, ": ",
                     paste(expected[missing], collapse=", ")))
-    extra<- !names(meta) %in% expected 
+    extra<- !names(meta) %in% expected
 
     ## All fields length 1
-    apply(meta, 1, 
+    apply(meta, 1,
         function(xx) {
             valid <- sapply(xx, function(field) length(field) == 1L)
             if (any(!valid))
@@ -47,13 +48,13 @@ readMetadataFromCsv <- function(pathToPackage, fileName=character())
     ## Populate required fields
     missing <- is.na(nchar(meta$DataProvider))
     if (any(missing)) {
-        meta$DataProvider[missing] <- "NA" 
+        meta$DataProvider[missing] <- "NA"
         message("missing values for 'DataProvider set to 'NA''")
     }
     if (any(is.na(meta$Coordinate_1_based))) {
         meta$Coordinate_1_based <- TRUE
         message("missing values for 'Coordinate_1_based set to TRUE'")
-    } else { 
+    } else {
         meta$Coordinate_1_based <- as.logical(meta$Coordinate_1_based)
     }
     ## Enforce data type
@@ -63,14 +64,15 @@ readMetadataFromCsv <- function(pathToPackage, fileName=character())
     ## Location_Prefix not specified -> data in S3
     if (all(is.null(Location_Prefix <- meta$Location_Prefix))) {
         meta$Location_Prefix <- 'http://s3.amazonaws.com/annotationhub/'
-        package <- basename(pathToPackage)
-        meta$RDataPath <- paste0(package,"/",meta$ResourceName)
     ## Location_Prefix specified -> data at other location
-    } else {
-        if (all(is.null(meta$RDataPath)))
-            stop(paste0("when 'Location_Prefix' is specified 'RDataPath' ",
-                        "must be provided"))
     }
+
+    package <- basename(pathToPackage)
+    if (!all(sapply(meta$RDataPath,
+                    pattern=paste0("^",package), FUN=grepl))){
+        stop(paste0("RDataPath must start with package name: ", package))
+    }
+
     ## Real time assignments
     meta$RDataDateAdded <- rep(Sys.time(), nrow(meta))
     meta

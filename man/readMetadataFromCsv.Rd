@@ -103,16 +103,14 @@
               if data are stored in AWS S3; it will be generated automatically.
 
               If data will be accessed from a location other than AWS S3
-              this field should be the base url. When \code{Location_Prefix}
-              is provided you also need to specify \code{RDataPath}.
+              this field should be the base url. 
 
-        \item RDataPath: \code{character(1)}. Do not include this field if
-              data are stored in AWS S3; it will be generated automatically.
-
-              If data will be accessed from a location other than AWS S3
-              this field should be the remainder of the path to the
-              resource. The \code{Location_Prefix} will be prepended to
-              \code{RDataPath} for the full path to the resource.
+        \item RDataPath: \code{character(1)}.This field should be the
+              remainder of the path to the resource. The
+              \code{Location_Prefix} will be prepended to
+	      \code{RDataPath} for the full path to the resource. It
+              should start with the name of the package associated with
+              the metadata and should not start with a leading slash. 
 
         \item Tags: \code{character() vector}. 
               \sQuote{Tags} are search terms used to define a subset of
