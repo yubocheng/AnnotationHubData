@@ -47,42 +47,13 @@ to core team members only.
 
   -- Create a new S3 bucket under annotationhub/ with the same name as the 
      software package.
-  -- Either the core team member adds the resources to the S3 bucket or we
-     grant the author permission to add/delete from their bucket.
+  -- Either the core team member adds the resources to the S3 bucket or 
+     the contributor adds them as the AnnotationContributor user. See the
+     AnnotationHubData vignette for more details on the AnnotationContributor
+     user.
 
-     If we aren't granting access the resources can be added to the bucket.
-     Confirm they are public and can be downloaded by anyone.
-
-     Granting access should be the exception and works in cases where the
-     author is an established community member and they have many files and
-     plan to update the files on a regular basis.  If access is not granted
-     correctly the user may be able to delete or corrupt other resources in the
-     Hub. It's very important to restrict access via an appropriate policy.
-
-     For an example of a user, group, policy relationship see
-     the set up for Johannes Rainer and the AHEnsDb bucket:
-
-     https://console.aws.amazon.com/iam/home?region=us-east-1#/users/johannes_rainer
-
-     Granting access to a bucket involves these steps:
-     1. add a user
-     2. add a group
-     3. add user to the group
-     4. create a policy
-     5. attach the policy to the group 
-
-     Detailed instructions here:
-     http://docs.aws.amazon.com/IAM/latest/UserGuide/getting-started_create-admin-group.html
-     http://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies.html
-
-  -- Once the author has access to the bucket, have them upload the resources 
-     with an aws command similar to this, replacing the username, S3 bucket and
-     file names with their own:
- 
-     aws --profile johannes_rainer s3 cp myfile.rda s3://annotationhub/EnsDb/myfile.rda --acl public-read 
-
-     NOTE: The public-read flag is important; without it no one can access
-     the file.
+     Once the resources are in the proper place, confirm they are public and 
+     can be downloaded by anyone.
 
 - Add metadata
 
