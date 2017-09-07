@@ -66,10 +66,15 @@ readMetadataFromCsv <- function(pathToPackage, fileName=character())
     ## Location_Prefix specified -> data at other location
     }
 
-    package <- basename(pathToPackage)
-    if (!all(sapply(meta$RDataPath,
-                    pattern=paste0("^",package), FUN=grepl))){
-        stop(paste0("RDataPath must start with package name: ", package))
+    if(all(
+        (meta$Location_Prefix == 'http://s3.amazonaws.com/annotationhub/') ||
+        (meta$Location_Prefix == 'http://s3.amazonaws.com/experimenthub/'))
+       ){
+        package <- basename(pathToPackage)
+        if (!all(sapply(meta$RDataPath,
+                        pattern=paste0("^",package), FUN=grepl))){
+            stop(paste0("RDataPath must start with package name: ", package))
+        }
     }
 
     ## Real time assignments
