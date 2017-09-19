@@ -34,7 +34,6 @@ Collate:
     makeAnnotationHubResource.R
     HubMetadata-class.R
     AnnotationHubMetadata-class.R
-    readMetadataFromCsv.R
     utils.R
     updateResources.R
     ahmToJson.R
