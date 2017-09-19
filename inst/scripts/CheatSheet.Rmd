@@ -1,0 +1,551 @@
+---
+title: "cheetSheet"
+author: "Lori Shepherd"
+date: "September 12, 2017"
+output:
+    html_document: 
+      toc: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Cheat Sheet for adding Annotations
+
+This doc describes how to add resources to AnnotationHub. In general, these instructions pertain to core team members only.
+
+*** 
+
+# AnnotationHub
+
+***
+## Run Periodically - whenever updated
+
+### ensembl release 
+
+This requires generating two types of resources 
+
+1. GTF -> GRanges on the fly conversion
+2. 2Bit
+
+#### GTF
+
+On Local Machine:
+
+1. Navigate to the AnnotationHub_docker directory or create such a directory by 
+following the instructions [here](https://github.com/Bioconductor/auxiliary_docker_containers/tree/master/annotationhub).
+
+2. Start the docker: 
+
+```
+export MYSQL_REMOTE_PASSWORD=***  (See credentials doc)
+sudo docker-compose up
+```
+
+3. In a new terminal start R:
+
+```
+options(AH_SERVER_POST_URL="http://localhost:3000/resource")
+options(ANNOTATION_HUB_URL="http://localhost:3000")
+library(AnnotationHubData)
+# change the appropraite release number
+meta <- updateResources(getwd(), 
+                          BiocVersion = "3.6",
+                          preparerClasses = "EnsemblGtfImportPreparer",
+                          metadataOnly = TRUE, insert = FALSE,
+                          justRunUnitTest = FALSE, release = "89")
+# test/check meta
+url <- getOption("AH_SERVER_POST_URL")
+pushMetadata(meta, url)
+
+# you could rerun updateResources with insert=TRUE to do the push but I like to check resource data
+```
+4. exit R 
+
+5. Convert db to sqlite (puts the file in the data/ directory)
+```
+sudo docker exec annotationhub_annotationhub_1 bash /bin/backup_db.sh
+```
+6. If satisfied, copy this file to annotationhub.bioconductor.org and follow 
+instructions for updating production database
+
+#### 2Bit
+
+On EC2 Instance: 
+
+The files will be downloaded, converted and pushed to S3 bucket. This should 
+be done on the EC2 instance val_annotations. If it is not running, start the EC2
+instance on AWS and log as user ubuntu. 
+
+Because this can take awhile, it is recommended to use the screen application.
+Some usefule screen calls:
+```
+- start screen by typing 'screen'
+- cd to directory you want to be in, start the process or code you want to run
+- exit the screen session with 'ctl-a' 'd'
+- list screen sessions with 'screen -ls'
+- reconnect to a specific session (e.g., XYZ) with 'screen -r XYZ'
+```
+
+1. Start screen 
+2. Navigate to directory to run code 
+3. In R: 
+
+```
+library(AnnotationHubData)
+meta <- updateResources(getwd(), 
+                        BiocVersion = "3.6",
+                        preparerClasses = "EnsemblTwoBitPreparer",
+                        metadataOnly = FALSE, insert = FALSE,
+                        justRunUnitTest = FALSE, release = "89")
+                        
+# a suggested step is to save(meta, file="metadataForTwoBit")
+# and scp to local machine 
+```
+
+4. Check S3 bucket is being populated.
+5. Once finished close everything and stop EC2 instance 
+
+On Local Machine: 
+
+1. Navigate to the AnnotationHub_docker directory 
+
+2. Start the docker: 
+
+```
+export MYSQL_REMOTE_PASSWORD=***  (See credentials doc)
+sudo docker-compose up
+```
+
+3. In a new terminal start R:
+
+```
+options(AH_SERVER_POST_URL="http://localhost:3000/resource")
+options(ANNOTATION_HUB_URL="http://localhost:3000")
+library(AnnotationHubData)
+
+# option 1:
+meta <- updateResources(getwd(), 
+                        BiocVersion = "3.6",
+                        preparerClasses = "EnsemblTwoBitPreparer",
+                        metadataOnly = TRUE, insert = FALSE,
+                        justRunUnitTest = FALSE, release = "89")
+
+
+# option 2: 
+# if you saved the meta from the EC2 instance 
+load("metadataForTwoBit")
+
+url <- getOption("AH_SERVER_POST_URL")
+pushMetadata(meta, url)
+
+# you could rerun updateResources with insert=TRUE to do the push but I like to check resource data
+```
+4. exit R 
+
+5. Convert db to sqlite (puts the file in the data/ directory)
+```
+sudo docker exec annotationhub_annotationhub_1 bash /bin/backup_db.sh
+```
+6. If satisfied, copy this file to annotationhub.bioconductor.org and follow 
+instructions for updating production database
+
+***
+
+After GTF or 2bits are added to production database, you should be able to 
+get the resources and see the updated timestamp of database with something like
+the following
+
+```
+library(AnnotationHub)
+hub = AnnotationHub()
+length(query(hub, c("ensembl", "gtf", "release-89")))
+length(query(hub, c("fasta", "release-89", "twobit"))) 
+```
+
+
+### User Contributed Resources
+
+Contributors will generally reach out when wanting to update or include 
+Annotations to the AnnotationHub. In the past they have provided the annotations
+through an application like dropbox; we have since updated the process and now 
+will directly upload files to S3 in a temporary location. Send them the 
+instructions found [here](https://github.com/Bioconductor/AnnotationHubData/blob/master/vignettes/IntroductionToAnnotationHubData.Rmd)
+
+A key will have to be generated for them to access and use the 
+`AnnotationContributor` account.  Go to [here](https://console.aws.amazon.com/iam/home?region=us-east-1#/users/AnnotationContributor)
+Under the 'Security credentials' tab click 'Create access key'. Send the 
+Access key ID to the contributor and the Secret access key is stored in AWS.  
+When the contributor is done you can delete the key (small 'x' at the right of 
+the key row).
+
+Advise that their data should be in a directory the same name as the software 
+package that will access the annotations; subdirectories to keep track of versions
+is strongly encouraged. 
+
+Once the data is uploaded to S3 move the data to the proper location. 
+
+We will need a copy of the package to generate and test the annotaitons. Request
+link to package from user. 
+
+Follow instructions [here](https://github.com/Bioconductor/AnnotationHubData/blob/master/inst/scripts/addContributedResources.txt)
+
+In general, generate the list of AnnotationHubMetadata objects with 
+`makeAnnotationHubMetadata()` or `updateResources`. To test that the 
+metadata.csv is properly formatted, can test with `readMetadataFromCsv`.  
+
+Some suggested testing procedures can be found [here](https://github.com/Bioconductor/auxiliary_docker_containers/blob/master/annotationhub/README.md#test)
+
+When satisfied start the AnnotationHub docker and add resource to docker. 
+
+1. Navigate to the AnnotationHub_docker directory 
+
+2. Start the docker: 
+
+```
+export MYSQL_REMOTE_PASSWORD=***  (See credentials doc)
+sudo docker-compose up
+```
+
+3. In a new terminal start R:
+
+```
+options(AH_SERVER_POST_URL="http://localhost:3000/resource")
+options(ANNOTATION_HUB_URL="http://localhost:3000")
+library(AnnotationHubData)
+
+# run approprate makeAnnotationHubMetadata() call and 
+#url <- getOption("AH_SERVER_POST_URL")
+#pushMetadata(meta, url)
+```
+4. exit R 
+
+5. Convert db to sqlite (puts the file in the data/ directory)
+```
+sudo docker exec annotationhub_annotationhub_1 bash /bin/backup_db.sh
+```
+6. If satisfied, copy this file to annotationhub.bioconductor.org and follow 
+instructions for updating production database
+
+
+## Run Release time after new builds of annotations
+
+### makeStandardOrgDbs
+
+This recipe should be run after the new OrgDb packages have been built
+for the release are available in the devel repo. The code essentially
+loads the current packages, extracts the sqlite file and creates some
+basic metadata.
+
+The BiocVersion should be whatever the next release version will be, 
+the current devel soon to be release. The
+OrgDb resources get the same name when they are regenerated - they
+aren't tied to a genome build so that's not a distinguishing feature in
+the title. We only want 1 OrgDb for each species available in a release
+and the BiocVersion is what we use to filter records exposed.
+
+On AWS: 
+
+Create S3 bucket based on rdatapath: annotationhub/ncbi/standard/<BiocVersion>
+
+On Local Machine:
+
+1. Navigate to the AnnotationHub_docker directory 
+
+2. Start the docker: 
+
+```
+export MYSQL_REMOTE_PASSWORD=***  (See credentials doc)
+sudo docker-compose up
+```
+
+3. In a new terminal start R:
+
+```
+options(AH_SERVER_POST_URL="http://localhost:3000/resource")
+options(ANNOTATION_HUB_URL="http://localhost:3000")
+library(AnnotationHubData)
+
+# see the man page for clarification on testing and actively pushing
+# ?makeStandardOrgDbsToAHM
+meta <- updateResources(getwd(),
+                        BiocVersion = "3.5",
+                        preparerClasses = "OrgDbFromPkgsImportPreparer",
+                        metadataOnly = TRUE, insert = FALSE,
+                        justRunUnitTest = FALSE,
+                        downloadOrgDbs=TRUE) 
+# downloadOrgDbs can be FALSE for subsequent runs
+
+url <- getOption("AH_SERVER_POST_URL")
+pushMetadata(meta, url)
+```
+4. exit R 
+
+5. Convert db to sqlite (puts the file in the data/ directory)
+```
+sudo docker exec annotationhub_annotationhub_1 bash /bin/backup_db.sh
+```
+6. If satisfied, copy this file to annotationhub.bioconductor.org and follow 
+instructions for updating production database
+
+7. After uploaded to production you can test that they are available in release
+and devel 
+
+```
+query(hub, "OrgDb")
+table(mcols(query(hub, "OrgDb"))$rdatadateadded)
+```
+
+### makeStandardTxDbs
+
+This recipe should be run after the new TxDbs have been built and are in
+the devel repo. The code loads the packages, extracts the sqlite file
+and creates metadata.
+
+The BiocVersion should be whatever the next release version will be, 
+the current devel soon to be release. The
+OrgDb resources get the same name when they are regenerated - they
+aren't tied to a genome build so that's not a distinguishing feature in
+the title. We only want 1 OrgDb for each species available in a release
+and the BiocVersion is what we use to filter records exposed.
+
+On AWS: 
+
+Create S3 bucket based on rdatapath: annotationhub/ucsc/standard/<BiocVersion>
+
+On Local Machine: 
+
+1. Navigate to the AnnotationHub_docker directory 
+
+2. Start the docker: 
+
+```
+export MYSQL_REMOTE_PASSWORD=***  (See credentials doc)
+sudo docker-compose up
+```
+
+3. In a new terminal start R:
+
+```
+options(AH_SERVER_POST_URL="http://localhost:3000/resource")
+options(ANNOTATION_HUB_URL="http://localhost:3000")
+library(AnnotationHubData)
+
+# see the man page for clarification on testing and actively pushing
+# ?makeStandardTxDbsToAHM
+meta <- updateResources(getwd(),
+                        BiocVersion = "3.5",
+                        preparerClasses = "TxDbFromPkgsImportPreparer",
+                        metadataOnly = TRUE, insert = FALSE,
+                        justRunUnitTest = FALSE,
+                        downloadTxDbs=TRUE)
+# downloadTxDbs can be FALSE for subsequent runs
+
+url <- getOption("AH_SERVER_POST_URL")
+pushMetadata(meta, url)
+```
+4. exit R 
+
+5. Convert db to sqlite (puts the file in the data/ directory)
+```
+sudo docker exec annotationhub_annotationhub_1 bash /bin/backup_db.sh
+```
+6. If satisfied, copy this file to annotationhub.bioconductor.org and follow 
+instructions for updating production database
+
+7. After uploaded to production you can test that they are available in release
+and devel 
+
+```
+query(hub, "TxDb")
+table(mcols(query(hub, "TxDb"))$rdatadateadded)
+```
+
+### makeNCBIToOrgDbs (Non Standard Orgs)
+
+This code generates ~1000 non-standard
+OrgDb sqlite files from ucsc. These are less comprehensive and the
+standard OrgDb packages. It's best to run this on an EC2 instance. 
+
+The BiocVersion should be whatever the next release version will be, 
+the current devel soon to be release. The
+OrgDb resources get the same name when they are regenerated - they
+aren't tied to a genome build so that's not a distinguishing feature in
+the title. We only want 1 OrgDb for each species available in a release
+and the BiocVersion is what we use to filter records exposed.
+
+On AWS: 
+
+Create S3 bucket: annotationhub/ncbi/uniprot/<BiocVersion>
+
+On EC2 Instance: 
+
+The files will be downloaded, converted and pushed to S3 bucket. This should 
+be done on the EC2 instance val_annotations. If it is not running, start the EC2
+instance on AWS and log as user ubuntu. 
+
+Because this can take awhile, it is recommended to use the screen application.
+Some usefule screen calls:
+```
+- start screen by typing 'screen'
+- cd to directory you want to be in, start the process or code you want to run
+- exit the screen session with 'ctl-a' 'd'
+- list screen sessions with 'screen -ls'
+- reconnect to a specific session (e.g., XYZ) with 'screen -r XYZ'
+```
+
+1. Start screen 
+2. Navigate to directory to run code 
+3. In R: 
+
+```
+library(AnnotationHubData)
+
+# see the man page for clarification on testing and actively pushing
+# ?makeNCBIToOrgDbsToAHM
+meta <- updateResources(getwd(),
+                        BiocVersion = "3.5",
+                        preparerClasses = "NCBIImportPreparer",
+                        metadataOnly = TRUE, insert = FALSE,
+                        justRunUnitTest = FALSE)
+
+# a suggested step is to save(meta, file="metadataForTwoBit")
+# and scp to local machine 
+```
+
+4. Check S3 bucket is being populated.
+5. Once finished close everything and stop EC2 instance 
+
+On Local Machine: 
+
+1. Navigate to the AnnotationHub_docker directory 
+
+2. Start the docker: 
+
+```
+export MYSQL_REMOTE_PASSWORD=***  (See credentials doc)
+sudo docker-compose up
+```
+
+3. In a new terminal start R:
+
+```
+options(AH_SERVER_POST_URL="http://localhost:3000/resource")
+options(ANNOTATION_HUB_URL="http://localhost:3000")
+library(AnnotationHubData)
+
+# option 1:
+meta <- updateResources(getwd(),
+                        BiocVersion = "3.5",
+                        preparerClasses = "NCBIImportPreparer",
+                        metadataOnly = TRUE, insert = FALSE,
+                        justRunUnitTest = FALSE)
+
+
+# option 2: 
+# if you saved the meta from the EC2 instance 
+load("metadataForTwoBit")
+
+url <- getOption("AH_SERVER_POST_URL")
+pushMetadata(meta, url)
+
+# you could rerun updateResources with insert=TRUE to do the push but I like to check resource data
+```
+4. exit R 
+
+5. Convert db to sqlite (puts the file in the data/ directory)
+```
+sudo docker exec annotationhub_annotationhub_1 bash /bin/backup_db.sh
+```
+6. If satisfied, copy this file to annotationhub.bioconductor.org and follow 
+instructions for updating production database
+
+
+*** 
+
+
+# ExperimentHub
+
+ExperimentHub Resources are added upon request or when it is recommended a 
+package be an Experiment Data Package rather than Software package. The 
+package that will use such data will reach out. It is then a similar process to 
+The AnnotationHubData adding contributor resources. 
+
+The user will upload files to S3 in a temporary location. Send them the 
+instructions found [here]()
+
+A key will have to be generated for them to access and use the 
+`AnnotationContributor` account.  Go to [here](https://console.aws.amazon.com/iam/home?region=us-east-1#/users/AnnotationContributor)
+Under the 'Security credentials' tab click 'Create access key'. Send the 
+Access key ID to the contributor and the Secret access key is stored in AWS.  
+When the contributor is done you can delete the key (small 'x' at the right of 
+the key row).
+
+Advise that their data should be in a directory the same name as the software 
+package that will use the Experiment Data when uploading (ie. software package 
+`Test` would upload files to S3 in a folder `Test` ->  `Test\file1`, 
+`Test\file2`, etc). If subdirectories are needed that is okay but ensure the 
+`RDataPath` in the metadata.csv reflects this structure. 
+
+Once the data is uploaded to S3 move the data to the proper location. 
+
+We will need a copy of the package to generate and test the annotaitons. Request
+link to package from user. The following should be sent to user to ensure the 
+package is sent up correctly: [instructions](https://github.com/Bioconductor/ExperimentHubData/blob/master/vignettes/ExperimentHubData.Rmd). 
+
+In general, generate the list of ExperimentHubMetadata objects with 
+`makeExperimentHubMetadata()` or `addResources`. To test that the 
+metadata.csv is properly formatted, can test with `readMetadataFromCsv`.  
+ 
+ Info on [ExperimentHub docker](https://github.com/Bioconductor/ExperimentHub_docker)
+ and how to set up docker directory.
+
+When satisfied start the AnnotationHub docker and add resource to docker. 
+
+1. Navigate to the AnnotationHub_docker directory 
+
+2. Start the docker: 
+
+```
+export MYSQL_REMOTE_PASSWORD=***  (See credentials doc)
+sudo docker-compose up
+```
+
+3. In a new terminal start R:
+
+```
+options(EXPERIMENT_HUB_SERVER_POST_URL="http://localhost:3000/resource")
+options(EXPERIMENT_HUB_URL="http://localhost:3000")
+library(AnnotationHubData)
+
+# run approprate makeExperimentHubMetadata() call and following if necessary
+#url <- getOption("EXPERIMENT_HUB_SERVER_POST_URL")
+#pushMetadata(meta, url)
+```
+
+4. exit R 
+
+5. Test 
+From the list of dockers running `sudo docker ps` find the process with `db` in 
+the name. Example `test_db1`. Connect to the container with 
+`sudo docker exec -ti test_db bash`. Log into mysql with `mysql -p -u hubuser` 
+(The password will be the same as the exported MYSQL_REMOTE_PASSWORD). Explore 
+with mysql commands like `select * from resources order by id desc limit 5;`
+
+6. Convert db to sqlite (puts the file in the data/ directory)
+```
+sudo docker exec experimenthubdocker_experimenthub_1 bash /bin/backup_db.sh
+```
+7. If satisfied, copy this file to annotationhub.bioconductor.org and follow 
+instructions for updating production database
+
+Some other Notes and helpful hints: 
+
+1.  If a new recipe needed to be added, the recipe is added in AnnotationHub. 
+Be sure to then update the version of AnnotationHub dependency in the DESCRIPTION
+of ExperimentHub and increase the version in ExperimentHub. 
+
+2. Remember when an ExperimentHub package is accepted it is uploaded to a different
+repo. 
+
