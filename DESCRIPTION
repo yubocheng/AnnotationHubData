@@ -14,7 +14,7 @@ Authors@R: c(
         )
 Maintainer: Bioconductor Package Maintainer <maintainer@bioconductor.org>
 Depends: R (>= 3.2.2), methods, utils, S4Vectors (>= 0.7.21),
-    IRanges (>= 2.3.23), GenomicRanges, AnnotationHub (>= 2.7.11)
+    IRanges (>= 2.3.23), GenomicRanges, AnnotationHub (>= 2.9.14)
 Suggests: RUnit, knitr, BiocStyle, grasp2db, BiocInstaller
 Imports: GenomicFeatures, Rsamtools, rtracklayer, BiocGenerics,
     jsonlite, BiocInstaller, biocViews,
