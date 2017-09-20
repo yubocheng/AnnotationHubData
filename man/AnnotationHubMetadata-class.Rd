@@ -35,11 +35,8 @@
 \alias{run,AnnotationHubMetadata-method}
 
 % Other:
-\alias{jsonPath}
 \alias{HubMetadataFromJson}
 \alias{toJson}
-\alias{constructAnnotationHubMetadataFromSourceFilePath}
-\alias{constructMetadataFromJsonPath}
 \alias{constructSeqInfo}
 \alias{ahmToJson}
 \alias{deleteResources}
@@ -78,10 +75,7 @@ AnnotationHubMetadata(AnnotationHubRoot, SourceUrl, SourceType,
                  DispatchClass, Location_Prefix =
                  "http://s3.amazonaws.com/annotationhub/")
 
-jsonPath(x)
 toJson(x)
-constructAnnotationHubMetadataFromSourceFilePath(ahroot, originalFile)
-constructMetadataFromJsonPath(ahroot, jsonpath)
 constructSeqInfo(species, genome)
 
 metadata(x, ...)
@@ -201,17 +195,6 @@ makeAnnotationHubResource(objName, makeAnnotationHubMetadataFunction,
     }
     \item{x}{
       An instance of class \code{AnnotationHubMetadata}.
-    }
-    \item{jsonpath}{
-      \code{character(1)} Full path to a JSON representation
-        of \code{AnnotationHubMetadata}-class.
-    }
-    \item{ahroot}{
-      A \code{character(1)} \code{AnnotationHubRoot} to be added to the 
-      path / location of the returned instance.
-    }
-    \item{originalFile}{
-      A \code{character(1)} Original file name.
     }
     \item{object}{
       An \code{AnnotationHubRecipe} instance.

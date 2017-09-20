@@ -44,7 +44,7 @@
 \seealso{
   \itemize{
     \item \code{\link{updateResources}}
-    \item \code{\link{AnnotationHub::readMetadataFromCsv}}
+    \item \code{\link[AnnotationHub]{readMetadataFromCsv}}
     \item \code{\link{AnnotationHubMetadata}} class
   }
 }
