@@ -28,6 +28,8 @@ Writes the message to the console and to a file.
 
 \author{Dan Tenenbaum}
 
+\seealso{\code{futile.logger}}
+
 %%\example{
 %%   perhaps dan can provide one...
 %% }

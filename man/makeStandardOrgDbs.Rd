@@ -1,7 +1,10 @@
 \name{makeStandardOrgDbs}
 
+\alias{makeStandardOrgDbs}
 \alias{makeStandardOrgDbsToAHM}
+\alias{makeStandardTxDbs}
 \alias{makeStandardTxDbsToAHM}
+\alias{makeNonStandardOrgDbs}
 \alias{makeNCBIToOrgDbsToAHM}
 
 \title{Functions to add OrgDb and TxDb sqlite files to AnnotationHub}
