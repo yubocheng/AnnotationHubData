@@ -1,3 +1,28 @@
+CHANGES IN VERSION 1.8.0
+------------------------
+
+NEW FEATURES
+
+    o Instead of using dropbox or ftp to deliver contributed resources to
+    Bioconductor Core, temporary access to Annotation-Contributor user on S3 is
+    utilized. 
+
+MODIFICATIONS
+
+    o Modified readMetadataFromCsv; make RDataPath mandatory entry and if
+    location_prefix is Bioconductor S3 bucket the Rdatapath must start with the
+    package name
+
+BUG FIXES
+
+    o Add garbage collection to fix twobit memory allocation error
+
+    o Fix files not deleting do to special characters in file names
+
+    o Import dbGetQuery from DBI
+
+    o Remove hard coded biocVersion in unit tests
+
 CHANGES IN VERSION 1.6.0
 ------------------------
 
