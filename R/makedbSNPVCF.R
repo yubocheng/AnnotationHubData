@@ -37,8 +37,8 @@
 ## directory are either 'in progress' or 'subject to change'.
 .getdbSNP <- function(justRunUnitTest) {
     baseUrl <- paste0(.dbSNPBaseUrl, "pub/clinvar/")
-    paths <- c(GRCh37="vcf_GRCh37/archive/2016/", 
-               GRCh38="vcf_GRCh38/archive/2016/")
+    paths <- c(GRCh37="vcf_GRCh37/archive_1.0/2016/", 
+               GRCh38="vcf_GRCh38/archive_1.0/2016/")
     files <- c("clinvar_20160203", "clinvar_20160203_papu", 
                "common_and_clinical_20160203", 
                "common_no_known_medical_impact_20160203")
