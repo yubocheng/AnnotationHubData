@@ -296,6 +296,8 @@ and devel
 query(hub, "OrgDb")
 table(mcols(query(hub, "OrgDb"))$rdatadateadded)
 ```
+If before the release occurs, `debug(AnnotationHub:::.uid0)` so that query2's biocversion 
+is the desired test version.  
 
 ### makeStandardTxDbs
 
