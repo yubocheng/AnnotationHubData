@@ -335,14 +335,24 @@ options(ANNOTATION_HUB_URL="http://localhost:3000")
 library(AnnotationHubData)
 
 # see the man page for clarification on testing and actively pushing
-# ?makeStandardTxDbsToAHM
-meta <- updateResources(getwd(),
-                        BiocVersion = "3.5",
-                        preparerClasses = "TxDbFromPkgsImportPreparer",
-                        metadataOnly = TRUE, insert = FALSE,
-                        justRunUnitTest = FALSE,
-                        downloadTxDbs=TRUE)
+# follow example in man page
+# will need the list of updated or added TxDbs to make a character list of files
+?makeStandardTxDbsToAHM
+
+
+
+#
+# The following will hopefully be implemented in the future
+#
+#meta <- updateResources(getwd(),
+#                        BiocVersion = "3.5",
+#                        preparerClasses = "TxDbFromPkgsImportPreparer",
+#                        metadataOnly = TRUE, insert = FALSE,
+#                        justRunUnitTest = FALSE,
+#                        downloadTxDbs=TRUE)
 # downloadTxDbs can be FALSE for subsequent runs
+
+
 
 url <- getOption("AH_SERVER_POST_URL")
 pushMetadata(meta, url)
@@ -376,6 +386,11 @@ OrgDb resources get the same name when they are regenerated - they
 aren't tied to a genome build so that's not a distinguishing feature in
 the title. We only want 1 OrgDb for each species available in a release
 and the BiocVersion is what we use to filter records exposed.
+
+Before running, make sure the `AnnotationForge/inst/extdata/viableIDs.rda` and
+`GenomeInfoDbData/data/specData.rda` files have been updated and pushed in their
+respective packages. The scripts to generate these data files are in the packages
+`inst/scripts` directories as viableIDs.R and updateGenomeInfoDbData.R respectively.
 
 On AWS: 
 
@@ -517,9 +532,9 @@ sudo docker-compose up
 3. In a new terminal start R:
 
 ```
-options(EXPERIMENT_HUB_SERVER_POST_URL="http://localhost:3000/resource")
-options(EXPERIMENT_HUB_URL="http://localhost:3000")
-library(AnnotationHubData)
+options(EXPERIMENT_HUB_SERVER_POST_URL="http://localhost:4000/resource")
+options(EXPERIMENT_HUB_URL="http://localhost:4000")
+library(ExperimentHubData)
 
 # run approprate makeExperimentHubMetadata() call and following if necessary
 #url <- getOption("EXPERIMENT_HUB_SERVER_POST_URL")

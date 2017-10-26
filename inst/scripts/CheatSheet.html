@@ -342,6 +342,7 @@ pushMetadata(meta, url)</code></pre>
 </ol>
 <pre><code>query(hub, &quot;OrgDb&quot;)
 table(mcols(query(hub, &quot;OrgDb&quot;))$rdatadateadded)</code></pre>
+<p>If before the release occurs, <code>debug(AnnotationHub:::.uid0)</code> so that query2’s biocversion is the desired test version.</p>
 </div>
 <div id="makestandardtxdbs" class="section level3">
 <h3>makeStandardTxDbs</h3>
@@ -364,14 +365,24 @@ options(ANNOTATION_HUB_URL=&quot;http://localhost:3000&quot;)
 library(AnnotationHubData)
 
 # see the man page for clarification on testing and actively pushing
-# ?makeStandardTxDbsToAHM
-meta &lt;- updateResources(getwd(),
-                        BiocVersion = &quot;3.5&quot;,
-                        preparerClasses = &quot;TxDbFromPkgsImportPreparer&quot;,
-                        metadataOnly = TRUE, insert = FALSE,
-                        justRunUnitTest = FALSE,
-                        downloadTxDbs=TRUE)
+# follow example in man page
+# will need the list of updated or added TxDbs to make a character list of files
+?makeStandardTxDbsToAHM
+
+
+
+#
+# The following will hopefully be implemented in the future
+#
+#meta &lt;- updateResources(getwd(),
+#                        BiocVersion = &quot;3.5&quot;,
+#                        preparerClasses = &quot;TxDbFromPkgsImportPreparer&quot;,
+#                        metadataOnly = TRUE, insert = FALSE,
+#                        justRunUnitTest = FALSE,
+#                        downloadTxDbs=TRUE)
 # downloadTxDbs can be FALSE for subsequent runs
+
+
 
 url &lt;- getOption(&quot;AH_SERVER_POST_URL&quot;)
 pushMetadata(meta, url)</code></pre>
@@ -389,6 +400,7 @@ table(mcols(query(hub, &quot;TxDb&quot;))$rdatadateadded)</code></pre>
 <h3>makeNCBIToOrgDbs (Non Standard Orgs)</h3>
 <p>This code generates ~1000 non-standard OrgDb sqlite files from ucsc. These are less comprehensive and the standard OrgDb packages. It’s best to run this on an EC2 instance.</p>
 <p>The BiocVersion should be whatever the next release version will be, the current devel soon to be release. The OrgDb resources get the same name when they are regenerated - they aren’t tied to a genome build so that’s not a distinguishing feature in the title. We only want 1 OrgDb for each species available in a release and the BiocVersion is what we use to filter records exposed.</p>
+<p>Before running, make sure the <code>AnnotationForge/inst/extdata/viableIDs.rda</code> and <code>GenomeInfoDbData/data/specData.rda</code> files have been updated and pushed in their respective packages. The scripts to generate these data files are in the packages <code>inst/scripts</code> directories as viableIDs.R and updateGenomeInfoDbData.R respectively.</p>
 <p>On AWS:</p>
 <p>Create S3 bucket: annotationhub/ncbi/uniprot/<BiocVersion></p>
 <p>On EC2 Instance:</p>
@@ -481,9 +493,9 @@ sudo docker-compose up</code></pre>
 <ol start="3" style="list-style-type: decimal">
 <li>In a new terminal start R:</li>
 </ol>
-<pre><code>options(EXPERIMENT_HUB_SERVER_POST_URL=&quot;http://localhost:3000/resource&quot;)
-options(EXPERIMENT_HUB_URL=&quot;http://localhost:3000&quot;)
-library(AnnotationHubData)
+<pre><code>options(EXPERIMENT_HUB_SERVER_POST_URL=&quot;http://localhost:4000/resource&quot;)
+options(EXPERIMENT_HUB_URL=&quot;http://localhost:4000&quot;)
+library(ExperimentHubData)
 
 # run approprate makeExperimentHubMetadata() call and following if necessary
 #url &lt;- getOption(&quot;EXPERIMENT_HUB_SERVER_POST_URL&quot;)
