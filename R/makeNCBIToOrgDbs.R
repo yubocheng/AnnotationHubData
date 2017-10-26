@@ -34,7 +34,7 @@
     ## need to find offenders
     lookup <- function(id){
         message(paste0("looking up value for: ", id))
-        GenomeInfoDb:::.lookupSpeciesFromTaxId(id)
+        GenomeInfoDb:::.lookupSpeciesFromTaxId(id, all=TRUE)
     }
     ## Some taxonomy IDs cannot be looked up at all - so discard
     ids <- ids[ids %in% sd$tax_id]
