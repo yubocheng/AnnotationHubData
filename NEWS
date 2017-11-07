@@ -1,3 +1,14 @@
+CHANGES IN VERSION 1.10.0
+------------------------
+MODIFICATIONS
+
+    o Moved readMetadataFromCsv back to AnnotationHubData.
+
+    o Use AnnotationHubData::makeAnnotationHubMetadata to validate metadata.csv
+
+    o readMetadataFromCsv is now internal function
+
+
 CHANGES IN VERSION 1.8.0
 ------------------------
 
