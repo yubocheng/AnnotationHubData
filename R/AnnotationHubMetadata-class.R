@@ -15,7 +15,7 @@ setClass("AnnotationHubMetadata",
 
 ## -----------------------------------------------------------------------------
 ## constructor
-## 
+##
 
 .derivedFileName <-
     function(originalFile, suffix)
@@ -56,6 +56,9 @@ setClass("AnnotationHubMetadata",
              paste(expected[missing], collapse=", "))
     extra<- !names(meta) %in% expected
 
+    ## This does not work as expected! when read in missing fields get populated
+    ## with empty character which registers as valid
+    ## and some fields can have length > 1
     ## All fields length 1
     apply(meta, 1,
         function(xx) {
@@ -66,21 +69,42 @@ setClass("AnnotationHubMetadata",
         }
 
     )
+
     ## Populate required fields
-    missing <- is.na(nchar(meta$DataProvider))
+    missing <- which(!nchar(meta$DataProvider))
     if (any(missing)) {
         meta$DataProvider[missing] <- "NA"
         message("missing values for 'DataProvider set to 'NA''")
     }
-    if (any(is.na(meta$Coordinate_1_based))) {
-        meta$Coordinate_1_based <- TRUE
-        message("missing values for 'Coordinate_1_based set to TRUE'")
-    } else {
+    missingOrNA <- which(is.na(meta$Coordinate_1_based) | !nchar(meta$Coordinate_1_based))
+    if (any(missingOrNA)) {
+        meta$Coordinate_1_based[missingOrNA] <- TRUE
+        meta$Coordinate_1_based[meta$Coordinate_1_based %in% "0"] = "FALSE"
+        meta$Coordinate_1_based[meta$Coordinate_1_based %in% "1"] = "TRUE"
         meta$Coordinate_1_based <- as.logical(meta$Coordinate_1_based)
+        message("missing or NA values for 'Coordinate_1_based set to TRUE'")
+    } else {
+        meta$Coordinate_1_based[meta$Coordinate_1_based %in% "0"] = "FALSE"
+        meta$Coordinate_1_based[meta$Coordinate_1_based %in% "1"] = "TRUE"
+        meta$Coordinate_1_based <- as.logical(meta$Coordinate_1_based)
+    }
+
+    missing <- which(!nchar(meta$DispatchClass))
+    if (any(missing)) {
+        stop("All fields in 'DispatchClass' must be set")
+    }
+    missing <- which(!nchar(meta$RDataClass))
+    if (any(missing)) {
+        stop("All fields in 'RDataClass' must be set")
     }
     ## Enforce data type
     meta$TaxonomyId <- as.integer(meta$TaxonomyId)
-    meta$BiocVersion <- package_version(meta$BiocVersion)
+    missing <- which(!nchar(meta$BiocVersion))
+    if (any(missing)) {
+        stop("all fields in BiocVersion must be specified")
+    } else {
+        meta$BiocVersion <- package_version(meta$BiocVersion)
+    }
 
     ## Location_Prefix not specified -> data in S3
     if (all(is.null(Location_Prefix <- meta$Location_Prefix))) {
@@ -108,7 +132,7 @@ setClass("AnnotationHubMetadata",
 .checkThatSingleStringOrNA <- function(value) {
     valStr <- deparse(substitute(value))
     if(!isSingleStringOrNA(value))
-        stop(wmsg(paste0(valStr, "must be single value or NA")))
+        stop(wmsg(paste0(valStr, " must be single value or NA")))
 }
 
 ## single value or NA, no commas
@@ -116,7 +140,7 @@ setClass("AnnotationHubMetadata",
     valStr <- deparse(substitute(value))
     .checkThatSingleStringOrNA(value)
     if(grepl(",",value))
-        stop(wmsg(paste0(valStr, "must not contain commas")))
+        stop(wmsg(paste0(valStr, " must not contain commas")))
 }
 
 ## single value, not NA, no commas
@@ -130,8 +154,28 @@ setClass("AnnotationHubMetadata",
                          " must not contain any commas")))
 }
 
+.checkRDataClassConsistent <- function(value) {
+
+    valStr <- deparse(substitute(value))
+
+    if(length(unique(value)) != 1)
+        stop(wmsg(paste0("RDataClass should be the same for all files")))
+
+}
+
+.checkValidMaintainer <- function(value) {
+
+    valStr <- deparse(substitute(value))
+    ## valid e-mail address
+    emailRegex <-
+        "\\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,4}\\b"
+    if (!grepl(emailRegex, value, ignore.case=TRUE))
+        stop(wmsg(paste0("'Maintainer' not a valid email address: ",
+          value)))
+}
+
 ## Used for contributed packages, not internal recipes.
-makeAnnotationHubMetadata <- function(pathToPackage, fileName=character()) 
+makeAnnotationHubMetadata <- function(pathToPackage, fileName=character())
 {
     path <- file.path(pathToPackage, "inst", "extdata")
     if (!length(fileName))
@@ -141,26 +185,26 @@ makeAnnotationHubMetadata <- function(pathToPackage, fileName=character())
             meta <- .readMetadataFromCsv(pathToPackage, xx)
             .package <- basename(pathToPackage)
             if (is.na(meta$Tags) || !length(meta$Tags))
-                stop("please add 'Tag' values to metadata")
+                stop("please add 'Tags' values to metadata")
             .tags <- c(strsplit(meta$Tags, ":")[[1]], .package)
             lapply(seq_len(nrow(meta)), function(x) {
                 with(meta[x, ], AnnotationHubMetadata(
-                    Title=Title, Description=Description, 
-                    BiocVersion=BiocVersion, Genome=Genome, 
-                    SourceType=SourceType, 
+                    Title=Title, Description=Description,
+                    BiocVersion=BiocVersion, Genome=Genome,
+                    SourceType=SourceType,
                     SourceUrl=SourceUrl,
-                    SourceVersion=SourceVersion, 
+                    SourceVersion=SourceVersion,
                     Species=Species, TaxonomyId=TaxonomyId,
-                    Coordinate_1_based=Coordinate_1_based, 
+                    Coordinate_1_based=Coordinate_1_based,
                     DataProvider=DataProvider,
-                    Maintainer=Maintainer, 
-                    RDataClass=RDataClass, Tags=.tags, 
-                    RDataDateAdded=RDataDateAdded, 
+                    Maintainer=Maintainer,
+                    RDataClass=RDataClass, Tags=.tags,
+                    RDataDateAdded=RDataDateAdded,
                     RDataPath=RDataPath,
                     Recipe=NA_character_,
                     DispatchClass=DispatchClass,
                     PreparerClass=.package,
-                    Location_Prefix=Location_Prefix)) 
+                    Location_Prefix=Location_Prefix))
             })
     })
     names(ans) <- fileName
@@ -168,9 +212,9 @@ makeAnnotationHubMetadata <- function(pathToPackage, fileName=character())
 }
 
 AnnotationHubMetadata <-
-    function(AnnotationHubRoot=NA_character_, SourceUrl, SourceType, 
+    function(AnnotationHubRoot=NA_character_, SourceUrl, SourceType,
         SourceVersion,
-        SourceLastModifiedDate= as.POSIXct(NA_character_), 
+        SourceLastModifiedDate= as.POSIXct(NA_character_),
         SourceMd5=NA_character_, SourceSize=NA_real_,
         DataProvider, Title, Description,
         Species, TaxonomyId, Genome, Tags, Recipe,
@@ -179,7 +223,7 @@ AnnotationHubMetadata <-
         Notes=NA_character_, DispatchClass,
         Location_Prefix='http://s3.amazonaws.com/annotationhub/')
 {
-    if (missing(TaxonomyId))
+    if (missing(TaxonomyId) | is.na(TaxonomyId))
     {
         if (!is.na(Species) &&
             requireNamespace("AnnotationHubData", quietly=TRUE))
@@ -196,10 +240,10 @@ AnnotationHubMetadata <-
         stop(wmsg(paste0("AnnotationHubMetdata SourceUrl slot cannot",
                          " contain NAs")))
 
-    if (missing(RDataPath)) { 
+    if (missing(RDataPath)) {
         ## Add two characters: one for substr starting AT clipChars
         ## and one for extra slash
-        clipChars <- nchar(Location_Prefix) + 2  
+        clipChars <- nchar(Location_Prefix) + 2
         RDataPath <- substr(SourceUrl, clipChars, nchar(SourceUrl))
     }
 
@@ -207,13 +251,21 @@ AnnotationHubMetadata <-
         as.POSIXct(strsplit(
             as.character(RDataDateAdded), " ")[[1]][1], tz="GMT")
 
-    mustBeSingleStringNoCommasOrNA <- 
-        c(SourceType, Location_Prefix, DispatchClass, RDataClass)
-    lapply(mustBeSingleStringNoCommasOrNA, .checkThatSingleStringAndNoCommas) 
+#    mustBeSingleStringNoCommasOrNA <-
+#        c(SourceType, Location_Prefix, DispatchClass, RDataClass)
+#    lapply(mustBeSingleStringNoCommasOrNA, .checkThatSingleStringAndNoCommas)
+    .checkThatSingleStringAndNoCommas(SourceType)
+    .checkThatSingleStringAndNoCommas(Location_Prefix)
+    .checkThatSingleStringAndNoCommas(DispatchClass)
 
-    lapply(c(Recipe, Genome, Species), .checkThatSingleStringOrNA)
+#    lapply(c(Recipe, Genome, Species), .checkThatSingleStringqOrNA)
+    .checkThatSingleStringOrNA(Recipe)
+    .checkThatSingleStringOrNA(Genome)
+    .checkThatSingleStringOrNA(Species)
 
     .checkThatSingleStringOrNAAndNoCommas(SourceVersion)
+    .checkRDataClassConsistent(RDataClass)
+    .checkValidMaintainer(Maintainer)
 
     new("AnnotationHubMetadata",
         AnnotationHubRoot=AnnotationHubRoot,
@@ -230,7 +282,7 @@ AnnotationHubMetadata <-
         RDataPath=RDataPath,
         Recipe=Recipe,
         SourceLastModifiedDate=SourceLastModifiedDate,
-        SourceMd5=SourceMd5, 
+        SourceMd5=SourceMd5,
         SourceSize=SourceSize,
         SourceUrl=SourceUrl,
         SourceVersion=SourceVersion,
@@ -240,14 +292,14 @@ AnnotationHubMetadata <-
         TaxonomyId=TaxonomyId,
         Title=Title,
         Location_Prefix=Location_Prefix,
-        DispatchClass=DispatchClass, 
+        DispatchClass=DispatchClass,
         ...
     )
 }
 
 ## -----------------------------------------------------------------------------
-## validity 
-## 
+## validity
+##
 
 .checkSourceurlPrefixesAreValid <- function(url){
     safePrefixes <- c('http://','https://','ftp://','rtracklayer://')
@@ -257,7 +309,7 @@ AnnotationHubMetadata <-
                         "protocol). Source urls should be full uris that point ",
                         "to the original resources used in a recipe.")))
     }
-} 
+}
 
 .checkSourceurlsFreeOfDoubleSlashes <- function(url){
     if(any(grepl("\\w//", url, perl=TRUE))){
@@ -276,6 +328,11 @@ AnnotationHubMetadata <-
     }
 }
 
+#
+# Broken
+# Because of the tryCatch this actaully does not fail for bogus class
+# fails when can't try isClass which is only missing or NA
+#
 .checkRdataclassIsReal <- function(class){
     tryCatch(isClass(class), error = function(err){
         stop("The rdataclass must be a valid R data type. \n",
@@ -291,7 +348,8 @@ expectedSourceTypes <- c("BED", "UCSC track", "VCF", "GTF", "GFF", "CSV", "TSV",
 .checkThatSourceTypeSoundsReasonable <- function(sourcetype) {
     if(!(sourcetype %in% expectedSourceTypes)) {
         stop(paste0("'SourceType' should be one of: ",
-                    paste(expectedSourceTypes, collapse=", ")))
+                    paste(expectedSourceTypes, collapse=", "),
+                    ".\n Found type: ", sourcetype))
   }
 }
 
@@ -308,11 +366,13 @@ expectedSourceTypes <- c("BED", "UCSC track", "VCF", "GTF", "GFF", "CSV", "TSV",
                          " (including the protocol) has been trimmed off")))
 }
 
+
 setValidity("AnnotationHubMetadata",function(object) {
     msg = NULL
-    ## if the location prefix is "non-standard" (IOW not stored in S3) and 
-    ## if the source URL is not the same as rdatapath 
+    ## if the location prefix is "non-standard" (IOW not stored in S3) and
+    ## if the source URL is not the same as rdatapath
     ## then we need to add a message and fail out
+    # why?
     standardLocationPrefix <- 'http://s3.amazonaws.com/annotationhub/'
     if(object@Location_Prefix != standardLocationPrefix){
         object@RDataPath <- object@RDataPath[1]
@@ -320,8 +380,8 @@ setValidity("AnnotationHubMetadata",function(object) {
             msg <- c(msg, "the string for RDataPath must match the SourceUrl.")
         }
     }
-    if (is.null(msg)) TRUE else msg 
- 
+    if (is.null(msg)) TRUE else msg
+
     ## more checks
     .checkSourceurlPrefixesAreValid(object@SourceUrl)
     .checkSourceurlsFreeOfDoubleSlashes(object@SourceUrl)
@@ -339,7 +399,7 @@ setValidity("AnnotationHubMetadata",function(object) {
 setMethod("run", "AnnotationHubMetadata",
     function(object, recipeFunction, ...) {
        if (missing(recipeFunction)) {
-         temp <- strsplit(recipeName(object), ":::")[[1]]  
+         temp <- strsplit(recipeName(object), ":::")[[1]]
          functionName <- temp[2]
          pkgName <- temp[1]
          recipeFunction <- get(functionName, envir=getNamespace(pkgName))
@@ -351,7 +411,7 @@ setMethod("run", "AnnotationHubMetadata",
 
 ## ------------------------------------------------------------------------------
 ## to / from Json
-## 
+##
 
 .encodeNA <- function(lst)
 {
@@ -389,7 +449,7 @@ setMethod("run", "AnnotationHubMetadata",
     rc <- .Message()
 
     ## required fields must have non-zero length
-    requiredFields <- c("HubRoot", 
+    requiredFields <- c("HubRoot",
         "SourceUrl", "Title", "Species", "Genome", "Recipe", "Tags",
         "RDataClass", "SourceVersion",
         "Coordinate_1_based", "Maintainer", "DataProvider",
@@ -406,7 +466,7 @@ setMethod("run", "AnnotationHubMetadata",
         rc$append("'Species' unknown: %s", sQuote(metadata(object)$Species))
 
     ## valid e-mail address
-    emailRegex <- 
+    emailRegex <-
         "\\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,4}\\b"
     if (!grepl(emailRegex, metadata(object)$Maintainer, ignore.case=TRUE))
         rc$append("'Maintainer' not a valid email address: %s",
