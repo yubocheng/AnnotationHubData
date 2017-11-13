@@ -7,7 +7,6 @@ import(OrganismDbi)
 import(GenomicFeatures)
 import(RCurl)
 
-importFrom(GEOquery, getGEOSuppFiles)
 importFrom(biocViews, recommendPackages)
 importMethodsFrom(AnnotationDbi, exists, get, saveDb)
 importMethodsFrom(BiocGenerics, mapply, Map)
