@@ -3,6 +3,32 @@
 ## -----------------------------------------------------------------------
 ## Timothee Flutre's GRanges from GFF 
 ## -----------------------------------------------------------------------
+
+## Vitis vinifera URGI IGGP12Xv2 V3
+metadata <- AnnotationHubMetadata(
+    Description="Gene Annotation for Vitis vinifera",
+    Genome="IGGP12Xv2",
+    Species="Vitis vinifera",
+    SourceUrl="http://doi.org/10.15454/1.5009072354498936E12",
+    SourceLastModifiedDate=as.POSIXct("2017-11-17"),
+    SourceVersion="3.0",
+    RDataPath="community/tflutre/Vvinifera_URGI_IGGP12Xv2_V3.gff3.Rdata",
+    TaxonomyId=29760, 
+    Title="Vvinifera_URGI_IGGP12Xv2_V3.gff3.Rdata",
+    BiocVersion=package_version("3.6"),
+    Coordinate_1_based=TRUE,
+    DataProvider="URGI",
+    Maintainer="Timothée Flutre <timothee.flutre@inra.fr>",
+    RDataClass="GRanges",
+    DispatchClass="GRanges",
+    SourceType="GFF",
+    RDataDateAdded=as.POSIXct(Sys.time()),
+    Recipe=NA_character_,
+    PreparerClass="None",
+    Tags=c("GFF", "URGI", "Gene", "Transcript", "Annotation"),
+    Notes="compare to the original GFF3 file, chromosomes were slightly renamed to be compatible with the reference genome"
+)
+
 ## Vitis vinifera CRIBI IGGP12Xv0 V2
 metadata <- AnnotationHubMetadata(
     Description="Gene Annotation for Vitis vinifera",
