@@ -227,7 +227,7 @@ AnnotationHubMetadata <-
     {
         if (!is.na(Species) &&
             requireNamespace("AnnotationHubData", quietly=TRUE))
-            TaxonomyId <- GenomeInfoDb:::.taxonomyId(Species)
+            TaxonomyId <- GenomeInfoDb:::lookup_tax_id_by_organism(Species)
         else
             TaxonomyId <- NA_integer_
     }
@@ -461,9 +461,13 @@ setMethod("run", "AnnotationHubMetadata",
                   paste(sQuote(requiredFields[idx]), collapse=", "))
 
     ## look up species id in data table
-    taxonomyId <- GenomeInfoDb:::.taxonomyId(metadata(object)$Species)
-    if (!length(taxonomyId))
-        rc$append("'Species' unknown: %s", sQuote(metadata(object)$Species))
+    Species <- metadata(object)$Species
+    if (!is.na(Species)) {
+        taxonomyId <- try(GenomeInfoDb:::lookup_tax_id_by_organism(Species),
+                          silent=TRUE)
+        if (inherits(taxonomyId, "try-error"))
+            rc$append("'Species' unknown: %s", sQuote(Species))
+    }
 
     ## valid e-mail address
     emailRegex <-
