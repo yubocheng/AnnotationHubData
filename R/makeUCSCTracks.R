@@ -141,10 +141,11 @@ UCSCFullTrackImportPreparer <-
 ## from the DB.
 
 .checkAllTracks <- function(allTracks) {
-    species <- GenomicFeatures:::UCSCGenomeToOrganism(names(allTracks))
+    species <-
+        GenomicFeatures:::lookup_organism_by_UCSC_genome(names(allTracks))
     if (any(idx <- is.na(species))) {
         badSpecies <- names(species)[idx]
-        stop("update GenomicFeatures:::UCSCGenomeToOrganism",
+        stop("update GenomicFeatures:::lookup_organism_by_UCSC_genome",
              " to support ", paste(sQuote(badSpecies), collapse=","))
     }
     TRUE
@@ -209,14 +210,16 @@ UCSCFullTrackImportPreparer <-
 
     sourceUrl <- paste0("rtracklayer://hgdownload.cse.ucsc.edu/", sourceFile)
     title <- trackName
-    species <-  unname(GenomicFeatures:::UCSCGenomeToOrganism(genome))
+    species <-  unname(GenomicFeatures:::lookup_organism_by_UCSC_genome(genome))
 
     sourceVersion <- genome
     stockTags <- c("UCSC", "track", "Gene", "Transcript", "Annotation")
     tags <- lapply(track, c, stockTags)
 
     uspecies <- unique(species)
-    taxonomyId <- GenomeInfoDb:::.taxonomyId(uspecies)[match(species, uspecies)]
+    utaxid <- vapply(uspecies, GenomeInfoDb:::lookup_tax_id_by_organism,
+                     integer(1))
+    taxonomyId <- utaxid[match(species, uspecies)]
 
     ## use Map to make all these from vectors
 

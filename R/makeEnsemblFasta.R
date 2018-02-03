@@ -40,7 +40,9 @@
     species <- sapply(species, paste0, collapse=" ")
     taxonomyId <- local({
         uspecies <- unique(species)
-        GenomeInfoDb:::.taxonomyId(uspecies)[match(species, uspecies)]
+        utaxid <- vapply(uspecies, GenomeInfoDb:::lookup_tax_id_by_organism,
+                         integer(1))
+        utaxid[match(species, uspecies)]
     })
 
     if (http) {
