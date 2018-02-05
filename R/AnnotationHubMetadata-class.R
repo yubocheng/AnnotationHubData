@@ -388,7 +388,7 @@ setValidity("AnnotationHubMetadata",function(object) {
     .checkThatGenomeLooksReasonable(object@Genome)
     .checkRdataclassIsReal(object@RDataClass)
     .checkThatSourceTypeSoundsReasonable(object@SourceType)
-    GenomeInfoDb:::check_tax_id(object@TaxonomyId)
+    if(!is.na(object@TaxonomyId)) GenomeInfoDb:::check_tax_id(object@TaxonomyId)
     .checkThatRDataPathIsOK(object@RDataPath)
 })
 
