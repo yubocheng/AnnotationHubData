@@ -37,8 +37,7 @@
         GenomeInfoDb:::lookup_organism_by_tax_id(id, all=TRUE)
     }
     ## Some taxonomy IDs cannot be looked up at all - so discard
-    ids <- ids[ids %in% sd$tax_id]
-
+    ids <- as.numeric(ids[ids %in% sd$tax_id])
     res <- lapply(ids,lookup)
     taxonomyId <- 
         as.integer(as.character(unlist(lapply(res, function(x){x$tax_id}))))
