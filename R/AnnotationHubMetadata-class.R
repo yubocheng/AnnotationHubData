@@ -76,6 +76,12 @@ setClass("AnnotationHubMetadata",
         meta$DataProvider[missing] <- "NA"
         message("missing values for 'DataProvider set to 'NA''")
     }
+    # if user provided NA convert to character else
+    # ERROR when adding to database
+    NAvls <- which(is.na(meta$DataProvider))
+    if (any(NAvls)){
+        meta$DataProvider[NAvls] <- 'NA'
+    }
     missingOrNA <- which(is.na(meta$Coordinate_1_based) | !nchar(meta$Coordinate_1_based))
     if (any(missingOrNA)) {
         meta$Coordinate_1_based[missingOrNA] <- TRUE
