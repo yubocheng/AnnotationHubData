@@ -124,7 +124,7 @@ setClass("AnnotationHubMetadata",
        ){
         package <- basename(pathToPackage)
         test <- vapply(meta$RDataPath, startsWith, logical(1), package)
-        if (!all(test)){
+        if ((!all(test)) || (any(is.na(test)))){
             stop("RDataPath must start with package name: ", package)
         }
     }
