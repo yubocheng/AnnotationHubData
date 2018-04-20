@@ -49,6 +49,9 @@ options(AH_SERVER_POST_URL="http://localhost:3000/resource")
 options(ANNOTATION_HUB_URL="http://localhost:3000")
 library(AnnotationHubData)
 # change the appropraite release number
+# to populate S3 bucket need metadataOnly = FALSE
+# metadataOnly will control population of S3 bucket
+# insert controls inserting into database
 meta <- updateResources(getwd(),
 			  BiocVersion = "3.6",
 			  preparerClasses = "EnsemblGtfImportPreparer",
@@ -93,6 +96,9 @@ Some usefule screen calls:
 
 ```
 library(AnnotationHubData)
+# to populate S3 bucket need metadataOnly = FALSE
+# metadataOnly will control population of S3 bucket
+# insert controls inserting into database
 meta <- updateResources(getwd(),
 			BiocVersion = "3.6",
 			preparerClasses = "EnsemblTwoBitPreparer",
@@ -268,6 +274,9 @@ library(AnnotationHubData)
 
 # see the man page for clarification on testing and actively pushing
 # ?makeStandardOrgDbsToAHM
+# to populate S3 bucket need metadataOnly = FALSE
+# metadataOnly will control population of S3 bucket
+# insert controls inserting into database
 meta <- updateResources(getwd(),
 			BiocVersion = "3.5",
 			preparerClasses = "OrgDbFromPkgsImportPreparer",
@@ -336,6 +345,7 @@ library(AnnotationHubData)
 # see the man page for clarification on testing and actively pushing
 # follow example in man page
 # will need the list of updated or added TxDbs to make a character list of files
+
 ?makeStandardTxDbsToAHM
 
 
@@ -420,6 +430,9 @@ library(AnnotationHubData)
 
 # see the man page for clarification on testing and actively pushing
 # ?makeNCBIToOrgDbsToAHM
+# to populate S3 bucket need metadataOnly = FALSE
+# metadataOnly will control population of S3 bucket
+# insert controls inserting into database
 meta <- updateResources(getwd(),
 			BiocVersion = "3.5",
 			preparerClasses = "NCBIImportPreparer",
@@ -463,10 +476,34 @@ meta <- updateResources(getwd(),
 # if you saved the meta from the EC2 instance
 load("metadataForTwoBit")
 
-url <- getOption("AH_SERVER_POST_URL")
-pushMetadata(meta, url)
 
-# you could rerun updateResources with insert=TRUE to do the push but I like to check resource data
+# Note: Eventually get smarter in code
+# but put in fixes to make sure data was uploaded
+# need to filter out files that failed 
+
+temp = rep(NA, length(meta))
+for(i in 1:length(meta)){
+       tit = metadata(meta[[i]])$Title
+       temp[i] = tit
+}
+aws = system("aws s3 ls s3://annotationhub/ncbi/uniprot/3.5 --recursive",
+    intern=TRUE)
+library(stringr)
+aws = gsub("\\s+", " ", str_trim(aws))
+
+temp2 = rep(NA, length(aws))
+for(i in 1:length(aws)){
+    tit = basename(strsplit(aws[i], " ")[[1]][4])
+    temp2[i] = tit
+}
+
+idx = which(temp %in% temp2)
+meta2 = meta[idx]
+
+
+url <- getOption("AH_SERVER_POST_URL")
+pushMetadata(meta2, url)
+
 ```
 4. exit R
 
