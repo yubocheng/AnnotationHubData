@@ -5,12 +5,20 @@
 
 ### This code is specifically for hg19 Homo.sapiens
 
-.EpigenomeRoadMap <- "http://egg2.wustl.edu/roadmap/data/byFileType/"
+.EpigenomeRoadMap <- "https://egg2.wustl.edu/roadmap/data/byFileType/"
 #.EpigenomeRoadMapMain <- "http://egg2.wustl.edu/roadmap/data/"
+
+# fix for bugs with XML and redirects
+.readHTMLTable <- function(url){
+
+    fl <- tempfile()
+    download.file(url, fl)
+    XML::readHTMLTable(fl)
+}
 
 .readEpiFilesFromWebUrl <- function(url, pattern) {
     tryCatch({
-       table <- XML::readHTMLTable(url)[[1]]
+       table <- .readHTMLTable(url)[[1]]
        fnames <- grep(pattern, as.character(table$Name), value=TRUE) 
        paste0(url, fnames)
     }, error=function(err) {
@@ -170,7 +178,7 @@
     
     ## consolidated Imputed Files
     conImpUrl <- paste0(baseUrl, "byFileType/signal/consolidatedImputed/")
-    table <- XML::readHTMLTable(conImpUrl)[[1]]
+    table <- .readHTMLTable(conImpUrl)[[1]]
     baseDirs<- levels(table$Name)
     idx <- match(c("Parent Directory", "RNAseq/", "DNase/", "DNAMethylSBS/"),
        baseDirs)
@@ -324,7 +332,7 @@
 ## FIXME: currentMetadata not used?
 makeEpigenomeRoadmapPeak <- 
     function(currentMetadata, 
-             baseUrl="http://egg2.wustl.edu/roadmap/data/",
+             baseUrl="https://egg2.wustl.edu/roadmap/data/",
              justRunUnitTest=FALSE, 
              BiocVersion=biocVersion(),
              fileType = c("narrow", "narrowFDR",
@@ -337,7 +345,7 @@ makeEpigenomeRoadmapPeak <-
 }
 
 makeEpigenomeRoadmap <- function(currentMetadata, 
-                                 baseUrl="http://egg2.wustl.edu/roadmap/data/",
+                                 baseUrl="https://egg2.wustl.edu/roadmap/data/",
                                  justRunUnitTest=FALSE, 
                                  BiocVersion=biocVersion()) {
     ## FIXME: Potentially all of 'signal', 'metadata', 'seg', 'expr_gtf',
