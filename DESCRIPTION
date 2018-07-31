@@ -1,7 +1,7 @@
 Package: AnnotationHubData
 Type: Package
 Title: Transform public data resources into Bioconductor Data Structures
-Version: 1.11.1
+Version: 1.11.2
 Encoding: UTF-8
 Authors@R: c(
         person("Martin", "Morgan", role="ctb"),
@@ -53,7 +53,6 @@ Collate:
     makeNCBIToOrgDbs.R
     makeStandardOrgDbsToSqlite.R
     makeStandardTxDbsToSqlite.R
-    makePazar.R
     makeRefNet.R
     makeUCSCChain.R
     makeUCSC2Bit.R

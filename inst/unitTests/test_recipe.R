@@ -55,13 +55,6 @@ test_RefNetImportPreparer_recipe <- function() {
      checkTrue(class(ahms[[1]])=="AnnotationHubMetadata")
 }
 
-test_PazarImportPreparer_recipe <- function() {
-    ahms = updateResources(ahroot, BiocVersion,
-        preparerClasses = "PazarImportPreparer",
-        insert = FALSE, metadataOnly=TRUE, justRunUnitTest=TRUE)
-     checkTrue(class(ahms[[1]])=="AnnotationHubMetadata")
-}
-
 test_ChEAPreparer_recipe <- function() {
     ahms = updateResources(ahroot, BiocVersion,
         preparerClasses = "ChEAImportPreparer",
