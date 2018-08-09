@@ -28,7 +28,7 @@
 
 
 makeRefNetImporter <- function(currentMetadata, justRunUnitTest=FALSE,
-                               BiocVersion=biocVersion()) {
+                               BiocVersion=BiocManager::version()) {
     rsrc <- .refnetFiles()
     
     ## input_sources table

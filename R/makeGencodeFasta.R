@@ -12,7 +12,8 @@
 makeGencodeFastaToAHM <- function(currentMetadata, 
                                 baseUrl="ftp://ftp.sanger.ac.uk/pub/gencode/",
                                 species=c("Human", "Mouse"), release, 
-                                justRunUnitTest=FALSE, BiocVersion=biocVersion())
+                                justRunUnitTest=FALSE,
+                                BiocVersion=BiocManager::version())
 {
     species <- match.arg(species)
     rsrc <- .gencodeSourceUrls(species, release, filetype="fasta", 

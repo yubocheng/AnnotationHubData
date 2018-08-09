@@ -14,7 +14,7 @@
 }
 
 \usage{
-updateResources(AnnotationHubRoot, BiocVersion = biocVersion(),
+updateResources(AnnotationHubRoot, BiocVersion = BiocManager::version(),
                 preparerClasses = getImportPreparerClasses(),
                 metadataOnly = TRUE, insert = FALSE,
                 justRunUnitTest = FALSE, ...)
@@ -31,7 +31,7 @@ pushMetadata(allAhms, url)
   \item{BiocVersion}{
     A \code{character(1)} Bioconductor version. The resource will be available
     in Bioconductor >= to this version. Default value is the current version,
-    specified with biocVersion().
+    specified with BiocManager::version().
   }
   \item{preparerClasses}{
     One of the \code{ImportPreparer} subclasses defined in

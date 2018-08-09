@@ -70,7 +70,7 @@ AnnotationHubMetadata(AnnotationHubRoot, SourceUrl, SourceType,
                  NA_character_, SourceSize, DataProvider, Title,
                  Description, Species, TaxonomyId, Genome, Tags,
                  Recipe, RDataClass, RDataDateAdded, RDataPath,
-                 Maintainer, ..., BiocVersion = biocVersion(),
+                 Maintainer, ..., BiocVersion = BiocManager::version(),
                  Coordinate_1_based = TRUE, Notes = NA_character_,
                  DispatchClass, Location_Prefix =
                  "http://s3.amazonaws.com/annotationhub/")

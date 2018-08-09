@@ -70,7 +70,7 @@
 ## STEP 1: make function to process metadata into AHMs
 makeNCBIToOrgDbsToAHM <-
     function(currentMetadata, justRunUnitTest = FALSE,
-             BiocVersion =  biocVersion(),
+             BiocVersion =  BiocManager::version(),
              baseUrl = "ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/") {
     meta <- .NCBIMetadataFromUrl(baseUrl, justRunUnitTest,
                                  biocVersion=BiocVersion[[1]])

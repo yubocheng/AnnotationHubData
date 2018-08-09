@@ -12,7 +12,7 @@
 makeEnsemblTwoBitToAHM <- 
     function(currentMetadata, baseUrl = "ftp://ftp.ensembl.org/pub/",
              baseDir = "fasta/", release,
-             justRunUnitTest = FALSE, BiocVersion = biocVersion())
+             justRunUnitTest = FALSE, BiocVersion = BiocManager::version())
 {
     if (length(release) > 1L)
         stop("'release' must be a single integer")

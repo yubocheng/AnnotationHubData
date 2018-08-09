@@ -1,5 +1,5 @@
 make2bit <- function(currentMetadata, justRunUnitTest=FALSE, 
-                     BiocVersion=biocVersion()) {
+                     BiocVersion=BiocManager::version()) {
     rsrc <- .getUCSCResources(fileType="2bit", dirName="bigZips", 
                               fileName=".2bit", verbose=TRUE, justRunUnitTest)
     ## input_sources table

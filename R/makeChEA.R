@@ -8,7 +8,7 @@
 makeChEAToAHM <- function(currentMetadata, 
                           baseUrl="http://amp.pharm.mssm.edu/",
                           justRunUnitTest=FALSE,
-                          BiocVersion=biocVersion()) 
+                          BiocVersion=BiocManager::version()) 
 {
     files <- "result/kea/chea-background.zip"
 

@@ -23,7 +23,7 @@
     if (downloadOrgDbs) {  ## download, install
         lapply(dbNames, function(xx) {
             if (!requireNamespace(xx)) {
-                BiocInstaller::biocLite(xx, ask=FALSE)
+                BiocManager::install(xx, ask=FALSE)
             }
         })
     }
@@ -68,7 +68,7 @@
 }
 
 makeStandardOrgDbsToAHM <- function(currentMetadata, justRunUnitTest=FALSE, 
-                                    BiocVersion=biocVersion(), 
+                                    BiocVersion=BiocManager::version(), 
                                     downloadOrgDbs=TRUE) {
     if (length(BiocVersion) > 1L)
         stop("BiocVersion must be a single version")

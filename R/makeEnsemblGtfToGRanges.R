@@ -24,7 +24,7 @@
 makeEnsemblGtfToAHM <-
     function(currentMetadata, baseUrl = "ftp://ftp.ensembl.org/pub/",
              baseDir = "gtf/", release, justRunUnitTest = FALSE, 
-             BiocVersion = biocVersion(), ...)
+             BiocVersion = BiocManager::version(), ...)
 {
     ## get all file urls, size, date
     df <- .ensemblGtfSourceUrls(baseDir, baseUrl, release, 

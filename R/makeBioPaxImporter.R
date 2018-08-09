@@ -54,7 +54,7 @@ test_BioPaxImportPreparer_recipe <- function() {
 }
 
 makeBioPaxImporter <- function(currentMetadata, justRunUnitTest=FALSE,
-                               BiocVersion=biocVersion()) {
+                               BiocVersion=BiocManager::version()) {
     rsrc <- .getBioPaxFilesNIH(justRunUnitTest)
     
     ## input_sources table

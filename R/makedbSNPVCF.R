@@ -86,7 +86,7 @@
 }
 
 makedbSNPVCF <- function(currentMetadata, justRunUnitTest=TRUE,
-                         BiocVersion=biocVersion()) {
+                         BiocVersion=BiocManager::version()) {
     rsrc <- .getdbSNP(justRunUnitTest)
 
     ## input_sources table

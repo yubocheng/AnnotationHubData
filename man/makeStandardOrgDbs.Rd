@@ -13,14 +13,14 @@
 
 \usage{
 makeStandardOrgDbsToAHM(currentMetadata, justRunUnitTest = FALSE, 
-                        BiocVersion = biocVersion(), 
+                        BiocVersion = BiocManager::version(), 
                         downloadOrgDbs = TRUE)
 
 makeStandardTxDbsToAHM(currentMetadata, justRunUnitTest = FALSE, 
-                       BiocVersion = biocVersion(), TxDbs)
+                       BiocVersion = BiocManager::version(), TxDbs)
 
 makeNCBIToOrgDbsToAHM(currentMetadata, justRunUnitTest = FALSE,
-                      BiocVersion = biocVersion(), 
+                      BiocVersion = BiocManager::version(), 
                       baseUrl = "ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/")
 }
 
@@ -41,7 +41,7 @@ makeNCBIToOrgDbsToAHM(currentMetadata, justRunUnitTest = FALSE,
   \item{BiocVersion}{
     A \code{character(1)}. The resource will be available for Bioconductor 
     versions greater than and equal to this version. Default is
-    BiocInstaller::biocVersion().
+    BiocManaer::version().
   }
   \item{TxDbs}{
     Character vector of the \code{TxDb} names; generally includes

@@ -126,7 +126,7 @@
 }
 
 makeEncodeImporter <- function(currentMetadata, justRunUnitTest=FALSE,
-                               BiocVersion=biocVersion()) {
+                               BiocVersion=BiocManager::version()) {
     rsrc <- .encodeFiles(justRunUnitTest)
     
     ## input_sources table

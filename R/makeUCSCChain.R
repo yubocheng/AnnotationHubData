@@ -97,7 +97,7 @@
 }
 
 makeUCSCChain <- function(currentMetadata, justRunUnitTest=FALSE, 
-                          BiocVersion=biocVersion()) {
+                          BiocVersion=BiocManager::version()) {
     rsrc <- .getUCSCResources(fileType="chain", dirName="liftOver", 
         fileName="chain.gz", verbose=TRUE, justRunUnitTest)
     

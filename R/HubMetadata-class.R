@@ -42,7 +42,7 @@ setClass("HubMetadata",
     ),
     prototype = prototype(
         HubRoot=NA_character_,
-        BiocVersion=biocVersion(),
+        BiocVersion=BiocManager::version(),
         Coordinate_1_based=NA,
         DataProvider=NA_character_,
         DerivedMd5=NA_character_,

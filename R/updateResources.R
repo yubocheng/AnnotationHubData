@@ -139,7 +139,7 @@ setMethod("runRecipes", "AnnotationHubMetadata",
 )
 
 updateResources <- function(AnnotationHubRoot=getwd(), 
-                            BiocVersion=biocVersion(),
+                            BiocVersion=BiocManager::version(),
                             preparerClasses=getImportPreparerClasses(),
                             metadataOnly=TRUE, insert=FALSE,
                             justRunUnitTest=FALSE, ...) {

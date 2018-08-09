@@ -89,7 +89,7 @@
 }
 
 makeHaemCodeImporter <- function(currentMetadata, justRunUnitTest=FALSE,
-                                 BiocVersion=biocVersion()) {
+                                 BiocVersion=BiocManager::version()) {
     rsrc <- .getHaemCode(justRunUnitTest)
         
     ## input_sources table

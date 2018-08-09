@@ -18,11 +18,13 @@
 \usage{
 makeEnsemblFastaToAHM(currentMetadata, baseUrl = "ftp://ftp.ensembl.org/pub/",
                       baseDir = "fasta/", release,
-                      justRunUnitTest = FALSE, BiocVersion = biocVersion())
+                      justRunUnitTest = FALSE,
+                      BiocVersion = BiocManager::version())
 
 makeEnsemblTwoBitToAHM(currentMetadata, baseUrl = "ftp://ftp.ensembl.org/pub/",
                        baseDir = "fasta/", release,
-                       justRunUnitTest = FALSE, BiocVersion = biocVersion())
+                       justRunUnitTest = FALSE,
+                       BiocVersion = BiocManager::version())
 
 ensemblFastaToFaFile(ahm)
 
@@ -50,7 +52,7 @@ ensemblFastaToTwoBitFile(ahm)
   \item{BiocVersion}{
     A \code{character(1)} Bioconductor version. The resource will be available
     in Bioconductor >= to this version. Default value is the current version,
-    specified with biocVersion().
+    specified with BiocManager::version().
   }
   \item{ahm}{
     List of \code{AnnotationHubMetadata} instances.

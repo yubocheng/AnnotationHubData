@@ -17,10 +17,9 @@
 
 ## Returns list of loaded TxDb objects.
 .getTxDbs <- function(TxDbs) {
-    require(BiocInstaller)
     lapply(TxDbs, function(xx) {
         if (!require(xx, character.only=TRUE))
-            biocLite(xx, ask=FALSE)
+            BiocManager::install(xx, ask=FALSE)
     })
     lapply(TxDbs, require, character.only=TRUE)
     res <- lapply(TxDbs, get)
@@ -60,7 +59,7 @@
 }
 
 makeStandardTxDbsToAHM <- function(currentMetadata, justRunUnitTest = FALSE, 
-                                   BiocVersion = biocVersion(),
+                                   BiocVersion = BiocManager::version(),
                                    TxDbs) {
     if (length(BiocVersion) > 1L)
         stop("length(BiocVersion) must == 1L")

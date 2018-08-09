@@ -334,7 +334,7 @@ makeEpigenomeRoadmapPeak <-
     function(currentMetadata, 
              baseUrl="https://egg2.wustl.edu/roadmap/data/",
              justRunUnitTest=FALSE, 
-             BiocVersion=biocVersion(),
+             BiocVersion=BiocManager::version(),
              fileType = c("narrow", "narrowFDR",
                           "narrowAllPeaks", "broad", "gapped")) 
 {
@@ -347,7 +347,7 @@ makeEpigenomeRoadmapPeak <-
 makeEpigenomeRoadmap <- function(currentMetadata, 
                                  baseUrl="https://egg2.wustl.edu/roadmap/data/",
                                  justRunUnitTest=FALSE, 
-                                 BiocVersion=biocVersion()) {
+                                 BiocVersion=BiocManager::version()) {
     ## FIXME: Potentially all of 'signal', 'metadata', 'seg', 'expr_gtf',
     ##        'expr_text' and 'dimethyl' can use the
     ##        EpigenomeRoadmapFile dispatch class but this should be

@@ -126,7 +126,7 @@
 makeEnsemblFastaToAHM <-
     function(currentMetadata, baseUrl = "ftp://ftp.ensembl.org/pub/",
              baseDir = "fasta/", release,
-             justRunUnitTest = FALSE, BiocVersion = biocVersion())
+             justRunUnitTest = FALSE, BiocVersion = BiocManager::version())
 {
     time1 <- Sys.time()
     regex <- paste0(".*release-", release)
