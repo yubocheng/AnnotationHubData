@@ -180,6 +180,12 @@ setClass("AnnotationHubMetadata",
           value)))
 }
 
+globalVariables(c("BiocVersion", "Coordinate_1_based", "DataProvider",
+                  "Description", "DispatchClass", "Genome", "Location_Prefix",
+                  "Maintainer", "RDataClass", "RDataDateAdded", "RDataPath",
+                  "SourceType", "SourceUrl", "SourceVersion", "Species",
+                  "TaxonomyId", "Title"))
+
 ## Used for contributed packages, not internal recipes.
 makeAnnotationHubMetadata <- function(pathToPackage, fileName=character())
 {
