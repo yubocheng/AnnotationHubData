@@ -15,7 +15,7 @@ Authors@R: c(
 Maintainer: Bioconductor Package Maintainer <maintainer@bioconductor.org>
 Depends: R (>= 3.2.2), methods, utils, S4Vectors (>= 0.7.21),
     IRanges (>= 2.3.23), GenomicRanges, AnnotationHub (>= 2.9.14)
-Suggests: RUnit, knitr, BiocStyle, grasp2db
+Suggests: RUnit, knitr, BiocStyle, grasp2db, GenomeInfoDbData
 Imports: GenomicFeatures, Rsamtools, rtracklayer, BiocGenerics,
     jsonlite, BiocManager, biocViews,
     AnnotationDbi, Biobase, Biostrings, DBI,
@@ -60,3 +60,4 @@ Collate:
     trackWithAuxiliaryTableToGRangesRecipe.R
     UCSCTrackUpdateChecker.R
     makeEnsemblTwoBit.R
+    validationFunctions.R

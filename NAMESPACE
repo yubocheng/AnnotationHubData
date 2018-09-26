@@ -83,7 +83,8 @@ export(
     pushMetadata, pushResources,
     makeGencodeFastaToAHM, gencodeFastaToFaFile,
     makeStandardOrgDbsToAHM, makeStandardTxDbsToAHM,
-    makeNCBIToOrgDbsToAHM
+    makeNCBIToOrgDbsToAHM,
+    getSpeciesList, validSpecies, suggestSpecies
 )
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
