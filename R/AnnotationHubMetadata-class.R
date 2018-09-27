@@ -102,11 +102,12 @@ setClass("AnnotationHubMetadata",
     if (any(missing)) {
         stop("All fields in 'DispatchClass' must be set")
     }
+
+    # Validate Class
     missing <- which(!nchar(meta$RDataClass))
     if (any(missing)) {
         stop("All fields in 'RDataClass' must be set")
     }
-
 
     # Validate Species
     missing <- which(!nchar(meta$Species))
@@ -124,6 +125,8 @@ setClass("AnnotationHubMetadata",
 
     ## Enforce data type
     meta$TaxonomyId <- as.integer(meta$TaxonomyId)
+    dx <- which(!is.na(meta$Species) & !is.na(meta$TaxonomyId))
+    .checkValidTaxId(meta$TaxonomyId[dx], meta$Species[dx])
 
     missing <- which(!nchar(meta$BiocVersion))
     if (any(missing)) {
@@ -154,6 +157,23 @@ setClass("AnnotationHubMetadata",
     meta
 }
 
+
+.checkValidTaxId <- function(txid, species){
+    txdb <- GenomeInfoDb::loadTaxonomyDb()
+    txdb <- rbind(txdb, c(NA, NA, ""))
+    combo <- trimws(paste(txdb$genus, txdb$species))
+    if (!all(species %in% combo))
+        stop("species not found in table of available species.\n",
+             "    See GenomeInfoDb::loadTaxonomyDb().")
+    sp_id <- txdb$tax_id[match(species, combo)]
+    dx <- txid == sp_id
+    if (!all(dx)){
+        err = data.frame(species=species[!dx], tax_id=txid[!dx],
+            expected_tax_id=sp_id[!dx])
+        print(err)
+        stop("TaxonomyId does not match expected taxonomy id for given Species.")
+    }
+}
 
 #################################################################
 #
@@ -207,6 +227,7 @@ setClass("AnnotationHubMetadata",
         stop(wmsg(paste0("'Maintainer' not a valid email address: ",
           value)))
 }
+
 
 globalVariables(c("BiocVersion", "Coordinate_1_based", "DataProvider",
                   "Description", "DispatchClass", "Genome", "Location_Prefix",
@@ -292,14 +313,9 @@ AnnotationHubMetadata <-
         as.POSIXct(strsplit(
             as.character(RDataDateAdded), " ")[[1]][1], tz="GMT")
 
-#    mustBeSingleStringNoCommasOrNA <-
-#        c(SourceType, Location_Prefix, DispatchClass, RDataClass)
-#    lapply(mustBeSingleStringNoCommasOrNA, .checkThatSingleStringAndNoCommas)
     .checkThatSingleStringAndNoCommas(SourceType)
     .checkThatSingleStringAndNoCommas(Location_Prefix)
     .checkThatSingleStringAndNoCommas(DispatchClass)
-
-#    lapply(c(Recipe, Genome, Species), .checkThatSingleStringqOrNA)
     .checkThatSingleStringOrNA(Recipe)
     .checkThatSingleStringOrNA(Genome)
     .checkThatSingleStringOrNA(Species)
@@ -369,11 +385,13 @@ AnnotationHubMetadata <-
     }
 }
 
+#############################################################################
 #
 # Broken
 # Because of the tryCatch this actaully does not fail for bogus class
 # fails when can't try isClass which is only missing or NA
 #
+#############################################################################
 .checkRdataclassIsReal <- function(class){
     tryCatch(isClass(class), error = function(err){
         stop("The rdataclass must be a valid R data type. \n",
@@ -410,19 +428,6 @@ expectedSourceTypes <- c("BAI", "BAM", "BED", "BigWig", "BioPax",
                          " (including the protocol) has been trimmed off")))
 }
 
-.checkValidTaxId <- function(txid, species){
-    if (!requireNamespace("GenomeInfoDbData", quietly = TRUE))
-        stop("Requires GenomeInfoDbData.  Please run:\n",
-             "    BiocManager::install('GenomeInfoDbData')")
-    txdb <- loadTaxonomyDb()
-    combo <- trimws(paste(txdb$genus, txdb$species))
-    sp_id <- txdb$tax_id[which(combo == species)]
-    if(sp_id != txid)
-        stop("TaxonomyId does not match expected taxonomy id for given Species.",
-             "\n    Try running 'suggestSpecies(species, op='&')'")
-}
-
-
 setValidity("AnnotationHubMetadata",function(object) {
     msg = NULL
     ## if the location prefix is "non-standard" (IOW not stored in S3) and
@@ -445,8 +450,6 @@ setValidity("AnnotationHubMetadata",function(object) {
     .checkRdataclassIsReal(object@RDataClass)
     .checkThatSourceTypeSoundsReasonable(object@SourceType)
     if(!is.na(object@TaxonomyId)) GenomeInfoDb:::check_tax_id(object@TaxonomyId)
-    if(!is.na(object@TaxonomyId) & !is.na(object@Species))
-        .checkValidTaxId(object@TaxonomyId, object@Species)
     .checkThatRDataPathIsOK(object@RDataPath)
 })
 

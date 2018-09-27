@@ -3,7 +3,7 @@ getSpeciesList <- function(verbose=FALSE){
         stop("Requires GenomeInfoDbData.  Please run:\n",
              "    BiocManager::install('GenomeInfoDbData')")
     if (verbose) message("Loading valid species information.")
-    txdb <- loadTaxonomyDb()
+    txdb <- GenomeInfoDb::loadTaxonomyDb()
     txdb <- rbind(txdb, c(NA, NA, ""))
     species <- trimws(paste(txdb$genus, txdb$species))
 }
@@ -30,7 +30,7 @@ suggestSpecies <- function(query, verbose=FALSE, op=c("|", "&")){
         stop("Requires GenomeInfoDbData.  Please run:\n",
              "    BiocManager::install('GenomeInfoDbData')")
     if (verbose) message("Loading valid species information.")
-    txdb <- loadTaxonomyDb()
+    txdb <- GenomeInfoDb::loadTaxonomyDb()
     txdb <- rbind(txdb, c(NA, NA, ""))
     sd <- txdb
     combo <- trimws(paste(txdb$genus, txdb$species))
