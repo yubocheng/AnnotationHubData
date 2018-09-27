@@ -380,12 +380,14 @@ AnnotationHubMetadata <-
              conditionMessage(err))})
 }
 
-expectedSourceTypes <- c("BED", "UCSC track", "VCF", "GTF", "GFF", "CSV", "TSV",
-                         "BigWig", "TwoBit", "Chain", "MySQL", "ensembl",
-                         "FASTA", "BioPax", "BioPaxLevel2", "BioPaxLevel3",
-                         "Inparanoid", "NCBI/blast2GO", "NCBI/UniProt",
-                         "NCBI/ensembl", "GRASP", "Zip", "RData", "tar.gz",
-                         "tab", "mzML", "mzTab", "mzid", "HDF5")
+# alphabetical
+expectedSourceTypes <- c("BAI", "BAM", "BED", "BigWig", "BioPax",
+                         "BioPaxLevel2", "BioPaxLevel3", "CEL", "Chain", "CSV",
+                         "ensembl", "FASTA", "FASTQ", "GFF", "GRASP", "GTF",
+                         "HDF5", "IDAT", "Inparanoid", "JSON", "MySQL", "mzid",
+                         "mzML", "mzTab", "NCBI/blast2GO", "NCBI/ensembl",
+                         "NCBI/UniProt", "RDA", "RData", "tab", "tar.gz", "TSV",
+                         "TwoBit", "TXT", "UCSC track", "VCF", "Zip")
 
 .checkThatSourceTypeSoundsReasonable <- function(sourcetype) {
     if(!(sourcetype %in% expectedSourceTypes)) {
