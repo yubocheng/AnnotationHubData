@@ -26,6 +26,9 @@ setClass("AnnotationHubMetadata",
 }
 
 ## High level helper used to check metadata in 'Hub' packages.
+#
+#  The checks in this function are applied per column of metadata.csv
+#
 .readMetadataFromCsv <- function(pathToPackage, fileName=character())
 {
     if (!length(fileName))
@@ -103,8 +106,25 @@ setClass("AnnotationHubMetadata",
     if (any(missing)) {
         stop("All fields in 'RDataClass' must be set")
     }
+
+
+    # Validate Species
+    missing <- which(!nchar(meta$Species))
+    if (any(missing)) {
+        meta$Species[missing] <- meta$Species[NAvls] <- NA_character_
+        message("missing values for 'Species set to 'NA''")
+    }
+    NAvls <- which(is.na(meta$Species))
+    if (any(NAvls)){
+        meta$Species[NAvls] <- NA_character_
+    }
+    if(!validSpecies(meta$Species, verbose=TRUE)){
+        stop("Found one or more invalid species.")
+    }
+
     ## Enforce data type
     meta$TaxonomyId <- as.integer(meta$TaxonomyId)
+
     missing <- which(!nchar(meta$BiocVersion))
     if (any(missing)) {
         stop("all fields in BiocVersion must be specified")
@@ -133,6 +153,14 @@ setClass("AnnotationHubMetadata",
     meta$RDataDateAdded <- rep(Sys.time(), nrow(meta))
     meta
 }
+
+
+#################################################################
+#
+# Below checkes are performed in AnnotationHubMetadata
+#  essentially checking a single value
+#
+#################################################################
 
 ## single value or NA
 .checkThatSingleStringOrNA <- function(value) {
@@ -199,6 +227,7 @@ makeAnnotationHubMetadata <- function(pathToPackage, fileName=character())
             if (is.na(meta$Tags) || !length(meta$Tags))
                 stop("please add 'Tags' values to metadata")
             .tags <- c(strsplit(meta$Tags, ":")[[1]], .package)
+            if (length(.tags) <= 1) stop("Add 2 or more Tags")
             lapply(seq_len(nrow(meta)), function(x) {
                 with(meta[x, ], AnnotationHubMetadata(
                     Title=Title, Description=Description,
@@ -356,7 +385,8 @@ expectedSourceTypes <- c("BED", "UCSC track", "VCF", "GTF", "GFF", "CSV", "TSV",
                          "FASTA", "BioPax", "BioPaxLevel2", "BioPaxLevel3",
                          "Inparanoid", "NCBI/blast2GO", "NCBI/UniProt",
                          "NCBI/ensembl", "GRASP", "Zip", "RData", "tar.gz",
-                         "tab", "mzML", "mzTab", "mzid")
+                         "tab", "mzML", "mzTab", "mzid", "HDF5")
+
 .checkThatSourceTypeSoundsReasonable <- function(sourcetype) {
     if(!(sourcetype %in% expectedSourceTypes)) {
         stop(paste0("'SourceType' should be one of: ",
@@ -376,6 +406,18 @@ expectedSourceTypes <- c("BED", "UCSC track", "VCF", "GTF", "GFF", "CSV", "TSV",
         stop(wmsg(paste0("The string for an RDataPath should only contain",
                          " the partial path after the location_Prefix",
                          " (including the protocol) has been trimmed off")))
+}
+
+.checkValidTaxId <- function(txid, species){
+    if (!requireNamespace("GenomeInfoDbData", quietly = TRUE))
+        stop("Requires GenomeInfoDbData.  Please run:\n",
+             "    BiocManager::install('GenomeInfoDbData')")
+    txdb <- loadTaxonomyDb()
+    combo <- trimws(paste(txdb$genus, txdb$species))
+    sp_id <- txdb$tax_id[which(combo == species)]
+    if(sp_id != txid)
+        stop("TaxonomyId does not match expected taxonomy id for given Species.",
+             "\n    Try running 'suggestSpecies(species, op='&')'")
 }
 
 
@@ -401,6 +443,8 @@ setValidity("AnnotationHubMetadata",function(object) {
     .checkRdataclassIsReal(object@RDataClass)
     .checkThatSourceTypeSoundsReasonable(object@SourceType)
     if(!is.na(object@TaxonomyId)) GenomeInfoDb:::check_tax_id(object@TaxonomyId)
+    if(!is.na(object@TaxonomyId) & !is.na(object@Species))
+        .checkValidTaxId(object@TaxonomyId, object@Species)
     .checkThatRDataPathIsOK(object@RDataPath)
 })
 

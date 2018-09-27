@@ -4,12 +4,15 @@ getSpeciesList <- function(verbose=FALSE){
              "    BiocManager::install('GenomeInfoDbData')")
     if (verbose) message("Loading valid species information.")
     txdb <- loadTaxonomyDb()
+    txdb <- rbind(txdb, c(NA, NA, ""))
     species <- trimws(paste(txdb$genus, txdb$species))
 }
 
 validSpecies <- function(species, verbose=TRUE){
     speciesList <- getSpeciesList(verbose=verbose)
     res <- species %in% speciesList
+    if (any(is.na(species)))
+        res[is.na(species)] = TRUE
     if (any(!res) & verbose){
         message("Found invalid species.\n")
         print(species[!res])
@@ -28,6 +31,7 @@ suggestSpecies <- function(query, verbose=FALSE, op=c("|", "&")){
              "    BiocManager::install('GenomeInfoDbData')")
     if (verbose) message("Loading valid species information.")
     txdb <- loadTaxonomyDb()
+    txdb <- rbind(txdb, c(NA, NA, ""))
     sd <- txdb
     combo <- trimws(paste(txdb$genus, txdb$species))
     sd$combo = combo
