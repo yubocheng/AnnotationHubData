@@ -398,16 +398,8 @@ AnnotationHubMetadata <-
              conditionMessage(err))})
 }
 
-# alphabetical
-expectedSourceTypes <- c("BAI", "BAM", "BED", "BigWig", "BioPax",
-                         "BioPaxLevel2", "BioPaxLevel3", "CEL", "Chain", "CSV",
-                         "ensembl", "FASTA", "FASTQ", "GFF", "GRASP", "GTF",
-                         "HDF5", "IDAT", "Inparanoid", "JSON", "MySQL", "mzid",
-                         "mzML", "mzTab", "NCBI/blast2GO", "NCBI/ensembl",
-                         "NCBI/UniProt", "RDA", "RData", "tab", "tar.gz", "TSV",
-                         "TwoBit", "TXT", "UCSC track", "VCF", "Zip")
-
 .checkThatSourceTypeSoundsReasonable <- function(sourcetype) {
+    expectedSourceTypes <- getValidSourceTypes()
     if(!(sourcetype %in% expectedSourceTypes)) {
         stop(paste0("'SourceType' should be one of: ",
                     paste(expectedSourceTypes, collapse=", "),
