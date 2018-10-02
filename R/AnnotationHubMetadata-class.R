@@ -228,6 +228,33 @@ setClass("AnnotationHubMetadata",
           value)))
 }
 
+.checkValidViews <- function(views, repo){
+
+    msg = list()
+    biocViewsVocab <- NULL
+    data("biocViewsVocab", package="biocViews", envir=environment())
+    # check all valid terms
+    if (!all(views %in% nodes(biocViewsVocab))){
+        badViews <- views[!(views %in% graph::nodes(biocViewsVocab))]
+        badViewsVec <- paste(badViews, collapse=", ")
+        msg["invalid"] = paste0("Invalid biocViews term[s].\n    ", badViewsVec, "\n")
+    }
+    # check all come from same biocViews main category
+    parents <- unlist(lapply(views, BiocCheck:::getParent, biocViewsVocab), use.names=FALSE)
+    if (!all(parents == repo))
+        msg["Category"] = paste0("All biocViews terms must come from the ", repo, " category.\n")
+    # check that hub term present
+    if (repo == "AnnotationData" | repo == "ExperimentData"){
+        repo = paste0(gsub(repo, pattern="Data", replacement=""), "Hub")
+        if (!(repo %in% views))
+            msg["Hub"] = paste0("Please add ", repo, " to biocViews list in DESCRIPTION.\n")
+    }
+    if (length(msg) != 0){
+        myfunction <- function(index, msg){paste0("[", index, "] ", msg[index])}
+        fmt_msg <- unlist(lapply(seq_len(length(msg)), msg = msg, FUN=myfunction))
+        stop("\n",fmt_msg)
+    }
+}
 
 globalVariables(c("BiocVersion", "Coordinate_1_based", "DataProvider",
                   "Description", "DispatchClass", "Genome", "Location_Prefix",
@@ -245,10 +272,12 @@ makeAnnotationHubMetadata <- function(pathToPackage, fileName=character())
         function(xx) {
             meta <- .readMetadataFromCsv(pathToPackage, xx)
             .package <- basename(pathToPackage)
-            if (is.na(meta$Tags) || !length(meta$Tags))
-                stop("please add 'Tags' values to metadata")
-            .tags <- c(strsplit(meta$Tags, ":")[[1]], .package)
-            if (length(.tags) <= 1) stop("Add 2 or more Tags")
+            description <- read.dcf(file.path(pathToPackage, "DESCRIPTION"))
+            .tags <- strsplit(gsub("\\s", "", description[,"biocViews"]),
+                              ",")[[1]]
+            if (length(.tags) <= 1)
+                stop("Add 2 or more biocViews to your DESCRIPTION")
+            .checkValidViews(.tags, "AnnotationData")
             lapply(seq_len(nrow(meta)), function(x) {
                 with(meta[x, ], AnnotationHubMetadata(
                     Title=Title, Description=Description,
@@ -435,7 +464,13 @@ setValidity("AnnotationHubMetadata",function(object) {
     }
     if (is.null(msg)) TRUE else msg
 
-    ## more checks
+    # Validity checks used for both Experiment and AnnotationHub
+    .ValidHubs(object)
+})
+
+
+.ValidHubs <- function(object){
+
     .checkSourceurlPrefixesAreValid(object@SourceUrl)
     .checkSourceurlsFreeOfDoubleSlashes(object@SourceUrl)
     .checkThatGenomeLooksReasonable(object@Genome)
@@ -443,7 +478,8 @@ setValidity("AnnotationHubMetadata",function(object) {
     .checkThatSourceTypeSoundsReasonable(object@SourceType)
     if(!is.na(object@TaxonomyId)) GenomeInfoDb:::check_tax_id(object@TaxonomyId)
     .checkThatRDataPathIsOK(object@RDataPath)
-})
+
+}
 
 ## ------------------------------------------------------------------------------
 ## run

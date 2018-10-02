@@ -3,7 +3,7 @@ txdb <- rbind(txdb, c(NA, NA, ""))
 
 test_getSpeciesList <- function(){
     list <- getSpeciesList()
-    checkTrue(length(list) == dim(txdb)[1])    
+    checkTrue(length(list) == dim(txdb)[1])
 }
 
 test_validSpecies <- function(){
@@ -28,4 +28,16 @@ test_validTaxId <- function(){
 
     checkTrue(is.null(AnnotationHubData:::.checkValidTaxId(9606, "Homo sapiens")))
     checkException(AnnotationHubData:::.checkValidTaxId(9999, "Homo sapiens"))
+}
+
+test_validViews <- function(){
+
+    checkException(AnnotationHubData:::.checkValidViews(
+        c("AnnotationData", "Organism"), "AnnotationData"))
+    checkException(AnnotationHubData:::.checkValidViews(
+        c("AnnotationHub", "Organism", "ExperimentData"), "AnnotationData"))
+    checkException(AnnotationHubData:::.checkValidViews(
+        c("AnnotationHub", "Organism", "badView"), "AnnotationData"))
+    checkTrue(is.null(AnnotationHubData:::.checkValidViews(
+        c("AnnotationHub", "Organism"), "AnnotationData")))
 }
