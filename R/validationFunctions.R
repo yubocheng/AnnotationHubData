@@ -57,8 +57,10 @@ getValidSourceTypes <- function(){
                              "ensembl", "FASTA", "FASTQ", "GFF", "GRASP", "GTF",
                              "HDF5", "IDAT", "Inparanoid", "JSON", "MySQL", "mzid",
                              "mzML", "mzTab", "NCBI/blast2GO", "NCBI/ensembl",
-                             "NCBI/UniProt", "RDA", "RData", "tab", "tar.gz", "TSV",
-                             "TwoBit", "TXT", "UCSC track", "VCF", "Zip")
+                             "NCBI/UniProt", "RDA", "RData", "Simulated", "tab",
+                             "tar.gz", "TSV", "TwoBit", "TXT", "UCSC track",
+                             "VCF", "Zip")
+
     expectedSourceTypes
 
 }
