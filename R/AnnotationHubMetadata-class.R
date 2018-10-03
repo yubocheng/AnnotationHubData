@@ -171,7 +171,8 @@ setClass("AnnotationHubMetadata",
         err = data.frame(species=species[!dx], tax_id=txid[!dx],
             expected_tax_id=sp_id[!dx])
         print(err)
-        stop("TaxonomyId does not match expected taxonomy id for given Species.")
+        stop("TaxonomyId does not match expected taxonomy id for given Species.",
+             "\n    See GenomeInfoDb::loadTaxonomyDb() table for details.")
     }
 }
 
@@ -272,6 +273,9 @@ makeAnnotationHubMetadata <- function(pathToPackage, fileName=character())
         function(xx) {
             meta <- .readMetadataFromCsv(pathToPackage, xx)
             .package <- basename(pathToPackage)
+            if ("tags" %in% tolower(names(meta)))
+                message("Tags are specified by biocViews entry in the",
+                        " DESCRIPTION file.\nIgnoring Tags in the metadata file.")
             description <- read.dcf(file.path(pathToPackage, "DESCRIPTION"))
             .tags <- strsplit(gsub("\\s", "", description[,"biocViews"]),
                               ",")[[1]]
