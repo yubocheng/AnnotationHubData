@@ -115,18 +115,15 @@ setClass("AnnotationHubMetadata",
         meta$Species[missing] <- meta$Species[NAvls] <- NA_character_
         message("missing values for 'Species set to 'NA''")
     }
-    NAvls <- which(is.na(meta$Species))
-    if (any(NAvls)){
-        meta$Species[NAvls] <- NA_character_
-    }
+    meta$Species = as.character(meta$Species)
+
     if(!validSpecies(meta$Species, verbose=TRUE)){
         stop("Found one or more invalid species.")
     }
 
     ## Enforce data type
     meta$TaxonomyId <- as.integer(meta$TaxonomyId)
-    dx <- which(!is.na(meta$Species) & !is.na(meta$TaxonomyId))
-    .checkValidTaxId(meta$TaxonomyId[dx], meta$Species[dx])
+    .checkValidTaxId(meta$TaxonomyId, meta$Species)
 
     missing <- which(!nchar(meta$BiocVersion))
     if (any(missing)) {
@@ -159,9 +156,14 @@ setClass("AnnotationHubMetadata",
 
 
 .checkValidTaxId <- function(txid, species){
+    if (length(txid) != length(species))
+        stop("taxonomy id list and species list are not same length")
     txdb <- GenomeInfoDb::loadTaxonomyDb()
     txdb <- rbind(txdb, c(NA, NA, ""))
     combo <- trimws(paste(txdb$genus, txdb$species))
+    dx <- (!is.na(species)) & (!is.na(txid))
+    species <- species[dx]
+    txid <- txid[dx]
     if (!all(species %in% combo))
         stop("species not found in table of available species.\n",
              "    See GenomeInfoDb::loadTaxonomyDb().")
@@ -245,14 +247,14 @@ setClass("AnnotationHubMetadata",
     if (!all(parents == repo))
         msg["Category"] = paste0("All biocViews terms must come from the ", repo, " category.\n")
     # check that hub term present
-    if (repo == "AnnotationData" | repo == "ExperimentData"){
+    if (repo == "AnnotationData" || repo == "ExperimentData"){
         repo = paste0(gsub(repo, pattern="Data", replacement=""), "Hub")
         if (!(repo %in% views))
             msg["Hub"] = paste0("Please add ", repo, " to biocViews list in DESCRIPTION.\n")
     }
     if (length(msg) != 0){
         myfunction <- function(index, msg){paste0("[", index, "] ", msg[index])}
-        fmt_msg <- unlist(lapply(seq_len(length(msg)), msg = msg, FUN=myfunction))
+        fmt_msg <- unlist(lapply(seq_along(msg), msg = msg, FUN=myfunction))
         stop("\n",fmt_msg)
     }
 }

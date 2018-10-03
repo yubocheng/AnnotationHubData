@@ -9,7 +9,7 @@ Authors@R: c(
         person("Dan", "Tenenbaum", role="ctb"),
         person("Sonali", "Arora", role="ctb"),
         person("Paul", "Shannon", role="ctb"),
-	person("Lori", "Shepherd", role="ctb"),
+        person("Lori", "Shepherd", role="ctb"),
         person("Bioconductor Package Maintainer",
             email="maintainer@bioconductor.org", role="cre")
         )
