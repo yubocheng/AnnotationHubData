@@ -122,6 +122,29 @@
 	      with the metadata and should not start with a leading
 	      slash. It should include the resource file name.
 
+       \item Tags: \code{character() vector}.
+	     \sQuote{Tags} are search terms used to define a subset of
+	     resources in a \code{Hub} object, e.g, in a call to \code{query}.
+
+	     For ExperimentHub resources, \sQuote{Tags} are automatically
+	     generated from the \sQuote{biocViews} in the DESCRIPTION.
+	     \sQuote{Tags} values supplied by the user are not be entered in
+	     the database and are not part of the formal metadata. This
+	     'controlled vocabulary' approach was taken to limit the search
+	     terms to a well defined set and may change in the future.
+
+	     \sQuote{Tags} for AnnotationHub resources are a free-form field
+	     of search terms defined by the user.  The package name is added
+	     as one of the \sQuote{Tags} before the metadata are finalized.
+	     Multiple \sQuote{Tags} are specified as a colon separated
+	     string, e.g., tags for two resources would look like this:
+
+	     \preformatted{
+	     Tags=c("tag1:tag2:tag3", "tag1:tag3")
+	     }
+
+
+
       }
       NOTE: The metadata file can have additional columns beyond the 'Required
       Fields' listed above. These values are not added to the Hub database but

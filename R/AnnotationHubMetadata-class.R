@@ -231,34 +231,6 @@ setClass("AnnotationHubMetadata",
           value)))
 }
 
-.checkValidViews <- function(views, repo){
-
-    msg = list()
-    biocViewsVocab <- NULL
-    data("biocViewsVocab", package="biocViews", envir=environment())
-    # check all valid terms
-    if (!all(views %in% nodes(biocViewsVocab))){
-        badViews <- views[!(views %in% graph::nodes(biocViewsVocab))]
-        badViewsVec <- paste(badViews, collapse=", ")
-        msg["invalid"] = paste0("Invalid biocViews term[s].\n    ", badViewsVec, "\n")
-    }
-    # check all come from same biocViews main category
-    parents <- unlist(lapply(views, BiocCheck:::getParent, biocViewsVocab), use.names=FALSE)
-    if (!all(parents == repo))
-        msg["Category"] = paste0("All biocViews terms must come from the ", repo, " category.\n")
-    # check that hub term present
-    if (repo == "AnnotationData" || repo == "ExperimentData"){
-        repo = paste0(gsub(repo, pattern="Data", replacement=""), "Hub")
-        if (!(repo %in% views))
-            msg["Hub"] = paste0("Please add ", repo, " to biocViews list in DESCRIPTION.\n")
-    }
-    if (length(msg) != 0){
-        myfunction <- function(index, msg){paste0("[", index, "] ", msg[index])}
-        fmt_msg <- unlist(lapply(seq_along(msg), msg = msg, FUN=myfunction))
-        stop("\n",fmt_msg)
-    }
-}
-
 globalVariables(c("BiocVersion", "Coordinate_1_based", "DataProvider",
                   "Description", "DispatchClass", "Genome", "Location_Prefix",
                   "Maintainer", "RDataClass", "RDataDateAdded", "RDataPath",
@@ -275,15 +247,17 @@ makeAnnotationHubMetadata <- function(pathToPackage, fileName=character())
         function(xx) {
             meta <- .readMetadataFromCsv(pathToPackage, xx)
             .package <- basename(pathToPackage)
-            if ("tags" %in% tolower(names(meta)))
-                message("Tags are specified by biocViews entry in the",
-                        " DESCRIPTION file.\nIgnoring Tags in the metadata file.")
-            description <- read.dcf(file.path(pathToPackage, "DESCRIPTION"))
-            .tags <- strsplit(gsub("\\s", "", description[,"biocViews"]),
-                              ",")[[1]]
-            if (length(.tags) <= 1)
-                stop("Add 2 or more biocViews to your DESCRIPTION")
-            .checkValidViews(.tags, "AnnotationData")
+            if (is.na(meta$Tags) || !length(meta$Tags))
+                stop("please add 'Tags' values to metadata")
+
+            .tags <- strsplit(meta$Tags, ":")
+            .tags <- lapply(.tags,
+                            FUN<- function(x, packageName){
+                                sort(unique(c(x, packageName)))},
+                            packageName=.package)
+            if (any(unlist(lapply(.tags, FUN=length)) <= 1))
+                stop("Add 2 or more Tags to each resource.")
+
             lapply(seq_len(nrow(meta)), function(x) {
                 with(meta[x, ], AnnotationHubMetadata(
                     Title=Title, Description=Description,
@@ -295,7 +269,7 @@ makeAnnotationHubMetadata <- function(pathToPackage, fileName=character())
                     Coordinate_1_based=Coordinate_1_based,
                     DataProvider=DataProvider,
                     Maintainer=Maintainer,
-                    RDataClass=RDataClass, Tags=.tags,
+                    RDataClass=RDataClass, Tags=.tags[[x]],
                     RDataDateAdded=RDataDateAdded,
                     RDataPath=RDataPath,
                     Recipe=NA_character_,

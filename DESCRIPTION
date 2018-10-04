@@ -1,24 +1,24 @@
 Package: AnnotationHubData
 Type: Package
 Title: Transform public data resources into Bioconductor Data Structures
-Version: 1.11.5
+Version: 1.11.6
 Encoding: UTF-8
 Authors@R: c(
-        person("Martin", "Morgan", role="ctb"),
-        person("Marc", "Carlson", role="ctb"),
-        person("Dan", "Tenenbaum", role="ctb"),
-        person("Sonali", "Arora", role="ctb"),
-        person("Paul", "Shannon", role="ctb"),
-        person("Lori", "Shepherd", role="ctb"),
-        person("Bioconductor Package Maintainer",
-            email="maintainer@bioconductor.org", role="cre")
-        )
+	person("Martin", "Morgan", role="ctb"),
+	person("Marc", "Carlson", role="ctb"),
+	person("Dan", "Tenenbaum", role="ctb"),
+	person("Sonali", "Arora", role="ctb"),
+	person("Paul", "Shannon", role="ctb"),
+	person("Lori", "Shepherd", role="ctb"),
+	person("Bioconductor Package Maintainer",
+	    email="maintainer@bioconductor.org", role="cre")
+	)
 Maintainer: Bioconductor Package Maintainer <maintainer@bioconductor.org>
 Depends: R (>= 3.2.2), methods, utils, S4Vectors (>= 0.7.21),
     IRanges (>= 2.3.23), GenomicRanges, AnnotationHub (>= 2.9.14)
 Suggests: RUnit, knitr, BiocStyle, grasp2db, GenomeInfoDbData
 Imports: GenomicFeatures, Rsamtools, rtracklayer, BiocGenerics,
-    jsonlite, BiocManager, biocViews, BiocCheck, graph,
+    jsonlite, BiocManager, biocViews,
     AnnotationDbi, Biobase, Biostrings, DBI,
     GenomeInfoDb (>= 1.15.4), OrganismDbi, RSQLite, rBiopaxParser,
     AnnotationForge, futile.logger (>= 1.3.0), XML, RCurl
