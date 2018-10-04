@@ -11,6 +11,8 @@ NEW FEATURES
 
 BUG FIX
 
+    o Fix TwoBit resource receipe. Converts DNA that is not A,C,T,G,N to N do to
+    design of rtracklayer::export for TwoBit
     o Fix bug with assignment of tags in annotationhub
     o makeEpigenomeRoadMap recipe updated to account for XML bug that cannot
     handle http urls. updated to https

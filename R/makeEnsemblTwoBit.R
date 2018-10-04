@@ -70,7 +70,8 @@ ensemblFastaToTwoBitFile <- function(ahm)
     ## ID as name
     ids <- sub(" .*", "", names(dna)) 
     stopifnot(length(ids) == length(dna))
-    names(dna) <- ids 
+    names(dna) <- ids
+    dna <- Biostrings::replaceAmbiguities(dna)
     export(dna, twobitOut, "TwoBit")
     ## remove .fa file
     system(paste0("rm ", srcFile)) 
