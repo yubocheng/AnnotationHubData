@@ -84,7 +84,8 @@ export(
     makeGencodeFastaToAHM, gencodeFastaToFaFile,
     makeStandardOrgDbsToAHM, makeStandardTxDbsToAHM,
     makeNCBIToOrgDbsToAHM,
-    getSpeciesList, validSpecies, suggestSpecies, getValidSourceTypes
+    getSpeciesList, validSpecies, suggestSpecies, getValidSourceTypes,
+    checkSpeciesTaxId
 )
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

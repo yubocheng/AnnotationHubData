@@ -5,6 +5,7 @@
 \alias{validSpecies}
 \alias{suggestSpecies}
 \alias{getValidSourceTypes}
+\alias{checkSpeciesTaxId}
 
 \title{ValidationFunctions}
 
@@ -21,6 +22,8 @@ validSpecies(species, verbose=TRUE)
 suggestSpecies(query, verbose=FALSE, op=c("|", "&"))
 
 getValidSourceTypes()
+
+checkSpeciesTaxId(txid, species, verbose=TRUE)
 }
 
 \arguments{
@@ -37,6 +40,7 @@ getValidSourceTypes()
     Should searching of mulitple terms be conditional OR ("|") or AND
     ("&")
   }
+  \item{txid}{taxonomy id (single value or list)}
 }
 
 \details{
@@ -57,8 +61,12 @@ getValidSourceTypes()
      should be added to the list please reach out to
      maintainer@bioconductor.org
 
+     \item checkSpeciesTaxId: cross validates a list of species and
+     taxonomy ids for expected values based on
+     \code{GenomeInfoDb::loadTaxonomyDb()}. Warning when there is a
+     mismatch.
 
-  }
+   }
 }
 
 \value{
@@ -68,7 +76,10 @@ getValidSourceTypes()
     are valid
     \item For suggestSpecies: data.frame of taxonomy id and species name
     of possible valid species based on given query key words.
-    \item For getValidSourceTypes: character vector of valid source types.
+    \item For getValidSourceTypes: character vector of valid source
+    types.
+    \item For checkSpeciesTaxId: NULL if check is verfified, If verbose
+    is ture a table of suggested values along with the warning.
   }
 }
 
@@ -99,6 +110,8 @@ suggestSpecies("Canis")
 
 getValidSourceTypes()
 
+checkSpeciesTaxId(1003232, "Edhazardia aedis")
+checkSpeciesTaxId(9606, "Homo sapiens")
 }
 
 \keyword{methods}

@@ -123,7 +123,7 @@ setClass("AnnotationHubMetadata",
 
     ## Enforce data type
     meta$TaxonomyId <- as.integer(meta$TaxonomyId)
-    .checkValidTaxId(meta$TaxonomyId, meta$Species)
+    checkSpeciesTaxId(meta$TaxonomyId, meta$Species, verbose=FALSE)
 
     missing <- which(!nchar(meta$BiocVersion))
     if (any(missing)) {
@@ -155,7 +155,7 @@ setClass("AnnotationHubMetadata",
 }
 
 
-.checkValidTaxId <- function(txid, species){
+checkSpeciesTaxId <- function(txid, species, verbose=TRUE){
     if (length(txid) != length(species))
         stop("taxonomy id list and species list are not same length")
     txdb <- GenomeInfoDb::loadTaxonomyDb()
@@ -170,12 +170,12 @@ setClass("AnnotationHubMetadata",
     sp_id <- txdb$tax_id[match(species, combo)]
     dx <- txid == sp_id
     if (!all(dx)){
-        err = data.frame(species=species[!dx], tax_id=txid[!dx],
-            expected_tax_id=sp_id[!dx], species_giventaxid=combo[match(txid[!dx], txdb$tax_id)])
-        print(err)
+        err = data.frame(given_species=species[!dx], given_tax_id=txid[!dx],
+            expected_tax_id=sp_id[!dx], species_of_giventxid=combo[match(txid[!dx], txdb$tax_id)])
         warning("TaxonomyId does not match expected taxonomy id for given Species.",
-             "\n    Above table gives matching species and taxonomy id.",   
-             "\n    See GenomeInfoDb::loadTaxonomyDb() table for details.")
+             "\n    Run checkSpeciesTaxId(txid, species) to see suggestions.",
+             "\n    See GenomeInfoDb::loadTaxonomyDb() table for full list of valid entries.")
+        if (verbose) err
     }
 }
 

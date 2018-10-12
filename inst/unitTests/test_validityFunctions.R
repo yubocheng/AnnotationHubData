@@ -26,9 +26,9 @@ test_suggestSpecies <- function(){
 
 test_validTaxId <- function(){
 
-    checkTrue(is.null(AnnotationHubData:::.checkValidTaxId(9606,
+    checkTrue(is.null(AnnotationHubData::checkSpeciesTaxId(9606,
                                                            "Homo sapiens")))
     options(warn=2)
-    checkException(AnnotationHubData:::.checkValidTaxId(9999, "Homo sapiens"))
+    checkException(AnnotationHubData::checkSpeciesTaxId(9999, "Homo sapiens"))
     options(warn=0)
 }
