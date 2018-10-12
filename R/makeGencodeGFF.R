@@ -66,9 +66,9 @@
     # this information is curated from Gencode's website
     # link - http://www.gencodegenes.org/releases/
     if (species=="Human")
-      tblurl <- "https://www.gencodegenes.org/releases/"
+      tblurl <- "https://www.gencodegenes.org/human/releases"
     else
-      tblurl <- "https://www.gencodegenes.org/mouse_releases/"
+      tblurl <- "https://www.gencodegenes.org/mouse/releases"
 
     ## read in the table
     http <- RCurl::getURL(tblurl)
