@@ -171,9 +171,10 @@ setClass("AnnotationHubMetadata",
     dx <- txid == sp_id
     if (!all(dx)){
         err = data.frame(species=species[!dx], tax_id=txid[!dx],
-            expected_tax_id=sp_id[!dx])
+            expected_tax_id=sp_id[!dx], species_giventaxid=combo[match(txid[!dx], txdb$tax_id)])
         print(err)
-        stop("TaxonomyId does not match expected taxonomy id for given Species.",
+        warning("TaxonomyId does not match expected taxonomy id for given Species.",
+             "\n    Above table gives matching species and taxonomy id.",   
              "\n    See GenomeInfoDb::loadTaxonomyDb() table for details.")
     }
 }
