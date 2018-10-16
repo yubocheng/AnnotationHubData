@@ -74,7 +74,8 @@ ensemblFastaToTwoBitFile <- function(ahm)
     dna <- Biostrings::replaceAmbiguities(dna)
     export(dna, twobitOut, "TwoBit")
     ## remove .fa file
-    system(paste0("rm ", srcFile)) 
+    system(paste0("rm ", srcFile))
+    gc()
 }
 
 ## create the class and newResources() method
