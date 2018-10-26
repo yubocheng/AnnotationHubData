@@ -15,7 +15,7 @@
 
 \usage{
 makeGencodeFastaToAHM(currentMetadata, 
-                      baseUrl="ftp://ftp.sanger.ac.uk/pub/gencode/",
+                      baseUrl="ftp://ftp.ebi.ac.uk/pub/databases/gencode/",
                       species=c("Human", "Mouse"), release, 
                       justRunUnitTest=FALSE, 
                       BiocVersion=BiocManager::version())
@@ -29,7 +29,7 @@ gencodeFastaToFaFile(ahm)
       http://www.gencodegenes.org/releases/
     }
     \item{File download location:}{
-      ftp://ftp.sanger.ac.uk/pub/gencode/. Gencode_human and
+      ftp://ftp.ebi.ac.uk/pub/databases/gencode/. Gencode_human and
       Gencode_mouse are used.
     }
     \item{Files downloaded:}{

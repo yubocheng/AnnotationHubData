@@ -3,7 +3,10 @@
 #http://www.gencodegenes.org/releases/
 #ftp site: ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_human
 # readme file for genecode project
-#ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_human/_README.TXT
+# the above code was updated documented at
+# ftp://ftp.sanger.ac.uk/pub/gencode/README.txt
+#ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/_README.TXT
+
 
 # for gff3 files
 #gencode.vX.annotation.gff3.gz
@@ -18,7 +21,7 @@
 # data, but gff3 is better (Herve) .These files will not be stored as
 # a GRanges on amazon s3.
 
-.gencodeBaseUrl <- "ftp://ftp.sanger.ac.uk/pub/gencode/"
+.gencodeBaseUrl <- "ftp://ftp.ebi.ac.uk/pub/databases/gencode/"
 
 .gencodeFileFromUrl <- function(urls) {
     unlist(sapply(urls, function(url) {

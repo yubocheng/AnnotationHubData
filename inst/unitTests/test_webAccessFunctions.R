@@ -23,7 +23,7 @@ test_httrRead <- function() {
 
 test_ftpDirectoryInfo <- function(){
     setup()
-    url <- "ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_mouse/release_M6/"
+    url <- "ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M6/"
     ans <- .ftpDirectoryInfo(url)
     checkTrue(is(ans, "character"))
     checkTrue(is.null(names(ans)))

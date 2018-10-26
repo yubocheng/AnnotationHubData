@@ -6,11 +6,13 @@
 ### Recipe for human and mouse fasta files.
 ### http://www.gencodegenes.org/releases/
 ### ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_human
+### the above has been updated to
+### ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human
 ### Files downloaded are listed in AnnotationHubData:::.gencodeDescription().
 
 ### metadata generator
 makeGencodeFastaToAHM <- function(currentMetadata, 
-                                baseUrl="ftp://ftp.sanger.ac.uk/pub/gencode/",
+                                baseUrl="ftp://ftp.ebi.ac.uk/pub/databases/gencode/",
                                 species=c("Human", "Mouse"), release, 
                                 justRunUnitTest=FALSE,
                                 BiocVersion=BiocManager::version())
