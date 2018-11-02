@@ -56,7 +56,7 @@ getValidSourceTypes <- function(){
                              "BioPaxLevel2", "BioPaxLevel3", "CEL", "Chain", "CSV",
                              "ensembl", "FASTA", "FASTQ", "GFF", "GRASP", "GTF",
                              "HDF5", "IDAT", "Inparanoid", "JSON", "MySQL", "mzid",
-                             "mzML", "mzTab", "NCBI/blast2GO", "NCBI/ensembl",
+                             "mzML", "mzTab", "mzXML", "NCBI/blast2GO", "NCBI/ensembl",
                              "NCBI/UniProt", "RDA", "RData", "Simulated", "tab",
                              "tar.gz", "TSV", "TwoBit", "TXT", "UCSC track",
                              "VCF", "Zip")
