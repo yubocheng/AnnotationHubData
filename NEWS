@@ -1,3 +1,12 @@
+CHANGES IN VERSION 1.13.0
+------------------------
+
+NEW FEATURES
+
+    o DispatchClass are now validated against AnnotationHub::DispatchClassList()
+    which contains currently available DispatchClass and brief description of
+    loading process.
+
 CHANGES IN VERSION 1.11.0
 ------------------------
 MODIFICATIONS

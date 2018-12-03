@@ -32,3 +32,11 @@ test_validTaxId <- function(){
     checkException(AnnotationHubData::checkSpeciesTaxId(9999, "Homo sapiens"))
     options(warn=0)
 }
+
+test_validDispatchClass <- function(){
+
+    checkTrue(validDispatchClass("GRanges"))
+    checkTrue(validDispatchClass(c("GRanges", "Rda")))
+    checkTrue(!validDispatchClass("somethingNotThere"))
+    checkTrue(!validDispatchClass(c("GRanges", "somethingNotThere")))
+}

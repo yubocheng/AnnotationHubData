@@ -102,6 +102,10 @@ setClass("AnnotationHubMetadata",
     if (any(missing)) {
         stop("All fields in 'DispatchClass' must be set")
     }
+    if(!validDispatchClass(meta$DispatchClass, verbose=TRUE)){
+        stop("Found one or more invalid DispatchClass.")
+    }
+
 
     # Validate Class
     missing <- which(!nchar(meta$RDataClass))

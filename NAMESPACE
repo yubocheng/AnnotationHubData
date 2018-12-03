@@ -85,7 +85,7 @@ export(
     makeStandardOrgDbsToAHM, makeStandardTxDbsToAHM,
     makeNCBIToOrgDbsToAHM,
     getSpeciesList, validSpecies, suggestSpecies, getValidSourceTypes,
-    checkSpeciesTaxId
+    checkSpeciesTaxId, validDispatchClass
 )
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

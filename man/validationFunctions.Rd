@@ -6,6 +6,7 @@
 \alias{suggestSpecies}
 \alias{getValidSourceTypes}
 \alias{checkSpeciesTaxId}
+\alias{validDispatchClass}
 
 \title{ValidationFunctions}
 
@@ -24,6 +25,8 @@ suggestSpecies(query, verbose=FALSE, op=c("|", "&"))
 getValidSourceTypes()
 
 checkSpeciesTaxId(txid, species, verbose=TRUE)
+
+validDispatchClass(dc, verbose=TRUE)
 }
 
 \arguments{
@@ -41,6 +44,7 @@ checkSpeciesTaxId(txid, species, verbose=TRUE)
     ("&")
   }
   \item{txid}{taxonomy id (single value or list)}
+  \item{dc}{Dispatch class to validate (may be single value or list)}
 }
 
 \details{
@@ -66,6 +70,14 @@ checkSpeciesTaxId(txid, species, verbose=TRUE)
      \code{GenomeInfoDb::loadTaxonomyDb()}. Warning when there is a
      mismatch.
 
+     \item validDispatchClass: TRUE/FALSE if argument is considered a
+     valid DispatchClass based on the currently available methods in
+     AnnotationHub. Use \code{AnnotationHub::DispatchClassList()} to see
+     the table of currently available methods. If a currently available
+     method is not appropriate for your resource, please reach out to
+     Lori Shepherd \email{Lori.Shepherd@roswellpark.org} to request a
+     new method be added.
+
    }
 }
 
@@ -80,6 +92,8 @@ checkSpeciesTaxId(txid, species, verbose=TRUE)
     types.
     \item For checkSpeciesTaxId: NULL if check is verfified, If verbose
     is ture a table of suggested values along with the warning.
+    \item For validDispatchClass: True/False if all dispatch class given
+    as argument are valid
   }
 }
 
@@ -112,6 +126,8 @@ getValidSourceTypes()
 
 checkSpeciesTaxId(1003232, "Edhazardia aedis")
 checkSpeciesTaxId(9606, "Homo sapiens")
+
+validDispatchClass("GRanges")
 }
 
 \keyword{methods}

@@ -64,3 +64,16 @@ getValidSourceTypes <- function(){
     expectedSourceTypes
 
 }
+
+validDispatchClass <- function(dc, verbose=TRUE){
+
+    mat <- AnnotationHub::DispatchClassList()
+    res <- dc %in% as.character(mat[,1])
+    if (any(!res) & verbose){
+        message("Found invalid DispatchClass.\n")
+        print(dc[!res])
+        message("\nFor currently available DispatchClass run\n",
+                "    'AnnotationHub::DispatchClassList()'\n")
+    }
+    all(res)
+}
