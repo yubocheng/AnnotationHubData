@@ -67,12 +67,24 @@ ensemblFastaToTwoBitFile <- function(ahm)
     srcFile <- sub('\\.2bit','.fa.gz', twobitOut)
     dna <- import(srcFile, "FASTA")
 
-    ## ID as name
-    ids <- sub(" .*", "", names(dna)) 
-    stopifnot(length(ids) == length(dna))
-    names(dna) <- ids
-    dna <- Biostrings::replaceAmbiguities(dna)
-    export(dna, twobitOut, "TwoBit")
+    tryCatch({
+        ## ID as name
+        ids <- sub(" .*", "", names(dna)) 
+        stopifnot(length(ids) == length(dna))
+        names(dna) <- ids
+        dna <- Biostrings::replaceAmbiguities(dna)
+        export(dna, twobitOut, "TwoBit")
+    }, error = function(err) {
+        message("conversion failed",
+                "\n  file: ",  sQuote(srcFile),
+                "\n  reason: ",  conditionMessage(err),
+                call.=FALSE)
+    }, finally = function(){
+        ## remove .fa file
+        system(paste0("rm ", srcFile))
+        gc()
+    })
+
     ## remove .fa file
     system(paste0("rm ", srcFile))
     gc()
