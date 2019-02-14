@@ -9,7 +9,7 @@
       "dna\\.(primary_assembly|toplevel)", "ncrna")
 
 ## Metadata generator
-makeEnsemblTwoBitToAHM <- 
+makeEnsemblTwoBitToAHM <-
     function(currentMetadata, baseUrl = "ftp://ftp.ensembl.org/pub/",
              baseDir = "fasta/", release,
              justRunUnitTest = FALSE, BiocVersion = BiocManager::version())
@@ -63,13 +63,15 @@ makeEnsemblTwoBitToAHM <-
 ensemblFastaToTwoBitFile <- function(ahm)
 {
     ## Convert .fa file to .2bit
+    gc()
     twobitOut <- outputFile(ahm)[[1]]
     srcFile <- sub('\\.2bit','.fa.gz', twobitOut)
     dna <- import(srcFile, "FASTA")
+    gc()
 
     tryCatch({
         ## ID as name
-        ids <- sub(" .*", "", names(dna)) 
+        ids <- sub(" .*", "", names(dna))
         stopifnot(length(ids) == length(dna))
         names(dna) <- ids
         dna <- Biostrings::replaceAmbiguities(dna)
@@ -81,11 +83,19 @@ ensemblFastaToTwoBitFile <- function(ahm)
                 call.=FALSE)
     }, finally = function(){
         ## remove .fa file
+        if (exists("dna")){
+            rm("dna")
+            gc()
+        }
         system(paste0("rm ", srcFile))
         gc()
     })
 
     ## remove .fa file
+    if (exists("dna")){
+        rm("dna")
+        gc()
+    }
     system(paste0("rm ", srcFile))
     gc()
 }

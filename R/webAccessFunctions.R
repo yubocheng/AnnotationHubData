@@ -93,6 +93,7 @@
         message(paste0("creating urls ..."))
 
     result <- lapply(url, function(ul) {
+        message(ul)
         con <- getURL(ul)
         txt <- read.table(text=con, stringsAsFactors=FALSE, fill=TRUE)
 
