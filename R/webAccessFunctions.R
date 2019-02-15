@@ -94,7 +94,20 @@
 
     result <- lapply(url, function(ul) {
         message(ul)
-        con <- getURL(ul)
+        N.TRIES = 3L
+        while (N.TRIES > 0L) {
+            con <- tryCatch(getURL(ul), error=identity)
+            if (!inherits(con, "error"))
+                break
+            Sys.sleep(10)
+            N.TRIES <- N.TRIES - 1L
+        }
+        if (N.TRIES == 0L) {
+            stop("'getURL()' failed:",
+                 "\n  URL: ", ul,
+                 "\n  error: ", conditionMessage(con))
+        }
+
         txt <- read.table(text=con, stringsAsFactors=FALSE, fill=TRUE)
 
         files <- txt[[9]]
