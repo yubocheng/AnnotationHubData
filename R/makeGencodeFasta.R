@@ -22,12 +22,13 @@ makeGencodeFastaToAHM <- function(currentMetadata,
                                justRunUnitTest)
  
     rdatapath <- rsrc$rdatapath
-    rdps <- rep(rdatapath, each=2)
-    rdatapaths <- split(rdps, f=as.factor(rep(seq_along(rdatapath),each=2)))
+    rdps <- rep(rdatapath, each=3)
+    rdatapaths <- split(rdps, f=as.factor(rep(seq_along(rdatapath),each=3)))
     rdatapath <- lapply(rdatapaths, 
         function(x){
-            x[1] <- sub("gz","rz", x[1])
-            x[2] <- paste0(x[1],".fai")  
+            x[1] <- sub("gz","bgz", x[1])
+            x[2] <- paste0(x[1],".fai")
+            x[3] <- paste0(x[1],".gzi")
             x
         })
 
@@ -58,7 +59,7 @@ makeGencodeFastaToAHM <- function(currentMetadata,
           Coordinate_1_based = TRUE,
           DataProvider = "Gencode",
           Maintainer = "Bioconductor Maintainer <maintainer@bioconductor.org>",
-          RDataClass = c("FaFile", "FaFile"),
+          RDataClass = c("FaFile", "FaFile", "FaFile"),
           DispatchClass="FaFile",
           SourceType="FASTA",  
           Location_Prefix="http://s3.amazonaws.com/annotationhub/",

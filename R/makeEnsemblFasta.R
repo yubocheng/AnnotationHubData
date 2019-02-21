@@ -143,12 +143,13 @@ makeEnsemblFastaToAHM <-
     description <- paste("FASTA", dnaType, "sequence for", meta$species)
 
     ## rdatapaths db table needs an extra row for the index file
-    rdataPath <- sub(".gz$", ".rz", sourceFile)
-    rdps <- rep(rdataPath, each=2)
-    rdatapaths <- split(rdps, f=as.factor(rep(1:length(rdataPath),each=2)))
+    rdataPath <- sub(".gz$", ".bgz", sourceFile)
+    rdps <- rep(rdataPath, each=3)
+    rdatapaths <- split(rdps, f=as.factor(rep(1:length(rdataPath),each=3)))
     ## second record of each set becomes the '.fai' file
     rdatapaths <- lapply(rdatapaths,
-                         function(x){x[2] <- paste0(x[2],".fai") ; return(x)})
+                         function(x){x[2] <- paste0(x[2],".fai") ; x[2] <-
+                                         paste0(x[3],".gzi") ; return(x)})
 
     Map(AnnotationHubMetadata,
         Description=description,
@@ -168,7 +169,7 @@ makeEnsemblFastaToAHM <-
           Maintainer = "Bioconductor Maintainer <maintainer@bioconductor.org>",
           SourceType="FASTA",
           DispatchClass="FaFile",
-          RDataClass=c("FaFile", "FaFile"),
+          RDataClass=c("FaFile", "FaFile", "FaFile"),
           RDataDateAdded=Sys.time(),
           Recipe="AnnotationHubData:::ensemblFastaToFaFile",
           Tags=c("FASTA", "ensembl", "sequence")))
@@ -180,9 +181,9 @@ makeEnsemblFastaToAHM <-
 {
     ## target output file
     faOut <- outputFile(ahm)[[1]]
-    srcFile <- sub('.rz$','.gz',faOut)
+    srcFile <- sub('.bgz$','.gz',faOut)
     ## unzip and index
-    razip(srcFile)
+    bgzip(srcFile)
     indexFa(faOut)
 }
 
