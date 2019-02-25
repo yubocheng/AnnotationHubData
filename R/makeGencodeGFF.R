@@ -26,8 +26,15 @@
 .gencodeFileFromUrl <- function(urls) {
     unlist(sapply(urls, function(url) {
         listing <- .ftpDirectoryInfo(url)
-        listing = listing[grep("gencode", listing)]
-        paste0(url, "gencode", sub(".*gencode","", listing ))
+
+        ## find entries marking directory
+        idx <- grepl("^./", listing)
+        tag <- sub("./(.*):", "\\1/", listing[idx])
+        directory <- c("", tag)[cumsum(idx) + 1L]
+        ## complete URL
+        idx <- grepl("gencode", listing)
+        paste0(url, directory, sub(".*gencode", "gencode", listing))[idx]
+
     }, USE.NAMES=FALSE))
 }
 
