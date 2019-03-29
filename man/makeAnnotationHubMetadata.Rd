@@ -67,7 +67,7 @@
 	\item Genome: \code{character(1)}. Genome.
 
 	\item SourceType: \code{character(1)}. Format of original data, e.g., FASTA,
-	BAM, BigWig, etc. \code{getValidSourceType()} list currently
+	BAM, BigWig, etc. \code{getValidSourceTypes()} list currently
 	acceptable values. If nothing seems appropiate for your data
 	reach out to maintainer@bioconductor.org. 
 
