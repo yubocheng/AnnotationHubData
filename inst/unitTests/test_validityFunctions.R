@@ -40,3 +40,20 @@ test_validDispatchClass <- function(){
     checkTrue(!validDispatchClass("somethingNotThere"))
     checkTrue(!validDispatchClass(c("GRanges", "somethingNotThere")))
 }
+
+test_FileLengths <- function(){
+
+    checkTrue(AnnotationHubData:::.checkFileLengths(
+        RDataPath = c("package/example1.bam", "package/example2.bai"),
+        DispatchClass="BamFile"))
+    checkException(AnnotationHubData:::.checkFileLengths(
+        RDataPath = c("package/example1.bai", "package/example2.bam"),
+        DispatchClass="BamFile"))
+    checkException(AnnotationHubData:::.checkFileLengths(
+        RDataPath = "package/example1.bam",
+        DispatchClass="BamFile"))
+     checkTrue(AnnotationHubData:::.checkFileLengths(
+        RDataPath = "package/example1.rda",
+        DispatchClass="Rda"))
+
+}

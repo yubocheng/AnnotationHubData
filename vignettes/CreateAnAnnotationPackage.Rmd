@@ -410,7 +410,9 @@ file. Briefly, a description of the metadata columns required:
   full path to the resource.  If the resource is stored in Bioconductor's AWS S3
   buckets, it should start with the name of the package associated with the
   metadata and should not start with a leading slash. It should include the
-  resource file name.
+  resource file name. For strongly associated files, like a bam file and its
+  index file, the two files should be separates with a colon. This will link a
+  single hub id with the multiple files.
 * Tags: 'character() vector'.  'Tags' are search terms used to define a subset
   of resources in a 'Hub' object, e.g, in a call to 'query'.
 

@@ -142,16 +142,20 @@ setClass("AnnotationHubMetadata",
     ## Location_Prefix specified -> data at other location
     }
 
+    RDataPath <- meta$RDataPath
+    RDataPath <- strsplit(RDataPath, split=":")
+
     if(all(
         (meta$Location_Prefix == 'http://s3.amazonaws.com/annotationhub/') ||
         (meta$Location_Prefix == 'http://s3.amazonaws.com/experimenthub/'))
        ){
         package <- basename(pathToPackage)
-        test <- vapply(meta$RDataPath, startsWith, logical(1), package)
+        test <- vapply(unlist(RDataPath), startsWith, logical(1), package)
         if ((!all(test)) || (any(is.na(test)))){
             stop("RDataPath must start with package name: ", package)
         }
     }
+    meta$RDataPath <- RDataPath
 
     ## Real time assignments
     meta$RDataDateAdded <- rep(Sys.time(), nrow(meta))
@@ -236,6 +240,15 @@ checkSpeciesTaxId <- function(txid, species, verbose=TRUE){
           value)))
 }
 
+.checkFileLengths <- function(RDataPath, DispatchClass)
+{
+
+    if(DispatchClass == "BamFile"){
+        stopifnot((length(RDataPath) == 2), identical(file_ext(RDataPath),c("bam", "bai")))
+    }
+    TRUE
+}
+
 globalVariables(c("BiocVersion", "Coordinate_1_based", "DataProvider",
                   "Description", "DispatchClass", "Genome", "Location_Prefix",
                   "Maintainer", "RDataClass", "RDataDateAdded", "RDataPath",
@@ -263,6 +276,8 @@ makeAnnotationHubMetadata <- function(pathToPackage, fileName=character())
             if (any(unlist(lapply(.tags, FUN=length)) <= 1))
                 stop("Add 2 or more Tags to each resource.")
 
+            .RDataPaths <- meta$RDataPath
+
             lapply(seq_len(nrow(meta)), function(x) {
                 with(meta[x, ], AnnotationHubMetadata(
                     Title=Title, Description=Description,
@@ -276,7 +291,7 @@ makeAnnotationHubMetadata <- function(pathToPackage, fileName=character())
                     Maintainer=Maintainer,
                     RDataClass=RDataClass, Tags=.tags[[x]],
                     RDataDateAdded=RDataDateAdded,
-                    RDataPath=RDataPath,
+                    RDataPath=.RDataPaths[[x]],
                     Recipe=NA_character_,
                     DispatchClass=DispatchClass,
                     PreparerClass=.package,
@@ -337,6 +352,7 @@ AnnotationHubMetadata <-
     .checkThatSingleStringOrNAAndNoCommas(SourceVersion)
     .checkRDataClassConsistent(RDataClass)
     .checkValidMaintainer(Maintainer)
+    .checkFileLengths(RDataPath, DispatchClass)
 
     new("AnnotationHubMetadata",
         AnnotationHubRoot=AnnotationHubRoot,

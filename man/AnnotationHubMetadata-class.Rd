@@ -66,14 +66,14 @@
 
 \usage{
 AnnotationHubMetadata(AnnotationHubRoot, SourceUrl, SourceType,
-                 SourceVersion, SourceLastModifiedDate, SourceMd5 =
-                 NA_character_, SourceSize, DataProvider, Title,
-                 Description, Species, TaxonomyId, Genome, Tags,
-                 Recipe, RDataClass, RDataDateAdded, RDataPath,
-                 Maintainer, ..., BiocVersion = BiocManager::version(),
-                 Coordinate_1_based = TRUE, Notes = NA_character_,
-                 DispatchClass, Location_Prefix =
-                 "http://s3.amazonaws.com/annotationhub/")
+		 SourceVersion, SourceLastModifiedDate, SourceMd5 =
+		 NA_character_, SourceSize, DataProvider, Title,
+		 Description, Species, TaxonomyId, Genome, Tags,
+		 Recipe, RDataClass, RDataDateAdded, RDataPath,
+		 Maintainer, ..., BiocVersion = BiocManager::version(),
+		 Coordinate_1_based = TRUE, Notes = NA_character_,
+		 DispatchClass, Location_Prefix =
+		 "http://s3.amazonaws.com/annotationhub/")
 
 toJson(x)
 constructSeqInfo(species, genome)
@@ -86,19 +86,23 @@ ahmToJson(ahm)
 deleteResources(id)
 getImportPreparerClasses()
 makeAnnotationHubResource(objName, makeAnnotationHubMetadataFunction,
-                          ..., where)
+			  ..., where)
 }
 
 \arguments{
     \item{AnnotationHubRoot}{
-      \code{character(1)} Absolute path to directory structure 
+      \code{character(1)} Absolute path to directory structure
       containing resources to be added to AnnotationHub. Internal use only.
     }
     \item{SourceUrl}{
       \code{character()} URL of original resource(s).
     }
     \item{SourceType}{
-      \code{character()} Form of original data, e.g., BED, FASTA, etc.
+      \code{character()} Form of original data, e.g., BED, FASTA,
+    etc. \code{getValidSourceTypes()} list currently acceptable
+    values. If nothing seems appropiate for your data reach out to
+    maintainer@bioconductor.org.
+
     }
     \item{SourceVersion}{
       \code{character(1)} Version of original file.
@@ -113,7 +117,7 @@ makeAnnotationHubResource(objName, makeAnnotationHubMetadataFunction,
       \code{numeric(1)} Size of original file in bytes.
     }
     \item{DataProvider}{
-      \code{character(1)} Provider of original data, e.g., NCBI, 
+      \code{character(1)} Provider of original data, e.g., NCBI,
       UniProt etc.
     }
     \item{Title}{
@@ -122,14 +126,20 @@ makeAnnotationHubResource(objName, makeAnnotationHubMetadataFunction,
     }
     \item{Description}{
       \code{character(1)} Description of the resource. May include
-      details such as data type, format, study origin, sequencing 
+      details such as data type, format, study origin, sequencing
       technology, treated vs control, number of samples etc.
     }
     \item{Species}{
-      \code{character(1)} Species name.
+      \code{character(1)} Species name. For help on valid
+	species see \code{getSpeciesList, validSpecies, or suggestSpecies.}
+
     }
     \item{TaxonomyId}{
-      \code{character(1)}  NCBI code
+      \code{character(1)}  NCBI code. There are
+	checks for valid taxonomyId given the Species which produce
+	warnings. See GenomeInfoDb::loadTaxonomyDb() for full validation
+	table.
+
     }
     \item{Genome}{
       \code{character(1)} Name of genome build.
@@ -143,7 +153,7 @@ makeAnnotationHubResource(objName, makeAnnotationHubMetadataFunction,
       AnnotationHubData base code.
     }
     \item{RDataClass}{
-      \code{character()} Class of derived R object, e.g., GRanges. Length 
+      \code{character()} Class of derived R object, e.g., GRanges. Length
       must match the length of \code{RDataPath}.
     }
     \item{RDataDateAdded}{
@@ -154,8 +164,18 @@ makeAnnotationHubResource(objName, makeAnnotationHubMetadataFunction,
     }
     \item{RDataPath}{
       \code{character()} File path to where object is stored in AWS S3
-      bucket or on the web. Length must match the length of 
-      \code{RDataClass}.
+      bucket or on the web.This field should be the
+	      remainder of the path to the resource. The
+	      \code{Location_Prefix} will be prepended to
+	      \code{RDataPath} for the full path to the resource.
+	      If the resource is stored in Bioconductor's AWS S3
+	      buckets, it should start with the name of the package associated
+	      with the metadata and should not start with a leading
+	      slash. It should include the resource file name. For
+	      strongly associated files, like a bam file and its index
+	      file, the two files should be separates with a colon
+	      \code{:}. This will link a single hub id with the multiple files.
+
     }
     \item{Maintainer}{
       \code{character(1)} Maintainer name and email address,
@@ -174,14 +194,19 @@ makeAnnotationHubResource(objName, makeAnnotationHubMetadataFunction,
       this field should be \sQuote{Rda} if the data were serialized with
       \code{save()} and \sQuote{Rds} if serialized with \code{saveRDS}. The
       filename should have the appropriate \sQuote{rda} or \sQuote{rds}
-      extension. 
- 
+      extension.
+
       A number of dispatch classes are pre-defined in
       AnnotationHub/R/AnnotationHubResource-class.R with the suffix
       \sQuote{Resource}. For example, if you have sqlite files, the
       AnnotationHubResource-class.R defines SQLiteFileResource so the
       DispatchClass would be SQLiteFile. Contact maintainer@bioconductor.org if
-      you are not sure which class to use.
+      you are not sure which class to use. The function
+	      \code{AnnotationHub::DispatchClassList()} will output a
+	      matrix of currently implemented DispatchClass and brief
+	      description of utility. If a predefine class does not seem
+	      appropriate contact maintainer@bioconductor.org.
+
     }
     \item{Location_Prefix}{
       \code{character(1)} URL location of AWS S3 bucket or web site where
@@ -216,7 +241,7 @@ makeAnnotationHubResource(objName, makeAnnotationHubMetadataFunction,
       objects from the resource(s).
     }
     \item{where}{
-      Environment where function definition is defined. Default value 
+      Environment where function definition is defined. Default value
       is sufficient.
     }
     \item{\dots}{
@@ -226,7 +251,7 @@ makeAnnotationHubResource(objName, makeAnnotationHubMetadataFunction,
 
 \value{
   \code{AnnotationHubMetadata} returns an instance of the class.
- 
+
   \code{jsonPath} returns a \code{character(1))} representation of the
   full path to the location of the \code{json} file associated with this
   record.

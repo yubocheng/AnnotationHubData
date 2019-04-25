@@ -69,7 +69,7 @@
 	\item SourceType: \code{character(1)}. Format of original data, e.g., FASTA,
 	BAM, BigWig, etc. \code{getValidSourceTypes()} list currently
 	acceptable values. If nothing seems appropiate for your data
-	reach out to maintainer@bioconductor.org. 
+	reach out to maintainer@bioconductor.org.
 
 	\item SourceUrl: \code{character(1)}. Optional location of original
 	      data files. Multiple urls should be provided as a comma separated
@@ -83,7 +83,7 @@
 	\item TaxonomyId: \code{character(1)}. Taxonomy ID. There are
 	checks for valid taxonomyId given the Species which produce
 	warnings. See GenomeInfoDb::loadTaxonomyDb() for full validation
-	table. 
+	table.
 
 	\item Coordinate_1_based: \code{logical}. TRUE if data are 1-based.
 
@@ -123,14 +123,17 @@
 	      If data will be accessed from a location other than AWS S3
 	      this field should be the base url.
 
-	\item RDataPath: \code{character(1)}.This field should be the
+	\item RDataPath: \code{character()}.This field should be the
 	      remainder of the path to the resource. The
 	      \code{Location_Prefix} will be prepended to
 	      \code{RDataPath} for the full path to the resource.
 	      If the resource is stored in Bioconductor's AWS S3
 	      buckets, it should start with the name of the package associated
 	      with the metadata and should not start with a leading
-	      slash. It should include the resource file name.
+	      slash. It should include the resource file name. For
+	      strongly associated files, like a bam file and its index
+	      file, the two files should be separates with a colon
+	      \code{:}. This will link a single hub id with the multiple files.
 
        \item Tags: \code{character() vector}.
 	     \sQuote{Tags} are search terms used to define a subset of
