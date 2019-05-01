@@ -34,7 +34,7 @@ pushResources <- function(allAhms, uploadToS3=TRUE, download=TRUE) {
                 hubError(xx) <- msg
                 flog(ERROR, msg)
                 xx
-            })
+            }, finally={gc()})
 	    gc()
         })
     res
@@ -128,12 +128,17 @@ setMethod("runRecipes", "AnnotationHubMetadata",
 
         ## upload to S3
         if (uploadToS3) {
-            fileToUpload <- file.path(metadata(metadata)$HubRoot,
-                                      basename(metadata(metadata)$RDataPath))
-            remotePath <- sub("^/", "", metadata(metadata)$RDataPath)
-            res <- upload_to_S3(fileToUpload, remotePath, bucket, ...)
-            ## If successful, delete local file
-            system(paste0("rm ", shQuote(fileToUpload)))
+            tryCatch({
+                fileToUpload <- file.path(metadata(metadata)$HubRoot,
+                                          basename(metadata(metadata)$RDataPath))
+                remotePath <- sub("^/", "", metadata(metadata)$RDataPath)
+                res <- upload_to_S3(fileToUpload, remotePath, bucket, ...)
+                ## If successful, delete local file
+            }, error=function(e){
+                flog(ERROR, "error uploading %s: %s",
+                     fileToUpload,
+                     conditionMessage(e))
+            }, finally={system(paste0("rm ", shQuote(fileToUpload)))})
         }
     }
 )
