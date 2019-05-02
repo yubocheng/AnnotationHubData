@@ -134,11 +134,12 @@ setMethod("runRecipes", "AnnotationHubMetadata",
                 remotePath <- sub("^/", "", metadata(metadata)$RDataPath)
                 res <- upload_to_S3(fileToUpload, remotePath, bucket, ...)
                 ## If successful, delete local file
+                system(paste0("rm ", shQuote(fileToUpload)))
             }, error=function(e){
                 flog(ERROR, "error uploading %s: %s",
                      fileToUpload,
                      conditionMessage(e))
-            }, finally={system(paste0("rm ", shQuote(fileToUpload)))})
+            }, finally={gc()})
         }
     }
 )
