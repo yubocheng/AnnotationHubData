@@ -446,6 +446,17 @@ meta <- updateResources(getwd(),
 4. Check S3 bucket is being populated.
 5. Once finished close everything and stop EC2 instance
 
+
+**Note:**
+We have had issues in the past with the recipe completing for all
+desired resources. The receipe, when repeatedly run, will check the
+appropriate S3 bucket to compare what resources still need to be
+processed.  The helper function `needToRerunNonStandardOrgDb` can
+be run to determine if a repeat call should be made. This is important
+because if all the resources are on aws and metadataOnly=FALSE, it will
+assume you want to overwrite all the files and begin the generation
+over.
+
 On Local Machine:
 
 1. Navigate to the AnnotationHub_docker directory
@@ -479,7 +490,7 @@ load("metadataForTwoBit")
 
 # Note: Eventually get smarter in code
 # but put in fixes to make sure data was uploaded
-# need to filter out files that failed 
+# need to filter out files that failed
 
 temp = rep(NA, length(meta))
 for(i in 1:length(meta)){
