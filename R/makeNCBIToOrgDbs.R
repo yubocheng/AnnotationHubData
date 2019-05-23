@@ -61,9 +61,13 @@
     sourceUrls <- c(baseUrl,"ftp://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/idmapping/idmapping_selected.tab.gz")
     sourceUrl <- rep(list(sourceUrls), length(fullSpecies))
 
-    aws <- system(paste0("aws s3 ls s3://annotationhub/ncbi/uniprot/", biocVersion," --recursive"),intern=TRUE)
-    aws <- gsub("\\s+", " ", stringr::str_trim(aws))
-    aws <- aws[-1]
+    tryCatch({
+        aws <- system(paste0("aws s3 ls s3://annotationhub/ncbi/uniprot/", biocVersion," --recursive"),intern=TRUE)
+        aws <- gsub("\\s+", " ", stringr::str_trim(aws))
+        aws <- aws[-1]
+    }, error=function(e){
+        aws <- character(0)
+    })
 
     if (length(aws)){
         s3titles <- sapply(strsplit(sapply(strsplit(aws, " "),"[[", 4), "/"),"[[",4)
@@ -130,9 +134,15 @@ needToRerunNonStandardOrgDb <- function(biocVersion =  BiocManager::version(),
 
     title <- paste0("org.", fullSpecies, ".eg", ".sqlite")
 
-    aws <- system(paste0("aws s3 ls s3://annotationhub/ncbi/uniprot/", biocVersion," --recursive"),intern=TRUE)
-    aws <- gsub("\\s+", " ", stringr::str_trim(aws))
-    aws <- aws[-1]
+    tryCatch({
+        aws <- system(paste0("aws s3 ls s3://annotationhub/ncbi/uniprot/", biocVersion," --recursive"),intern=TRUE)
+        aws <- gsub("\\s+", " ", stringr::str_trim(aws))
+        aws <- aws[-1]
+    }, error=function(e){
+        aws <- character(0)
+        stop("Cannot access AWS. Unable to determine")
+    })
+
     if (length(aws)){
         s3titles <- sapply(strsplit(sapply(strsplit(aws, " "),"[[", 4), "/"),"[[",4)
         subset <- !(title %in% s3titles)
@@ -152,7 +162,7 @@ makeNCBIToOrgDbsToAHM <-
                                  biocVersion=BiocVersion[[1]])
 
     message("Processing ", length(meta[[1]]), " files.")
-    
+
     Map(AnnotationHubMetadata,
         Description=meta$description,
         Genome=meta$genome,
