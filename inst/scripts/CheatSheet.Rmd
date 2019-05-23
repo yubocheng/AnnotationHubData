@@ -307,6 +307,8 @@ table(mcols(query(hub, "OrgDb"))$rdatadateadded)
 If before the release occurs, `debug(AnnotationHub:::.uid0)` so that query2's biocversion
 is the desired test version.
 
+or try `setAnnotationHubOption(TESTING=TRUE)`
+
 ### makeStandardTxDbs
 
 This recipe should be run after the new TxDbs have been built and are in
