@@ -62,11 +62,15 @@
     sourceUrl <- rep(list(sourceUrls), length(fullSpecies))
 
     tryCatch({
-        aws <- system(paste0("aws s3 ls s3://annotationhub/ncbi/uniprot/", biocVersion," --recursive"),intern=TRUE)
-        aws <- gsub("\\s+", " ", stringr::str_trim(aws))
-        aws <- aws[-1]
+        aws <- system2("aws",
+                       args=paste0("s3 ls s3://annotationhub/ncbi/uniprot/",
+                           biocVersion," --recursive"), stdout=TRUE, stderr=TRUE)
     }, error=function(e){
         aws <- character(0)
+    }, finally={
+        if (!exists("aws"))  aws <- character(0)
+        aws <- gsub("\\s+", " ", stringr::str_trim(aws))
+        aws <- aws[-1]
     })
 
     if (length(aws)){
@@ -135,12 +139,16 @@ needToRerunNonStandardOrgDb <- function(biocVersion =  BiocManager::version(),
     title <- paste0("org.", fullSpecies, ".eg", ".sqlite")
 
     tryCatch({
-        aws <- system(paste0("aws s3 ls s3://annotationhub/ncbi/uniprot/", biocVersion," --recursive"),intern=TRUE)
-        aws <- gsub("\\s+", " ", stringr::str_trim(aws))
-        aws <- aws[-1]
+        aws <- system2("aws",
+                       args=paste0("s3 ls s3://annotationhub/ncbi/uniprot/",
+                           biocVersion," --recursive"), stdout=TRUE, stderr=TRUE)
     }, error=function(e){
         aws <- character(0)
         stop("Cannot access AWS. Unable to determine")
+    }, finally={
+        if (!exists("aws"))  aws <- character(0)
+        aws <- gsub("\\s+", " ", stringr::str_trim(aws))
+        aws <- aws[-1]
     })
 
     if (length(aws)){
