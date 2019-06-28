@@ -59,7 +59,7 @@ getValidSourceTypes <- function(){
                              "mzML", "mzTab", "mzXML", "NCBI/blast2GO", "NCBI/ensembl",
                              "NCBI/UniProt", "RDA", "RData", "Simulated", "tab",
                              "tar.gz", "TSV", "TwoBit", "TXT", "UCSC track",
-                             "VCF", "Zip")
+                             "VCF", "XLS/XLSX", "Zip")
 
     expectedSourceTypes
 
