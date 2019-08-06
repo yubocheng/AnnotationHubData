@@ -451,19 +451,6 @@ AnnotationHubMetadata <-
 }
 
 setValidity("AnnotationHubMetadata",function(object) {
-    msg = NULL
-    ## if the location prefix is "non-standard" (IOW not stored in S3) and
-    ## if the source URL is not the same as rdatapath
-    ## then we need to add a message and fail out
-    # why?
-    standardLocationPrefix <- 'http://s3.amazonaws.com/annotationhub/'
-    if(object@Location_Prefix != standardLocationPrefix){
-        object@RDataPath <- object@RDataPath[1]
-        if(object@RDataPath != object@SourceUrl){
-            msg <- c(msg, "the string for RDataPath must match the SourceUrl.")
-        }
-    }
-    if (is.null(msg)) TRUE else msg
 
     # Validity checks used for both Experiment and AnnotationHub
     .ValidHubs(object)
