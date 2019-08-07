@@ -62,9 +62,10 @@
 	\item BiocVersion: \code{character(1)}. The first Bioconductor version
 	      the resource was made available for. Unless removed from
 	      the hub, the resource will be available for all versions
-	      greater than or equal to this field.
+	      greater than or equal to this field. Generally the current
+	      devel version of Bioconductor.
 
-	\item Genome: \code{character(1)}. Genome.
+	\item Genome: \code{character(1)}. Genome. Can be NA.
 
 	\item SourceType: \code{character(1)}. Format of original data, e.g., FASTA,
 	BAM, BigWig, etc. \code{getValidSourceTypes()} list currently
@@ -78,14 +79,16 @@
 	\item SourceVersion: \code{character(1)}. Version of original data.
 
 	\item Species: \code{character(1)}. Species. For help on valid
-	species see \code{getSpeciesList, validSpecies, or suggestSpecies.}
+	species see \code{getSpeciesList, validSpecies, or
+	suggestSpecies. Can be NA.}
 
 	\item TaxonomyId: \code{character(1)}. Taxonomy ID. There are
 	checks for valid taxonomyId given the Species which produce
 	warnings. See GenomeInfoDb::loadTaxonomyDb() for full validation
-	table.
+	table. Can be NA.
 
-	\item Coordinate_1_based: \code{logical}. TRUE if data are 1-based.
+	\item Coordinate_1_based: \code{logical}. TRUE if data are
+	1-based. Can be NA
 
 	\item DataProvider: \code{character(1)}. Name of company or institution
 	      that supplied the original (raw) data.
@@ -95,15 +98,17 @@
 
 	\item RDataClass: \code{character(1)}. R / Bioconductor class the data
 	      are stored in, e.g., GRanges, SummarizedExperiment,
-	      ExpressionSet etc.
-
+	      ExpressionSet etc. If the file is loaded or read into R
+	      what is the class of the object.
+	      
 	\item DispatchClass: \code{character(1)}. Determines how data are
 	      loaded into R. The value for this field should be
 	      \sQuote{Rda} if the data were serialized with \code{save()} and
 	      \sQuote{Rds} if serialized with \code{saveRDS}. The filename
 	      should have the appropriate \sQuote{rda} or \sQuote{rds}
-	      extension.
-
+	      extension. There are other available DispathClass types
+	      and the function \code{AnnotationHub::DispatchClassList()}
+	      
 	      A number of dispatch classes are pre-defined in
 	      AnnotationHub/R/AnnotationHubResource-class.R with the suffix
 	      \sQuote{Resource}. For example, if you have sqlite files, the
@@ -114,8 +119,11 @@
 	      \code{AnnotationHub::DispatchClassList()} will output a
 	      matrix of currently implemented DispatchClass and brief
 	      description of utility. If a predefine class does not seem
-	      appropriate contact maintainer@bioconductor.org.
-
+	      appropriate contact maintainer@bioconductor.org.  An all
+	      purpose DispathClass is \code{FilePath} that instead of trying
+	      to load the file into R, will only return the path to the
+	      locally downloaded file.
+	      
 	\item Location_Prefix: \code{character(1)}. Do not include this field
 	      if data are stored in the Bioconductor AWS S3; it will be
 	      generated automatically.
@@ -163,6 +171,24 @@
       Fields' listed above. These values are not added to the Hub database but
       they can be used in package functions to provide an additional level of
       metadata on the resources.
+
+      More on \code{Location_Prefix} and \code{RDataPath}. These two fields make up
+      the complete file path url for downloading the data file. If using
+      the Bioconductor AWS S3 bucket the Location_Prefix should not be
+      included in the metadata file[s] as this field will be populated
+      automatically.  The \code{RDataPath} will be the directory structure you
+      uploaded to S3. If you uploaded a directory \sQuote{MyAnnotation/}, and
+      that directory had a subdirectory \sQuote{v1/} that contained two files
+      \sQuote{counts.rds} and \sQuote{coldata.rds}, your metadata file will contain
+      two rows and the RDataPaths would be \sQuote{MyAnnotation/v1/counts.rds}
+      and \sQuote{MyAnnotation/v1/coldata.rds}.  If you host your data on a
+      publicly accessible site you must include a base url as the
+      \code{Location_Prefix}. If your data file was at
+      \sQuote{ftp://myinstiututeserver/biostats/project2/counts.rds}, your
+      metadata file will have one row and the \code{Location_Prefix} would be
+      \sQuote{ftp://myinstiututeserver/} and the \code{RDataPath} would be
+      \sQuote{biostats/project2/counts.rds}.
+      
     }
   }
 }
