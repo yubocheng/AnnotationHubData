@@ -138,10 +138,13 @@
     taxid <- ifelse(species=="Human", 9606L, 1090L)
     genome <- .gencodeGenome(species, release)
     genome <- rep(genome, length(fileurls))
+    genome[grepl('_mapping/', rdatapath)] <- gsub('.*/', '',
+        gsub('_mapping/.*', '',
+            rdatapath[grepl('_mapping/', rdatapath)]
+        )
+    )
     scSpecies <- rep(scSpecies, length(fileurls))
     taxid <- rep(taxid, length(fileurls))
-    genome <- .gencodeGenome(species, release)
-    genome <- rep(genome, length(fileurls))
 
     cbind(df, rdatapath, description, tags, species=scSpecies, taxid, genome,
          stringsAsFactors=FALSE)
@@ -149,12 +152,14 @@
 
 
 ## STEP 1: make function to process metadata into AHMs
-makeGencodeGFFsToAHMs <- function(currentMetadata, justRunUnitTest, BiocVersion){
+makeGencodeGFFsToAHMs <- function(justRunUnitTest = FALSE,
+    BiocVersion = BiocManager::version(), species = 'Human', release = '23',
+    filetype = 'gff'){
 
     ## important - here you need to know which species and release you want to
     ## add files for.
-    rsrc <- .gencodeSourceUrls(species="Human", release="23", filetype="gff",
-         justRunUnitTest)
+    rsrc <- .gencodeSourceUrls(species = species, release = release,
+        filetype = filetype, justRunUnitTest = justRunUnitTest)
 
     description <- rsrc$description
     title <- basename(rsrc$fileurl)
