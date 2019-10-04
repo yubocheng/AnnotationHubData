@@ -138,7 +138,11 @@
     taxid <- ifelse(species=="Human", 9606L, 1090L)
     genome <- .gencodeGenome(species, release)
     genome <- rep(genome, length(fileurls))
-
+    genome[grepl('_mapping/', rdatapath)] <-
+        gsub('.*/', '',
+             gsub('_mapping/.*', '',
+                  rdatapath[grepl('_mapping/', rdatapath)])
+             )
     scSpecies <- rep(scSpecies, length(fileurls))
     taxid <- rep(taxid, length(fileurls))
 
