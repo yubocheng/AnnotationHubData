@@ -63,7 +63,8 @@
       translations.fa.gz=.expandLine("Translations of protein-coding
           transcripts on reference chromosomes Fasta file"),
       lncRNA_transcripts.fa.gz=.expandLine("Long non-coding RNA
-          transcript sequences on reference chromosomes Fasta file.")
+          transcript sequences on reference chromosomes Fasta file."),
+      unmapped=.expandLine("Unmapped")
       )
     description <- character(length(fileurls))
     for (i in seq_along(map))
@@ -168,7 +169,15 @@ makeGencodeGFFsToAHMs <- function(currentMetadata,
     title <- basename(rsrc$fileurl)
     genome <- rsrc$genome
     sourceUrls <- rsrc$fileurl
+    #
+    # FixMe: in .gencodeSourceUrls the data should be LastModified time
+    #    in webAccess function .httrFileInfo these urls have that information
+    #    in the body not the header but this function is used elsewhere
+    #
     sourceVersion <- as.character(rsrc$date) ## should be character
+    if(all(is.na(sourceVersion))){
+        sourceVersion = rep(release, length(sourceVersion))
+    }
     SourceLastModifiedDate <- rsrc$date  ## should be "POSIXct" "POSIXt"
     SourceSize <- as.numeric(rsrc$size)
     tags <- strsplit(rsrc$tag, ",")
@@ -198,11 +207,13 @@ makeGencodeGFFsToAHMs <- function(currentMetadata,
           SourceType="GFF",
           Location_Prefix=.gencodeBaseUrl,
           RDataDateAdded = Sys.time(),
-          Recipe=NA_character_))
+          Recipe="AnnotationHubData:::gencodeGFFToGRanges"))
 }
 
-
-
+gencodeGFFToGRanges <- function(ahm)
+{
+    outputFile(ahm)[[1]]
+}
 
 ## STEP 2:  Call the helper to set up the newResources() method
 makeAnnotationHubResource("GencodeGffImportPreparer",
