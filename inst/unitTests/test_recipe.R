@@ -100,7 +100,7 @@ test_GencodeGFF <- function() {
     ahms = updateResources(ahroot, BiocVersion,
                            preparerClasses = "GencodeGffImportPreparer",
                            insert = FALSE, metadataOnly=TRUE,
-                           justRunUnitTest=TRUE, release=31)
+                           justRunUnitTest=TRUE, release="31")
     checkTrue(class(ahms[[1]])=="AnnotationHubMetadata")
 }
 
