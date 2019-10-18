@@ -3,6 +3,7 @@ CHANGES IN VERSION 1.15.0
 
 MODIFICATIONS
 
+    o 1.15.13 Added "BLOB" as a valid source type
     o 1.15.7 Added "MTX" as a valid source type
     o 1.15.6 Expanded documentation to clarify that data can be hosted
     publically not strictly Bioconductor AWS
@@ -10,6 +11,8 @@ MODIFICATIONS
 
 INTERNAL BUG CORRECTION
 
+    o 1.15.11 updated GencodeGFF recipes for potential future use (still would
+    revisit this with another update to do like ensembl on the fly)
     o 1.15.5 remove validity check that is wrong/outdated
     o 1.15.1 needToRerunNonStandardOrgDb added as helper function for when
     generating non standard org dbs. 1.15.3 added try catch in case aws buckets
