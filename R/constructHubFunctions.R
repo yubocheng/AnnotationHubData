@@ -1,22 +1,15 @@
-#' Function for creating a hub package
-#' 
-#' @param package The name of the hub package to be created.
-#' @param type Either \code{AH} or \code{EH} depending on if the package should 
-#'     be an AnnotationHub package or ExperimentHub package.
-#' 
-#' @importFrom available available_on_cran available_on_bioc valid_package_name
-#' @import usethis
-#'  
-#' @return Path to newly created package
-#' 
-#' @export
-#' 
-#' @examples
-#' hub_create_package("test_hub", "AH")
+use_scripts <- function(filename)
+{
+    stopifnot(length(filename) == 1 && is.character(filename))
+
+    use_directory("inst/scripts")
+    edit_file(proj_path("inst/scripts", filename), open = FALSE)
+}
 
 hub_create_package <- function(package, type = c("AH", "EH"))
 {
     stopifnot(
+        length(package) == 1 && is.character(package),
         available_on_cran(package) == TRUE, 
         available_on_bioc(package) == TRUE,
         valid_package_name(package) == TRUE
@@ -24,18 +17,38 @@ hub_create_package <- function(package, type = c("AH", "EH"))
 
     create_package(package)
 
-    ## Modifications made to DESCRIPTION file
+    ## Customization of the DESCRIPTION file
     usethis:::use_description_field("License", "Artistic-2.0", overwrite = TRUE)
     usethis:::use_description_field("LazyData", "false", overwrite = TRUE)
+    usethis:::use_description_field("Version", "0.99.0", overwrite = TRUE)
+
+    use_package_doc()
+    use_roxygen_md()
 
     if (type == "AH") {
-        use_package("AnnotationHubData", "Imports")
-        use_package("AnnotationHub", "Imports")
+        use_package("AnnotationHubData")
+        use_package("AnnotationHub")
         usethis:::use_description_field("biocViews", "AnnotationHub")
     }
     else {
-        use_package("ExperimentHubData", "Imports")
-        use_package("ExperimentHub", "Imports")
+        use_package("ExperimentHubData")
+        use_package("ExperimentHub")
         usethis:::use_description_field("biocViews", "ExperimentHub")
     }
+
+    ## Addition of README file
+    use_readme_md(open = FALSE)
+
+    ## Addition of NEWS file
+    use_news_md(open = FALSE)
+
+    ## Addition of the inst/extdata directory
+    use_directory("inst/extdata")
+
+    ## Addition of the inst/script R files
+    use_scripts("make-data.R")
+    use_scripts("make-metadata.R")
+
+    ## Addition of man/ directory
+    use_directory("man")
 } 
