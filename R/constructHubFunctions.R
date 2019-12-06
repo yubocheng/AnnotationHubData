@@ -51,4 +51,20 @@ hub_create_package <- function(package, type = c("AH", "EH"))
 
     ## Addition of man/ directory
     use_directory("man")
+}
+
+hub_create_resource <- function(package, title, description, biocversion, 
+    genome, sourcetype, sourceurl, sourceversion, species, taxid, coordinate, 
+    dataprovider, maintainer, rdataclass, dispatchclass, location, rdatapath, 
+    tags) 
+{
+
+    ## Check to be sure 'package' is a valid AH/EH package
+    stopifnot(available::available_on_bioc(package) == TRUE)
+
+    ## Read in the metadata.csv file
+    dat_path <- system.file("extdata", "metadata.csv", package = package)
+    dat <- read.csv(dat_path, header = TRUE)
+
+    ## Be sure to validate data along the way...
 } 
