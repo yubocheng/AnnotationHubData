@@ -567,9 +567,9 @@ metadata.csv is properly formatted,run  `makeAnnotationHubMetadata`.
  Info on [ExperimentHub docker](https://github.com/Bioconductor/ExperimentHub_docker)
  and how to set up docker directory.
 
-When satisfied start the AnnotationHub docker and add resource to docker.
+When satisfied start the ExperimentHub docker and add resource to docker.
 
-1. Navigate to the AnnotationHub_docker directory
+1. Navigate to the ExperimentHub_docker directory
 
 2. Start the docker:
 
@@ -601,7 +601,7 @@ with mysql commands like `select * from resources order by id desc limit 5;`
 
 6. Convert db to sqlite (puts the file in the data/ directory)
 ```
-sudo docker exec experimenthubdocker_experimenthub_1 bash /bin/backup_db.sh
+sudo docker exec experimenthub_docker_experimenthub_1 bash /bin/backup_db.sh
 ```
 7. If satisfied, copy this file to annotationhub.bioconductor.org and follow
 instructions for updating production database
