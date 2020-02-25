@@ -1,3 +1,11 @@
+CHANGES IN VERSION 1.17.0
+------------------------
+
+MODIFICATIONS
+
+    o 1.17.2 add XML as valid source type
+    o 1.17.1 add GSEMatrix as valid source type
+
 CHANGES IN VERSION 1.15.0
 ------------------------
 
