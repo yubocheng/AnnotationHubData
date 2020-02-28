@@ -194,6 +194,13 @@ checkSpeciesTaxId <- function(txid, species, verbose=TRUE){
 #
 #################################################################
 
+## single value and not NA
+.checkValidSingleString <- function(value) {
+    valStr <- deparse(substitute(value))
+    if(!isSingleString(value) || (trimws(value) == ""))
+        stop(wmsg(paste0(valStr, " must be defined and not NA")))
+}
+
 ## single value or NA
 .checkThatSingleStringOrNA <- function(value) {
     valStr <- deparse(substitute(value))
@@ -353,6 +360,8 @@ AnnotationHubMetadata <-
     .checkRDataClassConsistent(RDataClass)
     .checkValidMaintainer(Maintainer)
     .checkFileLengths(RDataPath, DispatchClass)
+    .checkValidSingleString(Title)
+    .checkValidSingleString(Description)
 
     new("AnnotationHubMetadata",
         AnnotationHubRoot=AnnotationHubRoot,
