@@ -232,7 +232,14 @@ url <- getOption("AH_SERVER_POST_URL")
 ```
 4. exit R
 
-5. Convert db to sqlite (puts the file in the data/ directory)
+5. Test
+From the list of dockers running `sudo docker ps` find the process with `db` in 
+the name. Example `test_db1`. Connect to the container with 
+`sudo docker exec -ti test_db bash`. Log into mysql with `mysql -p -u ahuser` 
+(The password will be the same as the exported MYSQL_REMOTE_PASSWORD). Explore 
+with mysql commands like `select * from resources order by id desc limit 5;`
+
+6. Convert db to sqlite (puts the file in the data/ directory)
 Which command to run to convert the db to sqlite will depend on the name of the 
 process, but it should be one of the followng:
 ```
@@ -240,7 +247,7 @@ sudo docker exec annotationhub_annotationhub_1 bash /bin/backup_db.sh
 
 sudo docker exec annotationhub_docker_annotationhub_1 bash /bin/backup_db.sh
 ```
-6. If satisfied, copy this file to annotationhub.bioconductor.org and follow
+7. If satisfied, copy this file to annotationhub.bioconductor.org and follow
 instructions for updating production database
 
 
