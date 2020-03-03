@@ -219,16 +219,20 @@ sudo docker-compose up
 options(AH_SERVER_POST_URL="http://localhost:3000/resource")
 options(ANNOTATION_HUB_URL="http://localhost:3000")
 library(AnnotationHubData)
+url <- getOption("AH_SERVER_POST_URL")
 
 # run approprate makeAnnotationHubMetadata() call and
-#url <- getOption("AH_SERVER_POST_URL")
-#pushMetadata(meta, url)
+#pushMetadata(meta[[1]], url)
 ```
 4. exit R
 
 5. Convert db to sqlite (puts the file in the data/ directory)
+Which command to run to convert the db to sqlite will depend on the name of the 
+process, but it should be one of the followng:
 ```
 sudo docker exec annotationhub_annotationhub_1 bash /bin/backup_db.sh
+
+sudo docker exec annotationhub_docker_annotationhub_1 bash /bin/backup_db.sh
 ```
 6. If satisfied, copy this file to annotationhub.bioconductor.org and follow
 instructions for updating production database
@@ -584,9 +588,9 @@ sudo docker-compose up
 options(EXPERIMENT_HUB_SERVER_POST_URL="http://localhost:4000/resource")
 options(EXPERIMENT_HUB_URL="http://localhost:4000")
 library(ExperimentHubData)
+url <- getOption("EXPERIMENT_HUB_SERVER_POST_URL")
 
 # run approprate makeExperimentHubMetadata() call and following if necessary
-#url <- getOption("EXPERIMENT_HUB_SERVER_POST_URL")
 #pushMetadata(meta, url)
 ```
 
@@ -600,7 +604,11 @@ the name. Example `test_db1`. Connect to the container with
 with mysql commands like `select * from resources order by id desc limit 5;`
 
 6. Convert db to sqlite (puts the file in the data/ directory)
+Which command to run to convert the db to sqlite will depend on the name of the 
+process, but it should be one of following:
 ```
+sudo docker exec experimenthubdocker_experimenthub_1 bash /bin/backup_db.sh
+
 sudo docker exec experimenthub_docker_experimenthub_1 bash /bin/backup_db.sh
 ```
 7. If satisfied, copy this file to annotationhub.bioconductor.org and follow
