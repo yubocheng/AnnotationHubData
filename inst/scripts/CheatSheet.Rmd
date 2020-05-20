@@ -47,6 +47,7 @@ sudo docker-compose up
 ```
 options(AH_SERVER_POST_URL="http://localhost:3000/resource")
 options(ANNOTATION_HUB_URL="http://localhost:3000")
+url <- getOption("AH_SERVER_POST_URL")
 library(AnnotationHubData)
 # Since this grabs the file and converts on the fly
 # There is actually no need to run with metadataOnly=FALSE
@@ -64,7 +65,6 @@ meta <- updateResources(getwd(),
 			  metadataOnly = TRUE, insert = FALSE,
 			  justRunUnitTest = FALSE, release = "89")
 # test/check meta
-url <- getOption("AH_SERVER_POST_URL")
 pushMetadata(meta, url)
 
 # you could rerun updateResources with insert=TRUE to do the push but I like to check resource data
@@ -134,6 +134,7 @@ sudo docker-compose up
 ```
 options(AH_SERVER_POST_URL="http://localhost:3000/resource")
 options(ANNOTATION_HUB_URL="http://localhost:3000")
+url <- getOption("AH_SERVER_POST_URL")
 library(AnnotationHubData)
 
 # option 1:
@@ -148,7 +149,6 @@ meta <- updateResources(getwd(),
 # if you saved the meta from the EC2 instance
 load("metadataForTwoBit")
 
-url <- getOption("AH_SERVER_POST_URL")
 pushMetadata(meta, url)
 
 # you could rerun updateResources with insert=TRUE to do the push but I like to check resource data
@@ -287,6 +287,7 @@ sudo docker-compose up
 ```
 options(AH_SERVER_POST_URL="http://localhost:3000/resource")
 options(ANNOTATION_HUB_URL="http://localhost:3000")
+url <- getOption("AH_SERVER_POST_URL")
 library(AnnotationHubData)
 
 # see the man page for clarification on testing and actively pushing
@@ -302,7 +303,6 @@ meta <- updateResources(getwd(),
 			downloadOrgDbs=TRUE)
 # downloadOrgDbs can be FALSE for subsequent runs
 
-url <- getOption("AH_SERVER_POST_URL")
 pushMetadata(meta, url)
 ```
 4. exit R
@@ -359,6 +359,7 @@ sudo docker-compose up
 ```
 options(AH_SERVER_POST_URL="http://localhost:3000/resource")
 options(ANNOTATION_HUB_URL="http://localhost:3000")
+url <- getOption("AH_SERVER_POST_URL")
 library(AnnotationHubData)
 
 # see the man page for clarification on testing and actively pushing
@@ -382,7 +383,6 @@ library(AnnotationHubData)
 
 
 
-url <- getOption("AH_SERVER_POST_URL")
 pushMetadata(meta, url)
 ```
 4. exit R
@@ -404,9 +404,11 @@ table(mcols(query(hub, "TxDb"))$rdatadateadded)
 
 ### makeNCBIToOrgDbs (Non Standard Orgs)
 
-This code generates ~1000 non-standard
+This code generates ~1400 non-standard
 OrgDb sqlite files from ucsc. These are less comprehensive and the
 standard OrgDb packages. It's best to run this on an EC2 instance.
+You can run it locally if your machine has enough space to download 
+the files from NCBI but keep in mind this code takes several hours to run. 
 
 The BiocVersion should be whatever the next release version will be,
 the current devel soon to be release. The
@@ -492,6 +494,7 @@ sudo docker-compose up
 ```
 options(AH_SERVER_POST_URL="http://localhost:3000/resource")
 options(ANNOTATION_HUB_URL="http://localhost:3000")
+url <- getOption("AH_SERVER_POST_URL")
 library(AnnotationHubData)
 
 # option 1:
@@ -507,32 +510,7 @@ meta <- updateResources(getwd(),
 load("metadataForTwoBit")
 
 
-# Note: Eventually get smarter in code
-# but put in fixes to make sure data was uploaded
-# need to filter out files that failed
-
-temp = rep(NA, length(meta))
-for(i in 1:length(meta)){
-       tit = metadata(meta[[i]])$Title
-       temp[i] = tit
-}
-aws = system("aws s3 ls s3://annotationhub/ncbi/uniprot/3.5 --recursive",
-    intern=TRUE)
-library(stringr)
-aws = gsub("\\s+", " ", str_trim(aws))
-
-temp2 = rep(NA, length(aws))
-for(i in 1:length(aws)){
-    tit = basename(strsplit(aws[i], " ")[[1]][4])
-    temp2[i] = tit
-}
-
-idx = which(temp %in% temp2)
-meta2 = meta[idx]
-
-
-url <- getOption("AH_SERVER_POST_URL")
-pushMetadata(meta2, url)
+pushMetadata(meta, url)
 
 ```
 4. exit R
