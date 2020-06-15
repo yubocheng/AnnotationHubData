@@ -1,3 +1,14 @@
+CHANGES IN VERSION 1.19.0
+------------------------
+
+INTERNAL BUG CORRECTION
+
+    o 1.19.2 Update Metadata from Ensembl function to use
+    GenomeInfoDb:::fetch_species_index_from_Ensembl_FTP instead of parsing the
+    file path
+    o 1.19.1 misplaced ! clause
+ 
+
 CHANGES IN VERSION 1.17.0
 ------------------------
 
