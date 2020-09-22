@@ -82,8 +82,14 @@
       tblurl <- "https://www.gencodegenes.org/mouse/releases"
 
     ## read in the table
-    http <- RCurl::getURL(tblurl)
-    tbl <- XML::readHTMLTable(http, header=TRUE, stringsAsFactors=FALSE)
+    tryCatch({
+        http <- RCurl::getURL(tblurl)
+        tbl <- XML::readHTMLTable(http, header=TRUE, stringsAsFactors=FALSE)
+    },  error = function(err) {
+        stop("Error reading ", tblurl,
+    ".\n  SSL issue reported in Ubuntu 20?")
+    })
+    
     tbl <- tbl[[1]]
     tblheader <- gsub("\n", "", colnames(tbl))
     tblheader = trimws(tblheader)
