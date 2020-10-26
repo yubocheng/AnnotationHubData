@@ -106,19 +106,51 @@ library(AnnotationHubData)
 # metadataOnly will control population of S3 bucket
 # insert controls inserting into database
 meta <- updateResources(getwd(),
-			BiocVersion = "3.6",
+			BiocVersion = "3.11",
 			preparerClasses = "EnsemblTwoBitPreparer",
 			metadataOnly = FALSE, insert = FALSE,
-			justRunUnitTest = FALSE, release = "89")
+			justRunUnitTest = FALSE, release = "99")
+# Because of the upload the meta will not be an ahm object run again 
+# with metadataOnly=TRUE to save object to copy to local
+meta <- updateResources(getwd(),BiocVersion="3.11", 
+                        preparerClasses="EnsemblTwoBitPreparer", 
+			metadataOnly=TRUE, justRunUnitTest=FALSE, 
+			insert=FALSE, release="99")
 
 # a suggested step is to save(meta, file="metadataForTwoBit")
 # and scp to local machine
+save(meta, file="TwoBitObj.RData")
 ```
 
 4. Check S3 bucket is being populated.
 5. Once finished close everything and stop EC2 instance
 
 On Local Machine:
+
+Cross check that everything populated correctly. You can check if any failed and needs to be rerun.
+
+```
+meta <- updateResources(getwd(),
+                          BiocVersion = "3.12",
+                          preparerClasses = "EnsemblTwoBitPreparer",
+                          metadataOnly = TRUE, insert = FALSE,
+                          justRunUnitTest = FALSE,
+                          release = "101")
+temp = rep(NA, length(meta))
+for(i in 1:length(meta)){
+       tit = metadata(meta[[i]])$RDataPath
+       temp[i] = tit
+}
+## in a bash shell
+##  aws s3api list-objects --bucket annotationhub --page-size 8000 --query 'Contents[].{Key: Key}' | cut -f2 -d$'\t' | grep '^ensembl/release-101/fasta' > uploadedList.txt 
+
+upload = readLines("uploadedList.txt")
+paths = setdiff(temp, upload)
+# if any 
+newMeta = meta[match(paths,temp)]
+pushResources(newMeta, uploadToS3 = TRUE, download = TRUE)
+
+```
 
 1. Navigate to the AnnotationHub_docker directory
 
