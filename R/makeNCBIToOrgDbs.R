@@ -72,9 +72,9 @@
         aws <- aws[-1]
     })
 
-    if (length(aws)){
+    if (length(aws) != 0){
         s3titles <- sapply(strsplit(sapply(strsplit(aws, " "),"[[", 4), "/"),"[[",4)
-        subset <- (title %in% s3titles)
+        subset <- !(title %in% s3titles)
         if(any(subset)){
             lst <- lapply(list(title=title, species = oriSpecies,
                                taxonomyId = taxonomyId, genome = genome, sourceUrl=sourceUrl,
