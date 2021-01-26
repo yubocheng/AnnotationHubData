@@ -247,6 +247,40 @@ checkSpeciesTaxId <- function(txid, species, verbose=TRUE){
           value)))
 }
 
+.checkValidViews <- function(views){
+
+    msg = list()
+    biocViewsVocab <- NULL
+    data("biocViewsVocab", package="biocViews", envir=environment())
+    # check all valid terms
+    if (!all(views %in% nodes(biocViewsVocab))){
+        badViews <- views[!(views %in% graph::nodes(biocViewsVocab))]
+        badViewsVec <- paste(badViews, collapse=", ")
+        msg["invalid"] = paste0("Invalid biocViews term[s].\n    ", badViewsVec, "\n")
+    }
+    repo = biocViews::guessPackageType(views)
+    # check all come from same biocViews main category
+    parents <- unlist(lapply(views, BiocCheck:::getParent, biocViewsVocab), use.names=FALSE)
+    if (!all(parents == repo))
+        msg["Category"] = paste0("All biocViews terms must come from the same category.\n")
+    # check that hub term present
+    if (repo == "AnnotationData" || repo == "ExperimentData"){
+        repo = paste0(gsub(repo, pattern="Data", replacement=""), "Hub")
+        if (!(repo %in% views))
+            msg["Hub"] = paste0("Please add ", repo, " to biocViews list in DESCRIPTION.\n")
+    } else {
+        softHubViews <- c("ExperimentHubSoftware", "AnnotationHubSoftware")
+        if (!any(softHubViews %in% views)){
+            msg["Hub"] = paste0("Please add either ExperimentHubSoftware or AnnotationHubSoftware to biocViews list in DESCRIPTION.\n  ")
+        }
+    }
+    if (length(msg) != 0){
+        myfunction <- function(index, msg){paste0("[", index, "] ", msg[index])}
+        fmt_msg <- unlist(lapply(seq_along(msg), msg = msg, FUN=myfunction))
+        stop("\n",fmt_msg)
+    }
+}
+
 .checkFileLengths <- function(RDataPath, DispatchClass)
 {
 

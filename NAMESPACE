@@ -9,7 +9,7 @@ import(RCurl)
 import(BiocManager)
 import(Biostrings)
 
-importFrom(biocViews, recommendPackages)
+importFrom(biocViews, recommendPackages, guessPackageType)
 importMethodsFrom(AnnotationDbi, exists, get, saveDb)
 importMethodsFrom(BiocGenerics, mapply, Map)
 importMethodsFrom(DBI, dbDriver, dbGetQuery)
