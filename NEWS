@@ -17,7 +17,10 @@ INTERNAL BUG CORRECTION
 
     o 1.21.1 misplaced ! clause
 
+REMOVED
 
+    o 1.21.5 Removed BioPax. url no longer valid. Resources were old and never
+    used beyond first addition
 
 CHANGES IN VERSION 1.19.0
 ------------------------
