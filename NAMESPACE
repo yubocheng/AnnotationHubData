@@ -22,7 +22,6 @@ importMethodsFrom(rtracklayer,
 )
 importFrom(Biobase, AnnotatedDataFrame, ExpressionSet)
 importFrom(GenomeInfoDb, Seqinfo)
-importFrom(rBiopaxParser, readBiopax)
 importFrom(rtracklayer, GRangesForUCSCGenome, ucscGenomes)
 importFrom(Rsamtools, bgzip)
 importFrom(AnnotationForge, makeInpDb, makeOrgPackageFromNCBI)
