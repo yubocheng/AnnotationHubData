@@ -327,8 +327,8 @@ makeAnnotationHubMetadata <- function(pathToPackage, fileName=character())
                                 FUN<- function(x, views, packageName){
                                     setdiff(sort(unique(c(x, views))), packageName)},
                                 views = .views, packageName=.package)
-                if (any(unlist(lapply(.tags, FUN=length)) < 1))
-                    stop("Add 1 or more Tags to each resource by either\n",
+                if (any(unlist(lapply(.tags, FUN=length)) < 2))
+                    stop("Add 2 or more Tags to each resource by either\n",
                          "  adding 'Tags' values to metadata or\n",
                          "  adding additional meaningful biocViews terms in DESCRIPTION")
             }else{
@@ -339,7 +339,7 @@ makeAnnotationHubMetadata <- function(pathToPackage, fileName=character())
                                         setdiff(sort(unique(views)), packageName)},
                                     views = .views, packageName=.package)
                 }else{
-                     stop("Add 1 or more Tags to each resource by either\n",
+                     stop("Add 2 or more Tags to each resource by either\n",
                          "  adding 'Tags' values to metadata or\n",
                          "  adding additional meaningful biocViews terms in DESCRIPTION")
                 }
