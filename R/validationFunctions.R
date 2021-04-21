@@ -58,7 +58,7 @@ getValidSourceTypes <- function(){
                              "GSEMatrix", "GTF", "HDF5", "IDAT", "Inparanoid",
                              "JSON", "MTX", "mtx.gz", "MySQL", "mzid", "mzML", "mzTab",
                              "mzXML", "NCBI/blast2GO", "NCBI/ensembl",
-                             "NCBI/UniProt", "RDA", "RData", "RDS", "Simulated", "tab",
+                             "NCBI/UniProt", "PNG", "RDA", "RData", "RDS", "Simulated", "tab",
                              "tar.gz", "TSV", "TwoBit", "TXT", "UCSC track",
                              "VCF", "XLS/XLSX", "XML", "Zip")
 

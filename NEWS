@@ -3,6 +3,7 @@ CHANGES IN VERSION 1.21.0
 
 MODIFICATIONS
 
+    o 1.21.9 Add PNG as valid source type
     o 1.21.4 Removed vignette for creating annotation hub package. Reference and
     refer to single vignette in AnnotationHub 
     o 1.21.3 Tags for database now combination of biocViews and meta$Tags. Also
