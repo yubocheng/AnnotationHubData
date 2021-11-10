@@ -10,9 +10,9 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-# Cheat Sheet for adding Annotations
+# Cheat Sheet for adding Resources to the Hub
 
-This doc describes how to add resources to AnnotationHub. In general, these instructions pertain to core team members only.
+This doc describes how to add resources to AnnotationHub or ExperimentHub. In general, these instructions pertain to core team members only.
 
 ***
 
@@ -39,7 +39,7 @@ following the instructions [here](https://github.com/Bioconductor/auxiliary_dock
 
 ```
 export MYSQL_REMOTE_PASSWORD=***  (See credentials doc)
-sudo docker-compose up
+docker-compose up
 ```
 
 3. In a new terminal start R:
@@ -60,6 +60,8 @@ library(AnnotationHubData)
 # after 1-3 attempts. Altnerative is to temporarily increase the wait time 
 # in the ftpFileInfo function in webAccessFunctions.R
 #  In the future maybe consider adding in conditional userpwd argumnet to getURL
+
+
 meta <- updateResources(getwd(),
 			  BiocVersion = "3.6",
 			  preparerClasses = "EnsemblGtfImportPreparer",
@@ -75,6 +77,9 @@ pushMetadata(meta, url)
 5. Convert db to sqlite (puts the file in the data/ directory)
 ```
 sudo docker exec annotationhub_annotationhub_1 bash /bin/backup_db.sh
+
+docker exec annotationhub_docker_annotationhub_1 bash /bin/backup_db.sh
+
 ```
 6. If satisfied, copy this file to annotationhub.bioconductor.org and follow
 instructions for updating production database
@@ -85,7 +90,8 @@ On EC2 Instance:
 
 The files will be downloaded, converted and pushed to S3 bucket. This should
 be done on the EC2 instance val_annotations. If it is not running, start the EC2
-instance on AWS and log as user ubuntu.
+instance on AWS and log as user ubuntu. You can do it locally but takes several 
+hours to run.
 
 Because this can take awhile, it is recommended to use the screen application.
 Some usefule screen calls:
@@ -159,7 +165,7 @@ pushResources(newMeta, uploadToS3 = TRUE, download = TRUE)
 
 ```
 export MYSQL_REMOTE_PASSWORD=***  (See credentials doc)
-sudo docker-compose up
+docker-compose up
 ```
 
 3. In a new terminal start R:
@@ -191,6 +197,9 @@ pushMetadata(meta, url)
 5. Convert db to sqlite (puts the file in the data/ directory)
 ```
 sudo docker exec annotationhub_annotationhub_1 bash /bin/backup_db.sh
+
+docker exec annotationhub_docker_annotationhub_1 bash /bin/backup_db.sh
+
 ```
 6. If satisfied, copy this file to annotationhub.bioconductor.org and follow
 instructions for updating production database
@@ -249,7 +258,7 @@ When satisfied start the AnnotationHub docker and add resource to docker.
 
 ```
 export MYSQL_REMOTE_PASSWORD=***  (See credentials doc)
-sudo docker-compose up
+docker-compose up
 ```
 
 3. In a new terminal start R:
@@ -278,7 +287,7 @@ process, but it should be one of the followng:
 ```
 sudo docker exec annotationhub_annotationhub_1 bash /bin/backup_db.sh
 
-sudo docker exec annotationhub_docker_annotationhub_1 bash /bin/backup_db.sh
+docker exec annotationhub_docker_annotationhub_1 bash /bin/backup_db.sh
 ```
 7. If satisfied, copy this file to annotationhub.bioconductor.org and follow
 instructions for updating production database
@@ -299,6 +308,35 @@ OrgDb resources get the same name when they are regenerated - they
 aren't tied to a genome build so that's not a distinguishing feature in
 the title. We only want 1 OrgDb for each species available in a release
 and the BiocVersion is what we use to filter records exposed.
+
+**new per Nov 21** 
+We want the devel orgDbs to be exposed as soon as generated
+close to release time for users to updated accordingly. Before running and adding
+new resources, manually remove refreences in the BiocVersions table for the 
+current release orgdbs associated with the current devel version. Quickest way
+to get references. In R perform the query
+```
+library(AnnotationHub)
+ah = AnnotationHub()
+table(mcols(query(ah, "OrgDb"))$rdatadateadded)
+## use the dates in this query to filter in sqlite3 to get ids
+```
+In sqlite3:
+```
+select id from resources where preparerclass="OrgDbFromPkgsImportPreparer" and rdatadateadded="2021-10-08" limit 1;
+select id from resources where preparerclass="OrgDbFromPkgsImportPreparer" and rdatadateadded="2021-10-08" order by id desc limit 1;
+
+## use resource ids to get ids from biocversions table
+
+# check first and get ids of only devel version (soon to be release)
+# in this scenerio 3.13 is current release, prepping for 3.14 devel to be released
+select * from biocversions where biocversion="3.14" and resource_id between 95950 and 95968;
+
+# use highest and lowest id to make delete call
+delete from biocversions where id between 298567 and 298585;
+```
+
+
 
 On AWS:
 
@@ -343,21 +381,49 @@ pushMetadata(meta, url)
 5. Convert db to sqlite (puts the file in the data/ directory)
 ```
 sudo docker exec annotationhub_annotationhub_1 bash /bin/backup_db.sh
+
+docker exec annotationhub_docker_annotationhub_1 bash /bin/backup_db.sh
 ```
 6. If satisfied, copy this file to annotationhub.bioconductor.org and follow
 instructions for updating production database
 
-7. After uploaded to production you can test that they are available in release
+7. **new as of nov 2021** Add new orgdbs to manually be visible in next devel.
+If the current release is 3.13 and  devel is 3.14 and this is in preparation for
+3.14 release, this would be adding a biocversion reference for 3.15. 
+
+In sqlite3 database:
+```
+## use whatever date when added
+select id from resources where preparerclass="OrgDbFromPkgsImportPreparer" and rdatadateadded="2021-10-08" limit 1;
+select id from resources where preparerclass="OrgDbFromPkgsImportPreparer" and rdatadateadded="2021-10-08" order by id desc limit 1;
+
+## test -- should show current devel -- use the two values above for between
+select * from biocversions where resource_id between 95950 and 95968;
+```
+In a separate R terminal you can quickly concat the call to add all versions at once 
+replacing 3.15 with whatever the next devel is and the low/high of the resource ids:
+```
+paste0("(3.15,",95950:95968, ")", collapse=",")
+```
+paste that into sqlite call 
+
+```
+insert into biocversions (biocversion, resource_id) Values [R output] ;
+
+## now check again that both current devel and future devel show
+select * from biocversions where resource_id between 95950 and 95968;
+
+```
+
+
+8. After uploaded to production you can test that they are available in release
 and devel
 
 ```
 query(hub, "OrgDb")
 table(mcols(query(hub, "OrgDb"))$rdatadateadded)
 ```
-If before the release occurs, `debug(AnnotationHub:::.uid0)` so that query2's biocversion
-is the desired test version.
 
-or try `setAnnotationHubOption(TESTING=TRUE)`
 
 ### makeStandardTxDbs
 
@@ -423,6 +489,9 @@ pushMetadata(meta, url)
 5. Convert db to sqlite (puts the file in the data/ directory)
 ```
 sudo docker exec annotationhub_annotationhub_1 bash /bin/backup_db.sh
+
+docker exec annotationhub_docker_annotationhub_1 bash /bin/backup_db.sh
+
 ```
 6. If satisfied, copy this file to annotationhub.bioconductor.org and follow
 instructions for updating production database
@@ -437,7 +506,7 @@ table(mcols(query(hub, "TxDb"))$rdatadateadded)
 
 ### makeNCBIToOrgDbs (Non Standard Orgs)
 
-This code generates ~1400 non-standard
+This code generates ~1700 non-standard
 OrgDb sqlite files from ucsc. These are less comprehensive and the
 standard OrgDb packages. It's best to run this on an EC2 instance.
 You can run it locally if your machine has enough space to download 
@@ -454,6 +523,36 @@ Before running, make sure the `AnnotationForge/inst/extdata/viableIDs.rda` and
 `GenomeInfoDbData/data/specData.rda` files have been updated and pushed in their
 respective packages. The scripts to generate these data files are in the packages
 `inst/scripts` directories as viableIDs.R and updateGenomeInfoDbData.R respectively.
+
+
+**new per Nov 21** 
+We want the devel orgDbs to be exposed as soon as generated
+close to release time for users to updated accordingly. Before running and adding
+new resources, manually remove refreences in the BiocVersions table for the 
+current release orgdbs associated with the current devel version. Quickest way
+to get references. In R perform the query
+```
+library(AnnotationHub)
+ah = AnnotationHub()
+table(mcols(query(ah, "OrgDb"))$rdatadateadded)
+## use the dates in this query to filter in sqlite3 to get ids
+```
+In sqlite3:
+```
+select id from resources where preparerclass="NCBIImportPreparer" and rdatadateadded="2021-10-13" limit 1;
+select id from resources where preparerclass="NCBIImportPreparer" and rdatadateadded="2021-10-13" order by id desc limit 1;
+
+## use resource ids to get ids from biocversions table
+
+# check first and get ids of only devel version (soon to be release) 
+# in this scenerio 3.13 is current release, prepping for 3.14 devel to be released
+select * from biocversions where biocversion="3.14" and  resource_id between 95973 and 97713;
+
+# use highest and lowest id to make delete call
+delete from biocversions where id between 298567 and 298585;
+```
+
+
 
 On AWS:
 
@@ -494,7 +593,8 @@ meta <- updateResources(getwd(),
 			justRunUnitTest = FALSE)
 
 # a suggested step is to save(meta, file="metadataForTwoBit")
-# and scp to local machine
+# and scp to local machine you will need to have run it with
+# metadataOnly=TRUE to get correct form of saved object
 ```
 
 4. Check S3 bucket is being populated.
@@ -519,7 +619,7 @@ On Local Machine:
 
 ```
 export MYSQL_REMOTE_PASSWORD=***  (See credentials doc)
-sudo docker-compose up
+docker-compose up
 ```
 
 3. In a new terminal start R:
@@ -551,9 +651,47 @@ pushMetadata(meta, url)
 5. Convert db to sqlite (puts the file in the data/ directory)
 ```
 sudo docker exec annotationhub_annotationhub_1 bash /bin/backup_db.sh
+
+docker exec annotationhub_docker_annotationhub_1 bash /bin/backup_db.sh
 ```
 6. If satisfied, copy this file to annotationhub.bioconductor.org and follow
 instructions for updating production database
+
+7. **new as of nov 2021** Add new orgdbs to manually be visible in next devel.
+If the current release is 3.13 and  devel is 3.14 and this is in preparation for
+3.14 release, this would be adding a biocversion reference for 3.15. 
+
+In sqlite3 database:
+```
+## use whatever date when added
+select id from resources where preparerclass="NCBIImportPreparer" and rdatadateadded="2021-10-13" limit 1;
+select id from resources where preparerclass="NCBIImportPreparer" and rdatadateadded="2021-10-13" order by id desc limit 1;
+
+## test -- should show current devel -- use the two values above for between
+select * from biocversions where resource_id between 95973 and 97713;
+```
+In a separate R terminal you can quickly concat the call to add all versions at once 
+replacing 3.15 with whatever the next devel is and the low/high of the resource ids:
+```
+paste0("(3.15,",95973:97713, ")", collapse=",")
+```
+paste that into sqlite call 
+
+```
+insert into biocversions (biocversion, resource_id) Values [R output] ;
+
+## now check again that both current devel and future devel show
+select * from biocversions where resource_id between 95973 and 97713;
+
+```
+
+8. After uploaded to production you can test that they are available in release
+and devel
+
+```
+query(hub, "OrgDb")
+table(mcols(query(hub, "OrgDb"))$rdatadateadded)
+```
 
 
 ***
@@ -603,7 +741,7 @@ When satisfied start the ExperimentHub docker and add resource to docker.
 
 ```
 export MYSQL_REMOTE_PASSWORD=***  (See credentials doc)
-sudo docker-compose up
+docker-compose up
 ```
 
 3. In a new terminal start R:
@@ -633,7 +771,7 @@ process, but it should be one of following:
 ```
 sudo docker exec experimenthubdocker_experimenthub_1 bash /bin/backup_db.sh
 
-sudo docker exec experimenthub_docker_experimenthub_1 bash /bin/backup_db.sh
+docker exec experimenthub_docker_experimenthub_1 bash /bin/backup_db.sh
 ```
 7. If satisfied, copy this file to annotationhub.bioconductor.org and follow
 instructions for updating production database
