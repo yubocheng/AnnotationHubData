@@ -138,7 +138,7 @@ setClass("AnnotationHubMetadata",
 
     ## Location_Prefix not specified -> data in S3
     if (all(is.null(Location_Prefix <- meta$Location_Prefix))) {
-        meta$Location_Prefix <- 'http://s3.amazonaws.com/annotationhub/'
+        meta$Location_Prefix <- 'https://bioconductorhubs.blob.core.windows.net/annotationhub/'
     ## Location_Prefix specified -> data at other location
     }
 
@@ -146,8 +146,8 @@ setClass("AnnotationHubMetadata",
     RDataPath <- strsplit(RDataPath, split=":")
 
     if(all(
-        (meta$Location_Prefix == 'http://s3.amazonaws.com/annotationhub/') ||
-        (meta$Location_Prefix == 'http://s3.amazonaws.com/experimenthub/'))
+        (meta$Location_Prefix == 'https://bioconductorhubs.blob.core.windows.net/annotationhub/') ||
+        (meta$Location_Prefix == 'https://bioconductorhubs.blob.core.windows.net/experimenthub/'))
        ){
         description <- read.dcf(file.path(pathToPackage, "DESCRIPTION"))
         package <- unname(description[,"Package"])
@@ -385,7 +385,7 @@ AnnotationHubMetadata <-
         RDataClass, RDataDateAdded, RDataPath,
         Maintainer, ..., BiocVersion=BiocManager::version(),
         Coordinate_1_based = TRUE, Notes=NA_character_, DispatchClass,
-        Location_Prefix='http://s3.amazonaws.com/annotationhub/')
+        Location_Prefix='https://bioconductorhubs.blob.core.windows.net/annotationhub/')
 {
     if (missing(TaxonomyId) | is.na(TaxonomyId))
     {

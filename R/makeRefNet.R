@@ -3,7 +3,7 @@
 ## what is RefNet Genome?
 ## tags looks like "interactions, interactions from gerstein-2012"
 
-.amazonBaseUrl <- "http://s3.amazonaws.com/annotationhub/"
+.amazonBaseUrl <- "hhttps://bioconductorhubs.blob.core.windows.net/annotationhub/"
 
 .getRefNetFileURIs <- function() { 
     # everything is embedded in the second line of xml

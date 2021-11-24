@@ -86,7 +86,8 @@ ahmToJson <- function(ahm){
                  rdataversion=lst[['rdataversion']],
                  rdatadateadded=lst[['rdatadateadded']],
                  ## FIXME - Old AHMs may not have Location_Prefix filled in!
-                 ## It should be http://s3.amazonaws.com/annotationhub/
+                 ## It should be http://s3.amazonaws.com/annotationhub/ or
+                 ## https://bioconductorhubs.blob.core.windows.net/annotationhub
                  ## by default, for chain files it should be:
                  ## http://hgdownload.cse.ucsc.edu/
                  location_prefix=lst[['location_prefix']],

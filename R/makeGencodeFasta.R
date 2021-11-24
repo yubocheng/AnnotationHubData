@@ -62,7 +62,7 @@ makeGencodeFastaToAHM <- function(currentMetadata,
           RDataClass = c("FaFile", "FaFile", "FaFile"),
           DispatchClass="FaFile",
           SourceType="FASTA",  
-          Location_Prefix="http://s3.amazonaws.com/annotationhub/",
+          Location_Prefix="https://bioconductorhubs.blob.core.windows.net/annotationhub/",
           RDataDateAdded = Sys.time(),
           Recipe="AnnotationHubData:::gencodeFastaToFaFile")) 
 }
