@@ -1,3 +1,10 @@
+CHANGES IN VERSION 1.25.0
+------------------------
+
+MODIFICATIONS
+
+    o 1.25.2 Changed makeAnnotationHubMetadata to point to Azure instead of AWS
+
 CHANGES IN VERSION 1.21.0
 ------------------------
 
