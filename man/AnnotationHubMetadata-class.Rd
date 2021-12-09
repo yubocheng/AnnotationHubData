@@ -73,7 +73,7 @@ AnnotationHubMetadata(AnnotationHubRoot, SourceUrl, SourceType,
 		 Maintainer, ..., BiocVersion = BiocManager::version(),
 		 Coordinate_1_based = TRUE, Notes = NA_character_,
 		 DispatchClass, Location_Prefix =
-		 "http://s3.amazonaws.com/annotationhub/")
+		 "https://bioconductorhubs.blob.core.windows.net/annotationhub/")
 
 toJson(x)
 constructSeqInfo(species, genome)
