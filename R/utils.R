@@ -124,7 +124,9 @@ upload_to_azure <-
         stop("AZURE_SAS_URL environment variables is not set or given")
     }
     stopifnot(startsWith(prefix="https", sas))
-    ## how to test is azcopy is installed? trycatch check for version?
+    if(Sys.which("azcopy") == ""){
+        stop("Please download azcopy")
+    }
 
     args = paste0("copy --recursive ", file, " '", sas, "'")
     system2("azcopy", args)
