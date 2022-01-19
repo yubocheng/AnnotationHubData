@@ -112,6 +112,27 @@ upload_to_S3 <-
 }
 
 
+## new function to upload to azure
+
+upload_to_azure <-
+    function(file, sas)
+{
+    if(missing(sas)){
+        sas = Sys.getenv("AZURE_SAS_URL", NA_character_)
+    }
+    if(is.na(sas)){
+        stop("AZURE_SAS_URL environment variables is not set or given")
+    }
+    stopifnot(startsWith(prefix="https", sas))
+    ## how to test is azcopy is installed? trycatch check for version?
+
+    args = paste0("copy --recursive ", file, " '", sas, "'")
+    system2("azcopy", args)
+     
+}
+
+
+
 globalVariables(c("futile.logger"))
 
 .onLoad <-
