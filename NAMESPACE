@@ -73,6 +73,7 @@ export(
     #postProcessMetadata,
     flog,
     upload_to_S3,
+    upload_to_azure,
     getImportPreparerClasses,
     makeAnnotationHubResource,
     HubMetadataFromJson,

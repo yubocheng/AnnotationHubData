@@ -128,8 +128,10 @@ upload_to_azure <-
         stop("Please download azcopy")
     }
 
-    args = paste0("copy --recursive ", file, " '", sas, "'")
-    system2("azcopy", args)
+    args <- paste0("copy --recursive ", file, " '", sas, "'")
+    res <- system2("azcopy", args)
+    if (res != 0) stop(sprintf("Failed to upload %s to Azure!", file))
+    TRUE
 }
 
 
