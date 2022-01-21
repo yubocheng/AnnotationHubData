@@ -130,7 +130,6 @@ upload_to_azure <-
 
     args = paste0("copy --recursive ", file, " '", sas, "'")
     system2("azcopy", args)
-     
 }
 
 
