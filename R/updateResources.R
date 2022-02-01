@@ -22,12 +22,12 @@ pushMetadata <- function(allAhms, url) {
     })
 }
 
-pushResources <- function(allAhms, uploadToS3=TRUE, download=TRUE) {
+pushResources <- function(allAhms, uploadToRemote=TRUE, download=TRUE) {
     flog(INFO, "processing and pushing data ...")
     res <- lapply(allAhms,
         function(xx) {
             tryCatch({
-                runRecipes(xx, uploadToS3=uploadToS3, download=download)
+                runRecipes(xx, uploadToRemote=uploadToRemote, download=download)
                 xx
             }, error=function(err) {
                 msg <- paste0("error in runRecipes():", conditionMessage(err))
@@ -35,7 +35,7 @@ pushResources <- function(allAhms, uploadToS3=TRUE, download=TRUE) {
                 flog(ERROR, msg)
                 xx
             }, finally={gc()})
-	    gc()
+            gc()
         })
     res
 }
@@ -51,7 +51,7 @@ downloadResource <- function(ahm, downloadIfExists) {
     filename <- basename(URL_parts(SourceUrl)[, 'path'])
 
     ## create local directory
-    destdir <- dirname(outputFile(ahm))
+    destdir <- file.path(dirname(outputFile(ahm)), dirname(metadata(ahm)$RDataPath))
     for (dir in unique(destdir))
         if (!dir.exists(dir))
             dir.create(dir, recursive=TRUE)
@@ -100,13 +100,10 @@ setGeneric("runRecipes", signature="metadata",
 
 setMethod("runRecipes", "AnnotationHubMetadata",
           function(metadata, hubroot,
-                   bucket = getOption("ANNOTATION_HUB_BUCKET_NAME",
-                                      "annotationhub"),
-                   uploadToS3, download, ...)
+                   uploadToRemote, download, ...)
     {
         ## TODO: better way needed for deciding this:
         provider <- metadata(metadata)$DataProvider
-
         if (grepl("http://inparanoid", provider, fixed=TRUE) ||
             grepl("ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/", provider, fixed=TRUE))
         {
@@ -126,15 +123,15 @@ setMethod("runRecipes", "AnnotationHubMetadata",
                  conditionMessage(e))
         })
 
-        ## upload to S3
-        if (uploadToS3) {
+        ## upload to Remote
+        if (uploadToRemote) {
             tryCatch({
                 fileToUpload <- file.path(metadata(metadata)$HubRoot,
-                                          basename(metadata(metadata)$RDataPath))
-                remotePath <- sub("^/", "", metadata(metadata)$RDataPath)
-                res <- upload_to_S3(fileToUpload, remotePath, bucket, ...)
-                ## If successful, delete local file
-                system(paste0("rm ", shQuote(fileToUpload)))
+                                          metadata(metadata)$RDataPath)
+                res <- upload_to_azure(metadata(metadata)$HubRoot)
+                ## delete local file
+                unlink(dir(metadata(metadata)$HubRoot, include.dirs=TRUE, full.names=TRUE), recursive=TRUE)
+                #system(paste0("rm ", shQuote(fileToUpload)))
             }, error=function(e){
                 flog(ERROR, "error uploading %s: %s",
                      fileToUpload,
@@ -144,13 +141,14 @@ setMethod("runRecipes", "AnnotationHubMetadata",
     }
 )
 
-updateResources <- function(AnnotationHubRoot=getwd(), 
+updateResources <- function(AnnotationHubRoot=file.path(getwd(),"Temp"),
                             BiocVersion=BiocManager::version(),
                             preparerClasses=getImportPreparerClasses(),
                             metadataOnly=TRUE, insert=FALSE,
                             justRunUnitTest=FALSE, ...) {
     if (length(BiocVersion) > 1L)
         stop("BiocVersion must be a single version")
+    if (!dir.exists(AnnotationHubRoot)) dir.create(AnnotationHubRoot, recursive=TRUE)
     AnnotationHubRoot <- normalizePath(AnnotationHubRoot)
     if (insert) {
         if(is.null(url <- getOption("AH_SERVER_POST_URL")))
@@ -183,29 +181,29 @@ updateResources <- function(AnnotationHubRoot=getwd(),
 
     ## download, process and push data to appropriate location
     if (!metadataOnly) {
-        if (!exists("uploadToS3"))
-            uploadToS3 <- TRUE
+        if (!exists("uploadToRemote"))
+            uploadToRemote <- TRUE
         if (!exists("download"))
             download <- TRUE
-        metadata <- pushResources(metadata, uploadToS3, download)
+        metadata <- pushResources(metadata, uploadToRemote, download)
     }
 
     ## if data push was successful insert metadata in db
     if (insert) {
         ## We don't have a check to prevent adding duplicate records.
         ## We can't just look for duplicate titles, as we do in ExperimentHub,
-        ## because AnnotationHub allows multiple records with the same 
+        ## because AnnotationHub allows multiple records with the same
         ## title (e.g., versions of OrgDb packages).
         ## One possibility is to first look for matching titles then
-        ## at datadataremoved (NULL) then at rdatapath; rdatapath should be 
+        ## at datadataremoved (NULL) then at rdatapath; rdatapath should be
         ## unique even for resources with the same name.
 
-        message("inserting metadata in db ...") 
+        message("inserting metadata in db ...")
         pushMetadata(metadata, url)
     }
 
-    message("complete!") 
-    metadata 
+    message("complete!")
+    metadata
 }
 
 
@@ -408,4 +406,3 @@ deleteResources <- function(id) {
 ## library(AnnotationHub);debug(AnnotationHubData:::.cleanOneTable);AnnotationHubData:::.cleanOneTable('resources')
 
 ## usage: AnnotationHubData:::.cleanOneTable('resources') ## Doing this only revealed dups in 'tags' table.
-

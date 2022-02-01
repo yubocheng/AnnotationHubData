@@ -64,7 +64,8 @@ ensemblFastaToTwoBitFile <- function(ahm)
 {
     ## Convert .fa file to .2bit
     gc()
-    twobitOut <- outputFile(ahm)[[1]]
+    twobitOut <- file.path(metadata(ahm)$HubRoot,
+                           dirname(metadata(ahm)$RDataPath), basename(outputFile(ahm)))
     srcFile <- sub('\\.2bit','.fa.gz', twobitOut)
     dna <- import(srcFile, "FASTA")
     gc()
