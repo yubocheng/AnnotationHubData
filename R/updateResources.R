@@ -108,8 +108,12 @@ setMethod("runRecipes", "AnnotationHubMetadata",
             grepl("ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/", provider, fixed=TRUE))
         {
             download <- FALSE
+            destdir <- file.path(dirname(outputFile(metadata)), dirname(metadata(metadata)$RDataPath))
+            for (dir in unique(destdir))
+                if (!dir.exists(dir))
+                    dir.create(dir, recursive=TRUE)
         }
-
+        
         ## download
         if (download)
             downloadResource(metadata, downloadIfExists=FALSE)

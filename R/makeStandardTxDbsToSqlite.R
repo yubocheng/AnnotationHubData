@@ -95,7 +95,7 @@ extractTxDbSqlite <- function(ahm) {
     dbFile <- metadata(ahm)$Title
     txdb <- sub('.sqlite','',dbFile)
     outputPath <- file.path(metadata(ahm)$AnnotationHubRoot,
-                            basename(metadata(ahm)$RDataPath))
+                            metadata(ahm)$RDataPath)
     if (!isSingleString(outputPath)) 
         stop("'outputPath' must be a single string")
     sqliteCopyDatabase(dbconn(.getTxDbs(txdb)[[1]]), outputPath)

@@ -105,7 +105,7 @@ extractOrgDbSqlite <- function(ahm) {
     orgDbs <- .getOrgDbs()
     orgDb <- orgDbs[[orgDbName]]
     outputPath <- file.path(metadata(ahm)$AnnotationHubRoot,
-                            basename(metadata(ahm)$RDataPath))
+                            metadata(ahm)$RDataPath)
     if (!isSingleString(outputPath)) 
         stop("'outputPath' must be a single string")
     sqliteCopyDatabase(dbconn(orgDb), outputPath)

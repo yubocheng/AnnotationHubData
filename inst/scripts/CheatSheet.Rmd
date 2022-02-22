@@ -326,7 +326,7 @@ and the BiocVersion is what we use to filter records exposed.
 **new per Nov 21**
 We want the devel orgDbs to be exposed as soon as generated
 close to release time for users to updated accordingly. Before running and adding
-new resources, manually remove refreences in the BiocVersions table for the
+new resources, manually remove references in the BiocVersions table for the
 current release orgdbs associated with the current devel version. Quickest way
 to get references. In R perform the query
 ```
@@ -350,11 +350,15 @@ select * from biocversions where biocversion="3.14" and resource_id between 9595
 delete from biocversions where id between 298567 and 298585;
 ```
 
+Generate or have someone generate a SAS token/url on microsoft azure data
+lakes for the staging bucket. General recommendations is expire the SAS after
+two weeks. The scripts potentially need both the token and the url.  export the
+SAS URL as an environment variable `AZURE_SAS_URL` with something like the following.
 
+```
+export AZURE_SAS_URL='https://bioconductorhubs.blob.core.windows.net/staginghub?sp=racwl&st=2022-02-08T15:57:00Z&se=2022-02-22T23:57:00Z&spr=https&sv=2020-08-04&sr=c&sig=fBtPzgrw1Akzlz%2Fwkne%2BQrxOKOdCzP1%2Fk5S%2FHk1LguE%3D'
 
-On AWS:
-
-Create S3 bucket based on rdatapath: annotationhub/ncbi/standard/<BiocVersion>
+```
 
 On Local Machine:
 
@@ -377,10 +381,10 @@ library(AnnotationHubData)
 
 # see the man page for clarification on testing and actively pushing
 # ?makeStandardOrgDbsToAHM
-# to populate S3 bucket need metadataOnly = FALSE
-# metadataOnly will control population of S3 bucket
+# to populate bucket need metadataOnly = FALSE
+# metadataOnly will control upload
 # insert controls inserting into database
-meta <- updateResources(getwd(),
+meta <- updateResources("OrgDbs",
 			BiocVersion = "3.5",
 			preparerClasses = "OrgDbFromPkgsImportPreparer",
 			metadataOnly = TRUE, insert = FALSE,
@@ -452,9 +456,16 @@ aren't tied to a genome build so that's not a distinguishing feature in
 the title. We only want 1 OrgDb for each species available in a release
 and the BiocVersion is what we use to filter records exposed.
 
-On AWS:
+Generate or have someone generate a SAS token/url on microsoft azure data
+lakes for the staging bucket. General recommendations is expire the SAS after
+two weeks. The scripts potentially need both the token and the url.  export the
+SAS URL as an environment variable `AZURE_SAS_URL` with something like the following.
 
-Create S3 bucket based on rdatapath: annotationhub/ucsc/standard/<BiocVersion>
+```
+export AZURE_SAS_URL='https://bioconductorhubs.blob.core.windows.net/staginghub?sp=racwl&st=2022-02-08T15:57:00Z&se=2022-02-22T23:57:00Z&spr=https&sv=2020-08-04&sr=c&sig=fBtPzgrw1Akzlz%2Fwkne%2BQrxOKOdCzP1%2Fk5S%2FHk1LguE%3D'
+
+```
+
 
 On Local Machine:
 
@@ -480,21 +491,6 @@ library(AnnotationHubData)
 # will need the list of updated or added TxDbs to make a character list of files
 
 ?makeStandardTxDbsToAHM
-
-
-
-#
-# The following will hopefully be implemented in the future
-#
-#meta <- updateResources(getwd(),
-#                        BiocVersion = "3.5",
-#                        preparerClasses = "TxDbFromPkgsImportPreparer",
-#                        metadataOnly = TRUE, insert = FALSE,
-#                        justRunUnitTest = FALSE,
-#                        downloadTxDbs=TRUE)
-# downloadTxDbs can be FALSE for subsequent runs
-
-
 
 pushMetadata(meta, url)
 ```
