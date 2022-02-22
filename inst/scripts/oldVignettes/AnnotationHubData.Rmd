@@ -92,7 +92,7 @@ arguments.  These are:
 ```{r, updateResources, eval=FALSE}
 library(AnnotationHubData)
 
-mdinp = updateResources(ahroot=getwd(),
+mdinp = updateResources(ahroot=file.path(getwd(),"Inparanoid"),
                         BiocVersion=biocVersion(),
                         preparerClasses = "Inparanoid8ImportPreparer",
                         insert = FALSE,

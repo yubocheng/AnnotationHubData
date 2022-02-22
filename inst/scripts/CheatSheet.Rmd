@@ -51,18 +51,18 @@ url <- getOption("AH_SERVER_POST_URL")
 library(AnnotationHubData)
 # Since this grabs the file and converts on the fly
 # There is actually no need to run with metadataOnly=FALSE
-# 
+#
 # This periodically fails. We realized after a certain number
 # of subsequent hits to ensembl ftp site, the site starts asking
 # for a username:password or simply blocks entirely
 # We have tried increasing the sleep time in between failed attempts
 # with a max retry of 3.  Normally this function will run completely
-# after 1-3 attempts. Altnerative is to temporarily increase the wait time 
+# after 1-3 attempts. Altnerative is to temporarily increase the wait time
 # in the ftpFileInfo function in webAccessFunctions.R
 #  In the future maybe consider adding in conditional userpwd argumnet to getURL
 
 
-meta <- updateResources(getwd(),
+meta <- updateResources("EnsemblGTFtoGranges",
 			  BiocVersion = "3.6",
 			  preparerClasses = "EnsemblGtfImportPreparer",
 			  metadataOnly = TRUE, insert = FALSE,
@@ -86,76 +86,90 @@ instructions for updating production database
 
 #### 2Bit
 
-On EC2 Instance:
+This takes several hours to run. See section on cross checking if stopped before
+finished for picking up in the middle with uploads.
 
-The files will be downloaded, converted and pushed to S3 bucket. This should
-be done on the EC2 instance val_annotations. If it is not running, start the EC2
-instance on AWS and log as user ubuntu. You can do it locally but takes several 
-hours to run.
+1. Generate or have someone generate a SAS token/url on microsoft azure data
+lakes for the staging bucket. General recommendations is expire the SAS after
+two weeks. The scripts potentially need both the token and the url
 
-Because this can take awhile, it is recommended to use the screen application.
-Some usefule screen calls:
+2. export the SAS URL as an environment variable `AZURE_SAS_URL` with something
+like the following.
+
 ```
-- start screen by typing 'screen'
-- cd to directory you want to be in, start the process or code you want to run
-- exit the screen session with 'ctl-a' 'd'
-- list screen sessions with 'screen -ls'
-- reconnect to a specific session (e.g., XYZ) with 'screen -r XYZ'
+export AZURE_SAS_URL='https://bioconductorhubs.blob.core.windows.net/staginghub?sp=racwl&st=2022-02-08T15:57:00Z&se=2022-02-22T23:57:00Z&spr=https&sv=2020-08-04&sr=c&sig=fBtPzgrw1Akzlz%2Fwkne%2BQrxOKOdCzP1%2Fk5S%2FHk1LguE%3D'
+
 ```
 
-1. Start screen
-2. Navigate to directory to run code
 3. In R:
 
 ```
 library(AnnotationHubData)
-# to populate S3 bucket need metadataOnly = FALSE
-# metadataOnly will control population of S3 bucket
+# to populate bucket need metadataOnly = FALSE
+# metadataOnly will control upload
 # insert controls inserting into database
-meta <- updateResources(getwd(),
-			BiocVersion = "3.11",
+meta <- updateResources("TwoBit",
+			BiocVersion = "3.12",
 			preparerClasses = "EnsemblTwoBitPreparer",
 			metadataOnly = FALSE, insert = FALSE,
-			justRunUnitTest = FALSE, release = "99")
-# Because of the upload the meta will not be an ahm object run again 
+			justRunUnitTest = FALSE, release = "101")
+
+# Because of the upload the meta will not be an ahm object run again
 # with metadataOnly=TRUE to save object to copy to local
-meta <- updateResources(getwd(),BiocVersion="3.11", 
-                        preparerClasses="EnsemblTwoBitPreparer", 
-			metadataOnly=TRUE, justRunUnitTest=FALSE, 
+meta <- updateResources("TwoBit",BiocVersion="3.11",
+			preparerClasses="EnsemblTwoBitPreparer",
+			metadataOnly=TRUE, justRunUnitTest=FALSE,
 			insert=FALSE, release="99")
 
 # a suggested step is to save(meta, file="metadataForTwoBit")
-# and scp to local machine
+# if running as a script or non interactively.
 save(meta, file="TwoBitObj.RData")
 ```
 
 4. Check S3 bucket is being populated.
-5. Once finished close everything and stop EC2 instance
 
-On Local Machine:
-
-Cross check that everything populated correctly. You can check if any failed and needs to be rerun.
+5. Once finished cross check that everything populated correctly. You can check
+if any failed and needs to be rerun with the following.
 
 ```
-meta <- updateResources(getwd(),
-                          BiocVersion = "3.12",
-                          preparerClasses = "EnsemblTwoBitPreparer",
-                          metadataOnly = TRUE, insert = FALSE,
-                          justRunUnitTest = FALSE,
-                          release = "101")
+meta <- updateResources("TwoBit",
+			  BiocVersion = "3.12",
+			  preparerClasses = "EnsemblTwoBitPreparer",
+			  metadataOnly = TRUE, insert = FALSE,
+			  justRunUnitTest = FALSE,
+			  release = "101")
 temp = rep(NA, length(meta))
 for(i in 1:length(meta)){
        tit = metadata(meta[[i]])$RDataPath
        temp[i] = tit
 }
-## in a bash shell
-##  aws s3api list-objects --bucket annotationhub --page-size 8000 --query 'Contents[].{Key: Key}' | cut -f2 -d$'\t' | grep '^ensembl/release-101/fasta' > uploadedList.txt 
 
-upload = readLines("uploadedList.txt")
-paths = setdiff(temp, upload)
-# if any 
+
+## when loading AzureStor will ask about saving credentials; recommend `no`
+library("AzureStor")
+
+## You will need the SAS token generated for access
+sas <- "sp=racwl&st=2022-02-08T15:57:00Z&se=2022-02-22T23:57:00Z&spr=https&sv=2020-08-04&sr=c&sig=fBtPzgrw1Akzlz%2Fwkne%2BQrxOKOdCzP1%2Fk5S%2FHk1LguE%3D"
+
+## check what files were uploaded
+url <- "https://bioconductorhubs.blob.core.windows.net"
+ep <- storage_endpoint(url, sas = sas)
+container <- storage_container(ep, "staginghub")
+
+## if you changed the first argument of the updateResources to use a different
+##directory replace the TwoBit with that
+filesOn = gsub(pattern="TwoBit/", "", list_storage_files(container, "TwoBit")[,"name"])
+
+
+## difference of metadata and what has been uploaded
+paths = setdiff(temp, filesOn)
+
+## if there were any that were not uploaded subset and try again
 newMeta = meta[match(paths,temp)]
-pushResources(newMeta, uploadToS3 = TRUE, download = TRUE)
+pushResources(newMeta, uploadToRemote = TRUE, download = TRUE)
+
+## in good practice it is also recommended to check the setdiff in the opposite
+##   direction as well
 
 ```
 
@@ -177,15 +191,15 @@ url <- getOption("AH_SERVER_POST_URL")
 library(AnnotationHubData)
 
 # option 1:
-meta <- updateResources(getwd(),
-			BiocVersion = "3.6",
+meta <- updateResources("TwoBit",
+			BiocVersion = "3.12",
 			preparerClasses = "EnsemblTwoBitPreparer",
 			metadataOnly = TRUE, insert = FALSE,
-			justRunUnitTest = FALSE, release = "89")
+			justRunUnitTest = FALSE, release = "101")
 
 
 # option 2:
-# if you saved the meta from the EC2 instance
+# if you saved the meta
 load("metadataForTwoBit")
 
 pushMetadata(meta, url)
@@ -213,8 +227,8 @@ the following
 ```
 library(AnnotationHub)
 hub = AnnotationHub()
-length(query(hub, c("ensembl", "gtf", "release-89")))
-length(query(hub, c("fasta", "release-89", "twobit")))
+length(query(hub, c("ensembl", "gtf", "release-101")))
+length(query(hub, c("fasta", "twobit", "releases-101")))
 ```
 
 
@@ -275,14 +289,14 @@ url <- getOption("AH_SERVER_POST_URL")
 4. exit R
 
 5. Test
-From the list of dockers running `sudo docker ps` find the process with `db` in 
-the name. Example `test_db1`. Connect to the container with 
-`sudo docker exec -ti test_db bash`. Log into mysql with `mysql -p -u ahuser` 
-(The password will be the same as the exported MYSQL_REMOTE_PASSWORD). Explore 
+From the list of dockers running `sudo docker ps` find the process with `db` in
+the name. Example `test_db1`. Connect to the container with
+`sudo docker exec -ti test_db bash`. Log into mysql with `mysql -p -u ahuser`
+(The password will be the same as the exported MYSQL_REMOTE_PASSWORD). Explore
 with mysql commands like `select * from resources order by id desc limit 5;`
 
 6. Convert db to sqlite (puts the file in the data/ directory)
-Which command to run to convert the db to sqlite will depend on the name of the 
+Which command to run to convert the db to sqlite will depend on the name of the
 process, but it should be one of the followng:
 ```
 sudo docker exec annotationhub_annotationhub_1 bash /bin/backup_db.sh
@@ -309,10 +323,10 @@ aren't tied to a genome build so that's not a distinguishing feature in
 the title. We only want 1 OrgDb for each species available in a release
 and the BiocVersion is what we use to filter records exposed.
 
-**new per Nov 21** 
+**new per Nov 21**
 We want the devel orgDbs to be exposed as soon as generated
 close to release time for users to updated accordingly. Before running and adding
-new resources, manually remove refreences in the BiocVersions table for the 
+new resources, manually remove refreences in the BiocVersions table for the
 current release orgdbs associated with the current devel version. Quickest way
 to get references. In R perform the query
 ```
@@ -389,7 +403,7 @@ instructions for updating production database
 
 7. **new as of nov 2021** Add new orgdbs to manually be visible in next devel.
 If the current release is 3.13 and  devel is 3.14 and this is in preparation for
-3.14 release, this would be adding a biocversion reference for 3.15. 
+3.14 release, this would be adding a biocversion reference for 3.15.
 
 In sqlite3 database:
 ```
@@ -400,12 +414,12 @@ select id from resources where preparerclass="OrgDbFromPkgsImportPreparer" and r
 ## test -- should show current devel -- use the two values above for between
 select * from biocversions where resource_id between 95950 and 95968;
 ```
-In a separate R terminal you can quickly concat the call to add all versions at once 
+In a separate R terminal you can quickly concat the call to add all versions at once
 replacing 3.15 with whatever the next devel is and the low/high of the resource ids:
 ```
 paste0("(3.15,",95950:95968, ")", collapse=",")
 ```
-paste that into sqlite call 
+paste that into sqlite call
 
 ```
 insert into biocversions (biocversion, resource_id) Values [R output] ;
@@ -509,8 +523,8 @@ table(mcols(query(hub, "TxDb"))$rdatadateadded)
 This code generates ~1700 non-standard
 OrgDb sqlite files from ucsc. These are less comprehensive and the
 standard OrgDb packages. It's best to run this on an EC2 instance.
-You can run it locally if your machine has enough space to download 
-the files from NCBI but keep in mind this code takes several hours to run. 
+You can run it locally if your machine has enough space to download
+the files from NCBI but keep in mind this code takes several hours to run.
 
 The BiocVersion should be whatever the next release version will be,
 the current devel soon to be release. The
@@ -525,10 +539,10 @@ respective packages. The scripts to generate these data files are in the package
 `inst/scripts` directories as viableIDs.R and updateGenomeInfoDbData.R respectively.
 
 
-**new per Nov 21** 
+**new per Nov 21**
 We want the devel orgDbs to be exposed as soon as generated
 close to release time for users to updated accordingly. Before running and adding
-new resources, manually remove refreences in the BiocVersions table for the 
+new resources, manually remove refreences in the BiocVersions table for the
 current release orgdbs associated with the current devel version. Quickest way
 to get references. In R perform the query
 ```
@@ -544,7 +558,7 @@ select id from resources where preparerclass="NCBIImportPreparer" and rdatadatea
 
 ## use resource ids to get ids from biocversions table
 
-# check first and get ids of only devel version (soon to be release) 
+# check first and get ids of only devel version (soon to be release)
 # in this scenerio 3.13 is current release, prepping for 3.14 devel to be released
 select * from biocversions where biocversion="3.14" and  resource_id between 95973 and 97713;
 
@@ -659,7 +673,7 @@ instructions for updating production database
 
 7. **new as of nov 2021** Add new orgdbs to manually be visible in next devel.
 If the current release is 3.13 and  devel is 3.14 and this is in preparation for
-3.14 release, this would be adding a biocversion reference for 3.15. 
+3.14 release, this would be adding a biocversion reference for 3.15.
 
 In sqlite3 database:
 ```
@@ -670,12 +684,12 @@ select id from resources where preparerclass="NCBIImportPreparer" and rdatadatea
 ## test -- should show current devel -- use the two values above for between
 select * from biocversions where resource_id between 95973 and 97713;
 ```
-In a separate R terminal you can quickly concat the call to add all versions at once 
+In a separate R terminal you can quickly concat the call to add all versions at once
 replacing 3.15 with whatever the next devel is and the low/high of the resource ids:
 ```
 paste0("(3.15,",95973:97713, ")", collapse=",")
 ```
-paste that into sqlite call 
+paste that into sqlite call
 
 ```
 insert into biocversions (biocversion, resource_id) Values [R output] ;
@@ -766,7 +780,7 @@ the name. Example `test_db1`. Connect to the container with
 with mysql commands like `select * from resources order by id desc limit 5;`
 
 6. Convert db to sqlite (puts the file in the data/ directory)
-Which command to run to convert the db to sqlite will depend on the name of the 
+Which command to run to convert the db to sqlite will depend on the name of the
 process, but it should be one of following:
 ```
 sudo docker exec experimenthubdocker_experimenthub_1 bash /bin/backup_db.sh

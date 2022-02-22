@@ -1,7 +1,7 @@
 ################################################################################
 ## Tests to just see if we can run all of our recipes
 
-ahroot <- getwd()
+ahroot <- file.path(getwd(),"Temp")
 BiocVersion <- as.character(BiocManager::version())
 
 ## No longer used:
