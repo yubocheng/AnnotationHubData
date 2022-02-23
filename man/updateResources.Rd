@@ -19,7 +19,7 @@ updateResources(AnnotationHubRoot, BiocVersion = BiocManager::version(),
                 metadataOnly = TRUE, insert = FALSE,
                 justRunUnitTest = FALSE, ...)
 
-pushResources(allAhms, uploadToS3 = TRUE, download = TRUE)
+pushResources(allAhms, uploadToRemote = TRUE, download = TRUE)
 
 pushMetadata(allAhms, url)
 }
@@ -58,9 +58,9 @@ pushMetadata(allAhms, url)
 
     When \code{insert = TRUE}, the "AH_SERVER_POST_URL" global option must
     be set to the http location of the AnnotationHubServer in the global
-    environment or .Rprofile. Additionally, AWS command line tools
-    must be installed on the local machine to push files to S3 buckets.
-    See https://aws.amazon.com/cli/ for installation instructions.
+    environment or .Rprofile. Additionally, azcopy command line tools
+    must be installed on the local machine to push files to Azure buckets.
+    See \link{upload_to_azure}.
   }
   \item{justRunUnitTest}{
     A \code{logical}. When TRUE, a small number of records (usually 5) are
@@ -72,9 +72,9 @@ pushMetadata(allAhms, url)
   \item{url}{
     URL of AnnotationHub database where metadata will be inserted.
   }
-  \item{uploadToS3}{
+  \item{uploadToRemote}{
     A \code{logical} indicating whether resources should be uploaded
-    to the AWS S3 bucket.
+    to remote bioconductor default location. Currently Azure Data Lakes.
   }
   \item{download}{
     A \code{logical} indicating whether resources should be downloaded from
@@ -103,11 +103,6 @@ pushMetadata(allAhms, url)
 
       \item global options:
 
-            Several recipes look at the "AnnotationHub_Use_Disk" option
-            to determine if the file is written to S3. This is legacy behavior
-            and not clearly documented. If the recipe being run respects this
-            option it must be set before running \code{updateResources},
-
             When \code{insert = TRUE} the "AH_SERVER_POST_URL" option must be
             set to the https location of the AnnotationHub db.
   }
@@ -122,6 +117,7 @@ pushMetadata(allAhms, url)
 \seealso{
   \itemize{
     \item \link{AnnotationHubMetadata}
+    \item \link{upload_to_azure}
   }
 }
 
@@ -193,7 +189,7 @@ meta <- updateResources("local/path",
 ## but can be used solo for testing or completing a run that
 ## terminated unexpectedly.
 
-## Download, process and push to S3 the last 2 files in 'meta':
+## Download, process and push to azure the last 2 files in 'meta':
 sub <- meta[length(meta) - 1:length(meta)]
 pushResources(sub)
 

@@ -1,6 +1,11 @@
 CHANGES IN VERSION 1.25.0
 ------------------------
 
+SIGNIFICANT UPDATES
+
+    o 1.25.6 Update recipes to upload to azure. TwoBit ensembl and release
+    recipes for standard TxDb and OrgDb updated
+
 NEW FEATURES
 
     o 1.25.5 Add helper function to upload to azure
