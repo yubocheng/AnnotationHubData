@@ -126,7 +126,7 @@ meta <- updateResources("TwoBit",BiocVersion="3.11",
 save(meta, file="TwoBitObj.RData")
 ```
 
-4. Check S3 bucket is being populated.
+4. Check Azure bucket is being populated.
 
 5. Once finished cross check that everything populated correctly. You can check
 if any failed and needs to be rerun with the following.
@@ -563,29 +563,20 @@ delete from biocversions where id between 298567 and 298585;
 ```
 
 
+1. Generate or have someone generate a SAS token/url on microsoft azure data
+lakes for the staging bucket. General recommendations is expire the SAS after
+two weeks. The scripts potentially need both the token and the url
 
-On AWS:
+2. export the SAS URL as an environment variable `AZURE_SAS_URL` with something
+like the following. Also export sas token with `AZURE_SAS_TOKEN`
 
-Create S3 bucket: annotationhub/ncbi/uniprot/<BiocVersion>
-
-On EC2 Instance:
-
-The files will be downloaded, converted and pushed to S3 bucket. This should
-be done on the EC2 instance val_annotations. If it is not running, start the EC2
-instance on AWS and log as user ubuntu.
-
-Because this can take awhile, it is recommended to use the screen application.
-Some usefule screen calls:
 ```
-- start screen by typing 'screen'
-- cd to directory you want to be in, start the process or code you want to run
-- exit the screen session with 'ctl-a' 'd'
-- list screen sessions with 'screen -ls'
-- reconnect to a specific session (e.g., XYZ) with 'screen -r XYZ'
+export AZURE_SAS_URL='https://bioconductorhubs.blob.core.windows.net/staginghub?sp=racwl&st=2022-02-08T15:57:00Z&se=2022-02-22T23:57:00Z&spr=https&sv=2020-08-04&sr=c&sig=fBtPzgrw1Akzlz%2Fwkne%2BQrxOKOdCzP1%2Fk5S%2FHk1LguE%3D'
+
+export AZURE_SAS_TOKEN='sp=racwl&st=2022-02-08T15:57:00Z&se=2022-02-22T23:57:00Z&spr=https&sv=2020-08-04&sr=c&sig=fBtPzgrw1Akzlz%2Fwkne%2BQrxOKOdCzP1%2Fk5S%2FHk1LguE%3D'
+
 ```
 
-1. Start screen
-2. Navigate to directory to run code
 3. In R:
 
 ```
@@ -593,33 +584,50 @@ library(AnnotationHubData)
 
 # see the man page for clarification on testing and actively pushing
 # ?makeNCBIToOrgDbsToAHM
-# to populate S3 bucket need metadataOnly = FALSE
-# metadataOnly will control population of S3 bucket
+# to populate bucket need metadataOnly = FALSE
+# metadataOnly will control upload
 # insert controls inserting into database
-meta <- updateResources(getwd(),
+
+## This can be run in a directory where the example in
+## ?AnnotationForge::makeOrgPackageFromNCBI to save time building cache
+## if cache was recently generated.  You will need ~62 G of space to run the
+## code
+
+## if rebuilding the cache you will likely need to increase the default timeout
+##   limit of R
+
+options(timeout=10000)
+
+meta <- updateResources("NonStandardOrgDb",
 			BiocVersion = "3.5",
 			preparerClasses = "NCBIImportPreparer",
 			metadataOnly = TRUE, insert = FALSE,
 			justRunUnitTest = FALSE)
 
-# a suggested step is to save(meta, file="metadataForTwoBit")
+# a suggested step is to save(meta, file="metadataForNonStandardOrgs")
 # and scp to local machine you will need to have run it with
 # metadataOnly=TRUE to get correct form of saved object
 ```
 
-4. Check S3 bucket is being populated.
-5. Once finished close everything and stop EC2 instance
+4. Check Azure bucket is being populated.
+5. Once finished check that everything populated correctly with
+`needToRerunNonStandardOrgDb`. 
 
+```
+needToRerunNonStandardOrgDb(biocVersion="3.5", resourceDir="NonStandardOrgDb", justRunUnitTest = TRUE)
+```
 
 **Note:**
 We have had issues in the past with the recipe completing for all
 desired resources. The receipe, when repeatedly run, will check the
-appropriate S3 bucket to compare what resources still need to be
+appropriate bucket to compare what resources still need to be
 processed.  The helper function `needToRerunNonStandardOrgDb` can
 be run to determine if a repeat call should be made. This is important
-because if all the resources are on aws and metadataOnly=FALSE, it will
+because if all the resources are on azure and metadataOnly=FALSE, it will
 assume you want to overwrite all the files and begin the generation
 over.
+
+
 
 On Local Machine:
 
@@ -641,7 +649,7 @@ url <- getOption("AH_SERVER_POST_URL")
 library(AnnotationHubData)
 
 # option 1:
-meta <- updateResources(getwd(),
+meta <- updateResources("NonStandardOrgDb,
 			BiocVersion = "3.5",
 			preparerClasses = "NCBIImportPreparer",
 			metadataOnly = TRUE, insert = FALSE,
@@ -650,7 +658,7 @@ meta <- updateResources(getwd(),
 
 # option 2:
 # if you saved the meta from the EC2 instance
-load("metadataForTwoBit")
+load("metadataForNonStandardOrgs")
 
 
 pushMetadata(meta, url)
