@@ -14,7 +14,8 @@
 
 ## The 'standard' OrgDbs are generated with makeStandardOrgDbsToSqlite.R.
 
-.NCBIMetadataFromUrl <- function(baseUrl, justRunUnitTest, biocVersion) {
+.NCBIMetadataFromUrl <- function(baseUrl, justRunUnitTest, biocVersion, currentMetadata) {
+
     load(system.file('extdata','viableIDs.rda', package='AnnotationForge'))
     ids <- results
 
@@ -61,20 +62,32 @@
     sourceUrl <- rep(list(sourceUrls), length(fullSpecies))
 
     tryCatch({
-        aws <- system2("aws",
-                       args=paste0("s3 ls s3://annotationhub/ncbi/uniprot/",
-                           biocVersion," --recursive"), stdout=TRUE, stderr=TRUE)
+        if (!requireNamespace("AzureStor", quietly = TRUE)){
+            message("AzureStor not installed.\n  Regenerating all files")
+            azurefiles <- character(0)
+        }else{
+            sas = Sys.getenv("AZURE_SAS_TOKEN", NA_character_)
+            if(is.na(sas)){
+                message("AZURE_SAS_TOKEN environment variable is not set.\n  Regenerating all files.")
+                azurefiles <- character(0)
+            }else{
+                ep <- AzureStor::storage_endpoint(endpoint="https://bioconductorhubs.blob.core.windows.net",
+                                                  sas=sas)
+                ## assumes upload to staginghub
+                container <- AzureStor::storage_container(ep, "staginghub")
+                azurefiles <- AzureStor::list_storage_files(container,
+                                         basename(currentMetadata$AnnotationHubRoot))[,"name"]
+                azurefiles <- unlist(lapply(azurefiles, FUN=basename))
+            }
+        }
     }, error=function(e){
-        aws <- character(0)
+        azurefiles <- character(0)
     }, finally={
-        if (!exists("aws"))  aws <- character(0)
-        aws <- gsub("\\s+", " ", stringr::str_trim(aws))
-        aws <- aws[-1]
+        if (!exists("azurefiles"))  azurefiles <- character(0)
     })
 
-    if (length(aws) != 0){
-        s3titles <- sapply(strsplit(sapply(strsplit(aws, " "),"[[", 4), "/"),"[[",4)
-        subset <- !(title %in% s3titles)
+    if (length(azurefiles) != 0){
+        subset <- !(title %in% azurefiles)
         if(any(subset)){
             lst <- lapply(list(title=title, species = oriSpecies,
                                taxonomyId = taxonomyId, genome = genome, sourceUrl=sourceUrl,
@@ -94,11 +107,86 @@
                     sourceVersion = sourceVersion,
                     description=description, rDataPath=rDataPath)
     }
-
     lst
 }
 
+
 needToRerunNonStandardOrgDb <- function(biocVersion =  BiocManager::version(),
+                                        baseUrl = "ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/",
+                                        resourceDir=".", justRunUnitTest=FALSE){
+    load(system.file('extdata','viableIDs.rda', package='AnnotationForge'))
+    ids <- results
+
+    if (justRunUnitTest) ids <- head(ids)
+    ## FIXME: need different solution; this subset produces NAs
+    if (length(biocVersion) > 1) {
+        stop(paste("'biocVersion' must be a single value. Make sure new",
+                   "'OrgDbs' go into the CORRECT Bioconductor version!"))
+    }
+    ## Marc's note:
+    ## need to find an alternative to this... old school table of tax Ids
+    if (!exists("specData")) {
+    load(system.file("data", "specData.rda", package = "GenomeInfoDbData"))
+    }
+    sd <- specData[!is.na(specData[[3]]),]
+    ## need to find offenders
+    lookup <- function(id){
+        message(paste0("looking up value for: ", id))
+        GenomeInfoDb:::lookup_organism_by_tax_id(id, all=TRUE)
+    }
+    ## Some taxonomy IDs cannot be looked up at all - so discard
+    ids <- as.numeric(ids[ids %in% sd$tax_id])
+    res <- lapply(ids,lookup)
+    taxonomyId <-
+        as.integer(as.character(unlist(lapply(res, function(x){x$tax_id}))))
+    genus <- unlist(lapply(res, function(x){x$genus}))
+    species <- unlist(lapply(res, function(x){x$species}))
+    genus <- gsub(" ", "_", genus)
+    genus <- gsub("/", "|", genus)
+    species <- gsub(" ", "_", species)
+    species <- gsub("/", "|", species)
+
+    oriSpecies <- paste(genus, species)
+    fullSpecies <- gsub(" ", "_", oriSpecies)
+
+    title <- paste0("org.", fullSpecies, ".eg", ".sqlite")
+
+    tryCatch({
+        if (!requireNamespace("AzureStor", quietly = TRUE)){
+            message("AzureStor not installed.\n  Cannot determine.")
+            azurefiles <- character(0)
+        }else{
+            sas = Sys.getenv("AZURE_SAS_TOKEN", NA_character_)
+            if(is.na(sas)){
+                message("AZURE_SAS_TOKEN environment variable is not set.\n  Cannot determine.")
+                azurefiles <- character(0)
+            }else{
+                ep <- AzureStor::storage_endpoint(endpoint="https://bioconductorhubs.blob.core.windows.net",
+                                                  sas=sas)
+                ## assumes upload to staginghub
+                container <- AzureStor::storage_container(ep, "staginghub")
+                azurefiles <- AzureStor::list_storage_files(container, resourceDir)[,"name"]
+                azurefiles <- unlist(lapply(azurefiles, FUN=basename))
+            }
+        }
+    }, error=function(e){
+        azurefiles <- character(0)
+    }, finally={
+        if (!exists("azurefiles"))  azurefiles <- character(0)
+    })
+
+    if (length(azurefiles)){
+        subset <- !(title %in% azurefiles)
+        res <- any(subset)
+    }else{
+        res <- TRUE
+    }
+    res
+}
+
+
+
+oldAWSS3_needToRerunNonStandardOrgDb <- function(biocVersion =  BiocManager::version(),
                                         baseUrl =
                                         "ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/"){
     load(system.file('extdata','viableIDs.rda', package='AnnotationForge'))
@@ -166,7 +254,8 @@ makeNCBIToOrgDbsToAHM <-
              BiocVersion =  BiocManager::version(),
              baseUrl = "ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/") {
     meta <- .NCBIMetadataFromUrl(baseUrl, justRunUnitTest,
-                                 biocVersion=BiocVersion[[1]])
+                                 biocVersion=BiocVersion[[1]],
+                                 currentMetadata)
 
     message("Processing ", length(meta[[1]]), " files.")
 
@@ -201,15 +290,15 @@ NCBIToOrgDbs <- function(ahm){
     dbname <- makeOrgPackageFromNCBI(version="1.0.0",
                                      maintainer=ahm@Maintainer,
                                      author=ahm@Maintainer,
-                                     outputDir=ahm@HubRoot,
+                                     outputDir=dirname(ahm@HubRoot),
                                      tax_id=as.character(ahm@TaxonomyId),
                                      genus=genus,
                                      species=species,
-                                     NCBIFilesDir=ahm@HubRoot,
+                                     NCBIFilesDir=dirname(ahm@HubRoot),
                                      databaseOnly=TRUE,
                                      rebuildCache=TRUE)
-    file.rename(from=file.path(ahm@HubRoot, dbname), to=outputFile(ahm))
-    outputFile(ahm)
+    file.rename(from=file.path(dirname(ahm@HubRoot), dbname), to=file.path(ahm@HubRoot, ahm@RDataPath))
+    file.path(ahm@HubRoot, ahm@RDataPath)
 }
 
 ## STEP 3: Call the helper to set up the newResources() method
