@@ -146,7 +146,7 @@ setClass("AnnotationHubMetadata",
     RDataPath <- strsplit(RDataPath, split=":")
 
     if(all(
-        (meta$Location_Prefix == 'https://bioconductorhubs.blob.core.windows.net/annotationhub/') ||
+        (meta$Location_Prefix == 'https://bioconductorhubs.blob.core.windows.net/annotationhub/') |
         (meta$Location_Prefix == 'https://bioconductorhubs.blob.core.windows.net/experimenthub/'))
        ){
         description <- read.dcf(file.path(pathToPackage, "DESCRIPTION"))
