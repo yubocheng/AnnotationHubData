@@ -6,6 +6,7 @@ getSpeciesList <- function(verbose=FALSE){
     txdb <- GenomeInfoDb::loadTaxonomyDb()
     txdb <- rbind(txdb, c(NA, NA, ""))
     species <- trimws(paste(txdb$genus, txdb$species))
+    species
 }
 
 validSpecies <- function(species, verbose=TRUE){
