@@ -60,7 +60,17 @@ library(AnnotationHubData)
 # after 1-3 attempts. Altnerative is to temporarily increase the wait time
 # in the ftpFileInfo function in webAccessFunctions.R
 #  In the future maybe consider adding in conditional userpwd argumnet to getURL
-
+#
+#  FIX ME: 
+# More troubling in recent builds is there is not a consistent mapping name from 
+#  the ensembl repository (species) to the species in the species file 
+#  https://ftp.ensembl.org/pub/release-108/species_EnsemblVertebrates.txt
+#  This results in an error
+#  Hot fix:  for now a browser() call can be added in makeEnsemblGtfToGranges.R
+#    in makeEnsemblGtfToAHM before running meta <- .ensemblMetadataFromUrl(sourceUrls)
+#     when you hit this browser, manually subset values to remove bad entry
+#    Ideally we want to come up with a better mapping strategy so these could be included
+#   
 
 meta <- updateResources("EnsemblGTFtoGranges",
 			  BiocVersion = "3.6",
