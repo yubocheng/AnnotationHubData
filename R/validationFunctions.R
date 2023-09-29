@@ -61,7 +61,7 @@ getValidSourceTypes <- function(){
                              "JSON", "MTX", "mtx.gz", "MySQL", "mzid", "mzML", "mzTab",
                              "mzXML", "Multiple", "NCBI/blast2GO", "NCBI/ensembl",
                              "NCBI/UniProt", "PNG", "RDA", "RData", "RDS", "Simulated", "tab",
-                             "tar.gz", "TSV", "TwoBit", "TXT", "UCSC track",
+                             "tar.gz", "TIFF", "TSV", "TwoBit", "TXT", "UCSC track",
                              "VCF", "XLS/XLSX", "XML", "Zip")
 
     expectedSourceTypes
