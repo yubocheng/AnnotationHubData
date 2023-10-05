@@ -58,7 +58,7 @@ downloadResource <- function(ahm, downloadIfExists) {
     destfile <- file.path(destdir, filename)
 
     ## file exists
-    if (file.exists(destfile) && (!downloadIfExists)) {
+    if (any(file.exists(destfile)) && (!downloadIfExists)) {
         flog(INFO, "%s exists, skipping...", destfile)
         return()
     }
