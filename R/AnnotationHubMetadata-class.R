@@ -349,6 +349,15 @@ makeAnnotationHubMetadata <- function(pathToPackage, fileName=character())
                 }
             }
 
+            ## check for Licenses in metadata
+            if (length(meta$Licenses)){
+                if(!validLicenses(meta$Licenses, verbose=TRUE)){
+                    stop("Found one or more invalid licenses")
+                } else {
+                    .licenses <- strsplit(meta$Licenses, ":")
+                }
+            }
+
             .RDataPaths <- meta$RDataPath
 
             lapply(seq_len(nrow(meta)), function(x) {
@@ -363,6 +372,7 @@ makeAnnotationHubMetadata <- function(pathToPackage, fileName=character())
                     DataProvider=DataProvider,
                     Maintainer=Maintainer,
                     RDataClass=RDataClass, Tags=.tags[[x]],
+                    Licenses=.licenses[[x]],
                     RDataDateAdded=RDataDateAdded,
                     RDataPath=.RDataPaths[[x]],
                     Recipe=NA_character_,
@@ -381,7 +391,7 @@ AnnotationHubMetadata <-
         SourceLastModifiedDate= as.POSIXct(NA_character_),
         SourceMd5=NA_character_, SourceSize=NA_real_,
         DataProvider, Title, Description,
-        Species, TaxonomyId, Genome, Tags, Recipe,
+        Species, TaxonomyId, Genome, Tags, Licenses, Recipe,
         RDataClass, RDataDateAdded, RDataPath,
         Maintainer, ..., BiocVersion=BiocManager::version(),
         Coordinate_1_based = TRUE, Notes=NA_character_, DispatchClass,
@@ -451,6 +461,7 @@ AnnotationHubMetadata <-
         SourceType=SourceType,
         Species=Species,
         Tags=Tags,
+        Licenses=Licenses,
         TaxonomyId=TaxonomyId,
         Title=Title,
         Location_Prefix=Location_Prefix,

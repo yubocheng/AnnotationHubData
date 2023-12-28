@@ -25,6 +25,32 @@ validSpecies <- function(species, verbose=TRUE){
     all(res)
 }
 
+getLicensesList <- function(verbose=FALSE){
+    if (verbose) message("Loading valid licenses information.")
+    ah <- AnnotationHub()
+    conn <- dbConnect(RSQLite::SQLite(), dbname = ah@.db_path)
+    licenses <- dbGetQuery(conn, "SELECT DISTINCT SSS FROM licenses")
+    licenses <- trimws(licenses$SSS)
+    licenses
+}
+
+validLicenses <- function(licenses, verbose=TRUE){
+    licensesList <- getLicensesList(verbose=verbose)
+    licenses <- strsplit(licenses, ":")
+    res <- setdiff(licenses, licensesList)
+    if (any(is.na(licenses)))
+        res[is.na(licenses)] = TRUE
+    if (any(!res) & verbose){
+        message("Found invalid licenses.\n")
+        print(res)
+        message("\nFor complete list of acceptable licenses run\n",
+                "    'getLicensesList()'\n",
+                "For suggestions try\n",
+                "    'getLicensesList()'\n")
+    }
+    all(res)
+}
+
 suggestSpecies <- function(query, verbose=FALSE, op=c("|", "&")){
     op = match.arg(op)
     if (!requireNamespace("GenomeInfoDbData", quietly = TRUE))
